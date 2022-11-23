@@ -21,3 +21,9 @@ has a lot of advantages over the kind of top-down evaluation used in Prolog-styl
 * Better cache locality because of the use of table data structures
 * You effectively do common-subexpression elimination by tabling all the data
 * Tables that don't depend on one another can be computed in parallel (not yet implemented)
+* Mode analysis of variables can always be statically determined
+
+Stuff to do:
+* Implement recursion
+* Implement parallel evaluation
+* Implement indexing (this is probablym most important)
