@@ -16,10 +16,16 @@ namespace TED
         /// <summary>
         /// Make a new predicate
         /// </summary>
-        protected TablePredicate(string name) : base(name)
+        protected TablePredicate(string name, string[] columnHeadings) : base(name)
         {
             AllTablePredicates.Add(this);
+            ColumnHeadings = columnHeadings;
         }
+
+        /// <summary>
+        /// Human-readable descriptions of columns
+        /// </summary>
+        public readonly string[] ColumnHeadings;
         
         /// <summary>
         /// Rules that can be used to prove goals involving this predicate
@@ -104,7 +110,7 @@ namespace TED
         /// </summary>
         public TableGoal<T1> this[Term<T1> arg1] => new TableGoal<T1>(this, arg1);
 
-        public TablePredicate(string name) : base(name)
+        public TablePredicate(string name, string col1 = "col1") : base(name, new []{ col1 })
         {
         }
 
@@ -145,6 +151,21 @@ namespace TED
         /// This allocates memory; do not use in inner lops
         /// </summary>
         public IEnumerable<T1> Rows => Table.Rows;
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="name">Predicate name</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1> FromCsv(string name, string path)
+        {
+            var (header, data) = CsvReader.ReadCsv(path);
+            var p = new TablePredicate<T1>(name, header[0]);
+            foreach (var row in data)
+                p.AddRow(CsvReader.ConvertCell<T1>(row[0]));
+            return p;
+        }
     }
 
     /// <summary>
@@ -159,7 +180,8 @@ namespace TED
         /// </summary>
         public TableGoal<T1, T2> this[Term<T1> arg1, Term<T2> arg2] => new TableGoal<T1, T2>(this, arg1, arg2);
 
-        public TablePredicate(string name) : base(name)
+        public TablePredicate(string name, string col1 = "col1", string col2 = "col2") 
+            : base(name, new []{ col1, col2 })
         {
         }
 
@@ -199,6 +221,21 @@ namespace TED
         /// This allocates memory; do not use in inner lops
         /// </summary>
         public IEnumerable<(T1,T2)> Rows => Table.Rows;
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="name">Predicate name</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2> FromCsv(string name, string path)
+        {
+            var (header, data) = CsvReader.ReadCsv(path);
+            var p = new TablePredicate<T1, T2>(name, header[0], header[1]);
+            foreach (var row in data)
+                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]));
+            return p;
+        }
     }
 
     /// <summary>
@@ -214,7 +251,8 @@ namespace TED
         /// </summary>
         public TableGoal<T1, T2, T3> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] => new TableGoal<T1, T2, T3>(this, arg1, arg2,arg3);
 
-        public TablePredicate(string name) : base(name)
+        public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3")
+            : base(name, new []{ col1, col2, col3 })
         {
         }
 
@@ -254,6 +292,21 @@ namespace TED
         /// This allocates memory; do not use in inner lops
         /// </summary>
         public IEnumerable<(T1,T2, T3)> Rows => Table.Rows;
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="name">Predicate name</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3> FromCsv(string name, string path)
+        {
+            var (header, data) = CsvReader.ReadCsv(path);
+            var p = new TablePredicate<T1, T2, T3>(name, header[0], header[1], header[2]);
+            foreach (var row in data)
+                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]), CsvReader.ConvertCell<T3>(row[2]));
+            return p;
+        }
     }
 
     /// <summary>
@@ -271,7 +324,8 @@ namespace TED
         public TableGoal<T1, T2, T3, T4> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4] 
             => new TableGoal<T1, T2, T3, T4>(this, arg1, arg2,arg3, arg4);
 
-        public TablePredicate(string name) : base(name)
+        public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
+            string col4 = "col4") : base(name, new []{ col1, col2, col3, col4 })
         {
         }
 
@@ -312,6 +366,21 @@ namespace TED
         /// This allocates memory; do not use in inner lops
         /// </summary>
         public IEnumerable<(T1,T2, T3, T4)> Rows => Table.Rows;
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="name">Predicate name</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3, T4> FromCsv(string name, string path)
+        {
+            var (header, data) = CsvReader.ReadCsv(path);
+            var p = new TablePredicate<T1, T2, T3, T4>(name, header[0], header[1], header[2], header[3]);
+            foreach (var row in data)
+                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]), CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]));
+            return p;
+        }
     }
 
     /// <summary>
@@ -330,7 +399,8 @@ namespace TED
         public TableGoal<T1, T2, T3, T4, T5> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5] 
             => new TableGoal<T1, T2, T3, T4, T5>(this, arg1, arg2,arg3, arg4, arg5);
 
-        public TablePredicate(string name) : base(name)
+        public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
+            string col4 = "col4", string col5 = "col5") : base(name, new []{ col1, col2, col3, col4, col5 })
         {
         }
 
@@ -372,6 +442,22 @@ namespace TED
         /// This allocates memory; do not use in inner lops
         /// </summary>
         public IEnumerable<(T1,T2, T3, T4, T5)> Rows => Table.Rows;
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="name">Predicate name</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string name, string path)
+        {
+            var (header, data) = CsvReader.ReadCsv(path);
+            var p = new TablePredicate<T1, T2, T3, T4, T5>(name, header[0], header[1], header[2], header[3], header[4]);
+            foreach (var row in data)
+                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
+                    CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]));
+            return p;
+        }
     }
 
     /// <summary>
@@ -391,7 +477,9 @@ namespace TED
         public TableGoal<T1, T2, T3, T4, T5, T6> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6] 
             => new TableGoal<T1, T2, T3, T4, T5, T6>(this, arg1, arg2,arg3, arg4, arg5, arg6);
 
-        public TablePredicate(string name) : base(name)
+        public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
+            string col4 = "col4", string col5 = "col5", string col6 = "col6")
+            : base(name, new []{ col1, col2, col3, col4, col5, col6 })
         {
         }
 
@@ -431,5 +519,22 @@ namespace TED
         /// This allocates memory; do not use in inner lops
         /// </summary>
         public IEnumerable<(T1,T2, T3, T4, T5, T6)> Rows => Table.Rows;
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="name">Predicate name</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string name, string path)
+        {
+            var (header, data) = CsvReader.ReadCsv(path);
+            var p = new TablePredicate<T1, T2, T3, T4, T5, T6>(name, header[0], header[1], header[2], header[3], header[4], header[5]);
+            foreach (var row in data)
+                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
+                    CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]),
+                    CsvReader.ConvertCell<T6>(row[5]));
+            return p;
+        }
     }
 }

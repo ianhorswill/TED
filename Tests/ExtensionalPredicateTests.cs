@@ -83,5 +83,20 @@ namespace Tests
                 Assert.AreEqual((j,j), hits[j]);
             }
         }
+
+        [TestMethod]
+        public void CsvReaderTest()
+        {
+            var t = TablePredicate<string, int>.FromCsv("test", "../../../TestTable.csv");
+            Assert.AreEqual("test", t.Name);
+            Assert.AreEqual("Name", t.ColumnHeadings[0]);
+            Assert.AreEqual("Age", t.ColumnHeadings[1]);
+            var rows = t.Rows.ToArray();
+            Assert.AreEqual(4, rows.Length);
+            Assert.AreEqual("Fred", rows[0].Item1);
+            Assert.AreEqual(10, rows[0].Item2);
+            Assert.AreEqual("Elroy", rows[3].Item1);
+            Assert.AreEqual(9, rows[3].Item2);
+        }
     }
 }
