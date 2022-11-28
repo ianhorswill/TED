@@ -13,6 +13,11 @@ namespace TED
         public static readonly NotPrimitive Not = new NotPrimitive();
 
         /// <summary>
+        /// Prob(p) succeeds with a probability of p (p in the range [0,1])
+        /// </summary>
+        public static readonly PrimitiveTest<float> Prob = new PrimitiveTest<float>("Prob", Random.Roll);
+
+        /// <summary>
         /// Compares two integers
         /// </summary>
         public static readonly PrimitiveTest<int, int> IntegerLessThan = new PrimitiveTest<int, int>("<", (a, b) => a < b);
@@ -92,5 +97,11 @@ namespace TED
                 return FloatGreaterThanEqual[(Term<float>)a, (Term<float>)b];
             throw new ArgumentException($"< operator not defined for the type {typeof(T)}");
         }
+
+        public static AnyGoal RandomElement<T>(TablePredicate<T> predicate, Term<T> output) =>
+            RandomElementPrimitive<T>.Singleton[predicate, output];
+
+        public static AnyGoal PickRandomly<T>(Term<T> output, params T[] choices) =>
+            PickRandomlyPrimitive<T>.Singleton[output, choices];
     }
 }

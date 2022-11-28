@@ -34,6 +34,12 @@
         /// </summary>
         public void AddAllSolutions()
         {
+            if (Body.Length == 0)
+            {
+                WriteHead();
+                return;
+            }
+
             var subgoal = 0;
 
             foreach (var d in Dependencies)

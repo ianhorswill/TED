@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace TED
@@ -12,6 +13,7 @@ namespace TED
     /// - or "intensional predicates", where you specify rules for the computing the extension from
     /// - the extensions of other predicates
     /// </summary>
+    [DebuggerDisplay("{Name}")]
     public abstract class AnyPredicate
     {
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace TED
 {
@@ -11,7 +12,7 @@ namespace TED
         /// <summary>
         /// List of all the TablePredicates so we can find them all and update them
         /// </summary>
-        private static readonly List<TablePredicate> AllTablePredicates = new List<TablePredicate>();
+        public static readonly List<TablePredicate> AllTablePredicates = new List<TablePredicate>();
         
         /// <summary>
         /// Make a new predicate
@@ -97,6 +98,17 @@ namespace TED
             Rules.Add(r);
             MustRecompute = true;
         }
+
+        /// <summary>
+        /// Null-tolerant version of ToString.
+        /// </summary>
+        protected string Stringify<T>(in T value) => value == null ? "null" : value.ToString();
+
+        public virtual void RowToStrings(uint rowNumber, string[] buffer) {}
+
+        public abstract int Length { get; }
+
+        public delegate void Update<T>(ref T arg);
     }
 
     /// <summary>
@@ -124,6 +136,8 @@ namespace TED
                 return _table;
             }
         }
+
+        public override int Length => Table.Length;
 
         protected override void ClearTable() => _table.Clear();
 
@@ -166,6 +180,41 @@ namespace TED
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]));
             return p;
         }
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        public override void RowToStrings(uint rowNumber, string[] buffer)
+        {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = Stringify(r);
+        }
+
+        /// <summary>
+        /// Call method on every row of the table, passing it a reference so it can rewrite it as it likes
+        /// </summary>
+        /// <param name="u"></param>
+        public void UpdateRows(Update<T1> u)
+        {
+            for (var i = 0u; i < _table.Length; i++)
+                u(ref _table.PositionReference(i));
+        }
+
+        /// <summary>
+        /// Add rows of t to rows of this predicate
+        /// </summary>
+        public void Append(TablePredicate<T1> t)
+        {
+            for (var i = 0u; i < t._table.Length; i++)
+                AddRow(t._table.PositionReference(i));
+        }
     }
 
     /// <summary>
@@ -195,6 +244,8 @@ namespace TED
                 return _table;
             }
         }
+
+        public override int Length => Table.Length;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -236,6 +287,47 @@ namespace TED
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]));
             return p;
         }
+
+        
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        public override void RowToStrings(uint rowNumber, string[] buffer)
+        {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = Stringify(r.Item1);
+            buffer[1] = Stringify(r.Item2);
+        }
+        
+        /// <summary>
+        /// Call method on every row of the table, passing it a reference so it can rewrite it as it likes
+        /// </summary>
+        /// <param name="u"></param>
+        public void UpdateRows(Update<(T1, T2)> u)
+        {
+            for (var i = 0u; i < _table.Length; i++)
+                u(ref _table.PositionReference(i));
+        }
+
+        /// <summary>
+        /// Add rows of t to rows of this predicate
+        /// </summary>
+        public void Append(TablePredicate<T1, T2> t)
+        {
+            for (var i = 0u; i < t._table.Length; i++)
+            {
+                var row = t._table.PositionReference(i);
+                AddRow(row.Item1, row.Item2);
+            }
+        }
+
     }
 
     /// <summary>
@@ -266,6 +358,8 @@ namespace TED
                 return _table;
             }
         }
+
+        public override int Length => Table.Length;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -307,6 +401,47 @@ namespace TED
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]), CsvReader.ConvertCell<T3>(row[2]));
             return p;
         }
+
+        
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        public override void RowToStrings(uint rowNumber, string[] buffer)
+        {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = Stringify(r.Item1);
+            buffer[1] = Stringify(r.Item2);
+            buffer[2] = Stringify(r.Item3);
+        }
+
+        /// <summary>
+        /// Call method on every row of the table, passing it a reference so it can rewrite it as it likes
+        /// </summary>
+        /// <param name="u"></param>
+        public void UpdateRows(Update<(T1, T2, T3)> u)
+        {
+            for (var i = 0u; i < _table.Length; i++)
+                u(ref _table.PositionReference(i));
+        }
+
+        /// <summary>
+        /// Add rows of t to rows of this predicate
+        /// </summary>
+        public void Append(TablePredicate<T1, T2, T3> t)
+        {
+            for (var i = 0u; i < t._table.Length; i++)
+            {
+                var row = t._table.PositionReference(i);
+                AddRow(row.Item1, row.Item2, row.Item3);
+            }
+        }
     }
 
     /// <summary>
@@ -339,6 +474,8 @@ namespace TED
                 return _table;
             }
         }
+
+        public override int Length => Table.Length;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -381,6 +518,48 @@ namespace TED
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]), CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]));
             return p;
         }
+
+        
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3, T4> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        public override void RowToStrings(uint rowNumber, string[] buffer)
+        {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = Stringify(r.Item1);
+            buffer[1] = Stringify(r.Item2);
+            buffer[2] = Stringify(r.Item3);
+            buffer[3] = Stringify(r.Item4);
+        }
+
+        /// <summary>
+        /// Call method on every row of the table, passing it a reference so it can rewrite it as it likes
+        /// </summary>
+        /// <param name="u"></param>
+        public void UpdateRows(Update<(T1, T2, T3, T4)> u)
+        {
+            for (var i = 0u; i < _table.Length; i++)
+                u(ref _table.PositionReference(i));
+        }
+
+        /// <summary>
+        /// Add rows of t to rows of this predicate
+        /// </summary>
+        public void Append(TablePredicate<T1, T2, T3, T4> t)
+        {
+            for (var i = 0u; i < t._table.Length; i++)
+            {
+                var row = t._table.PositionReference(i);
+                AddRow(row.Item1, row.Item2, row.Item3, row.Item4);
+            }
+        }
     }
 
     /// <summary>
@@ -415,6 +594,8 @@ namespace TED
                 return _table;
             }
         }
+
+        public override int Length => Table.Length;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -458,6 +639,49 @@ namespace TED
                     CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]));
             return p;
         }
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        public override void RowToStrings(uint rowNumber, string[] buffer)
+        {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = Stringify(r.Item1);
+            buffer[1] = Stringify(r.Item2);
+            buffer[2] = Stringify(r.Item3);
+            buffer[3] = Stringify(r.Item4);
+            buffer[4] = Stringify(r.Item5);
+        }
+
+        /// <summary>
+        /// Call method on every row of the table, passing it a reference so it can rewrite it as it likes
+        /// </summary>
+        /// <param name="u"></param>
+        public void UpdateRows(Update<(T1, T2, T3, T4, T5)> u)
+        {
+            for (var i = 0u; i < _table.Length; i++)
+                u(ref _table.PositionReference(i));
+        }
+
+        /// <summary>
+        /// Add rows of t to rows of this predicate
+        /// </summary>
+        public void Append(TablePredicate<T1, T2, T3, T4, T5> t)
+        {
+            for (var i = 0u; i < t._table.Length; i++)
+            {
+                var row = t._table.PositionReference(i);
+                AddRow(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5);
+            }
+        }
     }
 
     /// <summary>
@@ -493,6 +717,8 @@ namespace TED
                 return _table;
             }
         }
+
+        public override int Length => Table.Length;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -535,6 +761,50 @@ namespace TED
                     CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]),
                     CsvReader.ConvertCell<T6>(row[5]));
             return p;
+        }
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        public override void RowToStrings(uint rowNumber, string[] buffer)
+        {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = Stringify(r.Item1);
+            buffer[1] = Stringify(r.Item2);
+            buffer[2] = Stringify(r.Item3);
+            buffer[3] = Stringify(r.Item4);
+            buffer[4] = Stringify(r.Item5);
+            buffer[5] = Stringify(r.Item6);
+        }
+
+        /// <summary>
+        /// Call method on every row of the table, passing it a reference so it can rewrite it as it likes
+        /// </summary>
+        /// <param name="u"></param>
+        public void UpdateRows(Update<(T1, T2, T3, T4, T5, T6)> u)
+        {
+            for (var i = 0u; i < _table.Length; i++)
+                u(ref _table.PositionReference(i));
+        }
+
+        /// <summary>
+        /// Add rows of t to rows of this predicate
+        /// </summary>
+        public void Append(TablePredicate<T1, T2, T3, T4, T5, T6> t)
+        {
+            for (var i = 0u; i < t._table.Length; i++)
+            {
+                var row = t._table.PositionReference(i);
+                AddRow(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6);
+            }
         }
     }
 }
