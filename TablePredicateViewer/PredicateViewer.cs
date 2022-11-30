@@ -10,6 +10,13 @@ namespace TablePredicateViewer
         private bool isClosing;
         public bool SuppressUpdates;
 
+        public static void ShowPredicates(params TablePredicate[] predicates)
+        {
+            foreach (var p in predicates)
+                // Make sure it's in the table
+                Of(p);
+        }
+
         public static PredicateViewer Of(TablePredicate p)
         {
             if (!viewers.TryGetValue(p, out var viewer))

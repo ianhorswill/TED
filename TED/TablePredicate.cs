@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace TED
 {
@@ -17,17 +19,42 @@ namespace TED
         /// <summary>
         /// Make a new predicate
         /// </summary>
-        protected TablePredicate(string name, string[] columnHeadings) : base(name)
+        protected TablePredicate(string name, string[] columnHeadings, AnyTerm[]? defaultVars) : base(name)
         {
             AllTablePredicates.Add(this);
             ColumnHeadings = columnHeadings;
+            DefaultVariables = defaultVars;
         }
+
+        protected TablePredicate(string name, string[] columnHeadings) : this(name, columnHeadings, null)
+        { }
+
+        protected TablePredicate(string name, AnyTerm[] defaultVars)
+            : this(name, defaultVars.Select(t => t.ToString()).ToArray(), defaultVars)
+        { }
 
         /// <summary>
         /// Human-readable descriptions of columns
         /// </summary>
         public readonly string[] ColumnHeadings;
-        
+
+        /// <summary>
+        /// Default variables for use in TrueWhen()
+        /// </summary>
+        public readonly AnyTerm[]? DefaultVariables;
+
+        public AnyTableGoal this[AnyTerm[] args]
+        {
+            get
+            {
+                if (args.Length != ColumnHeadings.Length)
+                    throw new ArgumentException($"Wrong number of arguments to predicate {Name}");
+                return GetGoal(args);
+            }
+        }
+
+        public abstract AnyTableGoal GetGoal(AnyTerm[] args);
+
         /// <summary>
         /// Rules that can be used to prove goals involving this predicate
         /// </summary>
@@ -99,6 +126,14 @@ namespace TED
             MustRecompute = true;
         }
 
+        protected void AddRule(params AnyGoal[] body)
+        {
+            if (DefaultVariables == null)
+                throw new ArgumentException(
+                    $"Can't call TrueWhen on predicate {Name} that has no default variables specified");
+            this[DefaultVariables].If(body);
+        }
+
         /// <summary>
         /// Null-tolerant version of ToString.
         /// </summary>
@@ -109,6 +144,14 @@ namespace TED
         public abstract int Length { get; }
 
         public delegate void Update<T>(ref T arg);
+
+        internal abstract void AppendInputs();
+
+        public static void AppendAllInputs()
+        {
+            foreach (var p in AllTablePredicates)
+                p.AppendInputs();
+        }
     }
 
     /// <summary>
@@ -122,9 +165,23 @@ namespace TED
         /// </summary>
         public TableGoal<T1> this[Term<T1> arg1] => new TableGoal<T1>(this, arg1);
 
+        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0]];
+
+        /// <summary>
+        /// Make a new table predicate with the specified name and no default variables
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="col1">Name for the first argument</param>
         public TablePredicate(string name, string col1 = "col1") : base(name, new []{ col1 })
-        {
-        }
+        { }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        public TablePredicate(string name, Var<T1> arg1) : base(name, new AnyTerm[]{ arg1 })
+        { }
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<T1> _table = new Table<T1>();
@@ -215,6 +272,32 @@ namespace TED
             for (var i = 0u; i < t._table.Length; i++)
                 AddRow(t._table.PositionReference(i));
         }
+
+        /// <summary>
+        /// Add a rule using the default arguments as the head.
+        /// </summary>
+        /// <param name="body">subgoals</param>
+        /// <returns>the original predicate</returns>
+        public TablePredicate<T1> If(params AnyGoal[] body)
+        {
+            AddRule(body);
+            return this;
+        }
+
+        private List<TablePredicate<T1>>? inputs;
+
+        public TablePredicate<T1> Accumulates(TablePredicate<T1> input)
+        {
+            inputs ??= new List<TablePredicate<T1>>();
+            inputs.Add(input);
+            return this;
+        }
+
+        internal override void AppendInputs()
+        {
+            if (inputs != null)
+                foreach (var input in inputs) Append(input);
+        }
     }
 
     /// <summary>
@@ -229,10 +312,21 @@ namespace TED
         /// </summary>
         public TableGoal<T1, T2> this[Term<T1> arg1, Term<T2> arg2] => new TableGoal<T1, T2>(this, arg1, arg2);
 
+        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1]];
+
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2") 
             : base(name, new []{ col1, col2 })
         {
         }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        public TablePredicate(string name, Term<T1> arg1, Term<T2> arg2) : base(name, new AnyTerm[]{ arg1, arg2 })
+        { }
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2)> _table = new Table<(T1, T2)>();
@@ -328,6 +422,31 @@ namespace TED
             }
         }
 
+        /// <summary>
+        /// Add a rule using the default arguments as the head.
+        /// </summary>
+        /// <param name="body">subgoals</param>
+        /// <returns>the original predicate</returns>
+        public TablePredicate<T1, T2> If(params AnyGoal[] body)
+        {
+            AddRule(body);
+            return this;
+        }
+        
+        private List<TablePredicate<T1, T2>>? inputs;
+
+        public TablePredicate<T1, T2> Accumulates(TablePredicate<T1, T2> input)
+        {
+            inputs ??= new List<TablePredicate<T1, T2>>();
+            inputs.Add(input);
+            return this;
+        }
+
+        internal override void AppendInputs()
+        {
+            if (inputs != null)
+                foreach (var input in inputs) Append(input);
+        }
     }
 
     /// <summary>
@@ -343,11 +462,23 @@ namespace TED
         /// </summary>
         public TableGoal<T1, T2, T3> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] => new TableGoal<T1, T2, T3>(this, arg1, arg2,arg3);
 
+        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2]];
+
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3")
             : base(name, new []{ col1, col2, col3 })
         {
         }
 
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        public TablePredicate(string name, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3) : base(name, new AnyTerm[]{ arg1, arg2, arg3 })
+        { }
+        
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3)> _table = new Table<(T1, T2, T3)>();
 
@@ -442,6 +573,32 @@ namespace TED
                 AddRow(row.Item1, row.Item2, row.Item3);
             }
         }
+
+        /// <summary>
+        /// Add a rule using the default arguments as the head.
+        /// </summary>
+        /// <param name="body">subgoals</param>
+        /// <returns>the original predicate</returns>
+        public TablePredicate<T1, T2, T3> If(params AnyGoal[] body)
+        {
+            AddRule(body);
+            return this;
+        }
+
+        private List<TablePredicate<T1, T2, T3>>? inputs;
+
+        public TablePredicate<T1, T2, T3> Accumulates(TablePredicate<T1, T2, T3> input)
+        {
+            inputs ??= new List<TablePredicate<T1, T2, T3>>();
+            inputs.Add(input);
+            return this;
+        }
+
+        internal override void AppendInputs()
+        {
+            if (inputs != null)
+                foreach (var input in inputs) Append(input);
+        }
     }
 
     /// <summary>
@@ -459,11 +616,24 @@ namespace TED
         public TableGoal<T1, T2, T3, T4> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4] 
             => new TableGoal<T1, T2, T3, T4>(this, arg1, arg2,arg3, arg4);
 
+        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3]];
+
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
             string col4 = "col4") : base(name, new []{ col1, col2, col3, col4 })
         {
         }
 
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        /// <param name="arg4">Default variable for the fourth argument</param>
+        public TablePredicate(string name, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4) : base(name, new AnyTerm[]{ arg1, arg2, arg3, arg4 })
+        { }
+        
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3, T4)> _table = new Table<(T1, T2, T3, T4)>();
 
@@ -560,6 +730,32 @@ namespace TED
                 AddRow(row.Item1, row.Item2, row.Item3, row.Item4);
             }
         }
+
+        /// <summary>
+        /// Add a rule using the default arguments as the head.
+        /// </summary>
+        /// <param name="body">subgoals</param>
+        /// <returns>the original predicate</returns>
+        public TablePredicate<T1, T2, T3, T4> If(params AnyGoal[] body)
+        {
+            AddRule(body);
+            return this;
+        }
+
+        private List<TablePredicate<T1, T2, T3, T4>>? inputs;
+
+        public TablePredicate<T1, T2, T3, T4> Accumulates(TablePredicate<T1, T2, T3, T4> input)
+        {
+            inputs ??= new List<TablePredicate<T1, T2, T3, T4>>();
+            inputs.Add(input);
+            return this;
+        }
+
+        internal override void AppendInputs()
+        {
+            if (inputs != null)
+                foreach (var input in inputs) Append(input);
+        }
     }
 
     /// <summary>
@@ -578,12 +774,26 @@ namespace TED
         public TableGoal<T1, T2, T3, T4, T5> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5] 
             => new TableGoal<T1, T2, T3, T4, T5>(this, arg1, arg2,arg3, arg4, arg5);
 
+        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4]];
+
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
             string col4 = "col4", string col5 = "col5") : base(name, new []{ col1, col2, col3, col4, col5 })
         {
         }
 
-        
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        /// <param name="arg4">Default variable for the fourth argument</param>
+        /// <param name="arg5">Default variable for the fifth argument</param>
+        public TablePredicate(string name, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5) 
+            : base(name, new AnyTerm[]{ arg1, arg2, arg3, arg4, arg5 })
+        { }
+
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3, T4, T5)> _table = new Table<(T1, T2, T3, T4, T5)>();
 
@@ -682,6 +892,32 @@ namespace TED
                 AddRow(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5);
             }
         }
+
+        /// <summary>
+        /// Add a rule using the default arguments as the head.
+        /// </summary>
+        /// <param name="body">subgoals</param>
+        /// <returns>the original predicate</returns>
+        public TablePredicate<T1, T2, T3, T4, T5> If(params AnyGoal[] body)
+        {
+            AddRule(body);
+            return this;
+        }
+
+        private List<TablePredicate<T1, T2, T3, T4, T5>>? inputs;
+
+        public TablePredicate<T1, T2, T3, T4, T5> Accumulates(TablePredicate<T1, T2, T3, T4, T5> input)
+        {
+            inputs ??= new List<TablePredicate<T1, T2, T3, T4, T5>>();
+            inputs.Add(input);
+            return this;
+        }
+
+        internal override void AppendInputs()
+        {
+            if (inputs != null)
+                foreach (var input in inputs) Append(input);
+        }
     }
 
     /// <summary>
@@ -701,11 +937,27 @@ namespace TED
         public TableGoal<T1, T2, T3, T4, T5, T6> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6] 
             => new TableGoal<T1, T2, T3, T4, T5, T6>(this, arg1, arg2,arg3, arg4, arg5, arg6);
 
+        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4], (Term<T6>)args[5]];
+
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
             string col4 = "col4", string col5 = "col5", string col6 = "col6")
             : base(name, new []{ col1, col2, col3, col4, col5, col6 })
         {
         }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        /// <param name="arg4">Default variable for the fourth argument</param>
+        /// <param name="arg5">Default variable for the fifth argument</param>
+        /// <param name="arg6">Default variable for the sixth argument</param>
+        public TablePredicate(string name, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6) 
+            : base(name, new AnyTerm[]{ arg1, arg2, arg3, arg4, arg5, arg6 })
+        { }
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3, T4, T5, T6)> _table = new Table<(T1, T2, T3, T4, T5, T6)>();
@@ -805,6 +1057,32 @@ namespace TED
                 var row = t._table.PositionReference(i);
                 AddRow(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6);
             }
+        }
+
+        /// <summary>
+        /// Add a rule using the default arguments as the head.
+        /// </summary>
+        /// <param name="body">subgoals</param>
+        /// <returns>the original predicate</returns>
+        public TablePredicate<T1, T2, T3, T4, T5, T6> If(params AnyGoal[] body)
+        {
+            AddRule(body);
+            return this;
+        }
+
+        private List<TablePredicate<T1, T2, T3, T4, T5, T6>>? inputs;
+
+        public TablePredicate<T1, T2, T3, T4, T5, T6> Accumulates(TablePredicate<T1, T2, T3, T4, T5, T6> input)
+        {
+            inputs ??= new List<TablePredicate<T1, T2, T3, T4, T5, T6>>();
+            inputs.Add(input);
+            return this;
+        }
+
+        internal override void AppendInputs()
+        {
+            if (inputs != null)
+                foreach (var input in inputs) Append(input);
         }
     }
 }

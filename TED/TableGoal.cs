@@ -36,21 +36,13 @@ namespace TED
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public void If(params AnyGoal[] subgoals)
+        public override void If(params AnyGoal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
             TablePredicate.AddRule(new Rule<T1>((TablePredicate<T1>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
-
-        /// <summary>
-        /// Add a "fact" (rule with no subgoals) to the predicate
-        /// IMPORTANT: this is different from adding the data directly using AddRow!
-        /// A TablePredicate can either either rules (including facts) or you can add data manually
-        /// using AddRow, but not both.
-        /// </summary>
-        public void Fact() => If();
     }
 
     /// <summary>
@@ -90,20 +82,13 @@ namespace TED
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public void If(params AnyGoal[] subgoals)
+        public override void If(params AnyGoal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
             TablePredicate.AddRule(new Rule<T1, T2>((TablePredicate<T1, T2>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
-        /// <summary>
-        /// Add a "fact" (rule with no subgoals) to the predicate
-        /// IMPORTANT: this is different from adding the data directly using AddRow!
-        /// A TablePredicate can either either rules (including facts) or you can add data manually
-        /// using AddRow, but not both.
-        /// </summary>
-        public void Fact() => If();
     }
 
     /// <summary>
@@ -146,21 +131,13 @@ namespace TED
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public void If(params AnyGoal[] subgoals)
+        public override void If(params AnyGoal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
             TablePredicate.AddRule(new Rule<T1, T2, T3>((TablePredicate<T1, T2, T3>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
-
-        /// <summary>
-        /// Add a "fact" (rule with no subgoals) to the predicate
-        /// IMPORTANT: this is different from adding the data directly using AddRow!
-        /// A TablePredicate can either either rules (including facts) or you can add data manually
-        /// using AddRow, but not both.
-        /// </summary>
-        public void Fact() => If();
     }
 
     /// <summary>
@@ -207,21 +184,13 @@ namespace TED
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public void If(params AnyGoal[] subgoals)
+        public override void If(params AnyGoal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
             TablePredicate.AddRule(new Rule<T1, T2, T3, T4>((TablePredicate<T1, T2, T3, T4>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
-
-        /// <summary>
-        /// Add a "fact" (rule with no subgoals) to the predicate
-        /// IMPORTANT: this is different from adding the data directly using AddRow!
-        /// A TablePredicate can either either rules (including facts) or you can add data manually
-        /// using AddRow, but not both.
-        /// </summary>
-        public void Fact() => If();
     }
 
     /// <summary>
@@ -273,21 +242,13 @@ namespace TED
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public void If(params AnyGoal[] subgoals)
+        public override void If(params AnyGoal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
             TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5>((TablePredicate<T1, T2, T3, T4, T5>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
-
-        /// <summary>
-        /// Add a "fact" (rule with no subgoals) to the predicate
-        /// IMPORTANT: this is different from adding the data directly using AddRow!
-        /// A TablePredicate can either either rules (including facts) or you can add data manually
-        /// using AddRow, but not both.
-        /// </summary>
-        public void Fact() => If();
     }
 
     /// <summary>
@@ -342,20 +303,12 @@ namespace TED
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public void If(params AnyGoal[] subgoals)
+        public override void If(params AnyGoal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
             TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5, T6>((TablePredicate<T1, T2, T3, T4, T5, T6>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
-
-        /// <summary>
-        /// Add a "fact" (rule with no subgoals) to the predicate
-        /// IMPORTANT: this is different from adding the data directly using AddRow!
-        /// A TablePredicate can either either rules (including facts) or you can add data manually
-        /// using AddRow, but not both.
-        /// </summary>
-        public void Fact() => If();
     }
 }
