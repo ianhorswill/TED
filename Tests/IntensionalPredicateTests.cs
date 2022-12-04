@@ -49,5 +49,13 @@ namespace Tests
             Assert.AreEqual(4, hits[1]);
             Assert.AreEqual(6, hits[2]);
         }
+
+        [TestMethod, ExpectedException(typeof(InstantiationException))]
+        public void UninstantiatedRuleTest()
+        {
+            var n = (Var<int>)"n";
+            var p = new TablePredicate<int>("test", n);
+            p[n].Fact();
+        }
     }
 }

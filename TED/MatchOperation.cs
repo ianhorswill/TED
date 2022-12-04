@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 
 namespace TED
 {
@@ -12,6 +14,7 @@ namespace TED
     ///     - It's ignored
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [DebuggerDisplay("{debuggerDisplay}")]
     internal readonly struct MatchOperation<T>
     {
         enum Opcode
@@ -35,7 +38,7 @@ namespace TED
         /// <summary>
         /// Are we comparing to a known value?
         /// </summary>
-        public bool ReadMode => opcode == Opcode.Read || opcode == Opcode.Constant;
+        public bool IsInstantiated => opcode == Opcode.Read || opcode == Opcode.Constant;
 
         private MatchOperation(Opcode opcode, ValueCell<T> valueCell)
         {
@@ -111,5 +114,28 @@ namespace TED
                 }
             }
         }
+
+        public override string ToString()
+        {
+            switch (opcode)
+            {
+                case Opcode.Constant:
+                    return Value.ToString();
+
+                case Opcode.Ignore:
+                    return "_";
+
+                case Opcode.Read:
+                    return $"in {ValueCell.Name}";
+
+                case Opcode.Write:
+                    return $"out {ValueCell.Name}";
+
+                default:
+                    throw new InvalidDataException("Invalid opcode in MatchInstruction");
+            }
+        }
+
+        private string debuggerDisplay => ToString();
     }
 }

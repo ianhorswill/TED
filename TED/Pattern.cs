@@ -1,11 +1,14 @@
-﻿namespace TED
+﻿using System.Diagnostics;
+
+namespace TED
 {
     /// <summary>
     /// Describes how to match or write the value of the arguments in a Goal
     /// Compiled from the arguments to a Goal object
     /// </summary>
     /// <typeparam name="T1">Type of the goal's argument</typeparam>
-    internal readonly struct Pattern<T1>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    internal readonly struct Pattern<T1> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
 
@@ -22,6 +25,12 @@
         public T1 Value => arg1.Value;
 
         public bool Match(in T1 target) => arg1.Match(target);
+
+        public bool IsInstantiated => arg1.IsInstantiated;
+
+        public override string ToString() => $"[{arg1}]";
+
+        private string DebuggerDisplay => ToString();
     }
 
     /// <summary>
@@ -30,7 +39,8 @@
     /// </summary>
     /// <typeparam name="T1">Type of the goal's first argument</typeparam>
     /// <typeparam name="T2">Type of the goal's second argument</typeparam>
-    internal readonly struct Pattern<T1, T2>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    internal readonly struct Pattern<T1, T2> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -50,6 +60,12 @@
         public (T1, T2) Value => (arg1.Value, arg2.Value);
 
         public bool Match(in (T1,T2) target) => arg1.Match(target.Item1) && arg2.Match(target.Item2);
+
+        public bool IsInstantiated => arg1.IsInstantiated && arg2.IsInstantiated;
+
+        public override string ToString() => $"[{arg1},{arg2}]";
+
+        private string DebuggerDisplay => ToString();
     }
 
     /// <summary>
@@ -59,7 +75,8 @@
     /// <typeparam name="T1">Type of the goal's first argument</typeparam>
     /// <typeparam name="T2">Type of the goal's second argument</typeparam>
     /// <typeparam name="T3">Type of the goal's third argument</typeparam>
-    internal readonly struct Pattern<T1, T2, T3>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    internal readonly struct Pattern<T1, T2, T3> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -83,6 +100,12 @@
 
         public bool Match(in (T1, T2, T3) target)
             => arg1.Match(target.Item1) && arg2.Match(target.Item2) && arg3.Match(target.Item3);
+
+        public bool IsInstantiated => arg1.IsInstantiated && arg2.IsInstantiated && arg3.IsInstantiated;
+
+        public override string ToString() => $"[{arg1},{arg2},{arg3}]";
+
+        private string DebuggerDisplay => ToString();
     }
 
     /// <summary>
@@ -93,7 +116,8 @@
     /// <typeparam name="T2">Type of the goal's second argument</typeparam>
     /// <typeparam name="T3">Type of the goal's third argument</typeparam>
     /// <typeparam name="T4">Type of the goal's fourth argument</typeparam>
-    internal readonly struct Pattern<T1, T2, T3, T4>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    internal readonly struct Pattern<T1, T2, T3, T4> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -121,6 +145,13 @@
         public bool Match(in (T1, T2, T3, T4) target)
             => arg1.Match(target.Item1) && arg2.Match(target.Item2) && arg3.Match(target.Item3)
                && arg4.Match(target.Item4);
+
+        public bool IsInstantiated
+            => arg1.IsInstantiated && arg2.IsInstantiated && arg3.IsInstantiated && arg4.IsInstantiated;
+        
+        public override string ToString() => $"[{arg1},{arg2},{arg3},{arg4}]";
+
+        private string DebuggerDisplay => ToString();
     }
 
     /// <summary>
@@ -132,7 +163,8 @@
     /// <typeparam name="T3">Type of the goal's third argument</typeparam>
     /// <typeparam name="T4">Type of the goal's fourth argument</typeparam>
     /// <typeparam name="T5">Type of the goal's fifth argument</typeparam>
-    internal readonly struct Pattern<T1, T2, T3, T4, T5>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    internal readonly struct Pattern<T1, T2, T3, T4, T5> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -163,6 +195,14 @@
         public bool Match(in (T1, T2, T3, T4, T5) target)
             => arg1.Match(target.Item1) && arg2.Match(target.Item2) && arg3.Match(target.Item3)
                && arg4.Match(target.Item4) && arg5.Match(target.Item5);
+
+        public bool IsInstantiated
+            => arg1.IsInstantiated && arg2.IsInstantiated && arg3.IsInstantiated && arg4.IsInstantiated
+               && arg5.IsInstantiated;
+        
+        public override string ToString() => $"[{arg1},{arg2},{arg3},{arg4},{arg5}]";
+
+        private string DebuggerDisplay => ToString();
     }
 
     /// <summary>
@@ -175,7 +215,8 @@
     /// <typeparam name="T4">Type of the goal's fourth argument</typeparam>
     /// <typeparam name="T5">Type of the goal's fifth argument</typeparam>
     /// <typeparam name="T6">Type of the goal's sixth argument</typeparam>
-    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -210,9 +251,18 @@
         public bool Match(in (T1, T2, T3, T4, T5, T6) target)
             => arg1.Match(target.Item1) && arg2.Match(target.Item2) && arg3.Match(target.Item3)
                && arg4.Match(target.Item4) && arg5.Match(target.Item5) && arg6.Match(target.Item6);
+
+        public bool IsInstantiated
+            => arg1.IsInstantiated && arg2.IsInstantiated && arg3.IsInstantiated && arg4.IsInstantiated
+               && arg5.IsInstantiated && arg6.IsInstantiated;
+        
+        public override string ToString() => $"[{arg1},{arg2},{arg3},{arg4},{arg5},{arg6}]";
+
+        private string DebuggerDisplay => ToString();
     }
 
-    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -251,9 +301,18 @@
             => arg1.Match(target.Item1) && arg2.Match(target.Item2) && arg3.Match(target.Item3)
                && arg4.Match(target.Item4) && arg5.Match(target.Item5) && arg6.Match(target.Item6)
                && arg7.Match(target.Item7);
+
+        public bool IsInstantiated
+            => arg1.IsInstantiated && arg2.IsInstantiated && arg3.IsInstantiated && arg4.IsInstantiated
+               && arg5.IsInstantiated && arg6.IsInstantiated && arg7.IsInstantiated;
+        
+        public override string ToString() => $"[{arg1},{arg2},{arg3},{arg4},{arg5},{arg6},{arg7}]";
+
+        private string DebuggerDisplay => ToString();
     }
 
-    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -296,9 +355,18 @@
             => arg1.Match(target.Item1) && arg2.Match(target.Item2) && arg3.Match(target.Item3)
                && arg4.Match(target.Item4) && arg5.Match(target.Item5) && arg6.Match(target.Item6)
                && arg7.Match(target.Item7) && arg8.Match(target.Item8);
+
+        public bool IsInstantiated
+            => arg1.IsInstantiated && arg2.IsInstantiated && arg3.IsInstantiated && arg4.IsInstantiated
+               && arg5.IsInstantiated && arg6.IsInstantiated && arg7.IsInstantiated && arg8.IsInstantiated;
+        
+        public override string ToString() => $"[{arg1},{arg2},{arg3},{arg4},{arg5},{arg6},{arg7},{arg8}]";
+
+        private string DebuggerDisplay => ToString();
     }
 
-    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8, T9>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8, T9> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -344,9 +412,19 @@
             => arg1.Match(target.Item1) && arg2.Match(target.Item2) && arg3.Match(target.Item3)
                && arg4.Match(target.Item4) && arg5.Match(target.Item5) && arg6.Match(target.Item6)
                && arg7.Match(target.Item7) && arg8.Match(target.Item8) && arg9.Match(target.Item9);
+
+        public bool IsInstantiated
+            => arg1.IsInstantiated && arg2.IsInstantiated && arg3.IsInstantiated && arg4.IsInstantiated
+               && arg5.IsInstantiated && arg6.IsInstantiated && arg7.IsInstantiated
+               && arg8.IsInstantiated && arg9.IsInstantiated;
+        
+        public override string ToString() => $"[{arg1},{arg2},{arg3},{arg4},{arg5},{arg6},{arg7},{arg8},{arg9}]";
+
+        private string DebuggerDisplay => ToString();
     }
 
-    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -396,5 +474,14 @@
                && arg4.Match(target.Item4) && arg5.Match(target.Item5) && arg6.Match(target.Item6)
                && arg7.Match(target.Item7) && arg8.Match(target.Item8) && arg9.Match(target.Item9)
                && arg10.Match(target.Item10);
+
+        public bool IsInstantiated
+            => arg1.IsInstantiated && arg2.IsInstantiated && arg3.IsInstantiated && arg4.IsInstantiated
+               && arg5.IsInstantiated && arg6.IsInstantiated && arg7.IsInstantiated
+               && arg8.IsInstantiated && arg9.IsInstantiated && arg10.IsInstantiated;
+        
+        public override string ToString() => $"[{arg1},{arg2},{arg3},{arg4},{arg5},{arg6},{arg7},{arg8},{arg9}.{arg10}]";
+
+        private string DebuggerDisplay => ToString();
     }
 }

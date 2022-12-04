@@ -121,6 +121,8 @@ namespace TED
         /// </summary>
         internal void AddRule(AnyRule r)
         {
+            if (!r.Head.IsInstantiated)
+                throw new InstantiationException("Rules in table predicates must have fully instantiated heads");
             Rules ??= new List<AnyRule>();
             Rules.Add(r);
             MustRecompute = true;
@@ -141,7 +143,7 @@ namespace TED
 
         public virtual void RowToStrings(uint rowNumber, string[] buffer) {}
 
-        public abstract int Length { get; }
+        public abstract uint Length { get; }
 
         public delegate void Update<T>(ref T arg);
 
@@ -194,7 +196,7 @@ namespace TED
             }
         }
 
-        public override int Length => Table.Length;
+        public override uint Length => Table.Length;
 
         protected override void ClearTable() => _table.Clear();
 
@@ -339,7 +341,7 @@ namespace TED
             }
         }
 
-        public override int Length => Table.Length;
+        public override uint Length => Table.Length;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -490,7 +492,7 @@ namespace TED
             }
         }
 
-        public override int Length => Table.Length;
+        public override uint Length => Table.Length;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -645,7 +647,7 @@ namespace TED
             }
         }
 
-        public override int Length => Table.Length;
+        public override uint Length => Table.Length;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -805,7 +807,7 @@ namespace TED
             }
         }
 
-        public override int Length => Table.Length;
+        public override uint Length => Table.Length;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -970,7 +972,7 @@ namespace TED
             }
         }
 
-        public override int Length => Table.Length;
+        public override uint Length => Table.Length;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate

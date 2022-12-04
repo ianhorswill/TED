@@ -18,7 +18,7 @@ namespace TED
         internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
         {
             var i = tc.Emit(g.Arg1);
-            if (!i.ReadMode)
+            if (!i.IsInstantiated)
                 throw new InstantiationException(this, g.Arg1);
             return new Call(this, i.ValueCell);
         }
@@ -29,7 +29,9 @@ namespace TED
             private readonly ValueCell<T1> arg;
             private bool ready;
 
-            public Call(PrimitiveTest<T1> predicate, ValueCell<T1> arg)
+            public override IPattern ArgumentPattern => new Pattern<T1>(MatchOperation<T1>.Read(arg));
+
+            public Call(PrimitiveTest<T1> predicate, ValueCell<T1> arg) : base(predicate)
             {
                 _predicate = predicate;
                 this.arg = arg;
@@ -67,9 +69,9 @@ namespace TED
         {
             var i1 = tc.Emit(g.Arg1);
             var i2 = tc.Emit(g.Arg2);
-            if (!i1.ReadMode)
+            if (!i1.IsInstantiated)
                 throw new InstantiationException(this, g.Arg1);
-            if (!i2.ReadMode)
+            if (!i2.IsInstantiated)
                 throw new InstantiationException(this, g.Arg2);
             return new Call(this, i1.ValueCell, i2.ValueCell);
         }
@@ -81,7 +83,10 @@ namespace TED
             private readonly ValueCell<T2> arg2;
             private bool ready;
 
-            public Call(PrimitiveTest<T1, T2> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2)
+            public override IPattern ArgumentPattern =>
+                new Pattern<T1, T2>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2));
+
+            public Call(PrimitiveTest<T1, T2> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2) : base(predicate)
             {
                 _predicate = predicate;
                 this.arg1 = arg1;

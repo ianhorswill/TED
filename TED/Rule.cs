@@ -9,8 +9,10 @@
         public readonly TablePredicate<T1> TablePredicate;
         public readonly Pattern<T1> HeadPattern;
 
+        public override IPattern Head => HeadPattern;
+
         public Rule(TablePredicate<T1> predicate, Pattern<T1> headPattern, AnyCall[] body, TablePredicate[] dependencies)
-            : base(body, dependencies)
+            : base(predicate, body, dependencies)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -33,9 +35,10 @@
     {
         public readonly TablePredicate<T1, T2> TablePredicate;
         public readonly Pattern<T1, T2> HeadPattern;
+        public override IPattern Head => HeadPattern;
 
         public Rule(TablePredicate<T1, T2> predicate, Pattern<T1, T2> headPattern, AnyCall[] body, TablePredicate[] dependencies)
-            : base(body, dependencies)
+            : base(predicate, body, dependencies)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -59,9 +62,10 @@
     {
         public readonly TablePredicate<T1, T2, T3> TablePredicate;
         public readonly Pattern<T1, T2, T3> HeadPattern;
+        public override IPattern Head => HeadPattern;
 
         public Rule(TablePredicate<T1, T2, T3> predicate, Pattern<T1, T2, T3> headPattern, AnyCall[] body, TablePredicate[] dependencies)
-            : base(body, dependencies)
+            : base(predicate, body, dependencies)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -86,9 +90,10 @@
     {
         public readonly TablePredicate<T1, T2, T3, T4> TablePredicate;
         public readonly Pattern<T1, T2, T3, T4> HeadPattern;
+        public override IPattern Head => HeadPattern;
 
         public Rule(TablePredicate<T1, T2, T3, T4> predicate, Pattern<T1, T2, T3, T4> headPattern, AnyCall[] body, TablePredicate[] dependencies)
-            : base(body, dependencies)
+            : base(predicate, body, dependencies)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -114,9 +119,10 @@
     {
         public readonly TablePredicate<T1, T2, T3, T4, T5> TablePredicate;
         public readonly Pattern<T1, T2, T3, T4, T5> HeadPattern;
+        public override IPattern Head => HeadPattern;
 
         public Rule(TablePredicate<T1, T2, T3, T4, T5> predicate, Pattern<T1, T2, T3, T4, T5> headPattern, AnyCall[] body, TablePredicate[] dependencies)
-            : base(body, dependencies)
+            : base(predicate, body, dependencies)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -143,9 +149,10 @@
     {
         public readonly TablePredicate<T1, T2, T3, T4, T5, T6> TablePredicate;
         public readonly Pattern<T1, T2, T3, T4, T5, T6> HeadPattern;
+        public override IPattern Head => HeadPattern;
 
         public Rule(TablePredicate<T1, T2, T3, T4, T5, T6> predicate, Pattern<T1, T2, T3, T4, T5, T6> headPattern, AnyCall[] body, TablePredicate[] dependencies)
-            : base(body, dependencies)
+            : base(predicate, body, dependencies)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;

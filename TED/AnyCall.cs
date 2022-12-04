@@ -1,4 +1,6 @@
-﻿namespace TED
+﻿using System.Diagnostics;
+
+namespace TED
 {
     /// <summary>
     /// Untyped base class for all calls to predicates.
@@ -6,8 +8,18 @@
     /// backtracking.  Calls to different kinds of predicates or with different mode patterns may
     /// have different call objects because they need different state information
     /// </summary>
+    [DebuggerDisplay("{DebugString}")]
     public abstract class AnyCall
     {
+        public readonly AnyPredicate Predicate;
+
+        protected AnyCall(AnyPredicate predicate)
+        {
+            Predicate = predicate;
+        }
+
+        public abstract IPattern ArgumentPattern { get; }
+
         /// <summary>
         /// Called before the start of a call.  Initializes any backtracking state for the call
         /// </summary>
@@ -18,5 +30,9 @@
         /// </summary>
         /// <returns>True if it found another solution</returns>
         public abstract bool NextSolution();
+
+        public override string ToString() => $"{Predicate.Name}{ArgumentPattern}";
+
+        private string DebugString => ToString();
     }
 }

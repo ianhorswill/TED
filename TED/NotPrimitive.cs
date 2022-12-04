@@ -28,10 +28,12 @@ namespace TED
             private readonly AnyCall call;
             private bool restarted;
 
-            public NotCall(AnyCall call)
+            public NotCall(AnyCall call) : base(Primitives.Not)
             {
                 this.call = call;
             }
+
+            public override IPattern ArgumentPattern => new Pattern<AnyCall>(MatchOperation<AnyCall>.Constant(call));
 
             public override void Reset()
             {

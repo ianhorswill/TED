@@ -18,7 +18,9 @@
             private readonly TablePredicate<T> predicate;
             private readonly MatchOperation<T> outputArg;
 
-            public Call(TablePredicate<T> predicate, MatchOperation<T> outputArg)
+            public override IPattern ArgumentPattern => new Pattern<T>(outputArg);
+
+            public Call(TablePredicate<T> predicate, MatchOperation<T> outputArg) : base(predicate)
             {
                 this.predicate = predicate;
                 this.outputArg = outputArg;
@@ -33,7 +35,7 @@
                 var len = predicate.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, len)]);
+                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
                 return true;
             }
         }

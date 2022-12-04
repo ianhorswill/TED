@@ -14,5 +14,9 @@
         /// Move back to the beginning of the table.
         /// </summary>
         public override void Reset() => RowIndex = 0;
+
+        protected AnyTableCall(AnyPredicate predicate) : base(predicate)
+        {
+        }
     }
 }

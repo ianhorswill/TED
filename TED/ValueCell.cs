@@ -29,20 +29,18 @@ namespace TED
         /// </summary>
         private static readonly Dictionary<T, ValueCell<T>> ConstantTable = new Dictionary<T, ValueCell<T>>();
 
-        private ValueCell(T value)
+        private ValueCell(T value, string name = "constant")
         {
             Value = value;
+            Name = name;
         }
 
-        private ValueCell() : this(default(T)!)
-        {
-
-        }
+        public readonly string Name;
 
         /// <summary>
         /// Make a ValueCell to hold the run-time value of a variable (a Var[T]).
         /// </summary>
-        public static ValueCell<T> MakeVariable() => new ValueCell<T>(default(T)!);
+        public static ValueCell<T> MakeVariable(string name) => new ValueCell<T>(default(T)!, name);
 
         /// <summary>
         /// Return a ValueCell holding the specified constant

@@ -29,7 +29,7 @@ namespace TED
                 return MatchOperation<T>.Read((ValueCell<T>)cell);
             else
             {
-                var vc = ValueCell<T>.MakeVariable();
+                var vc = ValueCell<T>.MakeVariable(v.Name);
                 variableValueCells[v] = vc;
                 return MatchOperation<T>.Write(vc);
             }

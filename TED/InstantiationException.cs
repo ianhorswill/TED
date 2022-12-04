@@ -7,6 +7,8 @@ namespace TED
     /// </summary>
     internal class InstantiationException : ArgumentException
     {
+        public InstantiationException(string message) : base(message)
+        { }
         public InstantiationException(AnyPredicate p, AnyTerm t)
             : base($"{p.Name} called with improperly instantiated argument {t}")
         { }

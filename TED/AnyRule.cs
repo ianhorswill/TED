@@ -1,4 +1,6 @@
-﻿namespace TED
+﻿using System.Text;
+
+namespace TED
 {
     /// <summary>
     /// Untyped base class of all Rules
@@ -6,6 +8,10 @@
     /// </summary>
     internal abstract class AnyRule
     {
+        public readonly TablePredicate Predicate;
+
+        public abstract IPattern Head { get; }
+
         /// <summary>
         /// Body of the rule - a sequence of Call objects for each goal in the If.
         /// </summary>
@@ -16,8 +22,9 @@
         /// </summary>
         public readonly TablePredicate[] Dependencies;
 
-        protected AnyRule(AnyCall[] body, TablePredicate[] dependencies)
+        protected AnyRule(TablePredicate predicate, AnyCall[] body, TablePredicate[] dependencies)
         {
+            Predicate = predicate;
             Body = body;
             Dependencies = dependencies;
         }
@@ -64,6 +71,25 @@
                     // Failed
                     subgoal--;
             }
+        }
+
+        public override string ToString()
+        {
+            var b = new StringBuilder();
+            b.Append(Predicate.Name);
+            b.Append(Head);
+            b.Append(".If(");
+            bool firstOne = true;
+            foreach (var c in Body)
+            {
+                if (firstOne)
+                    firstOne = false;
+                else b.Append(", ");
+                b.Append(c);
+            }
+
+            b.Append(")");
+            return b.ToString();
         }
     }
 }

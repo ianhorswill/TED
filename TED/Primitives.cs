@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Text;
 
 namespace TED
 {
@@ -16,6 +18,17 @@ namespace TED
         /// Prob(p) succeeds with a probability of p (p in the range [0,1])
         /// </summary>
         public static readonly PrimitiveTest<float> Prob = new PrimitiveTest<float>("Prob", Random.Roll);
+
+        /// <summary>
+        /// Breakpoint execution of a rule
+        /// This drops the caller into the underlying C# debugger
+        /// </summary>
+        public static readonly PrimitiveTest<object> BreakPoint = new PrimitiveTest<object>(nameof(BreakPoint),
+            arg =>
+            {
+                Debugger.Break();
+                return true;
+            });
 
         /// <summary>
         /// Compares two integers
