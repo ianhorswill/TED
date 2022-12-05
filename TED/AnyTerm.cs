@@ -31,18 +31,18 @@
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator <(Term<T> a, Term<T> b) => Primitives.LessThan<T>(a, b);
+        public static AnyGoal operator <(Term<T> a, Term<T> b) => Language.LessThan<T>(a, b);
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator >(Term<T> a, Term<T> b) => Primitives.GreaterThan<T>(a, b);
+        public static AnyGoal operator >(Term<T> a, Term<T> b) => Language.GreaterThan<T>(a, b);
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator <=(Term<T> a, Term<T> b) => Primitives.LessThanEqual<T>(a, b);
+        public static AnyGoal operator <=(Term<T> a, Term<T> b) => Language.LessThanEqual<T>(a, b);
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator >=(Term<T> a, Term<T> b) => Primitives.GreaterThanEqual<T>(a, b);
+        public static AnyGoal operator >=(Term<T> a, Term<T> b) => Language.GreaterThanEqual<T>(a, b);
     }
 }

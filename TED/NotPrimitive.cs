@@ -28,7 +28,7 @@ namespace TED
             private readonly AnyCall call;
             private bool restarted;
 
-            public NotCall(AnyCall call) : base(Primitives.Not)
+            public NotCall(AnyCall call) : base(Language.Not)
             {
                 this.call = call;
             }

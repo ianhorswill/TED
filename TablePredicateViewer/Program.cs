@@ -1,5 +1,5 @@
 using TED;
-using static TED.Primitives;
+using static TED.Language;
 
 namespace TablePredicateViewer
 {
@@ -28,18 +28,18 @@ namespace TablePredicateViewer
             var FemaleName = TablePredicate<string>.FromCsv("../../../female_name.csv");
 
             // Death
-            var Dead = new TablePredicate<string>("Dead", person);
-            var Died = new TablePredicate<string>("Died", person).If(Person[person, sex, age], Prob[0.01f], Not[Dead[person]]);
+            var Dead = TPredicate("Dead", person);
+            var Died = TPredicate("Died", person).If(Person[person, sex, age], Prob[0.01f], Not[Dead[person]]);
             Dead.Accumulates(Died);
 
             // Birth
-            var Man = new TablePredicate<string>("Man", person).If(Person[person, "m", age], Not[Dead[person]], age > 18);
-            var Woman = new TablePredicate<string>("Woman", person).If(Person[person, "f", age], Not[Dead[person]], age > 18);
-            var BirthTo = new TablePredicate<string, string, string>("BirthTo", woman, man, sex)
+            var Man = TPredicate("Man", person).If(Person[person, "m", age], Not[Dead[person]], age > 18);
+            var Woman = TPredicate("Woman", person).If(Person[person, "f", age], Not[Dead[person]], age > 18);
+            var BirthTo = TPredicate("BirthTo", woman, man, sex)
                     .If(Woman[woman], Prob[0.1f], RandomElement(Man, man), PickRandomly(sex, "f", "m"));
 
             // Naming of newborns
-            var NewBorn = new TablePredicate<string, string, int>("NewBorn", person, sex, age);
+            var NewBorn = TPredicate("NewBorn", person, sex, age);
             NewBorn[person, "f", 0].If(BirthTo[man, woman, "f"], RandomElement(FemaleName, person));
             NewBorn[person, "m", 0].If(BirthTo[man, woman, "m"], RandomElement(MaleName, person));
 

@@ -1,14 +1,26 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Text;
 
 namespace TED
 {
     /// <summary>
     /// Static class containing all the standard primitive predicates, such as Not.
     /// </summary>
-    public static class Primitives
+    public static class Language
     {
+        public static TablePredicate<T1> TPredicate<T1>(string name, Var<T1> arg) 
+            => new TablePredicate<T1>(name, arg);
+        public static TablePredicate<T1,T2> TPredicate<T1,T2>(string name, Var<T1> arg1, Var<T2> arg2) 
+            => new TablePredicate<T1,T2>(name, arg1, arg2);
+        public static TablePredicate<T1,T2,T3> TPredicate<T1,T2,T3>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3) 
+            => new TablePredicate<T1,T2,T3>(name, arg1, arg2, arg3);
+        public static TablePredicate<T1,T2,T3,T4> TPredicate<T1,T2,T3,T4>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4) 
+            => new TablePredicate<T1,T2,T3,T4>(name, arg1, arg2, arg3, arg4);
+        public static TablePredicate<T1,T2,T3,T4,T5> TPredicate<T1,T2,T3,T4,T5>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5) 
+            => new TablePredicate<T1,T2,T3,T4,T5>(name, arg1, arg2, arg3, arg4, arg5);
+        public static TablePredicate<T1,T2,T3,T4,T5,T6> TPredicate<T1,T2,T3,T4,T5,T6>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5, Var<T6> arg6) 
+            => new TablePredicate<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5,arg6);
+
         /// <summary>
         /// True if its argument is false
         /// </summary>

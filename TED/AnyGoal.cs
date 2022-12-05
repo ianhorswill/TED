@@ -39,7 +39,7 @@ namespace TED
         /// </summary>
         /// <param name="g">Goal to negate</param>
         /// <returns></returns>
-        public static AnyGoal operator !(AnyGoal g) => Primitives.Not[g];
+        public static AnyGoal operator !(AnyGoal g) => Language.Not[g];
 
         
         #region Printing
