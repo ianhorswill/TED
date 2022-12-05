@@ -28,7 +28,7 @@ namespace TED
         /// <summary>
         /// True if there's space to add another row before having to grow the table
         /// </summary>
-        bool SpaceRemaining => Length < data.Length;
+        //bool SpaceRemaining => Length < data.Length;
 
         private RowSet rowSet;
 
@@ -84,6 +84,8 @@ namespace TED
         /// </summary>
         public ref T PositionReference(uint index) => ref data[index];
 
+        public bool ContainsRow(in T row) => rowSet.ContainsRow(row);
+
         /// <summary>
         /// Report back all the rows, in order
         /// This allocates storage, so it shouldn't be used in inner loops.
@@ -108,7 +110,7 @@ namespace TED
             public RowSet(Table<T> t)
             {
                 table = t;
-                var capacity = t.data.Length;
+                var capacity = t.data.Length*2;
                 buckets = new uint[capacity];
                 Array.Fill(buckets, Empty);
                 mask = (uint)(capacity - 1);
@@ -116,9 +118,9 @@ namespace TED
             }
 
             // We proactively left shift by 1 place to reduce clustering
-            private static uint HashInternal(T value, uint mask) => (uint)(Comparer.GetHashCode(value) << 1) & mask;
+            private static uint HashInternal(T value, uint mask) => (uint)Comparer.GetHashCode(value) & mask;
 
-            public bool Probe(in T value)
+            public bool ContainsRow(in T value)
             {
                 for (var b = HashInternal(value, mask); buckets[b] != Empty; b = (b+1)&mask)
                     if (Comparer.Equals(table.data[buckets[b]], value))
@@ -155,7 +157,9 @@ namespace TED
                     if (row != Empty)
                     {
                         uint nb;
-                        for (nb = HashInternal(table.data[row], newMask); newBuckets[nb] != Empty; nb = (nb + 1) & newMask) ;
+                        // Find a free bucket
+                        for (nb = HashInternal(table.data[row], newMask); newBuckets[nb] != Empty; nb = (nb + 1) & newMask)
+                        { }  // Do nothing
                         newBuckets[nb] = row;
                     }
                 }

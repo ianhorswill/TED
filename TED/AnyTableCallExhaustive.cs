@@ -3,7 +3,7 @@
     /// <summary>
     /// Untyped base class for calls to TablePredicates
     /// </summary>
-    internal abstract class AnyTableCall : AnyCall
+    internal abstract class AnyTableCallExhaustive : AnyCall
     {
         /// <summary>
         /// What row we will text next in the table
@@ -15,7 +15,7 @@
         /// </summary>
         public override void Reset() => RowIndex = 0;
 
-        protected AnyTableCall(AnyPredicate predicate) : base(predicate)
+        protected AnyTableCallExhaustive(AnyPredicate predicate) : base(predicate)
         {
         }
     }

@@ -29,7 +29,11 @@ namespace TED
         internal override AnyCall MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
-            return new TableCall<T1>((TablePredicate<T1>)TablePredicate, MakePattern(ga));
+            var pattern = MakePattern(ga);
+            var tablePredicate = (TablePredicate<T1>)TablePredicate;
+            if (pattern.IsInstantiated)
+                return new TableCallTest<T1>(tablePredicate, pattern);
+            return new TableCallExhaustive<T1>(tablePredicate, pattern);
         }
 
         /// <summary>
@@ -75,7 +79,11 @@ namespace TED
         internal override AnyCall MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
-            return new TableCall<T1, T2>((TablePredicate<T1, T2>)TablePredicate, MakePattern(ga));
+            var pattern = MakePattern(ga);
+            var tablePredicate = (TablePredicate<T1,T2>)TablePredicate;
+            if (pattern.IsInstantiated)
+                return new TableCallTest<T1,T2>(tablePredicate, pattern);
+            return new TableCallExhaustive<T1,T2>(tablePredicate, pattern);
         }
 
         /// <summary>
@@ -124,7 +132,11 @@ namespace TED
         internal override AnyCall MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
-            return new TableCall<T1, T2, T3>((TablePredicate<T1, T2, T3>)TablePredicate, MakePattern(ga));
+            var pattern = MakePattern(ga);
+            var tablePredicate = (TablePredicate<T1,T2,T3>)TablePredicate;
+            if (pattern.IsInstantiated)
+                return new TableCallTest<T1,T2,T3>(tablePredicate, pattern);
+            return new TableCallExhaustive<T1,T2,T3>(tablePredicate, pattern);
         }
 
         /// <summary>
@@ -177,7 +189,11 @@ namespace TED
         internal override AnyCall MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
-            return new TableCall<T1, T2, T3, T4>((TablePredicate<T1, T2, T3, T4>)TablePredicate, MakePattern(ga));
+            var pattern = MakePattern(ga);
+            var tablePredicate = (TablePredicate<T1,T2,T3,T4>)TablePredicate;
+            if (pattern.IsInstantiated)
+                return new TableCallTest<T1,T2,T3,T4>(tablePredicate, pattern);
+            return new TableCallExhaustive<T1,T2,T3,T4>(tablePredicate, pattern);
         }
 
         /// <summary>
@@ -234,8 +250,11 @@ namespace TED
         internal override AnyCall MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
-            return new TableCall<T1, T2, T3, T4, T5>((TablePredicate<T1, T2, T3, T4, T5>)TablePredicate,
-                MakePattern(ga));
+            var pattern = MakePattern(ga);
+            var tablePredicate = (TablePredicate<T1,T2,T3,T4,T5>)TablePredicate;
+            if (pattern.IsInstantiated)
+                return new TableCallTest<T1,T2,T3,T4,T5>(tablePredicate, pattern);
+            return new TableCallExhaustive<T1,T2,T3,T4,T5>(tablePredicate, pattern);
         }
 
         /// <summary>
@@ -295,8 +314,11 @@ namespace TED
         internal override AnyCall MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
-            return new TableCall<T1, T2, T3, T4, T5, T6>((TablePredicate<T1, T2, T3, T4, T5, T6>)TablePredicate,
-                MakePattern(ga));
+            var pattern = MakePattern(ga);
+            var tablePredicate = (TablePredicate<T1,T2,T3,T4,T5,T6>)TablePredicate;
+            if (pattern.IsInstantiated)
+                return new TableCallTest<T1,T2,T3,T4,T5,T6>(tablePredicate, pattern);
+            return new TableCallExhaustive<T1,T2,T3,T4,T5,T6>(tablePredicate, pattern);
         }
 
         /// <summary>

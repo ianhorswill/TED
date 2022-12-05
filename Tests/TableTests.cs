@@ -53,5 +53,29 @@ namespace Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void ProbeTest()
+        {
+            var t = new Table<int>();
+            for (var i = 0; i < 100; i++)
+                t.Add(i<<2);
+            for (var i = 0; i < 400; i++)
+            {
+                Assert.AreEqual((i&3)==0, t.ContainsRow(i));
+            }
+        }
+
+        [TestMethod]
+        public void FullTableProbeTest()
+        {
+            var t = new Table<int>();
+            for (var i = 0; i < 1025; i++)
+            {
+                t.Add(i<<2);
+                Assert.IsFalse(t.ContainsRow(-1));
+                Assert.IsTrue(t.ContainsRow(i<<2));
+            }
+        }
     }
 }
