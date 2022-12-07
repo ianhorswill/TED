@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace TED
 {
@@ -37,4 +38,6 @@ namespace TED
                 default: return Value.ToString();
             }
         }
+
+        internal override Func<T> MakeEvaluator(GoalAnalyzer _) => () => Value;
     }}

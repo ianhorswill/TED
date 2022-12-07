@@ -21,10 +21,15 @@ namespace TED
         public static TablePredicate<T1,T2,T3,T4,T5,T6> TPredicate<T1,T2,T3,T4,T5,T6>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5, Var<T6> arg6) 
             => new TablePredicate<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5,arg6);
 
+        public static TedFunction<T> Function<T>(string name, Func<T> fn) => new TedFunction<T>(name, fn);
+        public static TedFunction<TIn, TOut> Function<TIn, TOut>(string name, Func<TIn, TOut> fn) => new TedFunction<TIn, TOut>(name, fn);
+
         /// <summary>
         /// True if its argument is false
         /// </summary>
         public static readonly NotPrimitive Not = new NotPrimitive();
+
+        public static AnyGoal Set<T>(Var<T> v, FunctionalExpression<T> e) => SetPrimitive<T>.Singleton[v, e];
 
         /// <summary>
         /// Prob(p) succeeds with a probability of p (p in the range [0,1])
@@ -79,14 +84,8 @@ namespace TED
         /// <summary>
         /// Compares two values.  Hopefully they're something you can compare.
         /// </summary>
-        public static AnyGoal LessThan<T>(object a, object b)
-        {
-            if (typeof(T) == typeof(int))
-                return IntegerLessThan[(Term<int>)a, (Term<int>)b];
-            if (typeof(T) == typeof(float))
-                return FloatLessThan[(Term<float>)a, (Term<float>)b];
-            throw new ArgumentException($"< operator not defined for the type {typeof(T)}");
-        }
+        public static AnyGoal LessThan<T>(Term<T> a, Term<T> b) => ComparisonPrimitive<T>.LessThan[a, b];
+
         /// <summary>
         /// Compares two values.  Hopefully they're something you can compare.
         /// </summary>

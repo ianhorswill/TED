@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace TED
 {
@@ -27,7 +28,17 @@ namespace TED
         public override bool IsVariable => true;
         
         public static explicit operator Var<T>(string s) => new Var<T>(s);
-        
+
+        internal override Func<T> MakeEvaluator(GoalAnalyzer ga)
+        {
+            var ma = ga.Emit(this);
+            if (!ma.IsInstantiated)
+                throw new InstantiationException(
+                    $"Variable {this} used in a functional expression before it is bound to a value.");
+            var cell = ma.ValueCell;
+            return () => cell.Value;
+        }
+
         public override string ToString() => Name;
 
         public string DebugName => ToString();
