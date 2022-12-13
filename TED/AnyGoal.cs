@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 
 namespace TED
 {
@@ -25,6 +26,8 @@ namespace TED
         {
             Arguments = arguments;
         }
+
+        public abstract AnyGoal RenameArguments(Substitution s);
 
         /// <summary>
         /// Return the call object 

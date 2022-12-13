@@ -1,4 +1,6 @@
-﻿using TED;
+﻿using System.Reflection;
+using TED;
+using static TED.Language;
 
 namespace Tests
 {
@@ -97,6 +99,29 @@ namespace Tests
             Assert.AreEqual(10, rows[0].Item2);
             Assert.AreEqual("Elroy", rows[3].Item1);
             Assert.AreEqual(9, rows[3].Item2);
+        }
+
+        [TestMethod]
+        public void GeneratorTest1()
+        {
+            var types = Predicate("types", typeof(ExtensionalPredicateTests).Assembly.DefinedTypes);
+
+            Assert.IsTrue(types.Rows.Contains(typeof(ExtensionalPredicateTests)));
+            Assert.IsFalse(types.Rows.Contains(typeof(int)));
+        }
+
+        [TestMethod]
+        public void GeneratorTest2()
+        {
+            var t = (Var<TypeInfo>)"t";
+            var m = (Var<MethodInfo>)"m";
+            var rt = (Var<Type>)"rt";
+            var Methods = Predicate("methods",
+                typeof(AnyTerm).Assembly.DefinedTypes.SelectMany(t => t.GetMethods().Select(m => (t, m, m.ReturnType))),
+                t, m, rt);
+
+            var HasBoolMethod = Predicate("HasBoolMethods", t).If(Methods[t, m, typeof(bool)]);
+            Assert.IsTrue(HasBoolMethod.Length > 0); ;
         }
     }
 }

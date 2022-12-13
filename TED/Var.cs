@@ -42,5 +42,7 @@ namespace TED
         public override string ToString() => Name;
 
         public string DebugName => ToString();
+
+        public AnyTerm Clone() => new Var<T>(Name);
     }
 }

@@ -12,16 +12,11 @@ namespace TED
     public abstract class TablePredicate : AnyPredicate
     {
         /// <summary>
-        /// List of all the TablePredicates so we can find them all and update them
-        /// </summary>
-        public static readonly List<TablePredicate> AllTablePredicates = new List<TablePredicate>();
-        
-        /// <summary>
         /// Make a new predicate
         /// </summary>
         protected TablePredicate(string name, string[] columnHeadings, AnyTerm[]? defaultVars) : base(name)
         {
-            AllTablePredicates.Add(this);
+            Simulation.AddToCurrentSimulation(this);
             ColumnHeadings = columnHeadings;
             DefaultVariables = defaultVars;
         }
@@ -79,7 +74,7 @@ namespace TED
         /// <summary>
         /// TRue if we need to recompute the predicate's table
         /// </summary>
-        protected bool MustRecompute;
+        protected internal bool MustRecompute;
 
         /// <summary>
         /// Compute the predicate's table if it hasn't already or if it's out of date
@@ -102,18 +97,6 @@ namespace TED
         {
             if (IsIntensional)
                 MustRecompute = true;
-        }
-
-        /// <summary>
-        /// Forcibly recompute all the predicates
-        /// </summary>
-        public static void RecomputeAll()
-        {
-            foreach (var p in AllTablePredicates)
-                if (p.IsIntensional)
-                    p.MustRecompute = true;
-            foreach (var p in AllTablePredicates)
-                p.EnsureUpToDate();
         }
 
         /// <summary>
@@ -141,19 +124,28 @@ namespace TED
         /// </summary>
         protected string Stringify<T>(in T value) => value == null ? "null" : value.ToString();
 
+        /// <summary>
+        /// Write the columns of the specified tuple in to the specified array of strings
+        /// </summary>
+        /// <param name="rowNumber">Row number within the table</param>
+        /// <param name="buffer">Buffer in which to write the string forms</param>
         public virtual void RowToStrings(uint rowNumber, string[] buffer) {}
 
+        /// <summary>
+        /// Number of tuples (rows) in the predicates extension
+        /// </summary>
         public abstract uint Length { get; }
 
-        public delegate void Update<T>(ref T arg);
-
+        /// <summary>
+        /// Call the specified function on each row of the table, allowing it to overwrite them
+        /// </summary>
+        /// <param name="updateFn"></param>
+        public delegate void Update<T>(ref T updateFn);
+        
+        /// <summary>
+        /// Append all the rows of the tables in Inputs to this table
+        /// </summary>
         internal abstract void AppendInputs();
-
-        public static void AppendAllInputs()
-        {
-            foreach (var p in AllTablePredicates)
-                p.AppendInputs();
-        }
     }
 
     /// <summary>
@@ -170,6 +162,17 @@ namespace TED
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0]];
 
         /// <summary>
+        /// Add a rule to the predicate, using its default arguments as the head
+        /// </summary>
+        /// <param name="body">Antecedents for the rule</param>
+        /// <returns>The original predicate (so these can be chained)</returns>
+        public TablePredicate<T1> If(params AnyGoal[] body)
+        {
+            AddRule(body);
+            return this;
+        }
+
+        /// <summary>
         /// Make a new table predicate with the specified name and no default variables
         /// </summary>
         /// <param name="name">Name of the predicate</param>
@@ -184,6 +187,28 @@ namespace TED
         /// <param name="arg1">Default variable for the first argument</param>
         public TablePredicate(string name, Var<T1> arg1) : base(name, new AnyTerm[]{ arg1 })
         { }
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="name">Predicate name</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1> FromCsv(string name, string path)
+        {
+            var (header, data) = CsvReader.ReadCsv(path);
+            var p = new TablePredicate<T1>(name, header[0]);
+            foreach (var row in data)
+                p.AddRow(CsvReader.ConvertCell<T1>(row[0]));
+            return p;
+        }
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="path">Path to the CSV file</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<T1> _table = new Table<T1>();
@@ -207,6 +232,15 @@ namespace TED
         /// </summary>
         public void AddRow(in T1 value) => Table.Add(value);
 
+        /// <summary>
+        /// Add a set of rows from a generator
+        /// </summary>
+        public void AddRows(IEnumerable<T1> generator)
+        {
+            var t = Table;
+            foreach (var r in generator) t.Add(r);
+        }
+
         // Test rig; do not use.
         internal IEnumerable<T1> Match(Pattern<T1> pat)
         {
@@ -224,28 +258,6 @@ namespace TED
         /// This allocates memory; do not use in inner lops
         /// </summary>
         public IEnumerable<T1> Rows => Table.Rows;
-
-        /// <summary>
-        /// Read an extensional predicate from a CSV file
-        /// </summary>
-        /// <param name="name">Predicate name</param>
-        /// <param name="path">Path to the CSV file</param>
-        /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1> FromCsv(string name, string path)
-        {
-            var (header, data) = CsvReader.ReadCsv(path);
-            var p = new TablePredicate<T1>(name, header[0]);
-            foreach (var row in data)
-                p.AddRow(CsvReader.ConvertCell<T1>(row[0]));
-            return p;
-        }
-
-        /// <summary>
-        /// Read an extensional predicate from a CSV file
-        /// </summary>
-        /// <param name="path">Path to the CSV file</param>
-        /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -275,19 +287,11 @@ namespace TED
                 AddRow(t._table.PositionReference(i));
         }
 
-        /// <summary>
-        /// Add a rule using the default arguments as the head.
-        /// </summary>
-        /// <param name="body">subgoals</param>
-        /// <returns>the original predicate</returns>
-        public TablePredicate<T1> If(params AnyGoal[] body)
-        {
-            AddRule(body);
-            return this;
-        }
-
         private List<TablePredicate<T1>>? inputs;
 
+        /// <summary>
+        /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
+        /// </summary>
         public TablePredicate<T1> Accumulates(TablePredicate<T1> input)
         {
             inputs ??= new List<TablePredicate<T1>>();
@@ -349,6 +353,15 @@ namespace TED
         /// use Fact() instead of AddRow.
         /// </summary>
         public void AddRow(in T1 value1, in T2 value2) => Table.Add((value1, value2));
+
+        /// <summary>
+        /// Add a set of rows from a generator
+        /// </summary>
+        public void AddRows(IEnumerable<(T1, T2)> generator)
+        {
+            var t = Table;
+            foreach (var r in generator) t.Add(r);
+        }
 
         internal IEnumerable<(T1, T2)> Match(Pattern<T1, T2> pat)
         {
@@ -500,6 +513,15 @@ namespace TED
         /// use Fact() instead of AddRow.
         /// </summary>
         public void AddRow(in T1 v1, in T2 v2, in T3 v3) => _table.Add((v1, v2, v3));
+
+        /// <summary>
+        /// Add a set of rows from a generator
+        /// </summary>
+        public void AddRows(IEnumerable<(T1, T2, T3)> generator)
+        {
+            var t = Table;
+            foreach (var r in generator) t.Add(r);
+        }
 
         internal IEnumerable<(T1, T2, T3)> Match(Pattern<T1, T2, T3> pat)
         {
@@ -656,6 +678,15 @@ namespace TED
         /// </summary>
         public void AddRow(in T1 v1, in T2 v2, in T3 v3, in T4 v4)
             => _table.Add((v1, v2, v3, v4));
+
+        /// <summary>
+        /// Add a set of rows from a generator
+        /// </summary>
+        public void AddRows(IEnumerable<(T1, T2, T3, T4)> generator)
+        {
+            var t = Table;
+            foreach (var r in generator) t.Add(r);
+        }
 
         internal IEnumerable<(T1, T2, T3, T4)> Match(Pattern<T1, T2, T3, T4> pat)
         {
@@ -816,6 +847,15 @@ namespace TED
         /// </summary>
         public void AddRow(in T1 v1, in T2 v2, in T3 v3, in T4 v4, in T5 v5)
             => _table.Add((v1, v2, v3, v4, v5));
+
+        /// <summary>
+        /// Add a set of rows from a generator
+        /// </summary>
+        public void AddRows(IEnumerable<(T1, T2, T3, T4, T5)> generator)
+        {
+            var t = Table;
+            foreach (var r in generator) t.Add(r);
+        }
 
         internal IEnumerable<(T1, T2, T3, T4, T5)> Match(Pattern<T1, T2, T3, T4, T5> pat)
         {
@@ -982,6 +1022,14 @@ namespace TED
         public void AddRow(in T1 v1, in T2 v2, in T3 v3, in T4 v4, in T5 v5, in T6 v6)
             => _table.Add((v1, v2, v3, v4, v5, v6));
 
+        /// <summary>
+        /// Add a set of rows from a generator
+        /// </summary>
+        public void AddRows(IEnumerable<(T1, T2, T3, T4, T5, T6)> generator)
+        {
+            var t = Table;
+            foreach (var r in generator) t.Add(r);
+        }
         internal IEnumerable<(T1, T2, T3, T4, T5, T6)> Match(Pattern<T1, T2, T3, T4, T5, T6> pat)
         {
             var t = Table;

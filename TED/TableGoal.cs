@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace TED
+﻿namespace TED
 {
     /// <summary>
     /// Abstract syntax tree representing a call to a 1-argument TablePredicate
@@ -14,6 +12,8 @@ namespace TED
         }
 
         public readonly Term<T1> Arg1;
+
+        public override AnyGoal RenameArguments(Substitution s) => new TableGoal<T1>((TablePredicate<T1>)Predicate, s.Substitute(Arg1));
 
         /// <summary>
         /// Generate a Pattern for matching the goal's argument list.
@@ -44,7 +44,7 @@ namespace TED
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
-            var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
+            var body = RulePreprocessor.GenerateCalls(tc, subgoals);
             TablePredicate.AddRule(new Rule<T1>((TablePredicate<T1>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
     }
@@ -64,6 +64,9 @@ namespace TED
 
         public readonly Term<T1> Arg1;
         public readonly Term<T2> Arg2;
+
+        public override AnyGoal RenameArguments(Substitution s)
+            => new TableGoal<T1,T2>((TablePredicate<T1,T2>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2));
 
         /// <summary>
         /// Generate a Pattern for matching the goal's argument list.
@@ -94,7 +97,7 @@ namespace TED
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
-            var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
+            var body = RulePreprocessor.GenerateCalls(tc, subgoals);
             TablePredicate.AddRule(new Rule<T1, T2>((TablePredicate<T1, T2>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
     }
@@ -117,6 +120,10 @@ namespace TED
         public readonly Term<T1> Arg1;
         public readonly Term<T2> Arg2;
         public readonly Term<T3> Arg3;
+
+        public override AnyGoal RenameArguments(Substitution s)
+            => new TableGoal<T1,T2,T3>((TablePredicate<T1,T2,T3>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3));
+
 
         /// <summary>
         /// Generate a Pattern for matching the goal's argument list.
@@ -147,7 +154,7 @@ namespace TED
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
-            var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
+            var body = RulePreprocessor.GenerateCalls(tc, subgoals);
             TablePredicate.AddRule(new Rule<T1, T2, T3>((TablePredicate<T1, T2, T3>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
     }
@@ -173,6 +180,9 @@ namespace TED
         public readonly Term<T2> Arg2;
         public readonly Term<T3> Arg3;
         public readonly Term<T4> Arg4;
+
+        public override AnyGoal RenameArguments(Substitution s)
+            => new TableGoal<T1,T2,T3,T4>((TablePredicate<T1,T2,T3,T4>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4));
 
         /// <summary>
         /// Generate a Pattern for matching the goal's argument list.
@@ -204,7 +214,7 @@ namespace TED
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
-            var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
+            var body = RulePreprocessor.GenerateCalls(tc, subgoals);
             TablePredicate.AddRule(new Rule<T1, T2, T3, T4>((TablePredicate<T1, T2, T3, T4>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
     }
@@ -233,6 +243,9 @@ namespace TED
         public readonly Term<T3> Arg3;
         public readonly Term<T4> Arg4;
         public readonly Term<T5> Arg5;
+
+        public override AnyGoal RenameArguments(Substitution s)
+            => new TableGoal<T1,T2,T3,T4,T5>((TablePredicate<T1,T2,T3,T4,T5>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4), s.Substitute(Arg5));
 
         /// <summary>
         /// Generate a Pattern for matching the goal's argument list.
@@ -265,7 +278,7 @@ namespace TED
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
-            var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
+            var body = RulePreprocessor.GenerateCalls(tc, subgoals);
             TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5>((TablePredicate<T1, T2, T3, T4, T5>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
     }
@@ -298,6 +311,10 @@ namespace TED
         public readonly Term<T5> Arg5;
         public readonly Term<T6> Arg6;
 
+        public override AnyGoal RenameArguments(Substitution s)
+            => new TableGoal<T1,T2,T3,T4,T5,T6>((TablePredicate<T1,T2,T3,T4,T5,T6>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4), s.Substitute(Arg5), s.Substitute(Arg6));
+
+
         /// <summary>
         /// Generate a Pattern for matching the goal's argument list.
         /// </summary>
@@ -329,7 +346,7 @@ namespace TED
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
-            var body = subgoals.Select(s => s.MakeCall(tc)).ToArray();
+            var body = RulePreprocessor.GenerateCalls(tc, subgoals);
             TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5, T6>((TablePredicate<T1, T2, T3, T4, T5, T6>)TablePredicate, MakePattern(tc), body, tc.Dependencies));
         }
     }

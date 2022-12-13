@@ -5,11 +5,11 @@ namespace TED
     /// <summary>
     /// Implements negation of a goal
     /// </summary>
-    public class SetPrimitive<T> : PrimitivePredicate<T,T>
+    public class MatchPrimitive<T> : PrimitivePredicate<T,T>
     {
-        public static SetPrimitive<T> Singleton = new SetPrimitive<T>();
+        public static MatchPrimitive<T> Singleton = new MatchPrimitive<T>();
 
-        public SetPrimitive() : base("Set")
+        public MatchPrimitive() : base("Set")
         {
         }
 

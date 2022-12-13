@@ -5,14 +5,18 @@ namespace TablePredicateViewer
 {
     internal static class Program
     {
+        private static Simulation Simulation;
+
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
-        [STAThread]
+        [STAThread] 
         static void Main()
         {
             ApplicationConfiguration.Initialize();
 
+            Simulation = new Simulation("Test");
+            
             // Variables for rules
             var person = (Var<string>)"person";
             var sex = (Var<string>)"sex";
@@ -28,18 +32,19 @@ namespace TablePredicateViewer
             var FemaleName = TablePredicate<string>.FromCsv("../../../female_name.csv");
 
             // Death
-            var Dead = TPredicate("Dead", person);
-            var Died = TPredicate("Died", person).If(Person[person, sex, age], Prob[0.01f], Not[Dead[person]]);
+            var Dead = Predicate("Dead", person);
+            var Died = Predicate("Died", person).If(Person[person, sex, age], Prob[0.01f], Not[Dead[person]]);
             Dead.Accumulates(Died);
+            var Alive = Definition("Alive", person).IfAndOnlyIf(Not[Dead[person]]);
 
             // Birth
-            var Man = TPredicate("Man", person).If(Person[person, "m", age], Not[Dead[person]], age > 18);
-            var Woman = TPredicate("Woman", person).If(Person[person, "f", age], Not[Dead[person]], age > 18);
-            var BirthTo = TPredicate("BirthTo", woman, man, sex)
+            var Man = Predicate("Man", person).If(Person[person, "m", age], Alive[person], age > 18);
+            var Woman = Predicate("Woman", person).If(Person[person, "f", age], Alive[person], age > 18);
+            var BirthTo = Predicate("BirthTo", woman, man, sex)
                     .If(Woman[woman], Prob[0.1f], RandomElement(Man, man), PickRandomly(sex, "f", "m"));
 
             // Naming of newborns
-            var NewBorn = TPredicate("NewBorn", person, sex, age);
+            var NewBorn = Predicate("NewBorn", person, sex, age);
             NewBorn[person, "f", 0].If(BirthTo[man, woman, "f"], RandomElement(FemaleName, person));
             NewBorn[person, "m", 0].If(BirthTo[man, woman, "m"], RandomElement(MaleName, person));
 
@@ -58,8 +63,7 @@ namespace TablePredicateViewer
         private static void UpdateCycle(TablePredicate<string, string, int> person)
         {
             person.UpdateRows((ref (string name, string sex, int age) row) => row.age++);
-            TablePredicate.RecomputeAll();
-            TablePredicate.AppendAllInputs();
+            Simulation.Update();
             PredicateViewer.UpdateAll();
         }
     }

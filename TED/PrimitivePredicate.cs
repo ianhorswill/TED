@@ -1,4 +1,6 @@
-﻿namespace TED
+﻿using System.Collections.Generic;
+
+namespace TED
 {
     /// <summary>
     /// A primitive predicate (one computed by code rather than matching to a table) with one argument
@@ -29,6 +31,9 @@
                 Primitive = predicate;
                 Arg1 = arg1;
             }
+
+            public override AnyGoal RenameArguments(Substitution s)
+                => new Goal(Primitive, s.Substitute(Arg1));
 
             /// <summary>
             /// Generate a custom Call object for a call to this particular predicate
@@ -73,6 +78,9 @@
                 Arg1 = arg1;
                 Arg2 = arg2;
             }
+
+            public override AnyGoal RenameArguments(Substitution s)
+                => new Goal(Primitive, s.Substitute(Arg1), s.Substitute(Arg2));
 
             /// <summary>
             /// Generate a custom Call object for a call to this particular predicate
