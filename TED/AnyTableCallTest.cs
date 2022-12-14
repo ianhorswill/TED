@@ -1,7 +1,8 @@
 ﻿namespace TED
 {
     /// <summary>
-    /// Untyped base class for calls to TablePredicates
+    /// Untyped base class for calls to TablePredicates whose arguments are fully instantiated,
+    /// so they can be tested deterministically with a hash table lookup.
     /// </summary>
     internal abstract class AnyTableCallTest : AnyCall
     {

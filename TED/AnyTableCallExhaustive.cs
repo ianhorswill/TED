@@ -1,7 +1,7 @@
 ﻿namespace TED
 {
     /// <summary>
-    /// Untyped base class for calls to TablePredicates
+    /// Untyped base class for calls to TablePredicates that exhaustively enumerate all rows of the table
     /// </summary>
     internal abstract class AnyTableCallExhaustive : AnyCall
     {

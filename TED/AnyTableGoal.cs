@@ -4,8 +4,7 @@ using System.Text;
 namespace TED
 {
     /// <summary>
-    /// A Goal represents a table predicate applied to arguments, e.g. p["a"], p[variable], etc.
-    /// Goals are used as the arguments to Prover.Prove, but also as the Head and Body of Rules.
+    /// A TableGoal represents a table predicate applied to arguments, e.g. p["a"], p[variable], etc.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
     public abstract class AnyTableGoal : AnyGoal

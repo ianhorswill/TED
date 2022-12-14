@@ -15,6 +15,10 @@ namespace TED
 
         public override string ToString() => Name;
     }
+
+    /// <summary>
+    /// A wrapper for a C# function to allow it to be called from TED expressions
+    /// </summary>
     public class TedFunction<TOut> : TedFunction
     {
         
@@ -28,6 +32,9 @@ namespace TED
         public FunctionCall<TOut> Call() => new FunctionCall<TOut>(function);
     }
 
+    /// <summary>
+    /// A wrapper for a C# function to allow it to be called from TED expressions
+    /// </summary>
     public class TedFunction<TIn, TOut> : TedFunction
     {
         
@@ -41,6 +48,9 @@ namespace TED
         public FunctionCall<TIn, TOut> this[Term<TIn> arg] => new FunctionCall<TIn, TOut>(function, arg);
     }
 
+    /// <summary>
+    /// A wrapper for a C# function to allow it to be called from TED expressions
+    /// </summary>
     public class TedFunction<TIn1, TIn2, TOut> : TedFunction
     {
         

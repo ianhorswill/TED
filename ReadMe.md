@@ -24,6 +24,5 @@ has a lot of advantages over the kind of top-down evaluation used in Prolog-styl
 * Mode analysis of variables can always be statically determined
 
 Stuff to do:
-* Implement recursion
 * Implement parallel evaluation
 * Implement indexing (this is probablym most important)
