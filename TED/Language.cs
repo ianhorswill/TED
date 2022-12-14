@@ -153,6 +153,11 @@ namespace TED
         /// </summary>
         public static readonly NotPrimitive Not = new NotPrimitive();
 
+        /// <summary>
+        /// True if all argument goals are also true
+        /// </summary>
+        public static readonly AndPrimitive And = AndPrimitive.Singleton;
+
         public static AnyGoal Match<T>(Var<T> v, FunctionalExpression<T> e) => MatchPrimitive<T>.Singleton[v, e];
 
         /// <summary>

@@ -13,8 +13,25 @@ namespace TED
     /// </summary>
     internal class GoalAnalyzer
     {
-        private readonly Dictionary<AnyTerm, object> variableValueCells = new Dictionary<AnyTerm, object>();
-        private readonly HashSet<TablePredicate> tables = new HashSet<TablePredicate>();
+        private GoalAnalyzer(Dictionary<AnyTerm, object> variableCells, HashSet<TablePredicate> dependencies)
+        {
+            variableValueCells = variableCells;
+            tables = dependencies;
+        }
+
+        public GoalAnalyzer() : this(new Dictionary<AnyTerm, object>(), new HashSet<TablePredicate>())
+        { }
+
+        /// <summary>
+        /// Makes a goal analyzer identical to this one, except that any subsequent value cells won't be added to this analyzer
+        /// Dependencies will be added, however.
+        /// </summary>
+        public GoalAnalyzer MakeChild()
+            => new GoalAnalyzer(new Dictionary<AnyTerm, object>(variableValueCells), tables);
+        
+
+        private readonly Dictionary<AnyTerm, object> variableValueCells;
+        private readonly HashSet<TablePredicate> tables;
 
         public void AddDependency(TablePredicate p) => tables.Add(p);
 

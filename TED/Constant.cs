@@ -6,7 +6,7 @@ namespace TED
     /// <summary>
     /// Terms that represent constants of type T
     /// </summary>
-    internal class Constant<T> : Term<T>
+    public class Constant<T> : Term<T>
     {
         /// <summary>
         /// The actual constant

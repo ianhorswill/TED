@@ -16,7 +16,7 @@ namespace TED
             switch (g.Arg1)
             {
                 case Constant<AnyGoal> target:
-                    return new NotCall(target.Value.MakeCall(tc));
+                    return new NotCall(RulePreprocessor.BodyToCall(tc.MakeChild(), target.Value));
 
                 default:
                     throw new ArgumentException("Argument to Not or ! must be a goal expression, not a variable");
