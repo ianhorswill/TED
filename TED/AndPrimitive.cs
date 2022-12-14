@@ -8,6 +8,9 @@ namespace TED
         private AndPrimitive() : base("And")
         { }
 
+        /// <summary>
+        /// True when all the subgoals are true
+        /// </summary>
         public AnyGoal this[params AnyGoal[] subgoals] => new Goal(subgoals);
 
         public class Goal : AnyGoal

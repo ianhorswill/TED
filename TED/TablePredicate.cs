@@ -38,6 +38,10 @@ namespace TED
         /// </summary>
         public readonly AnyTerm[]? DefaultVariables;
 
+        /// <summary>
+        /// Returns a goal of the predicate applied to the specified arguments
+        /// </summary>
+        /// <param name="args">Arguments to the predicate</param>
         public AnyTableGoal this[AnyTerm[] args]
         {
             get
@@ -48,6 +52,10 @@ namespace TED
             }
         }
 
+        /// <summary>
+        /// Returns a goal of the predicate applied to the specified arguments
+        /// </summary>
+        /// <param name="args">Arguments to the predicate</param>
         public abstract AnyTableGoal GetGoal(AnyTerm[] args);
 
         /// <summary>
@@ -221,8 +229,14 @@ namespace TED
             }
         }
 
+        /// <summary>
+        /// Number of rows/items in the table/extension of the predicate
+        /// </summary>
         public override uint Length => Table.Length;
 
+        /// <summary>
+        /// Erase all data in the table
+        /// </summary>
         protected override void ClearTable() => _table.Clear();
 
         /// <summary>
@@ -345,6 +359,9 @@ namespace TED
             }
         }
 
+        /// <summary>
+        /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
+        /// </summary>
         public override uint Length => Table.Length;
 
         /// <summary>
@@ -505,6 +522,9 @@ namespace TED
             }
         }
 
+        /// <summary>
+        /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
+        /// </summary>
         public override uint Length => Table.Length;
 
         /// <summary>
@@ -669,6 +689,9 @@ namespace TED
             }
         }
 
+        /// <summary>
+        /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
+        /// </summary>
         public override uint Length => Table.Length;
 
         /// <summary>
@@ -838,6 +861,9 @@ namespace TED
             }
         }
 
+        /// <summary>
+        /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
+        /// </summary>
         public override uint Length => Table.Length;
 
         /// <summary>
@@ -1012,6 +1038,9 @@ namespace TED
             }
         }
 
+        /// <summary>
+        /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
+        /// </summary>
         public override uint Length => Table.Length;
 
         /// <summary>
