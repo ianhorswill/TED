@@ -5,7 +5,7 @@ namespace TablePredicateViewer
 {
     internal static class Program
     {
-        private static Simulation Simulation;
+        public static Simulation Simulation = null!;
 
         /// <summary>
         ///  The main entry point for the application.
@@ -33,9 +33,10 @@ namespace TablePredicateViewer
 
             // Death
             var Dead = Predicate("Dead", person);
-            var Died = Predicate("Died", person).If(Person[person, sex, age], Prob[0.01f], Not[Dead[person]]);
-            Dead.Accumulates(Died);
             var Alive = Definition("Alive", person).IfAndOnlyIf(Not[Dead[person]]);
+
+            var Died = Predicate("Died", person).If(Person[person, sex, age], Prob[0.01f], Alive[person]);
+            Dead.Accumulates(Died);
 
             // Birth
             var Man = Predicate("Man", person).If(Person[person, "m", age], Alive[person], age > 18);

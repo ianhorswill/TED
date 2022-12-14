@@ -1,21 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static TED.Preprocessor;
 
 namespace TED
 {
     public abstract class Definition : AnyPredicate
     {
         public AnyGoal[]? Body;
-
-        public static IEnumerable<AnyGoal> Expand(AnyGoal g)
-        {
-            if (!(g is AnyDefinitionGoal dg))
-                return new[] { g };
-            return dg.Expand();
-        }
-
-        public static IEnumerable<AnyGoal> Expand(IEnumerable<AnyGoal> body) => body.SelectMany(Expand);
 
         protected Definition(string name) : base(name)
         {
@@ -64,7 +56,7 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = Expand(body).ToArray();
+            Body = Preprocessor.Expand(body).ToArray();
             return this;
         }
 
@@ -107,7 +99,7 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = Expand(body).ToArray();
+            Body = Preprocessor.Expand(body).ToArray();
             return this;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 
 namespace TED
 {
@@ -9,6 +10,71 @@ namespace TED
     /// </summary>
     public static class Language
     {
+        #region Primitives
+        /// <summary>
+        /// True if its argument is false
+        /// </summary>
+        public static readonly NotPrimitive Not = new NotPrimitive();
+
+        /// <summary>
+        /// True if all argument goals are also true
+        /// </summary>
+        public static readonly AndPrimitive And = AndPrimitive.Singleton;
+
+        public static AnyGoal Match<T>(Var<T> v, FunctionalExpression<T> e) => MatchPrimitive<T>.Singleton[v, e];
+
+        /// <summary>
+        /// Prob(p) succeeds with a probability of p (p in the range [0,1])
+        /// </summary>
+        public static readonly PrimitiveTest<float> Prob = new PrimitiveTest<float>("Prob", Random.Roll);
+
+        /// <summary>
+        /// Breakpoint execution of a rule
+        /// This drops the caller into the underlying C# debugger
+        /// </summary>
+        public static readonly PrimitiveTest<object> BreakPoint = new PrimitiveTest<object>(nameof(BreakPoint),
+            arg =>
+            {
+                Debugger.Break();
+                return true;
+            });
+
+        public static AnyGoal RandomElement<T>(TablePredicate<T> predicate, Term<T> output) =>
+            RandomElementPrimitive<T>.Singleton[predicate, output];
+
+        public static AnyGoal PickRandomly<T>(Term<T> output, params T[] choices) =>
+            PickRandomlyPrimitive<T>.Singleton[output, choices];
+        #endregion
+
+        #region Aggregation functions
+        /// <summary>
+        /// The number of solutions to goal.
+        /// </summary>
+        public static AggregateFunctionCall<int> Count(AnyGoal g)
+            => new AggregateFunctionCall<int>(g, 0, (a, b) => a + b, 1);
+
+        public static AggregateFunctionCall<T> Aggregate<T>(Var<T> v, AnyGoal g, T initialValue,
+            Func<T, T, T> aggregator)
+            => new AggregateFunctionCall<T>(g, initialValue, aggregator, v);
+
+        /// <summary>
+        /// Return the sum of the specified variable from every solution to the goal
+        /// </summary>
+        public static AggregateFunctionCall<int> SumInt(Var<int> v, AnyGoal g)
+            => new AggregateFunctionCall<int>(g, 0, (a, b) => a + b, v);
+        /// <summary>
+        /// Return the sum of the specified variable from every solution to the goal
+        /// </summary>
+        public static AggregateFunctionCall<float> SumFloat(Var<float> v, AnyGoal g)
+            => new AggregateFunctionCall<float>(g, 0, (a, b) => a + b, v);
+        #endregion
+
+        /// <summary>
+        /// Coerces a C# constant to a Constant Term for times when C#'s type inference isn't smart enough to figure it out.
+        /// </summary>
+        public static Constant<T> Constant<T>(T value) => new Constant<T>(value);
+
+        #region Predicate declaration sugar
         public static TablePredicate<T1> Predicate<T1>(string name, Var<T1> arg) 
             => new TablePredicate<T1>(name, arg);
         public static TablePredicate<T1,T2> Predicate<T1,T2>(string name, Var<T1> arg1, Var<T2> arg2) 
@@ -82,9 +148,6 @@ namespace TED
             return p;
         }
 
-        public static Definition<T1> Definition<T1>(string name, Var<T1> arg1) => new Definition<T1>(name, arg1);
-        public static Definition<T1,T2> Definition<T1,T2>(string name, Var<T1> arg1, Var<T2> arg2) => new Definition<T1,T2>(name, arg1, arg2);
-
         /// <summary>
         /// Make a new TablePredicate from a row generator, and pre-populate it with rows from the generator.
         /// </summary>
@@ -144,42 +207,25 @@ namespace TED
             p.AddRows(generator);
             return p;
         }
+        #endregion
 
+        #region Definition declaration sugar
+        public static Definition<T1> Definition<T1>(string name, Var<T1> arg1) => new Definition<T1>(name, arg1);
+        public static Definition<T1,T2> Definition<T1,T2>(string name, Var<T1> arg1, Var<T2> arg2) => new Definition<T1,T2>(name, arg1, arg2);
+        public static Definition<T1,T2,T3> Definition<T1,T2,T3>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3) => new Definition<T1,T2,T3>(name, arg1, arg2, arg3);
+        public static Definition<T1,T2,T3,T4> Definition<T1,T2,T3,T4>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4) 
+            => new Definition<T1,T2,T3,T4>(name, arg1, arg2, arg3, arg4);
+        public static Definition<T1,T2,T3,T4,T5> Definition<T1,T2,T3,T4,T5>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5) 
+            => new Definition<T1,T2,T3,T4,T5>(name, arg1, arg2, arg3, arg4, arg5);
+        public static Definition<T1,T2,T3,T4,T5,T6> Definition<T1,T2,T3,T4,T5,T6>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5, Var<T6> arg6) 
+            => new Definition<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
+        #endregion
+
+        #region Function declaration sugar
         public static TedFunction<T> Function<T>(string name, Func<T> fn) => new TedFunction<T>(name, fn);
         public static TedFunction<TIn, TOut> Function<TIn, TOut>(string name, Func<TIn, TOut> fn) => new TedFunction<TIn, TOut>(name, fn);
-
-        /// <summary>
-        /// True if its argument is false
-        /// </summary>
-        public static readonly NotPrimitive Not = new NotPrimitive();
-
-        /// <summary>
-        /// True if all argument goals are also true
-        /// </summary>
-        public static readonly AndPrimitive And = AndPrimitive.Singleton;
-
-        public static AnyGoal Match<T>(Var<T> v, FunctionalExpression<T> e) => MatchPrimitive<T>.Singleton[v, e];
-
-        /// <summary>
-        /// Prob(p) succeeds with a probability of p (p in the range [0,1])
-        /// </summary>
-        public static readonly PrimitiveTest<float> Prob = new PrimitiveTest<float>("Prob", Random.Roll);
-
-        /// <summary>
-        /// Breakpoint execution of a rule
-        /// This drops the caller into the underlying C# debugger
-        /// </summary>
-        public static readonly PrimitiveTest<object> BreakPoint = new PrimitiveTest<object>(nameof(BreakPoint),
-            arg =>
-            {
-                Debugger.Break();
-                return true;
-            });
-
-        public static AnyGoal RandomElement<T>(TablePredicate<T> predicate, Term<T> output) =>
-            RandomElementPrimitive<T>.Singleton[predicate, output];
-
-        public static AnyGoal PickRandomly<T>(Term<T> output, params T[] choices) =>
-            PickRandomlyPrimitive<T>.Singleton[output, choices];
+        public static TedFunction<TIn1, TIn2, TOut> Function<TIn1, TIn2, TOut>(string name, Func<TIn1, TIn2, TOut> fn) => new TedFunction<TIn1, TIn2, TOut>(name, fn);
+        #endregion
+        
     }
 }

@@ -120,7 +120,7 @@ namespace TED
             switch (opcode)
             {
                 case Opcode.Constant:
-                    return Value.ToString();
+                    return Value==null?"null":Value.ToString();
 
                 case Opcode.Ignore:
                     return "_";

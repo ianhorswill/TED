@@ -40,6 +40,12 @@ namespace TED
         public static AnyGoal operator ==(Term<T> exp, Var<T> v) => MatchPrimitive<T>.Singleton[v, exp];
         public static AnyGoal operator !=(Term<T> exp, Var<T> v) => Language.Not[MatchPrimitive<T>.Singleton[v, exp]];
 
+        public static AnyGoal operator ==(Constant<T> v, Term<T> exp) => MatchPrimitive<T>.Singleton[v, exp];
+        public static AnyGoal operator !=(Constant<T> v, Term<T> exp) => Language.Not[MatchPrimitive<T>.Singleton[v, exp]];
+
+        public static AnyGoal operator ==(Term<T> exp, Constant<T> v) => MatchPrimitive<T>.Singleton[v, exp];
+        public static AnyGoal operator !=(Term<T> exp, Constant<T> v) => Language.Not[MatchPrimitive<T>.Singleton[v, exp]];
+
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>

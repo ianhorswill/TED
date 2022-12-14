@@ -24,7 +24,7 @@ namespace TED
                 => new Goal(Body.Select(g => g.RenameArguments(s)).ToArray());
 
             internal override AnyCall MakeCall(GoalAnalyzer ga)
-                => new Call(RulePreprocessor.GenerateCalls(ga, Body), Body);
+                => new Call(Preprocessor.GenerateCalls(ga, Body), Body);
         }
 
         public class Call : AnyCall

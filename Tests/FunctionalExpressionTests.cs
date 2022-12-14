@@ -47,7 +47,6 @@ namespace Tests
             Assert.AreEqual(3, r[0]);
         }
 
-        
         [TestMethod]
         public void NegationTest()
         {
@@ -57,6 +56,45 @@ namespace Tests
             var r = T.Rows.ToArray();
             Assert.AreEqual(1, r.Length);
             Assert.AreEqual(-1, r[0]);
+        }
+
+        
+        [TestMethod]
+        public void Modulus()
+        {
+            var n = (Var<int>)"n";
+            var m = (Var<int>)"m";
+            var P = Predicate("P", new[] { 1, 2, 3, 4, 5, 6 }, n);
+            var Q = Predicate("Q", n).If(P[n], n%2 == Constant(0));
+            var answers = Q.Rows.ToArray();
+            Assert.AreEqual(3, answers.Length);
+            Assert.AreEqual(2, answers[0]);
+            Assert.AreEqual(4, answers[1]);
+            Assert.AreEqual(6, answers[2]);
+        }
+
+        [TestMethod]
+        public void CountTest()
+        {
+            var n = (Var<int>)"n";
+            var m = (Var<int>)"m";
+            var P = Predicate("P", new[] { 1, 2, 3, 4, 5, 6 }, n);
+            var Q = Predicate("Q", n).If(n == Count(And[P[m], m%2 == Constant(0)]));
+            var answers = Q.Rows.ToArray();
+            Assert.AreEqual(1, answers.Length);
+            Assert.AreEqual(3, answers[0]);
+        }
+
+        [TestMethod]
+        public void Summation()
+        {
+            var n = (Var<int>)"n";
+            var m = (Var<int>)"m";
+            var P = Predicate("P", new[] { 1, 2, 3, 4, 5, 6 }, n);
+            var Q = Predicate("Q", n).If(n == SumInt(m, And[P[m], m%2 == Constant(0)]));
+            var answers = Q.Rows.ToArray();
+            Assert.AreEqual(1, answers.Length);
+            Assert.AreEqual(12, answers[0]);
         }
     }
 }

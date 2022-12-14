@@ -7,6 +7,8 @@ namespace TED
     /// </summary>
     public class NotPrimitive : PrimitivePredicate<AnyGoal>
     {
+        public static NotPrimitive Singleton = new NotPrimitive();
+
         public NotPrimitive() : base("Not")
         {
         }
@@ -16,7 +18,7 @@ namespace TED
             switch (g.Arg1)
             {
                 case Constant<AnyGoal> target:
-                    return new NotCall(RulePreprocessor.BodyToCall(tc.MakeChild(), target.Value));
+                    return new NotCall(Preprocessor.BodyToCallWithLocalBindings(tc, target.Value).Call);
 
                 default:
                     throw new ArgumentException("Argument to Not or ! must be a goal expression, not a variable");
