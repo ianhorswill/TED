@@ -12,8 +12,16 @@ namespace TED
     {
         public Table()
         {
-            data = new T[InitialSize];
-            rowSet = new RowSet(this);
+            Data = new T[InitialSize];
+        }
+
+        /// <summary>
+        /// If true, enforce that rows of the table are unique, by making a hashtable of them
+        /// </summary>
+        public override bool Unique
+        {
+            get => rowSet != null;
+            set => rowSet ??= new RowSet(this);
         }
 
         // Must be a power of 2
@@ -23,20 +31,22 @@ namespace TED
         /// Array holding the rows
         /// Elements 0 .. data.Length-1 hold the elements
         /// </summary>
-        private T[] data;
+        internal T[] Data;
 
         /// <summary>
         /// True if there's space to add another row before having to grow the table
         /// </summary>
         //bool SpaceRemaining => Length < data.Length;
 
-        private RowSet rowSet;
+        private RowSet? rowSet;
 
         public override void Clear()
 
         {
             Length = 0;
-            rowSet.Clear();
+            rowSet?.Clear();
+            foreach (var i in Indices)
+                i.Clear();
         }
 
         /// <summary>
@@ -46,12 +56,13 @@ namespace TED
         /// <param name="extra"></param>
         private void EnsureSpace(int extra)
         {
-            if (Length + extra > data.Length)
+            if (Length + extra > Data.Length)
             {
-                var newArray = new T[data.Length * 2];
-                Array.Copy(data, newArray, data.Length);
-                data = newArray;
-                rowSet.Expand();
+                var newArray = new T[Data.Length * 2];
+                Array.Copy(Data, newArray, Data.Length);
+                Data = newArray;
+                rowSet?.Expand();
+                foreach (var i in Indices) i.Expand();
             }
         }
 
@@ -63,12 +74,17 @@ namespace TED
         {
             EnsureSpace(1);
             // Write the data into the next free slot
-            data[Length] = item;
+            Data[Length] = item;
             // That same row might already be in the table
             // So check if it's already there.  If so, don't both incrementing Length.
             // Otherwise, add it to the rowSet and increment length.
-            if (rowSet.MaybeAddRow(Length))
+            if (rowSet == null || rowSet.MaybeAddRow(Length))
+            {
+                foreach (var i in Indices)
+                    i.Add(Length);
                 Length++;
+            }
+
         }
 
         /// <summary>
@@ -76,15 +92,15 @@ namespace TED
         /// </summary>
         /// <param name="index">Position in the table to retrieve the row</param>
         /// <returns>Row data</returns>
-        public T this[uint index] => data[index];
+        public T this[uint index] => Data[index];
 
         /// <summary>
         /// Return a reference (pointer) to the row at the specified position
         /// This lets the row to be passed to another method without copying
         /// </summary>
-        public ref T PositionReference(uint index) => ref data[index];
+        public ref T PositionReference(uint index) => ref Data[index];
 
-        public bool ContainsRow(in T row) => rowSet.ContainsRow(row);
+        public bool ContainsRowUsingRowSet(in T row) => rowSet!.ContainsRow(row);
 
         /// <summary>
         /// Report back all the rows, in order
@@ -95,7 +111,7 @@ namespace TED
             get
             {
                 for (var i = 0; i < Length; i++)
-                    yield return data[i];
+                    yield return Data[i];
             }
         }
 
@@ -103,14 +119,14 @@ namespace TED
         {
             private uint[] buckets;
             private uint mask;
-            private Table<T> table;
-            const uint Empty = UInt32.MaxValue;
+            private readonly Table<T> table;
+            const uint Empty = uint.MaxValue;
             private static readonly EqualityComparer<T> Comparer = EqualityComparer<T>.Default;
 
             public RowSet(Table<T> t)
             {
                 table = t;
-                var capacity = t.data.Length*2;
+                var capacity = t.Data.Length*2;
                 buckets = new uint[capacity];
                 Array.Fill(buckets, Empty);
                 mask = (uint)(capacity - 1);
@@ -123,7 +139,7 @@ namespace TED
             public bool ContainsRow(in T value)
             {
                 for (var b = HashInternal(value, mask); buckets[b] != Empty; b = (b+1)&mask)
-                    if (Comparer.Equals(table.data[buckets[b]], value))
+                    if (Comparer.Equals(table.Data[buckets[b]], value))
                         return true;
                 return false;
             }
@@ -136,8 +152,8 @@ namespace TED
             public bool MaybeAddRow(uint row)
             {
                 uint b;
-                for (b = HashInternal(table.data[row], mask); buckets[b] != Empty; b = ((b+1)&mask))
-                    if (Comparer.Equals(table.data[buckets[b]], table.data[row]))
+                for (b = HashInternal(table.Data[row], mask); buckets[b] != Empty; b = ((b+1)&mask))
+                    if (Comparer.Equals(table.Data[buckets[b]], table.Data[row]))
                         // It's already there
                         return false;
 
@@ -158,7 +174,7 @@ namespace TED
                     {
                         uint nb;
                         // Find a free bucket
-                        for (nb = HashInternal(table.data[row], newMask); newBuckets[nb] != Empty; nb = (nb + 1) & newMask)
+                        for (nb = HashInternal(table.Data[row], newMask); newBuckets[nb] != Empty; nb = (nb + 1) & newMask)
                         { }  // Do nothing
                         newBuckets[nb] = row;
                     }

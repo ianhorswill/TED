@@ -28,6 +28,17 @@ namespace TED
             : this(name, defaultVars.Select(t => t.ToString()).ToArray(), defaultVars)
         { }
 
+        internal abstract AnyTable TableUntyped { get; }
+
+        /// <summary>
+        /// If true, the underlying table enforces uniqueness of row/tuples by indexing them with a hashtable.
+        /// </summary>
+        public bool Unique
+        {
+            get => TableUntyped.Unique;
+            set => TableUntyped.Unique = value;
+        }
+
         /// <summary>
         /// Human-readable descriptions of columns
         /// </summary>
@@ -57,6 +68,38 @@ namespace TED
         /// </summary>
         /// <param name="args">Arguments to the predicate</param>
         public abstract AnyTableGoal GetGoal(AnyTerm[] args);
+
+        /// <summary>
+        /// Add a key index
+        /// </summary>
+        public void IndexByKey(int columnIndex) => AddIndex(columnIndex, true);
+
+        /// <summary>
+        /// Add a key index
+        /// </summary>
+        public void IndexByKey(AnyTerm column) => AddIndex(column, true);
+
+        private void AddIndex(AnyTerm t, bool keyIndex)
+        {
+            if (DefaultVariables == null)
+                throw new InvalidOperationException(
+                    $"No default arguments defined for table {Name}, so no known column {t}");
+            var index = Array.IndexOf(DefaultVariables, t);
+            if (index < 0)
+                throw new ArgumentException($"Table {Name} has no column named {t}");
+            AddIndex(index, keyIndex);
+        }
+
+        protected abstract void AddIndex(int columnIndex, bool keyIndex);
+
+        /// <summary>
+        /// Return the index of the specified type for the specified column
+        /// </summary>
+        /// <param name="columnIndex">Column to find the index for</param>
+        /// <param name="key">Whether to look for a key or non-key</param>
+        /// <returns>The index or null if there is not index of that type for that column</returns>
+        internal TableIndex? IndexFor(int columnIndex, bool key) 
+            => TableUntyped.Indices.FirstOrDefault(i => i.ColumnIndex == columnIndex && key == i.IsKey);
 
         /// <summary>
         /// Rules that can be used to prove goals involving this predicate
@@ -169,6 +212,11 @@ namespace TED
 
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0]];
 
+        protected override void AddIndex(int columnIndex, bool keyIndex)
+        {
+            throw new NotImplementedException("Single-column tables shouldn't be indexed.  Instead, set the Unique property to true.");
+        }
+
         /// <summary>
         /// Add a rule to the predicate, using its default arguments as the head
         /// </summary>
@@ -228,6 +276,8 @@ namespace TED
                 return _table;
             }
         }
+
+        internal override AnyTable TableUntyped => _table;
 
         /// <summary>
         /// Number of rows/items in the table/extension of the predicate
@@ -334,6 +384,23 @@ namespace TED
 
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1]];
 
+        protected override void AddIndex(int columnIndex, bool keyIndex)
+        {
+            switch (columnIndex)
+            {
+                case 0:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item1, keyIndex));
+                    break;
+
+                case 1:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item2, keyIndex));
+                    break;
+
+                default:
+                    throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
+            }
+        }
+
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2") 
             : base(name, new []{ col1, col2 })
         {
@@ -358,6 +425,8 @@ namespace TED
                 return _table;
             }
         }
+
+        internal override AnyTable TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -496,6 +565,27 @@ namespace TED
 
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2]];
 
+        protected override void AddIndex(int columnIndex, bool keyIndex)
+        {
+            switch (columnIndex)
+            {
+                case 0:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item1, keyIndex));
+                    break;
+
+                case 1:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item2, keyIndex));
+                    break;
+
+                case 2:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item3, keyIndex));
+                    break;
+
+                default:
+                    throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
+            }
+        }
+
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3")
             : base(name, new []{ col1, col2, col3 })
         {
@@ -522,6 +612,8 @@ namespace TED
             }
         }
 
+        internal override AnyTable TableUntyped => _table;
+        
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
         /// </summary>
@@ -662,6 +754,33 @@ namespace TED
 
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3]];
 
+        protected override void AddIndex(int columnIndex, bool keyIndex)
+        {
+            switch (columnIndex)
+            {
+                case 0:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item1, keyIndex));
+                    break;
+
+                case 1:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item2, keyIndex));
+                    break;
+
+                case 2:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item3, keyIndex));
+                    break;
+
+                case 3:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item4, keyIndex));
+                    break;
+
+                default:
+                    throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
+            }
+        }
+
+
+
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
             string col4 = "col4") : base(name, new []{ col1, col2, col3, col4 })
         {
@@ -688,6 +807,8 @@ namespace TED
                 return _table;
             }
         }
+
+        internal override AnyTable TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -832,6 +953,35 @@ namespace TED
 
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4]];
 
+        protected override void AddIndex(int columnIndex, bool keyIndex)
+        {
+            switch (columnIndex)
+            {
+                case 0:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item1, keyIndex));
+                    break;
+
+                case 1:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item2, keyIndex));
+                    break;
+
+                case 2:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item3, keyIndex));
+                    break;
+
+                case 3:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item4, keyIndex));
+                    break;
+
+                case 4:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item5, keyIndex));
+                    break;
+
+                default:
+                    throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
+            }
+        }
+
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
             string col4 = "col4", string col5 = "col5") : base(name, new []{ col1, col2, col3, col4, col5 })
         {
@@ -861,6 +1011,8 @@ namespace TED
             }
         }
 
+        internal override AnyTable TableUntyped => _table;
+        
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
         /// </summary>
@@ -1007,6 +1159,40 @@ namespace TED
 
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4], (Term<T6>)args[5]];
 
+        protected override void AddIndex(int columnIndex, bool keyIndex)
+        {
+            switch (columnIndex)
+            {
+                case 0:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item1, keyIndex));
+                    break;
+
+                case 1:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item2, keyIndex));
+                    break;
+
+                case 2:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item3, keyIndex));
+                    break;
+
+                case 3:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item4, keyIndex));
+                    break;
+
+                case 4:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item5, keyIndex));
+                    break;
+
+                case 5:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item6, keyIndex));
+                    break;
+
+                default:
+                    throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
+            }
+        }
+
+
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
             string col4 = "col4", string col5 = "col5", string col6 = "col6")
             : base(name, new []{ col1, col2, col3, col4, col5, col6 })
@@ -1037,6 +1223,8 @@ namespace TED
                 return _table;
             }
         }
+
+        internal override AnyTable TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)

@@ -21,7 +21,7 @@ namespace Tests
         [TestMethod]
         public void SuppressDuplicatesTest1()
         {
-            var t = new Table<string>();
+            var t = new Table<string>() { Unique = true };
             t.Add("foo");
             Assert.AreEqual("foo", t[0]);
             Assert.AreEqual(1u, t.Length);
@@ -39,7 +39,7 @@ namespace Tests
             // thus exercising the search
             for (int j = 0; j < 5; j++)
             {
-                var t = new Table<uint>();
+                var t = new Table<uint>() { Unique = true };
                 for (var i = 0u; i < 50; i++)
                     t.Add(i<<j);
                 Assert.AreEqual(50u, t.Length);
@@ -57,25 +57,54 @@ namespace Tests
         [TestMethod]
         public void ProbeTest()
         {
-            var t = new Table<int>();
+            var t = new Table<int>() { Unique = true };
             for (var i = 0; i < 100; i++)
                 t.Add(i<<2);
             for (var i = 0; i < 400; i++)
             {
-                Assert.AreEqual((i&3)==0, t.ContainsRow(i));
+                Assert.AreEqual((i&3)==0, t.ContainsRowUsingRowSet(i));
             }
         }
 
         [TestMethod]
         public void FullTableProbeTest()
         {
-            var t = new Table<int>();
+            var t = new Table<int>() { Unique = true };
             for (var i = 0; i < 1025; i++)
             {
                 t.Add(i<<2);
-                Assert.IsFalse(t.ContainsRow(-1));
-                Assert.IsTrue(t.ContainsRow(i<<2));
+                Assert.IsFalse(t.ContainsRowUsingRowSet(-1));
+                Assert.IsTrue(t.ContainsRowUsingRowSet(i<<2));
             }
+        }
+
+        [TestMethod]
+        public void KeyIndexTest()
+        {
+            var t = new Table<int>();
+            var index = new KeyIndex<int, int>(null, t, 0, n=>n);
+            t.AddIndex(index);
+            for (var i = 0; i < 1025; i++)
+            {
+                var value = i << 2;
+                t.Add(value);
+            }
+            for (var i = 0u; i < 1025; i++)
+            {
+                var value = i << 2;
+                Assert.AreEqual(i, index.RowWithKey((int)value));
+            }
+            Assert.AreEqual(KeyIndex<int,int>.NotFound, index.RowWithKey(-1));
+        }
+
+        [TestMethod, ExpectedException(typeof(DuplicateKeyException))]
+        public void DuplicateKeyTest()
+        {
+            var t = new Table<int>();
+            var index = new KeyIndex<int, int>(null, t, 0, n=>n);
+            t.AddIndex(index);
+            t.Add(0);
+            t.Add(0);
         }
     }
 }

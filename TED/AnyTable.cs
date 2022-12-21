@@ -1,4 +1,6 @@
-﻿namespace TED
+﻿using System.Collections.Generic;
+
+namespace TED
 {
     /// <summary>
     /// Untyped base class for all tables
@@ -15,5 +17,11 @@
         /// Remove all rows from the table
         /// </summary>
         public abstract void Clear();
+
+        internal readonly List<TableIndex> Indices = new List<TableIndex>();
+
+        public abstract bool Unique { get; set; }
+
+        internal void AddIndex(TableIndex i) => Indices.Add(i);
     }
 }

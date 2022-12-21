@@ -1,4 +1,5 @@
 ﻿using TED;
+using static TED.Language;
 
 namespace Tests
 {
@@ -56,6 +57,40 @@ namespace Tests
             var n = (Var<int>)"n";
             var p = new TablePredicate<int>("test", n);
             p[n].Fact();
+        }
+
+        [TestMethod]
+        public void KeyIndexedCallTest()
+        {
+            var d = (Var<string>)"d";
+            var n = (Var<string>)"n";
+            var Day = Predicate("Day",
+                new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" }, d);
+            var NextDay = Predicate("NextDay",
+                new[] { ("Monday", "Tuesday"), ("Tuesday", "Wednesday"), ("Wednesday","Thursday"), ("Thursday","Friday"),
+                    ("Friday", "Saturday"), ("Saturday", "Sunday"), ("Sunday", "Monday") }, d, n);
+            NextDay.IndexByKey(d);
+            var Mapped = Predicate("Mapped", d, n).If(Day[d], NextDay[d, n]);
+            var rule = Mapped.Rules![0];
+            Assert.IsInstanceOfType(rule.Body[1], typeof(TableCallWithKey<string, string, string>));
+            CollectionAssert.AreEqual(NextDay.Rows.ToArray(), Mapped.Rows.ToArray());
+        }
+
+        [TestMethod]
+        public void KeyIndexedCallFailureTest()
+        {
+            // Like KeyIndexCallTest, but forces some of the key lookups to fail to make sure that doesn't crash
+            var d = (Var<string>)"d";
+            var n = (Var<string>)"n";
+            var Day = Predicate("Day",
+                new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" }, d);
+            var NextDay = Predicate("NextDay",
+                new[] { ("Monday", "Tuesday"),("Wednesday","Thursday"), ("Friday", "Saturday") }, d, n);
+            NextDay.IndexByKey(d);
+            var Mapped = Predicate("Mapped", d, n).If(Day[d], NextDay[d, n]);
+            var rule = Mapped.Rules![0];
+            Assert.IsInstanceOfType(rule.Body[1], typeof(TableCallWithKey<string, string, string>));
+            CollectionAssert.AreEqual(new[] { ("Monday", "Tuesday"),("Wednesday","Thursday"), ("Friday", "Saturday") }, Mapped.Rows.ToArray());
         }
     }
 }
