@@ -6,11 +6,16 @@ namespace TED
 {
     internal static class Preprocessor
     {
-        public static AnyCall[] GenerateCalls(GoalAnalyzer ga, params AnyGoal[] body)
+        public static IEnumerable<AnyGoal> PreprocessBody(params AnyGoal[] body)
         {
             var hoisted = body.SelectMany(HoistFunctionalExpressions).ToArray();
             var expanded = Expand(hoisted).ToArray();
-            return expanded.Select(s => s.MakeCall(ga)).ToArray();
+            return expanded;
+        }
+        public static AnyCall[] GenerateCalls(GoalAnalyzer ga, params AnyGoal[] body)
+        {
+
+            return PreprocessBody(body).Select(s => s.MakeCall(ga)).ToArray();
         }
 
         public static AnyCall BodyToCall(GoalAnalyzer ga, params AnyGoal[] body)

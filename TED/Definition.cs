@@ -56,7 +56,7 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = Preprocessor.Expand(body).ToArray();
+            Body = PreprocessBody(body).ToArray();
             return this;
         }
 
@@ -99,7 +99,7 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = Preprocessor.Expand(body).ToArray();
+            Body = PreprocessBody(body).ToArray();
             return this;
         }
 
@@ -148,7 +148,7 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = Expand(body).ToArray();
+            Body = PreprocessBody(body).ToArray();
             return this;
         }
 
@@ -202,7 +202,7 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = Expand(body).ToArray();
+            Body = PreprocessBody(body).ToArray();
             return this;
         }
 
@@ -265,7 +265,7 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = Expand(body).ToArray();
+            Body = PreprocessBody(body).ToArray();
             return this;
         }
 
@@ -331,7 +331,7 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = Expand(body).ToArray();
+            Body = PreprocessBody(body).ToArray();
             return this;
         }
 
