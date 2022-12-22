@@ -10,7 +10,7 @@ namespace Tests
         [TestMethod]
         public void SubstitutionTest()
         {
-            var s = new Substitution();
+            var s = new Substitution(true);
             var i = (Var<int>)"i";
             var j = (Var<int>)"j";
             var k = (Var<int>)"k";

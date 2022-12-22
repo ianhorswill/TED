@@ -6,8 +6,12 @@ namespace TED
 {
     internal static class Preprocessor
     {
-        public static AnyCall[] GenerateCalls(GoalAnalyzer ga, params AnyGoal[] body) =>
-            Expand(body).Select(s => s.MakeCall(ga)).ToArray();
+        public static AnyCall[] GenerateCalls(GoalAnalyzer ga, params AnyGoal[] body)
+        {
+            var hoisted = body.SelectMany(HoistFunctionalExpressions).ToArray();
+            var expanded = Expand(hoisted).ToArray();
+            return expanded.Select(s => s.MakeCall(ga)).ToArray();
+        }
 
         public static AnyCall BodyToCall(GoalAnalyzer ga, params AnyGoal[] body)
         {
@@ -30,6 +34,21 @@ namespace TED
             return dg.Expand();
         }
 
-        public static IEnumerable<AnyGoal> Expand(IEnumerable<AnyGoal> body) => body.SelectMany(Expand);
+        public static IEnumerable<AnyGoal> Expand(IEnumerable<AnyGoal> body) => body.SelectMany(g => Expand(g));
+
+        public static IEnumerable<AnyTerm> FunctionalExpressions(AnyGoal g) =>
+            g.Arguments.Where(a => a.IsFunctionalExpression);
+
+        public static IEnumerable<AnyGoal> HoistFunctionalExpressions(AnyGoal g)
+        {
+            if (g.Predicate is IMatchPrimitive)
+                return new[] { g };
+            var fes = FunctionalExpressions(g).ToArray();
+            if (!fes.Any())
+                return new[] { g };
+            var liftedExpressions = fes.Select(fe => fe.HoistInfo()).ToArray();
+            var newG = g.RenameArguments(new Substitution(liftedExpressions.Select(l => (l.Expression, l.Var)), false));
+            return liftedExpressions.Select(l => l.MatchGoal).Append(newG);
+        }
     }
 }

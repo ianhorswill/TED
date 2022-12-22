@@ -2,14 +2,16 @@
 
 namespace TED
 {
+    internal interface IMatchPrimitive { }
+
     /// <summary>
     /// Implements negation of a goal
     /// </summary>
-    public class MatchPrimitive<T> : PrimitivePredicate<T,T>
+    public class MatchPrimitive<T> : PrimitivePredicate<T,T>, IMatchPrimitive
     {
         public static MatchPrimitive<T> Singleton = new MatchPrimitive<T>();
 
-        public MatchPrimitive() : base("Set")
+        public MatchPrimitive() : base("Match")
         {
         }
 

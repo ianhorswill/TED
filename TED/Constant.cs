@@ -12,12 +12,7 @@ namespace TED
         /// The actual constant
         /// </summary>
         public readonly T Value;
-
-        /// <summary>
-        /// This is not a variable
-        /// </summary>
-        public override bool IsVariable => false;
-
+        
         /// <summary>
         /// Make a Constant object to wrap the specified constant
         /// </summary>

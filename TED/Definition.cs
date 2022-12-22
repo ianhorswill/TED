@@ -74,7 +74,7 @@ namespace TED
 
             public override Substitution MakeSubstitution()
             {
-                var s = new Substitution();
+                var s = new Substitution(true);
                 var d = (Definition<T1>)Definition;
                 s.ReplaceWith(d.Arg1, Arg1);
                 return s;
@@ -120,7 +120,7 @@ namespace TED
 
             public override Substitution MakeSubstitution()
             {
-                var s = new Substitution();
+                var s = new Substitution(true);
                 var d = (Definition<T1, T2>)Definition;
                 s.ReplaceWith(d.Arg1, Arg1);
                 s.ReplaceWith(d.Arg2, Arg2);
@@ -171,7 +171,7 @@ namespace TED
 
             public override Substitution MakeSubstitution()
             {
-                var s = new Substitution();
+                var s = new Substitution(true);
                 var d = (Definition<T1,T2,T3>)Definition;
                 s.ReplaceWith(d.Arg1, Arg1);
                 s.ReplaceWith(d.Arg2, Arg2);
@@ -229,7 +229,7 @@ namespace TED
 
             public override Substitution MakeSubstitution()
             {
-                var s = new Substitution();
+                var s = new Substitution(true);
                 var d = (Definition<T1,T2,T3,T4>)Definition;
                 s.ReplaceWith(d.Arg1, Arg1);
                 s.ReplaceWith(d.Arg2, Arg2);
@@ -294,7 +294,7 @@ namespace TED
 
             public override Substitution MakeSubstitution()
             {
-                var s = new Substitution();
+                var s = new Substitution(true);
                 var d = (Definition<T1,T2,T3,T4,T5>)Definition;
                 s.ReplaceWith(d.Arg1, Arg1);
                 s.ReplaceWith(d.Arg2, Arg2);
@@ -362,7 +362,7 @@ namespace TED
 
             public override Substitution MakeSubstitution()
             {
-                var s = new Substitution();
+                var s = new Substitution(true);
                 var d = (Definition<T1,T2,T3,T4,T5,T6>)Definition;
                 s.ReplaceWith(d.Arg1, Arg1);
                 s.ReplaceWith(d.Arg2, Arg2);

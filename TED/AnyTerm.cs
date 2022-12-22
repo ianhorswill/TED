@@ -15,7 +15,14 @@ namespace TED
         /// type testing, this is faster anyway.
         /// </summary>
         /// <value></value>
-        public abstract bool IsVariable { get; }
+        public virtual bool IsVariable => false;
+
+        public virtual bool IsFunctionalExpression => false;
+
+        internal virtual (AnyTerm Expression, AnyTerm Var, AnyGoal MatchGoal) HoistInfo()
+        {
+            throw new NotImplementedException("This shouldn't be called");
+        }
     }
 
     /// <summary>
