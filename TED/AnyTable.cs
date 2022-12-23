@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TED
 {
@@ -8,6 +9,11 @@ namespace TED
     /// </summary>
     internal abstract class AnyTable
     {
+        /// <summary>
+        /// Row index to return when not no matching row is found
+        /// </summary>
+        public const uint NoRow = UInt32.MaxValue;
+
         /// <summary>
         /// Number of rows in the table, regardless of the size of the underlying array.
         /// </summary>

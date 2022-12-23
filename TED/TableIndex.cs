@@ -2,31 +2,54 @@
 
 namespace TED
 {
+    /// <summary>
+    /// Base type of indices into tables
+    /// </summary>
     internal abstract class TableIndex
     {
-        public abstract bool IsKey { get; }
-
-        public abstract void Add(uint row);
-        public abstract void Expand();
-
-        public abstract void Clear();
-
-        public readonly int ColumnIndex;
+        /// <summary>
+        /// 
+        /// </summary>
+        public readonly int ColumnNumber;
 
         /// <summary>
-        /// Row index to return when not no matching row is found
+        /// If true, this index is for a column that is a key, i.e. rows have unique values for this column
         /// </summary>
-        public const uint NotFound = UInt32.MaxValue;
+        public abstract bool IsKey { get; }
 
-        protected TableIndex(int columnIndex)
+        /// <summary>
+        /// Add a row to the index
+        /// </summary>
+        /// <param name="row">Position within the table array of the row to add</param>
+        public abstract void Add(uint row);
+
+        /// <summary>
+        /// Double the size of the table.
+        /// </summary>
+        internal abstract void Expand();
+
+        /// <summary>
+        /// Remove all data from the index
+        /// </summary>
+        internal abstract void Clear();
+
+        /// <summary>
+        /// Forcibly rebuild the index
+        /// </summary>
+        internal abstract void Reindex();
+
+        protected TableIndex(int columnNumber)
         {
-            ColumnIndex = columnIndex;
+            ColumnNumber = columnNumber;
         }
 
+        /// <summary>
+        /// Make an index, either keyed or not keyed, depending on the isKey argument
+        /// </summary>
         internal static TableIndex MakeIndex<TRow, TKey>(TablePredicate p, Table<TRow> t, int columnIndex,
             Func<TRow, TKey> projection, bool isKey)
             => isKey
-                ? new KeyIndex<TRow, TKey>(p, t, columnIndex, projection)
-                : throw new NotImplementedException("Non-key indices not yet implemented");
+                ? (TableIndex)new KeyIndex<TRow, TKey>(p, t, columnIndex, projection)
+                : new GeneralIndex<TRow, TKey>(p, t, columnIndex, projection);
     }
 }

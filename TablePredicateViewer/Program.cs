@@ -28,6 +28,7 @@ namespace TablePredicateViewer
 
             // Predicates loaded from disk
             var Person = TablePredicate<string, string, int>.FromCsv("../../../Population.csv");
+            Person.IndexBy(1);
             var MaleName = TablePredicate<string>.FromCsv("../../../male_name.csv");
             var FemaleName = TablePredicate<string>.FromCsv("../../../female_name.csv");
 

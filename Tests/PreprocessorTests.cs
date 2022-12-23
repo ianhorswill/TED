@@ -1,5 +1,6 @@
 ﻿using TED;
 using static TED.Language;
+// ReSharper disable InconsistentNaming
 
 namespace Tests
 {
@@ -56,6 +57,11 @@ namespace Tests
             var DayNumber = Predicate("DayNumber",
                 new[] { ("Monday", 0), ("Tuesday", 1), ("Wednesday",2), ("Thursday", 3), ("Friday", 4), ("Saturday", 5), ("Sunday", 6) },
                 d, i);
+            // This should have no effect whatsoever, but exercising the indexing system a little more
+            DayNumber.IndexByKey(d);
+            // This isn't really necessary, but again, exercising the indexing system
+            DayNumber.IndexByKey(i);
+
             var NextDay = Predicate("NextDay", d, next).If(DayNumber[d, i], DayNumber[next, (i + 1) % 7]);
 
             var rightAnswer = new[]

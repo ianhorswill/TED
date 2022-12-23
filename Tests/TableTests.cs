@@ -94,7 +94,7 @@ namespace Tests
                 var value = i << 2;
                 Assert.AreEqual(i, index.RowWithKey((int)value));
             }
-            Assert.AreEqual(KeyIndex<int,int>.NotFound, index.RowWithKey(-1));
+            Assert.AreEqual(AnyTable.NoRow, index.RowWithKey(-1));
         }
 
         [TestMethod, ExpectedException(typeof(DuplicateKeyException))]
@@ -105,6 +105,40 @@ namespace Tests
             t.AddIndex(index);
             t.Add(0);
             t.Add(0);
+        }
+
+        [TestMethod]
+        public void GeneralIndexTest()
+        {
+            var t = new Table<int>();
+            var index = new GeneralIndex<int, int>(null, t, 0, n=>n);
+            t.AddIndex(index);
+            for (var i = 0; i < 1025; i++)
+            {
+                var value = i << 2;
+                t.Add(value);
+            }
+            for (var i = 0u; i < 1025; i++)
+            {
+                var value = i << 2;
+                Assert.AreEqual(i, index.FirstRowWithValue((int)value));
+                Assert.AreEqual(AnyTable.NoRow, index.NextRowWithValue(i));
+            }
+            Assert.AreEqual(AnyTable.NoRow, index.FirstRowWithValue(-1));
+            for (var i = 0; i < 1025; i++)
+            {
+                var value = i << 2;
+                t.Add(value);
+            }
+            for (var i = 0u; i < 1025; i++)
+            {
+                var value = i << 2;
+                var first = index.FirstRowWithValue((int)value);
+                Assert.AreEqual(i+1025, first);
+                var next = index.NextRowWithValue(first);
+                Assert.AreEqual(i, next);
+                Assert.AreEqual(AnyTable.NoRow, index.NextRowWithValue(next));
+            }
         }
     }
 }

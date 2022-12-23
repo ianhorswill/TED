@@ -92,6 +92,11 @@
             if (pattern.Arg2.IsInstantiated && TablePredicate.IndexFor(1, true) is KeyIndex<(T1,T2), T2> index2)
                 return new TableCallWithKey<T2, T1, T2>(tablePredicate, pattern, index2, pattern.Arg2.ValueCell);
 
+            if (pattern.Arg1.IsInstantiated && TablePredicate.IndexFor(0, true) is GeneralIndex<(T1,T2), T1> g)
+                return new TableCallWithGeneralIndex<T1, T1, T2>(tablePredicate, pattern, g, pattern.Arg1.ValueCell);
+            if (pattern.Arg2.IsInstantiated && TablePredicate.IndexFor(1, true) is GeneralIndex<(T1,T2), T2> g2)
+                return new TableCallWithGeneralIndex<T2, T1, T2>(tablePredicate, pattern, g2, pattern.Arg2.ValueCell);
+
             return new TableCallExhaustive<T1,T2>(tablePredicate, pattern);
         }
 
@@ -156,6 +161,13 @@
                 return new TableCallWithKey<T2, T1, T2, T3>(tablePredicate, pattern, index2, pattern.Arg2.ValueCell);
             if (pattern.Arg3.IsInstantiated && TablePredicate.IndexFor(2, true) is KeyIndex<(T1,T2, T3), T3> index3)
                 return new TableCallWithKey<T3, T1, T2, T3>(tablePredicate, pattern, index3, pattern.Arg3.ValueCell);
+
+            if (pattern.Arg1.IsInstantiated && TablePredicate.IndexFor(0, true) is GeneralIndex<(T1,T2, T3), T1> g)
+                return new TableCallWithGeneralIndex<T1, T1, T2, T3>(tablePredicate, pattern, g, pattern.Arg1.ValueCell);
+            if (pattern.Arg2.IsInstantiated && TablePredicate.IndexFor(1, true) is GeneralIndex<(T1,T2, T3), T2> g2)
+                return new TableCallWithGeneralIndex<T2, T1, T2, T3>(tablePredicate, pattern, g2, pattern.Arg2.ValueCell);
+            if (pattern.Arg3.IsInstantiated && TablePredicate.IndexFor(2, true) is GeneralIndex<(T1,T2, T3), T3> g3)
+                return new TableCallWithGeneralIndex<T3, T1, T2, T3>(tablePredicate, pattern, g3, pattern.Arg3.ValueCell);
 
 
             return new TableCallExhaustive<T1,T2,T3>(tablePredicate, pattern);
@@ -227,6 +239,15 @@
                 return new TableCallWithKey<T3, T1, T2, T3, T4>(tablePredicate, pattern, index3, pattern.Arg3.ValueCell);
             if (pattern.Arg4.IsInstantiated && TablePredicate.IndexFor(3, true) is KeyIndex<(T1,T2, T3, T4), T4> index4)
                 return new TableCallWithKey<T4, T1, T2, T3, T4>(tablePredicate, pattern, index4, pattern.Arg4.ValueCell);
+
+            if (pattern.Arg1.IsInstantiated && TablePredicate.IndexFor(0, true) is GeneralIndex<(T1,T2, T3, T4), T1> g)
+                return new TableCallWithGeneralIndex<T1, T1, T2, T3, T4>(tablePredicate, pattern, g, pattern.Arg1.ValueCell);
+            if (pattern.Arg2.IsInstantiated && TablePredicate.IndexFor(1, true) is GeneralIndex<(T1,T2, T3, T4), T2> g2)
+                return new TableCallWithGeneralIndex<T2, T1, T2, T3, T4>(tablePredicate, pattern, g2, pattern.Arg2.ValueCell);
+            if (pattern.Arg3.IsInstantiated && TablePredicate.IndexFor(2, true) is GeneralIndex<(T1,T2, T3, T4), T3> g3)
+                return new TableCallWithGeneralIndex<T3, T1, T2, T3, T4>(tablePredicate, pattern, g3, pattern.Arg3.ValueCell);
+            if (pattern.Arg4.IsInstantiated && TablePredicate.IndexFor(3, true) is GeneralIndex<(T1,T2, T3, T4), T4> g4)
+                return new TableCallWithGeneralIndex<T4, T1, T2, T3, T4>(tablePredicate, pattern, g4, pattern.Arg4.ValueCell);
 
             return new TableCallExhaustive<T1,T2,T3,T4>(tablePredicate, pattern);
         }
@@ -303,6 +324,17 @@
                 return new TableCallWithKey<T4, T1, T2, T3, T4, T5>(tablePredicate, pattern, index4, pattern.Arg4.ValueCell);
             if (pattern.Arg5.IsInstantiated && TablePredicate.IndexFor(4, true) is KeyIndex<(T1,T2, T3, T4, T5), T5> index5)
                 return new TableCallWithKey<T5, T1, T2, T3, T4, T5>(tablePredicate, pattern, index5, pattern.Arg5.ValueCell);
+
+            if (pattern.Arg1.IsInstantiated && TablePredicate.IndexFor(0, true) is GeneralIndex<(T1,T2, T3, T4, T5), T1> g)
+                return new TableCallWithGeneralIndex<T1, T1, T2, T3, T4, T5>(tablePredicate, pattern, g, pattern.Arg1.ValueCell);
+            if (pattern.Arg2.IsInstantiated && TablePredicate.IndexFor(1, true) is GeneralIndex<(T1,T2, T3, T4, T5), T2> g2)
+                return new TableCallWithGeneralIndex<T2, T1, T2, T3, T4, T5>(tablePredicate, pattern, g2, pattern.Arg2.ValueCell);
+            if (pattern.Arg3.IsInstantiated && TablePredicate.IndexFor(2, true) is GeneralIndex<(T1,T2, T3, T4, T5), T3> g3)
+                return new TableCallWithGeneralIndex<T3, T1, T2, T3, T4, T5>(tablePredicate, pattern, g3, pattern.Arg3.ValueCell);
+            if (pattern.Arg4.IsInstantiated && TablePredicate.IndexFor(3, true) is GeneralIndex<(T1,T2, T3, T4, T5), T4> g4)
+                return new TableCallWithGeneralIndex<T4, T1, T2, T3, T4, T5>(tablePredicate, pattern, g4, pattern.Arg4.ValueCell);
+            if (pattern.Arg5.IsInstantiated && TablePredicate.IndexFor(4, true) is GeneralIndex<(T1,T2, T3, T4, T5), T5> g5)
+                return new TableCallWithGeneralIndex<T5, T1, T2, T3, T4, T5>(tablePredicate, pattern, g5, pattern.Arg5.ValueCell);
 
             return new TableCallExhaustive<T1,T2,T3,T4,T5>(tablePredicate, pattern);
         }
@@ -385,6 +417,19 @@
                 return new TableCallWithKey<T5, T1, T2, T3, T4, T5, T6>(tablePredicate, pattern, index5, pattern.Arg5.ValueCell);
             if (pattern.Arg6.IsInstantiated && TablePredicate.IndexFor(5, true) is KeyIndex<(T1,T2, T3, T4, T5, T6), T6> index6)
                 return new TableCallWithKey<T6, T1, T2, T3, T4, T5, T6>(tablePredicate, pattern, index6, pattern.Arg6.ValueCell);
+            
+            if (pattern.Arg1.IsInstantiated && TablePredicate.IndexFor(0, true) is GeneralIndex<(T1,T2, T3, T4, T5, T6), T1> g)
+                return new TableCallWithGeneralIndex<T1, T1, T2, T3, T4, T5, T6>(tablePredicate, pattern, g, pattern.Arg1.ValueCell);
+            if (pattern.Arg2.IsInstantiated && TablePredicate.IndexFor(1, true) is GeneralIndex<(T1,T2, T3, T4, T5, T6), T2> g2)
+                return new TableCallWithGeneralIndex<T2, T1, T2, T3, T4, T5, T6>(tablePredicate, pattern, g2, pattern.Arg2.ValueCell);
+            if (pattern.Arg3.IsInstantiated && TablePredicate.IndexFor(2, true) is GeneralIndex<(T1,T2, T3, T4, T5, T6), T3> g3)
+                return new TableCallWithGeneralIndex<T3, T1, T2, T3, T4, T5, T6>(tablePredicate, pattern, g3, pattern.Arg3.ValueCell);
+            if (pattern.Arg4.IsInstantiated && TablePredicate.IndexFor(3, true) is GeneralIndex<(T1,T2, T3, T4, T5, T6), T4> g4)
+                return new TableCallWithGeneralIndex<T4, T1, T2, T3, T4, T5, T6>(tablePredicate, pattern, g4, pattern.Arg4.ValueCell);
+            if (pattern.Arg5.IsInstantiated && TablePredicate.IndexFor(4, true) is GeneralIndex<(T1,T2, T3, T4, T5, T6), T5> g5)
+                return new TableCallWithGeneralIndex<T5, T1, T2, T3, T4, T5, T6>(tablePredicate, pattern, g5, pattern.Arg5.ValueCell);
+            if (pattern.Arg6.IsInstantiated && TablePredicate.IndexFor(5, true) is GeneralIndex<(T1,T2, T3, T4, T5, T6), T6> g6)
+                return new TableCallWithGeneralIndex<T6, T1, T2, T3, T4, T5, T6>(tablePredicate, pattern, g6, pattern.Arg6.ValueCell);
 
             return new TableCallExhaustive<T1,T2,T3,T4,T5,T6>(tablePredicate, pattern);
         }

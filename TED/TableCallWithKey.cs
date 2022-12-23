@@ -22,7 +22,7 @@
             if (!primed) return false;
             primed = false;
             var row = index.RowWithKey(keyCell.Value);
-            return row != TableIndex.NotFound && pattern.Match(predicate._table.PositionReference(row));
+            return row != AnyTable.NoRow && pattern.Match(predicate._table.PositionReference(row));
         }
     }
     
@@ -47,7 +47,8 @@
         {
             if (!primed) return false;
             primed = false;
-            return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
+            var row = index.RowWithKey(keyCell.Value);
+            return row != AnyTable.NoRow && pattern.Match(predicate._table.PositionReference(row));
         }
     }
 
@@ -72,7 +73,8 @@
         {
             if (!primed) return false;
             primed = false;
-            return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
+            var row = index.RowWithKey(keyCell.Value);
+            return row != AnyTable.NoRow && pattern.Match(predicate._table.PositionReference(row));
         }
     }
 
@@ -97,7 +99,8 @@
         {
             if (!primed) return false;
             primed = false;
-            return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
+            var row = index.RowWithKey(keyCell.Value);
+            return row != AnyTable.NoRow && pattern.Match(predicate._table.PositionReference(row));
         }
     }
 
@@ -122,7 +125,8 @@
         {
             if (!primed) return false;
             primed = false;
-            return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
+            var row = index.RowWithKey(keyCell.Value);
+            return row != AnyTable.NoRow && pattern.Match(predicate._table.PositionReference(row));
         }
     }
 }

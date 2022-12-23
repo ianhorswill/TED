@@ -79,6 +79,16 @@ namespace TED
         /// </summary>
         public void IndexByKey(AnyTerm column) => AddIndex(column, true);
 
+        /// <summary>
+        /// Add an index; the column isn't a key, i.e. rows aren't assumed to have unique values for this column
+        /// </summary>
+        public void IndexBy(int columnIndex) => AddIndex(columnIndex, false);
+
+        /// <summary>
+        /// Add an index; the column isn't a key, i.e. rows aren't assumed to have unique values for this column
+        /// </summary>
+        public void IndexBy(AnyTerm column) => AddIndex(column, false);
+
         private void AddIndex(AnyTerm t, bool keyIndex)
         {
             if (DefaultVariables == null)
@@ -99,7 +109,7 @@ namespace TED
         /// <param name="key">Whether to look for a key or non-key</param>
         /// <returns>The index or null if there is not index of that type for that column</returns>
         internal TableIndex? IndexFor(int columnIndex, bool key) 
-            => TableUntyped.Indices.FirstOrDefault(i => i.ColumnIndex == columnIndex && key == i.IsKey);
+            => TableUntyped.Indices.FirstOrDefault(i => i.ColumnNumber == columnIndex && key == i.IsKey);
 
         /// <summary>
         /// Rules that can be used to prove goals involving this predicate
@@ -117,10 +127,12 @@ namespace TED
         /// </summary>
         public bool IsExtensional => Rules == null;
 
-        /// <summary>
-        /// Erase all the rows in the predicate's table
-        /// </summary>
-        protected abstract void ClearTable();
+        public void Clear()
+        {
+            TableUntyped.Clear();
+            foreach (var i in TableUntyped.Indices)
+                i.Clear();
+        }
 
         /// <summary>
         /// TRue if we need to recompute the predicate's table
@@ -134,7 +146,7 @@ namespace TED
         {
             if (MustRecompute)
             {
-                ClearTable();
+                Clear();
                 foreach (var r in Rules!)
                     r.AddAllSolutions();
                 MustRecompute = false;
@@ -283,11 +295,6 @@ namespace TED
         /// Number of rows/items in the table/extension of the predicate
         /// </summary>
         public override uint Length => Table.Length;
-
-        /// <summary>
-        /// Erase all data in the table
-        /// </summary>
-        protected override void ClearTable() => _table.Clear();
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -459,9 +466,7 @@ namespace TED
                     yield return e;
             }
         }
-
-        protected override void ClearTable() => _table.Clear();
-
+        
         /// <summary>
         /// Return all the rows of the table
         /// This allocates memory; do not use in inner lops
@@ -645,8 +650,6 @@ namespace TED
                     yield return e;
             }
         }
-        
-        protected override void ClearTable() => _table.Clear();
 
         /// <summary>
         /// Return all the rows of the table
@@ -843,8 +846,6 @@ namespace TED
             }
         }
         
-        protected override void ClearTable() => _table.Clear();
-
         /// <summary>
         /// Return all the rows of the table
         /// This allocates memory; do not use in inner lops
@@ -1046,8 +1047,6 @@ namespace TED
             }
         }
         
-        protected override void ClearTable() => _table.Clear();
-
         /// <summary>
         /// Return all the rows of the table
         /// This allocates memory; do not use in inner lops
@@ -1258,7 +1257,6 @@ namespace TED
             }
         }
         
-        protected override void ClearTable() => _table.Clear();
         /// <summary>
         /// Return all the rows of the table
         /// This allocates memory; do not use in inner lops

@@ -21,7 +21,13 @@ namespace TED
         public override bool Unique
         {
             get => rowSet != null;
-            set => rowSet ??= new RowSet(this);
+            set
+            {
+                if (value)
+                    rowSet ??= new RowSet(this);
+                else
+                    rowSet = null;
+            }
         }
 
         // Must be a power of 2
@@ -120,7 +126,7 @@ namespace TED
             private uint[] buckets;
             private uint mask;
             private readonly Table<T> table;
-            const uint Empty = uint.MaxValue;
+            const uint Empty = NoRow;
             private static readonly EqualityComparer<T> Comparer = EqualityComparer<T>.Default;
 
             public RowSet(Table<T> t)
