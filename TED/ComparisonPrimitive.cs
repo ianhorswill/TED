@@ -3,7 +3,10 @@ using System.Reflection;
 
 namespace TED
 {
-    public class ComparisonPrimitive<T> : PrimitivePredicate<T,T>
+    /// <summary>
+    /// Wrapper for C# comparison operators (<, >, etc.) for some type.
+    /// </summary>
+    public sealed class ComparisonPrimitive<T> : PrimitivePredicate<T,T>
     {
         public static readonly ComparisonPrimitive<T> LessThan = new ComparisonPrimitive<T>("<", "op_LessThan");
         public static readonly ComparisonPrimitive<T> LessThanEq = new ComparisonPrimitive<T>("<=", "op_LessThanOrEqual");

@@ -5,6 +5,12 @@ using static TED.Preprocessor;
 
 namespace TED
 {
+    /// <summary>
+    /// Untyped base class of all definitions
+    /// A definition is basically a macro
+    /// It's a predicate that gets in-lined whenever it's called.
+    /// Definitions currently only allow one rule.
+    /// </summary>
     public abstract class Definition : AnyPredicate
     {
         public AnyGoal[]? Body;
@@ -41,6 +47,10 @@ namespace TED
         }
     }
 
+    /// <summary>
+    /// A one-argument predicate defined by a single rule.
+    /// Calls to the predicate are always inlined, so the predicate doesn't have to have a finite extension.
+    /// </summary>
     public class Definition<T1> : Definition
     {
         public Definition(string name, Var<T1> arg1) : base(name)
@@ -50,13 +60,16 @@ namespace TED
 
         public readonly Var<T1> Arg1;
 
+        /// <summary>
+        /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
+        /// </summary>
         public Goal this[Term<T1> a1] => new Goal(this, a1);
 
         public Definition<T1> IfAndOnlyIf(params AnyGoal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = PreprocessBody(body).ToArray();
+            Body = CanonicalizeGoals(body).ToArray();
             return this;
         }
 
@@ -69,7 +82,7 @@ namespace TED
                 Arg1 = arg1;
             }
 
-            public override AnyGoal RenameArguments(Substitution s) =>
+            internal override AnyGoal RenameArguments(Substitution s) =>
                 new Goal((Definition<T1>)Definition, s.Substitute(Arg1));
 
             public override Substitution MakeSubstitution()
@@ -99,9 +112,13 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = PreprocessBody(body).ToArray();
+            Body = CanonicalizeGoals(body).ToArray();
             return this;
         }
+
+        /// <summary>
+        /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
+        /// </summary>
 
         public class Goal : AnyDefinitionGoal
         {
@@ -115,7 +132,7 @@ namespace TED
                 Arg2 = arg2;
             }
 
-            public override AnyGoal RenameArguments(Substitution s) => new Goal((Definition<T1, T2>)Definition,
+            internal override AnyGoal RenameArguments(Substitution s) => new Goal((Definition<T1, T2>)Definition,
                 s.Substitute(Arg1), s.Substitute(Arg2));
 
             public override Substitution MakeSubstitution()
@@ -142,13 +159,17 @@ namespace TED
         public readonly Var<T2> Arg2;
         public readonly Var<T3> Arg3;
 
+        /// <summary>
+        /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
+        /// </summary>
+
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3] => new Goal(this, a1, a2, a3);
 
         public Definition<T1, T2, T3> IfAndOnlyIf(params AnyGoal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = PreprocessBody(body).ToArray();
+            Body = CanonicalizeGoals(body).ToArray();
             return this;
         }
 
@@ -166,7 +187,7 @@ namespace TED
                 Arg3 = arg3;
             }
 
-            public override AnyGoal RenameArguments(Substitution s) => new Goal((Definition<T1, T2, T3>)Definition,
+            internal override AnyGoal RenameArguments(Substitution s) => new Goal((Definition<T1, T2, T3>)Definition,
                 s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3));
 
             public override Substitution MakeSubstitution()
@@ -196,13 +217,17 @@ namespace TED
         public readonly Var<T3> Arg3;
         public readonly Var<T4> Arg4;
 
+        /// <summary>
+        /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
+        /// </summary>
+
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4] => new Goal(this, a1, a2, a3, a4);
 
         public Definition<T1, T2, T3, T4> IfAndOnlyIf(params AnyGoal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = PreprocessBody(body).ToArray();
+            Body = CanonicalizeGoals(body).ToArray();
             return this;
         }
 
@@ -223,7 +248,7 @@ namespace TED
                 Arg4 = arg4;
             }
 
-            public override AnyGoal RenameArguments(Substitution s)
+            internal override AnyGoal RenameArguments(Substitution s)
                 => new Goal((Definition<T1, T2, T3, T4>)Definition,
                     s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4));
 
@@ -258,6 +283,10 @@ namespace TED
         public readonly Var<T4> Arg4;
         public readonly Var<T5> Arg5;
 
+        /// <summary>
+        /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
+        /// </summary>
+
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5] 
             => new Goal(this, a1, a2, a3, a4, a5);
 
@@ -265,7 +294,7 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = PreprocessBody(body).ToArray();
+            Body = CanonicalizeGoals(body).ToArray();
             return this;
         }
 
@@ -288,7 +317,7 @@ namespace TED
                 Arg5 = arg5;
             }
 
-            public override AnyGoal RenameArguments(Substitution s)
+            internal override AnyGoal RenameArguments(Substitution s)
                 => new Goal((Definition<T1,T2,T3,T4,T5>)Definition,
                     s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4), s.Substitute(Arg5));
 
@@ -324,6 +353,9 @@ namespace TED
         public readonly Var<T5> Arg5;
         public readonly Var<T6> Arg6;
 
+        /// <summary>
+        /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
+        /// </summary>
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5, Term<T6> a6] 
             => new Goal(this, a1, a2, a3, a4, a5, a6);
 
@@ -331,7 +363,7 @@ namespace TED
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
-            Body = PreprocessBody(body).ToArray();
+            Body = CanonicalizeGoals(body).ToArray();
             return this;
         }
 
@@ -356,7 +388,7 @@ namespace TED
                 Arg6 = arg6;
             }
 
-            public override AnyGoal RenameArguments(Substitution s)
+            internal override AnyGoal RenameArguments(Substitution s)
                 => new Goal((Definition<T1,T2,T3,T4,T5,T6>)Definition,
                     s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4), s.Substitute(Arg5), s.Substitute(Arg6));
 

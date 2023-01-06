@@ -24,7 +24,7 @@ namespace TED
         /// <summary>
         /// Matches or stores the value of the functional expression to the variable.
         /// </summary>
-        public static AnyGoal Match<T>(Var<T> v, FunctionalExpression<T> e) => MatchPrimitive<T>.Singleton[v, e];
+        public static AnyGoal Eval<T>(Var<T> v, FunctionalExpression<T> e) => EvalPrimitive<T>.Singleton[v, e];
 
         /// <summary>
         /// Prob(p) succeeds with a probability of p (p in the range [0,1])
@@ -60,7 +60,7 @@ namespace TED
         /// The number of solutions to goal.
         /// </summary>
         public static AggregateFunctionCall<int> Count(AnyGoal g)
-            => new AggregateFunctionCall<int>(g, 0, (a, b) => a + b, 1);
+            => new AggregateFunctionCall<int>(g, 1, 0, (a, b) => a + b);
 
         /// <summary>
         /// Aggregates value of variable from all the solutions to goal.
@@ -72,18 +72,18 @@ namespace TED
         /// <returns>The aggregate value</returns>
         public static AggregateFunctionCall<T> Aggregate<T>(Var<T> v, AnyGoal g, T initialValue,
             Func<T, T, T> aggregator)
-            => new AggregateFunctionCall<T>(g, initialValue, aggregator, v);
+            => new AggregateFunctionCall<T>(g, v, initialValue, aggregator);
 
         /// <summary>
         /// Return the sum of the specified variable from every solution to the goal
         /// </summary>
         public static AggregateFunctionCall<int> SumInt(Var<int> v, AnyGoal g)
-            => new AggregateFunctionCall<int>(g, 0, (a, b) => a + b, v);
+            => new AggregateFunctionCall<int>(g, v, 0, (a, b) => a + b);
         /// <summary>
         /// Return the sum of the specified variable from every solution to the goal
         /// </summary>
         public static AggregateFunctionCall<float> SumFloat(Var<float> v, AnyGoal g)
-            => new AggregateFunctionCall<float>(g, 0, (a, b) => a + b, v);
+            => new AggregateFunctionCall<float>(g, v, 0, (a, b) => a + b);
         #endregion
 
         /// <summary>
@@ -92,16 +92,87 @@ namespace TED
         public static Constant<T> Constant<T>(T value) => new Constant<T>(value);
 
         #region Predicate declaration sugar
+        /// <summary>
+        /// Make a new table predicate
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="arg">Variable to be used as the default first argument.</param>
         public static TablePredicate<T1> Predicate<T1>(string name, Var<T1> arg) 
             => new TablePredicate<T1>(name, arg);
+        
+        /// <summary>
+        /// Make a new table predicate
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
         public static TablePredicate<T1,T2> Predicate<T1,T2>(string name, Var<T1> arg1, Var<T2> arg2) 
             => new TablePredicate<T1,T2>(name, arg1, arg2);
+        
+        /// <summary>
+        /// Make a new table predicate
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
         public static TablePredicate<T1,T2,T3> Predicate<T1,T2,T3>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3) 
             => new TablePredicate<T1,T2,T3>(name, arg1, arg2, arg3);
+        
+        /// <summary>
+        /// Make a new table predicate
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
         public static TablePredicate<T1,T2,T3,T4> Predicate<T1,T2,T3,T4>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4) 
             => new TablePredicate<T1,T2,T3,T4>(name, arg1, arg2, arg3, arg4);
+        
+        /// <summary>
+        /// Make a new table predicate
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        /// <param name="arg5">Variable to be used as the default fifth argument.</param>
         public static TablePredicate<T1,T2,T3,T4,T5> Predicate<T1,T2,T3,T4,T5>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5) 
             => new TablePredicate<T1,T2,T3,T4,T5>(name, arg1, arg2, arg3, arg4, arg5);
+        
+        /// <summary>
+        /// Make a new table predicate
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
+        /// <typeparam name="T6">Type of the sixth argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        /// <param name="arg5">Variable to be used as the default fifth argument.</param>
+        /// <param name="arg6">Variable to be used as the default sixth argument.</param>
         public static TablePredicate<T1,T2,T3,T4,T5,T6> Predicate<T1,T2,T3,T4,T5,T6>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5, Var<T6> arg6) 
             => new TablePredicate<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5,arg6);
 

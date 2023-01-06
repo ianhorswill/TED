@@ -2,6 +2,9 @@
 
 namespace TED
 {
+    /// <summary>
+    /// Wrapper for one of the unary "op_" methods that operator expressions in C# compile to.
+    /// </summary>
     public class UnaryArithmeticOperator<T> : TedFunction<T,T>
     {
         public static readonly UnaryArithmeticOperator<T> Negate = new UnaryArithmeticOperator<T>("-", "op_UnaryNegation");

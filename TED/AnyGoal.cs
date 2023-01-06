@@ -19,6 +19,9 @@ namespace TED
         /// </summary>
         public readonly AnyTerm[] Arguments;
 
+        /// <summary>
+        /// The predicate being called
+        /// </summary>
         public abstract AnyPredicate Predicate { get; }
 
         protected AnyGoal(AnyTerm[] arguments)
@@ -26,7 +29,12 @@ namespace TED
             Arguments = arguments;
         }
 
-        public abstract AnyGoal RenameArguments(Substitution s);
+        /// <summary>
+        /// Apply a substitution to the arguments of this goal
+        /// </summary>
+        /// <param name="s">Substitution to apply</param>
+        /// <returns>Transformed goal</returns>
+        internal abstract AnyGoal RenameArguments(Substitution s);
 
         /// <summary>
         /// Return the call object 

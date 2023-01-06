@@ -3,7 +3,9 @@
 namespace TED
 {
     /// <summary>
-    /// Base class of all Terms.  Terms are expressions representing arguments to predicates.
+    /// Untyped base class of all Terms.  Terms are expressions representing arguments to predicates.
+    /// This only has one direct subclass, Term[T], whose subclasses are variables (Var[T]), constants (Constant[T]),
+    /// and functional expressions (FunctionalExpression[T]).
     /// </summary>
     public abstract class AnyTerm
     {
@@ -17,9 +19,22 @@ namespace TED
         /// <value></value>
         public virtual bool IsVariable => false;
 
+        /// <summary>
+        /// True if this is a FunctionalExpression.
+        /// We have to make this test available with a virtual property because the actual FunctionalExpression
+        /// class is a generic class.  The *is* operator doesn't give you a way of asking "is this a functional
+        /// expression" in general; you can only ask "is this a functional expression denoting an integer" or
+        /// 'denoting a boolean", or what have you.
+        /// </summary>
         public virtual bool IsFunctionalExpression => false;
 
-        internal virtual (AnyTerm Expression, AnyTerm Var, AnyGoal MatchGoal) HoistInfo()
+        /// <summary>
+        /// Return the information necessary to hoist a FunctionalExpression from a goal.
+        /// This is only implemented for the FunctionalExpression class.
+        /// </summary>
+        /// <returns>The expression, a variable of the right type to hold it's value, and a call to the Eval primitive to compute it</returns>
+        /// <exception cref="NotImplementedException">If this object isn't a FunctionalExpression</exception>
+        internal virtual (AnyTerm Expression, AnyTerm Var, AnyGoal EvalGoal) HoistInfo()
         {
             throw new NotImplementedException("This shouldn't be called");
         }
@@ -41,17 +56,17 @@ namespace TED
 
         internal abstract Func<T> MakeEvaluator(GoalAnalyzer ga);
 
-        public static AnyGoal operator ==(Var<T> v, Term<T> exp) => MatchPrimitive<T>.Singleton[v, exp];
-        public static AnyGoal operator !=(Var<T> v, Term<T> exp) => Language.Not[MatchPrimitive<T>.Singleton[v, exp]];
+        public static AnyGoal operator ==(Var<T> v, Term<T> exp) => EvalPrimitive<T>.Singleton[v, exp];
+        public static AnyGoal operator !=(Var<T> v, Term<T> exp) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
-        public static AnyGoal operator ==(Term<T> exp, Var<T> v) => MatchPrimitive<T>.Singleton[v, exp];
-        public static AnyGoal operator !=(Term<T> exp, Var<T> v) => Language.Not[MatchPrimitive<T>.Singleton[v, exp]];
+        public static AnyGoal operator ==(Term<T> exp, Var<T> v) => EvalPrimitive<T>.Singleton[v, exp];
+        public static AnyGoal operator !=(Term<T> exp, Var<T> v) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
-        public static AnyGoal operator ==(Constant<T> v, Term<T> exp) => MatchPrimitive<T>.Singleton[v, exp];
-        public static AnyGoal operator !=(Constant<T> v, Term<T> exp) => Language.Not[MatchPrimitive<T>.Singleton[v, exp]];
+        public static AnyGoal operator ==(Constant<T> v, Term<T> exp) => EvalPrimitive<T>.Singleton[v, exp];
+        public static AnyGoal operator !=(Constant<T> v, Term<T> exp) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
-        public static AnyGoal operator ==(Term<T> exp, Constant<T> v) => MatchPrimitive<T>.Singleton[v, exp];
-        public static AnyGoal operator !=(Term<T> exp, Constant<T> v) => Language.Not[MatchPrimitive<T>.Singleton[v, exp]];
+        public static AnyGoal operator ==(Term<T> exp, Constant<T> v) => EvalPrimitive<T>.Singleton[v, exp];
+        public static AnyGoal operator !=(Term<T> exp, Constant<T> v) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
         /// <summary>
         /// Compare the magnitudes of two values

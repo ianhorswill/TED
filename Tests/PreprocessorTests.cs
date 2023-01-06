@@ -29,7 +29,7 @@ namespace Tests
             var hoisted = Preprocessor.HoistFunctionalExpressions(g).ToArray();
             Assert.AreEqual(2, hoisted.Length);
             var match = hoisted[0];
-            Assert.IsInstanceOfType(match.Predicate, typeof(MatchPrimitive<int>));
+            Assert.IsInstanceOfType(match.Predicate, typeof(EvalPrimitive<int>));
             var v = (Var<int>)match.Arguments[0];
             Assert.AreEqual(sum, match.Arguments[1]);
             var transformed = hoisted[1];

@@ -25,4 +25,3 @@ has a lot of advantages over the kind of top-down evaluation used in Prolog-styl
 
 Stuff to do:
 * Implement parallel evaluation
-* Implement indexing (this is probablym most important)

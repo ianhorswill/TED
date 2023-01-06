@@ -4,7 +4,7 @@
     /// Represents the final, "compiled" representation of a rule.
     /// </summary>
     /// <typeparam name="T1">Type of the argument to the rule's head (conclusion)</typeparam>
-    internal class Rule<T1> : AnyRule
+    internal sealed class Rule<T1> : AnyRule
     {
         public readonly TablePredicate<T1> TablePredicate;
         public readonly Pattern<T1> HeadPattern;
@@ -31,7 +31,7 @@
     /// </summary>
     /// <typeparam name="T1">Type of the first argument to the rule's head (conclusion)</typeparam>
     /// <typeparam name="T2">Type of the second argument to the rule's head</typeparam>
-    internal class Rule<T1, T2> : AnyRule
+    internal sealed class Rule<T1, T2> : AnyRule
     {
         public readonly TablePredicate<T1, T2> TablePredicate;
         public readonly Pattern<T1, T2> HeadPattern;
@@ -58,7 +58,7 @@
     /// <typeparam name="T1">Type of the first argument to the rule's head (conclusion)</typeparam>
     /// <typeparam name="T2">Type of the second argument to the rule's head</typeparam>
     /// <typeparam name="T3">Type of the third argument to the rule's head</typeparam>
-    internal class Rule<T1, T2, T3> : AnyRule
+    internal sealed class Rule<T1, T2, T3> : AnyRule
     {
         public readonly TablePredicate<T1, T2, T3> TablePredicate;
         public readonly Pattern<T1, T2, T3> HeadPattern;
@@ -86,7 +86,7 @@
     /// <typeparam name="T2">Type of the second argument to the rule's head</typeparam>
     /// <typeparam name="T3">Type of the third argument to the rule's head</typeparam>
     /// <typeparam name="T4">Type of the fourth argument to the rule's head</typeparam>
-    internal class Rule<T1, T2, T3, T4> : AnyRule
+    internal sealed class Rule<T1, T2, T3, T4> : AnyRule
     {
         public readonly TablePredicate<T1, T2, T3, T4> TablePredicate;
         public readonly Pattern<T1, T2, T3, T4> HeadPattern;
@@ -115,7 +115,7 @@
     /// <typeparam name="T3">Type of the third argument to the rule's head</typeparam>
     /// <typeparam name="T4">Type of the fourth argument to the rule's head</typeparam>
     /// <typeparam name="T5">Type of the fifth argument to the rule's head</typeparam>
-    internal class Rule<T1, T2, T3, T4, T5> : AnyRule
+    internal sealed class Rule<T1, T2, T3, T4, T5> : AnyRule
     {
         public readonly TablePredicate<T1, T2, T3, T4, T5> TablePredicate;
         public readonly Pattern<T1, T2, T3, T4, T5> HeadPattern;
@@ -145,7 +145,7 @@
     /// <typeparam name="T4">Type of the fourth argument to the rule's head</typeparam>
     /// <typeparam name="T5">Type of the fifth argument to the rule's head</typeparam>
     /// <typeparam name="T6">Type of the sixth argument to the rule's head</typeparam>
-    internal class Rule<T1, T2, T3, T4, T5, T6> : AnyRule
+    internal sealed class Rule<T1, T2, T3, T4, T5, T6> : AnyRule
     {
         public readonly TablePredicate<T1, T2, T3, T4, T5, T6> TablePredicate;
         public readonly Pattern<T1, T2, T3, T4, T5, T6> HeadPattern;

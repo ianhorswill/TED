@@ -20,7 +20,7 @@ namespace Tests
         {
             var Negative = Function<int,int>("Negative", n => -n);
             var n = (Var<int>)"n";
-            var T = Predicate("T", n).If(Match(n, Negative[1]));
+            var T = Predicate("T", n).If(Eval(n, Negative[1]));
             var r = T.Rows.ToArray();
             Assert.AreEqual(1, r.Length);
             Assert.AreEqual(-1, r[0]);

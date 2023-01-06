@@ -1,6 +1,6 @@
 ﻿namespace TED
 {
-    internal class PickRandomlyPrimitive<T> : PrimitivePredicate<T, T[]>
+    internal sealed class PickRandomlyPrimitive<T> : PrimitivePredicate<T, T[]>
     {
         public static PickRandomlyPrimitive<T> Singleton = new PickRandomlyPrimitive<T>();
         public PickRandomlyPrimitive() : base("PickRandomly")

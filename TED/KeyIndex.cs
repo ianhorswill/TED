@@ -4,21 +4,57 @@ using System.Diagnostics;
 
 namespace TED
 {
-    internal class KeyIndex<TRow, TKey> : TableIndex
+    /// <summary>
+    /// An index to a table that indexes by a column that is a key (has unique values for each row in the table)
+    /// </summary>
+    /// <typeparam name="TRow">Type of the rows of the table; this will be a typle type unless it is a single-column table</typeparam>
+    /// <typeparam name="TKey">Type of the column we're indexing on</typeparam>
+    internal sealed class KeyIndex<TRow, TKey> : TableIndex<TRow, TKey>
     {
-        private readonly Func<TRow, TKey> projection;
-
+        //
+        // Indices are implemented as direct-addressed hash tables in hopes of maximizing cache locality.
+        // The tables use linear probing with a stride of 1, which is best-case for locality and worst-case
+        // for cluster.  It also means we don't have to have hash tables with a prime number of buckets.
+        // To reduce clustering, we size the table to keep the load factor below 0.5
+        // TODO: Measure clustering and collision in a real application.
+        //
+        // For key indices, there is at most one row for any given key value.  If this is not true, use a general index.
+        //
+        // INVARIANTS:
+        // - table.data.Length is a power of 2
+        // - buckets.Length == table.data.length * 2
+        // - Mask is buckets.Length-1, i.e. a bitmask for mapping integers into buckets
+        //
+        
+        /// <summary>
+        /// Hash table buckets mapping key values to row numbers
+        /// </summary>
         private (TKey key, uint row)[] buckets;
+
+        /// <summary>
+        /// Mask to and with a hash to get a bucket number
+        /// </summary>
         private uint mask;
+
+        /// <summary>
+        /// Underlying table we're indexing
+        /// </summary>
         private readonly Table<TRow> table;
+
+        /// <summary>
+        /// TablePredicate corresponding to the table
+        /// </summary>
         private readonly TablePredicate predicate;
+
+        /// <summary>
+        /// Equality predicate for TKey
+        /// </summary>
         private static readonly EqualityComparer<TKey> Comparer = EqualityComparer<TKey>.Default;
 
-        public KeyIndex(TablePredicate p, Table<TRow> t, int columnNumber, Func<TRow, TKey> projection) : base(columnNumber)
+        public KeyIndex(TablePredicate p, Table<TRow> t, int columnNumber, Projection projection) : base(columnNumber, projection)
         {
             predicate = p;
             table = t;
-            this.projection = projection;
             var capacity = t.Data.Length * 2;
             buckets = new (TKey key, uint row)[capacity];
             Array.Fill(buckets!, (default(TKey), AnyTable.NoRow));
@@ -27,8 +63,16 @@ namespace TED
             Reindex();
         }
 
+        /// <summary>
+        /// Hash functions mapping a key value and a mask to a bucket number
+        /// </summary>
         private static uint HashInternal(TKey value, uint mask) => (uint)Comparer.GetHashCode(value) & mask;
 
+        /// <summary>
+        /// Row containing this key, if any
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public uint RowWithKey(in TKey value)
         {
             for (var b = HashInternal(value, mask); buckets[b].row != AnyTable.NoRow; b = (b + 1) & mask)
@@ -37,8 +81,16 @@ namespace TED
             return AnyTable.NoRow;
         }
 
+        /// <summary>
+        /// Yes, this is a key index
+        /// </summary>
         public override bool IsKey => true;
 
+        /// <summary>
+        /// Add the row with the specified row number to the table
+        /// </summary>
+        /// <param name="row">Number of the row</param>
+        /// <exception cref="DuplicateKeyException">If there is always a row in the table containing that key value</exception>
         public sealed override void Add(uint row)
         {
             uint b;
@@ -52,6 +104,10 @@ namespace TED
             buckets[b] = (key, row);
         }
 
+        /// <summary>
+        /// Double the size of the index's hash table and reindex.
+        /// Called after the underlying table has doubled in side.
+        /// </summary>
         internal override void Expand()
         {
             buckets = new (TKey key, uint row)[buckets.Length * 2];
@@ -60,11 +116,17 @@ namespace TED
             Reindex();
         }
 
+        /// <summary>
+        /// Erase the index
+        /// </summary>
         internal override void Clear()
         {
             Array.Fill(buckets!, (default(TKey), AnyTable.NoRow));
         }
 
+        /// <summary>
+        /// Reindex the table.  Call Clear() first.
+        /// </summary>
         internal sealed override void Reindex()
         {
             // Build the initial index

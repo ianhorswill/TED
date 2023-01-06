@@ -5,14 +5,27 @@ using System.Threading;
 
 namespace TED
 {
-    public class AggregateFunctionCall<T> : FunctionalExpression<T>
+    /// <summary>
+    /// Implements functions that aggregate over all the solutions of a query, such as Sum or Count.
+    /// </summary>
+    public sealed class AggregateFunctionCall<T> : FunctionalExpression<T>
     {
         public readonly T InitialValue;
         public readonly Func<T, T, T> Aggregator;
         public readonly AnyGoal Goal;
         public readonly Term<T> AggregationTerm;
 
-        public AggregateFunctionCall(AnyGoal goal, T initialValue, Func<T, T, T> aggregator, Term<T> aggregationTerm)
+        /// <summary>
+        /// Make a new function that aggregates over all the solutions to a goal.
+        /// After exit from the function, any variables bound within the goal are left unbound.
+        /// If the goal is P[x] and x is the aggregation term, then it will find all the x's from all
+        /// the solutions to P[x], and return aggregator(aggregator(aggregator(initialValue, x1), x2), x3) ...
+        /// </summary>
+        /// <param name="goal">Goal to find solutions to</param>
+        /// <param name="aggregationTerm">Value to take from each solution; the values from all solutions will be aggregated together</param>
+        /// <param name="initialValue">Initial value to start from when aggregating</param>
+        /// <param name="aggregator">C# function mapping two values to an aggregate value</param>
+        public AggregateFunctionCall(AnyGoal goal, Term<T> aggregationTerm, T initialValue, Func<T, T, T> aggregator)
         {
             InitialValue = initialValue;
             Aggregator = aggregator;
@@ -20,6 +33,8 @@ namespace TED
             Goal = goal;
         }
 
+
+        /// <inheritdoc />
         internal override Func<T> MakeEvaluator(GoalAnalyzer ga)
         {
             var (call, bindings) = Preprocessor.BodyToCallWithLocalBindings(ga, Goal);

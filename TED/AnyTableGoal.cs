@@ -5,6 +5,7 @@ namespace TED
 {
     /// <summary>
     /// A TableGoal represents a table predicate applied to arguments, e.g. p["a"], p[variable], etc.
+    /// Untyped base class for all goals involving TablePredicates
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebugName) + "}")]
     public abstract class AnyTableGoal : AnyGoal

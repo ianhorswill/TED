@@ -1,5 +1,13 @@
 ﻿namespace TED
 {
+    //
+    // This implements calls to TablePredicates where some argument in the call is instantiated (known at run time
+    // and not needing to be filled in from table data) and that argument/column has a GeneralIndex.  This will
+    // allow it to iterate over only just the rows that match that column.
+    //
+    // This will not be used if it's possible to use TableCallWithKey or TableCallUsingRowSet, which are preferable.
+    //
+
     internal abstract class TableCallWithGeneralIndex : AnyCall
     {
         public TableCallWithGeneralIndex(TablePredicate p) : base(p)
@@ -30,10 +38,10 @@
 
         public override bool NextSolution()
         {
-            Row = Primed ? index.FirstRowWithValue(keyCell.Value) : index.NextRowWithValue(Row);
+            Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != AnyTable.NoRow && !pattern.Match(predicate._table.PositionReference(Row)))
+            while (Row != AnyTable.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
             return Row != AnyTable.NoRow;
@@ -59,10 +67,10 @@
 
         public override bool NextSolution()
         {
-            Row = Primed ? index.FirstRowWithValue(keyCell.Value) : index.NextRowWithValue(Row);
+            Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != AnyTable.NoRow && !pattern.Match(predicate._table.PositionReference(Row)))
+            while (Row != AnyTable.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
             return Row != AnyTable.NoRow;
@@ -88,10 +96,10 @@
 
         public override bool NextSolution()
         {
-            Row = Primed ? index.FirstRowWithValue(keyCell.Value) : index.NextRowWithValue(Row);
+            Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != AnyTable.NoRow && !pattern.Match(predicate._table.PositionReference(Row)))
+            while (Row != AnyTable.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
             return Row != AnyTable.NoRow;
@@ -117,10 +125,10 @@
 
         public override bool NextSolution()
         {
-            Row = Primed ? index.FirstRowWithValue(keyCell.Value) : index.NextRowWithValue(Row);
+            Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != AnyTable.NoRow && !pattern.Match(predicate._table.PositionReference(Row)))
+            while (Row != AnyTable.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
             return Row != AnyTable.NoRow;
@@ -146,10 +154,10 @@
 
         public override bool NextSolution()
         {
-            Row = Primed ? index.FirstRowWithValue(keyCell.Value) : index.NextRowWithValue(Row);
+            Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != AnyTable.NoRow && !pattern.Match(predicate._table.PositionReference(Row)))
+            while (Row != AnyTable.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
             return Row != AnyTable.NoRow;

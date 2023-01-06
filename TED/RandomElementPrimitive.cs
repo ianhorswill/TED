@@ -1,6 +1,10 @@
 ﻿namespace TED
 {
-    internal class RandomElementPrimitive<T> : PrimitivePredicate<TablePredicate<T>,T>
+    /// <summary>
+    /// Implementation of the RandomElement primitive
+    /// </summary>
+    /// <typeparam name="T">Type of list element we're selecting from</typeparam>
+    internal sealed class RandomElementPrimitive<T> : PrimitivePredicate<TablePredicate<T>,T>
     {
         public static RandomElementPrimitive<T> Singleton = new RandomElementPrimitive<T>();
         public RandomElementPrimitive() : base("RandomElement")

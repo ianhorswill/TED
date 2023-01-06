@@ -6,7 +6,7 @@ namespace TED
     /// <summary>
     /// Terms that represent constants of type T
     /// </summary>
-    public class Constant<T> : Term<T>
+    public sealed class Constant<T> : Term<T>
     {
         /// <summary>
         /// The actual constant
@@ -34,5 +34,6 @@ namespace TED
             }
         }
 
+        /// <inheritdoc />
         internal override Func<T> MakeEvaluator(GoalAnalyzer _) => () => Value;
     }}

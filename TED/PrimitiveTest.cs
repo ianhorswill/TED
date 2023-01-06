@@ -22,6 +22,7 @@ namespace TED
             Implementation = implementation;
         }
 
+        /// <inheritdoc />
         internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
         {
             var i = tc.Emit(g.Arg1);
@@ -79,6 +80,7 @@ namespace TED
             Implementation = implementation;
         }
 
+        /// <inheritdoc />
         internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
         {
             var i1 = tc.Emit(g.Arg1);

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System;using System.Data;using TED;
 
 namespace TED
 {
@@ -8,7 +8,7 @@ namespace TED
     internal abstract class TableIndex
     {
         /// <summary>
-        /// 
+        /// Position of the column: 0=first column, 1=second, etc.
         /// </summary>
         public readonly int ColumnNumber;
 
@@ -38,6 +38,9 @@ namespace TED
         /// </summary>
         internal abstract void Reindex();
 
+        /// <summary>
+        /// The index for the specified column, if any
+        /// </summary>
         protected TableIndex(int columnNumber)
         {
             ColumnNumber = columnNumber;
@@ -46,10 +49,35 @@ namespace TED
         /// <summary>
         /// Make an index, either keyed or not keyed, depending on the isKey argument
         /// </summary>
-        internal static TableIndex MakeIndex<TRow, TKey>(TablePredicate p, Table<TRow> t, int columnIndex,
-            Func<TRow, TKey> projection, bool isKey)
+        internal static TableIndex MakeIndex<TRow, TColumn>(TablePredicate p, Table<TRow> t, int columnIndex,
+            TableIndex<TRow, TColumn>.Projection projection, bool isKey)
             => isKey
-                ? (TableIndex)new KeyIndex<TRow, TKey>(p, t, columnIndex, projection)
-                : new GeneralIndex<TRow, TKey>(p, t, columnIndex, projection);
+                ? (TableIndex)new KeyIndex<TRow, TColumn>(p, t, columnIndex, projection)
+                : new GeneralIndex<TRow, TColumn>(p, t, columnIndex, projection);
     }
+
+    /// <summary>
+    /// Typed base class of all table indices
+    /// </summary>
+    /// <typeparam name="TRow">Type of the rows of the table</typeparam>
+    /// <typeparam name="TColumn">Type of the column being indexed</typeparam>
+    internal abstract class TableIndex<TRow, TColumn> : TableIndex
+    {
+        /// <summary>
+        /// Returns the key value given the row
+        /// </summary>
+        public delegate TColumn Projection(in TRow row);
+
+        protected TableIndex(int columnNumber, Projection projection) : base(columnNumber)
+        {
+            this.projection = projection;
+        }
+
+        /// <summary>
+        /// Function to extract the column value from a given row
+        /// </summary>
+        protected readonly Projection projection;
+    }
+
 }
+

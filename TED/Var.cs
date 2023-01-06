@@ -25,8 +25,15 @@ namespace TED
         /// </summary>
         public readonly string Name;
         
+        /// <summary>
+        /// Yes, this is a variable
+        /// </summary>
         public override bool IsVariable => true;
         
+        /// <summary>
+        /// Make a TED variable of the specified type and name
+        /// </summary>
+        /// <param name="s"></param>
         public static explicit operator Var<T>(string s) => new Var<T>(s);
 
         internal override Func<T> MakeEvaluator(GoalAnalyzer ga)
@@ -43,6 +50,9 @@ namespace TED
 
         public string DebugName => ToString();
 
+        /// <summary>
+        /// Make a different variable with the same name and type
+        /// </summary>
         public AnyTerm Clone() => new Var<T>(Name);
     }
 }

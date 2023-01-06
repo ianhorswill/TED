@@ -12,8 +12,15 @@ namespace TED
         {
         }
 
+        /// <summary>
+        /// Return a goal representing a call to this primitive.
+        /// This is the abstract syntax tree representing the call, not the internal form used in the interpreter
+        /// </summary>
         public AnyGoal this[Term<T1> arg] => new Goal(this, arg);
 
+        /// <summary>
+        /// Map a Goal (AST for call) to a Call object (the internal form used by the interpreter)
+        /// </summary>
         internal abstract AnyCall MakeCall(Goal g, GoalAnalyzer tc);
 
         /// <summary>
@@ -32,7 +39,7 @@ namespace TED
                 Arg1 = arg1;
             }
 
-            public override AnyGoal RenameArguments(Substitution s)
+            internal override AnyGoal RenameArguments(Substitution s)
                 => new Goal(Primitive, s.Substitute(Arg1));
 
             /// <summary>
@@ -56,8 +63,15 @@ namespace TED
         {
         }
 
+        /// <summary>
+        /// Return a goal representing a call to this primitive.
+        /// This is the abstract syntax tree representing the call, not the internal form used in the interpreter
+        /// </summary>
         public AnyGoal this[Term<T1> arg1, Term<T2> arg2] => new Goal(this, arg1, arg2);
 
+        /// <summary>
+        /// Map a Goal (AST for call) to a Call object (the internal form used by the interpreter)
+        /// </summary>
         internal abstract AnyCall MakeCall(Goal g, GoalAnalyzer tc);
 
         /// <summary>
@@ -79,7 +93,7 @@ namespace TED
                 Arg2 = arg2;
             }
 
-            public override AnyGoal RenameArguments(Substitution s)
+            internal override AnyGoal RenameArguments(Substitution s)
                 => new Goal(Primitive, s.Substitute(Arg1), s.Substitute(Arg2));
 
             /// <summary>

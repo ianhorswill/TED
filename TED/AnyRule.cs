@@ -4,12 +4,22 @@ namespace TED
 {
     /// <summary>
     /// Untyped base class of all Rules
-    /// Rule objects are essentially the compiled form of rules specified using .If or .Fact
+    /// Rule objects are the preprocessed form of rules specified using .If or .Fact.
+    /// They consist of the Pattern for the head of the rule and an array of call objects
+    /// for each of the subgoals in the body
     /// </summary>
     internal abstract class AnyRule
     {
+        /// <summary>
+        /// Predicate this rule applies to.
+        /// Rules can only be applied to TablePredicates, not primitives or definitions
+        /// </summary>
         public readonly TablePredicate Predicate;
 
+        /// <summary>
+        /// Pattern object for the head of the rule.
+        /// The head of a rule is its "conclusion" - the thing that has to be true when the body is true.
+        /// </summary>
         public abstract IPattern Head { get; }
 
         /// <summary>

@@ -35,6 +35,9 @@ namespace TED
             Name = name;
         }
 
+        /// <summary>
+        /// Name, for debugging purposes
+        /// </summary>
         public readonly string Name;
 
         /// <summary>

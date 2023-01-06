@@ -2,7 +2,11 @@
 
 namespace TED
 {
-    public class AndPrimitive : AnyPredicate
+    /// <summary>
+    /// Implements conjunctions as a primitive predicate.  That is, And[g1, g2, ...] is true when all the gi are true.
+    /// Procedurally, this means find solutions to g1, then g2, etc., backtracking in the normal manner.
+    /// </summary>
+    public sealed class AndPrimitive : AnyPredicate
     {
         public static readonly AndPrimitive Singleton = new AndPrimitive();
         private AndPrimitive() : base("And")
@@ -23,7 +27,8 @@ namespace TED
             }
 
             public override AnyPredicate Predicate => Singleton;
-            public override AnyGoal RenameArguments(Substitution s) 
+
+            internal override AnyGoal RenameArguments(Substitution s) 
                 => new Goal(Body.Select(g => g.RenameArguments(s)).ToArray());
 
             internal override AnyCall MakeCall(GoalAnalyzer ga)

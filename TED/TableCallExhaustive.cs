@@ -1,5 +1,11 @@
 ﻿namespace TED
 {
+    //
+    // This implements a call to a table predicate by exhaustively comparing the arguments to each row.
+    // This is the call implementation of last resort and will not be used if there is an index or other hash
+    // table that can be used to reduce the search.
+    //
+
     internal class TableCallExhaustive<T1> : AnyTableCallExhaustive
     {
         public readonly TablePredicate<T1> TablePredicate;
@@ -16,7 +22,7 @@
         {
             var predicateTable = TablePredicate._table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(predicateTable.PositionReference(RowIndex++)))
+                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -39,7 +45,7 @@
         {
             var predicateTable = TablePredicate._table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(predicateTable.PositionReference(RowIndex++)))
+                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -62,7 +68,7 @@
         {
             var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(predicateTable.PositionReference(RowIndex++)))
+                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -85,7 +91,7 @@
         {
             var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(predicateTable.PositionReference(RowIndex++)))
+                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -108,7 +114,7 @@
         {
             var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(predicateTable.PositionReference(RowIndex++)))
+                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -131,7 +137,7 @@
         {
             var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(predicateTable.PositionReference(RowIndex++)))
+                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;

@@ -11,9 +11,12 @@
             Arg1 = arg1;
         }
 
+        /// <summary>
+        /// First (and only) argument in the call.
+        /// </summary>
         public readonly Term<T1> Arg1;
 
-        public override AnyGoal RenameArguments(Substitution s) => new TableGoal<T1>((TablePredicate<T1>)Predicate, s.Substitute(Arg1));
+        internal override AnyGoal RenameArguments(Substitution s) => new TableGoal<T1>((TablePredicate<T1>)Predicate, s.Substitute(Arg1));
 
         /// <summary>
         /// Generate a Pattern for matching the goal's argument list.
@@ -32,7 +35,7 @@
             var pattern = MakePattern(ga);
             var tablePredicate = (TablePredicate<T1>)TablePredicate;
             if (TablePredicate.Unique && pattern.IsInstantiated)
-                return new TableCall<T1>(tablePredicate, pattern);
+                return new TableCallUsingRowSet<T1>(tablePredicate, pattern);
             return new TableCallExhaustive<T1>(tablePredicate, pattern);
         }
 
@@ -62,10 +65,16 @@
             Arg2 = arg2;
         }
 
+        /// <summary>
+        /// First argument to the call
+        /// </summary>
         public readonly Term<T1> Arg1;
+        /// <summary>
+        /// Second argument to the call
+        /// </summary>
         public readonly Term<T2> Arg2;
 
-        public override AnyGoal RenameArguments(Substitution s)
+        internal override AnyGoal RenameArguments(Substitution s)
             => new TableGoal<T1,T2>((TablePredicate<T1,T2>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2));
 
         /// <summary>
@@ -85,7 +94,7 @@
             var pattern = MakePattern(ga);
             var tablePredicate = (TablePredicate<T1,T2>)TablePredicate;
             if (TablePredicate.Unique && pattern.IsInstantiated)
-                return new TableCall<T1,T2>(tablePredicate, pattern);
+                return new TableCallUsingRowSet<T1,T2>(tablePredicate, pattern);
 
             if (pattern.Arg1.IsInstantiated && TablePredicate.IndexFor(0, true) is KeyIndex<(T1,T2), T1> index)
                 return new TableCallWithKey<T1, T1, T2>(tablePredicate, pattern, index, pattern.Arg1.ValueCell);
@@ -128,11 +137,20 @@
             Arg3 = arg3;
         }
 
+        /// <summary>
+        /// First call argument
+        /// </summary>
         public readonly Term<T1> Arg1;
+        /// <summary>
+        /// Second call argument
+        /// </summary>
         public readonly Term<T2> Arg2;
+        /// <summary>
+        /// Third call argument
+        /// </summary>
         public readonly Term<T3> Arg3;
 
-        public override AnyGoal RenameArguments(Substitution s)
+        internal override AnyGoal RenameArguments(Substitution s)
             => new TableGoal<T1,T2,T3>((TablePredicate<T1,T2,T3>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3));
 
 
@@ -153,7 +171,7 @@
             var pattern = MakePattern(ga);
             var tablePredicate = (TablePredicate<T1,T2,T3>)TablePredicate;
             if (TablePredicate.Unique && pattern.IsInstantiated)
-                return new TableCall<T1,T2,T3>(tablePredicate, pattern);
+                return new TableCallUsingRowSet<T1,T2,T3>(tablePredicate, pattern);
 
             if (pattern.Arg1.IsInstantiated && TablePredicate.IndexFor(0, true) is KeyIndex<(T1,T2, T3), T1> index)
                 return new TableCallWithKey<T1, T1, T2, T3>(tablePredicate, pattern, index, pattern.Arg1.ValueCell);
@@ -203,12 +221,24 @@
             Arg4 = arg4;
         }
 
+        /// <summary>
+        /// First call argument
+        /// </summary>
         public readonly Term<T1> Arg1;
+        /// <summary>
+        /// Second call argument
+        /// </summary>
         public readonly Term<T2> Arg2;
+        /// <summary>
+        /// Third call argument
+        /// </summary>
         public readonly Term<T3> Arg3;
+        /// <summary>
+        /// Fourth call argument
+        /// </summary>
         public readonly Term<T4> Arg4;
 
-        public override AnyGoal RenameArguments(Substitution s)
+        internal override AnyGoal RenameArguments(Substitution s)
             => new TableGoal<T1,T2,T3,T4>((TablePredicate<T1,T2,T3,T4>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4));
 
         /// <summary>
@@ -229,7 +259,7 @@
             var pattern = MakePattern(ga);
             var tablePredicate = (TablePredicate<T1,T2,T3,T4>)TablePredicate;
             if (TablePredicate.Unique && pattern.IsInstantiated)
-                return new TableCall<T1,T2,T3,T4>(tablePredicate, pattern);
+                return new TableCallUsingRowSet<T1,T2,T3,T4>(tablePredicate, pattern);
 
             if (pattern.Arg1.IsInstantiated && TablePredicate.IndexFor(0, true) is KeyIndex<(T1,T2, T3, T4), T1> index)
                 return new TableCallWithKey<T1, T1, T2, T3, T4>(tablePredicate, pattern, index, pattern.Arg1.ValueCell);
@@ -284,13 +314,28 @@
             Arg5 = arg5;
         }
 
+        /// <summary>
+        /// First call argument
+        /// </summary>
         public readonly Term<T1> Arg1;
+        /// <summary>
+        /// Second call argument
+        /// </summary>
         public readonly Term<T2> Arg2;
+        /// <summary>
+        /// Third call argument
+        /// </summary>
         public readonly Term<T3> Arg3;
+        /// <summary>
+        /// Fourth call argument
+        /// </summary>
         public readonly Term<T4> Arg4;
+        /// <summary>
+        /// Fifth call argument
+        /// </summary>
         public readonly Term<T5> Arg5;
 
-        public override AnyGoal RenameArguments(Substitution s)
+        internal override AnyGoal RenameArguments(Substitution s)
             => new TableGoal<T1,T2,T3,T4,T5>((TablePredicate<T1,T2,T3,T4,T5>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4), s.Substitute(Arg5));
 
         /// <summary>
@@ -312,7 +357,7 @@
             var pattern = MakePattern(ga);
             var tablePredicate = (TablePredicate<T1,T2,T3,T4,T5>)TablePredicate;
             if (TablePredicate.Unique && pattern.IsInstantiated)
-                return new TableCall<T1,T2,T3,T4,T5>(tablePredicate, pattern);
+                return new TableCallUsingRowSet<T1,T2,T3,T4,T5>(tablePredicate, pattern);
 
             if (pattern.Arg1.IsInstantiated && TablePredicate.IndexFor(0, true) is KeyIndex<(T1,T2, T3, T4, T5), T1> index)
                 return new TableCallWithKey<T1, T1, T2, T3, T4, T5>(tablePredicate, pattern, index, pattern.Arg1.ValueCell);
@@ -373,14 +418,32 @@
             Arg6 = arg6;
         }
 
+        /// <summary>
+        /// First call argument
+        /// </summary>
         public readonly Term<T1> Arg1;
+        /// <summary>
+        /// Second call argument
+        /// </summary>
         public readonly Term<T2> Arg2;
+        /// <summary>
+        /// Third call argument
+        /// </summary>
         public readonly Term<T3> Arg3;
+        /// <summary>
+        /// Fourth call argument
+        /// </summary>
         public readonly Term<T4> Arg4;
+        /// <summary>
+        /// Fifth call argument
+        /// </summary>
         public readonly Term<T5> Arg5;
+        /// <summary>
+        /// Sixth call argument
+        /// </summary>
         public readonly Term<T6> Arg6;
 
-        public override AnyGoal RenameArguments(Substitution s)
+        internal override AnyGoal RenameArguments(Substitution s)
             => new TableGoal<T1,T2,T3,T4,T5,T6>((TablePredicate<T1,T2,T3,T4,T5,T6>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4), s.Substitute(Arg5), s.Substitute(Arg6));
 
 
@@ -403,7 +466,7 @@
             var pattern = MakePattern(ga);
             var tablePredicate = (TablePredicate<T1,T2,T3,T4,T5,T6>)TablePredicate;
             if (TablePredicate.Unique && pattern.IsInstantiated)
-                return new TableCall<T1,T2,T3,T4,T5,T6>(tablePredicate, pattern);
+                return new TableCallUsingRowSet<T1,T2,T3,T4,T5,T6>(tablePredicate, pattern);
 
             if (pattern.Arg1.IsInstantiated && TablePredicate.IndexFor(0, true) is KeyIndex<(T1,T2, T3, T4, T5, T6), T1> index)
                 return new TableCallWithKey<T1, T1, T2, T3, T4, T5, T6>(tablePredicate, pattern, index, pattern.Arg1.ValueCell);

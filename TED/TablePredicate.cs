@@ -127,6 +127,9 @@ namespace TED
         /// </summary>
         public bool IsExtensional => Rules == null;
 
+        /// <summary>
+        /// Remove all data from the predicate's table
+        /// </summary>
         public void Clear()
         {
             TableUntyped.Clear();
@@ -135,7 +138,7 @@ namespace TED
         }
 
         /// <summary>
-        /// TRue if we need to recompute the predicate's table
+        /// True if we need to recompute the predicate's table
         /// </summary>
         protected internal bool MustRecompute;
 
@@ -396,11 +399,11 @@ namespace TED
             switch (columnIndex)
             {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item1, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2) r) => r.Item1, keyIndex));
                     break;
 
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item2, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2) r) => r.Item2, keyIndex));
                     break;
 
                 default:
@@ -575,15 +578,15 @@ namespace TED
             switch (columnIndex)
             {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item1, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3) r) => r.Item1, keyIndex));
                     break;
 
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item2, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3) r) => r.Item2, keyIndex));
                     break;
 
                 case 2:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item3, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3) r) => r.Item3, keyIndex));
                     break;
 
                 default:
@@ -762,19 +765,19 @@ namespace TED
             switch (columnIndex)
             {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item1, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item1, keyIndex));
                     break;
 
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item2, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item2, keyIndex));
                     break;
 
                 case 2:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item3, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item3, keyIndex));
                     break;
 
                 case 3:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item4, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item4, keyIndex));
                     break;
 
                 default:
@@ -959,23 +962,23 @@ namespace TED
             switch (columnIndex)
             {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item1, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item1, keyIndex));
                     break;
 
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item2, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item2, keyIndex));
                     break;
 
                 case 2:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item3, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item3, keyIndex));
                     break;
 
                 case 3:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item4, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item4, keyIndex));
                     break;
 
                 case 4:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item5, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item5, keyIndex));
                     break;
 
                 default:
@@ -1163,27 +1166,27 @@ namespace TED
             switch (columnIndex)
             {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item1, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item1, keyIndex));
                     break;
 
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item2, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item2, keyIndex));
                     break;
 
                 case 2:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item3, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item3, keyIndex));
                     break;
 
                 case 3:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item4, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item4, keyIndex));
                     break;
 
                 case 4:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item5, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item5, keyIndex));
                     break;
 
                 case 5:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, r => r.Item6, keyIndex));
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item6, keyIndex));
                     break;
 
                 default:

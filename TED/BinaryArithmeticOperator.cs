@@ -2,7 +2,10 @@
 
 namespace TED
 {
-    public class BinaryArithmeticOperator<T> : TedFunction<T,T,T>
+    /// <summary>
+    /// Wrapper for C# binary operators (e.g. +, *, %, etc.) as TEDFunctions.
+    /// </summary>
+    public sealed class BinaryArithmeticOperator<T> : TedFunction<T,T,T>
     {
         public static readonly BinaryArithmeticOperator<T> Add = new BinaryArithmeticOperator<T>("+", "op_Addition");
         public static readonly BinaryArithmeticOperator<T> Subtract = new BinaryArithmeticOperator<T>("-", "op_Subtraction");

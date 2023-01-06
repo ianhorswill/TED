@@ -2,6 +2,10 @@
 
 namespace TED
 {
+    /// <summary>
+    /// A wrapper for a zero-argument function
+    /// </summary>
+    /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TOut> : FunctionalExpression<TOut>
     {
         public readonly Func<TOut> Function;
@@ -14,6 +18,11 @@ namespace TED
         internal override Func<TOut> MakeEvaluator(GoalAnalyzer _) => Function;
     }
 
+    /// <summary>
+    /// A wrapper for a 1-argument function
+    /// </summary>
+    /// <typeparam name="TIn1">Type of the input of the function</typeparam>
+    /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TIn1, TOut> : FunctionalExpression<TOut>
     {
         public readonly Func<TIn1, TOut> Function;
@@ -32,6 +41,12 @@ namespace TED
         }
     }
 
+    /// <summary>
+    /// A wrapper for a 2-argument function
+    /// </summary>
+    /// <typeparam name="TIn1">Type of the first input of the function</typeparam>
+    /// <typeparam name="TIn2">Type of the second input of the function</typeparam>
+    /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TIn1, TIn2, TOut> : FunctionalExpression<TOut>
     {
         public readonly Func<TIn1, TIn2, TOut> Function;

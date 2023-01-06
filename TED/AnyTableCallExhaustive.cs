@@ -1,7 +1,9 @@
 ﻿namespace TED
 {
     /// <summary>
-    /// Untyped base class for calls to TablePredicates that exhaustively enumerate all rows of the table
+    /// The iterator that handles calls to a TablePredicate that cannot be accelerated using a hash table
+    /// (index or RowSet).  This will test every row of the table against the call pattern.  This can be avoided
+    /// under the right circumstances by adding an index and/or setting the Unique property of the TablePredicate.
     /// </summary>
     internal abstract class AnyTableCallExhaustive : AnyCall
     {

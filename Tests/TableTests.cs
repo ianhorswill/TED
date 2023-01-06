@@ -82,7 +82,7 @@ namespace Tests
         public void KeyIndexTest()
         {
             var t = new Table<int>();
-            var index = new KeyIndex<int, int>(null, t, 0, n=>n);
+            var index = new KeyIndex<int, int>(null!, t, 0, (in int n)=>n);
             t.AddIndex(index);
             for (var i = 0; i < 1025; i++)
             {
@@ -101,7 +101,7 @@ namespace Tests
         public void DuplicateKeyTest()
         {
             var t = new Table<int>();
-            var index = new KeyIndex<int, int>(null, t, 0, n=>n);
+            var index = new KeyIndex<int, int>(null!, t, 0, (in int n)=>n);
             t.AddIndex(index);
             t.Add(0);
             t.Add(0);
@@ -111,7 +111,7 @@ namespace Tests
         public void GeneralIndexTest()
         {
             var t = new Table<int>();
-            var index = new GeneralIndex<int, int>(null, t, 0, n=>n);
+            var index = new GeneralIndex<int, int>(null!, t, 0, (in int n)=>n);
             t.AddIndex(index);
             for (var i = 0; i < 1025; i++)
             {

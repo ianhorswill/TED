@@ -9,14 +9,14 @@ namespace TED
     /// - What TablePredicates does this rule depend on (reference)
     /// - What variables appear in the rule?
     /// - What ValueCells do they correspond to?
-    /// - Have they been bound yet?
+    /// - Have they been bound by some previous goal yet?
     /// </summary>
     internal class GoalAnalyzer
     {
         private GoalAnalyzer(Dictionary<AnyTerm, object> variableCells, HashSet<TablePredicate> dependencies)
         {
             variableValueCells = variableCells;
-            tables = dependencies;
+            tableDependencies = dependencies;
         }
 
         public GoalAnalyzer() : this(new Dictionary<AnyTerm, object>(), new HashSet<TablePredicate>())
@@ -27,23 +27,41 @@ namespace TED
         /// Dependencies will be added, however.
         /// </summary>
         public GoalAnalyzer MakeChild()
-            => new GoalAnalyzer(new Dictionary<AnyTerm, object>(variableValueCells), tables);
+            => new GoalAnalyzer(new Dictionary<AnyTerm, object>(variableValueCells), tableDependencies);
         
-
+        /// <summary>
+        /// Maps Var objects, which are the abstract syntax tree representation for a TED variable,
+        /// to ValueCell objects, which are the containers used to hold the variable's value at run-time.
+        /// The key type of the dictionary is AnyTerm just because Var is a generic type, it's parent, Term
+        /// is also a generic type, and so AnyTerm is the most immediate ancestor that's a parent to all Vars.
+        /// </summary>
         private readonly Dictionary<AnyTerm, object> variableValueCells;
-        private readonly HashSet<TablePredicate> tables;
 
-        public void AddDependency(TablePredicate p) => tables.Add(p);
+        private readonly HashSet<TablePredicate> tableDependencies;
 
-        public TablePredicate[] Dependencies => tables.ToArray();
+        internal void AddDependency(TablePredicate p) => tableDependencies.Add(p);
 
+        
+        /// <summary>
+        /// All the TablePredicates that the rule calls.
+        /// The update system needs to know this so it can insure those tables are updated before this rule is called.
+        /// </summary>
+        public TablePredicate[] Dependencies => tableDependencies.ToArray();
+
+        /// <summary>
+        /// Generate a MatchOperation for the specified term, updating variableValueCells as needed.
+        /// </summary>
+        /// <typeparam name="T">Type of the term</typeparam>
+        /// <param name="term">The term</param>
+        /// <returns>A MatchOperation with the right opcode (read, write, or constant) and ValueCell to match this argument to this call.</returns>
+        /// <exception cref="InvalidOperationException">If this is a term that can't be used as an argument</exception>
         public MatchOperation<T> Emit<T>(Term<T> term)
         {
             if (term is Constant<T> c)
                 return MatchOperation<T>.Constant(c.Value);
             // it's a variable
             if (!(term is Var<T> v))
-                throw new Exception($"{term} cannot be used as an argument to a predicate");
+                throw new InvalidOperationException($"{term} cannot be used as an argument to a predicate");
             if (variableValueCells.TryGetValue(v, out var cell))
                 return MatchOperation<T>.Read((ValueCell<T>)cell);
             var vc = ValueCell<T>.MakeVariable(v.Name);

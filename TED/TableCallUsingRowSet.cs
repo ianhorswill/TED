@@ -1,11 +1,20 @@
 ﻿namespace TED
 {
-    internal class TableCall<T1> : SingleRowTableCall
+    //
+    // This implements calls to TablePredicates where:
+    // - The call is fully instantiated, meaning all the arguments will be known at run-time, rather than needing
+    //   to fill some or all in from the table data
+    // - The predicate has the Unique property, meaning that it keeps a hash set of the tuples in the table
+    //
+    // This is the most desirable call implementation, since it's just a hash set lookup.
+    //
+
+    internal class TableCallUsingRowSet<T1> : SingleRowTableCall
     {
         private readonly TablePredicate<T1> predicate;
         private readonly Pattern<T1> pattern;
 
-        public TableCall(TablePredicate<T1> tablePredicate, Pattern<T1> pattern) : base(tablePredicate)
+        public TableCallUsingRowSet(TablePredicate<T1> tablePredicate, Pattern<T1> pattern) : base(tablePredicate)
         {
             predicate = tablePredicate;
             this.pattern = pattern;
@@ -20,12 +29,12 @@
         }
     }
 
-    internal class TableCall<T1, T2> : SingleRowTableCall
+    internal class TableCallUsingRowSet<T1, T2> : SingleRowTableCall
     {
         private readonly TablePredicate<T1, T2> predicate;
         private readonly Pattern<T1, T2> pattern;
 
-        public TableCall(TablePredicate<T1, T2> tablePredicate, Pattern<T1, T2> pattern) : base(tablePredicate)
+        public TableCallUsingRowSet(TablePredicate<T1, T2> tablePredicate, Pattern<T1, T2> pattern) : base(tablePredicate)
         {
             predicate = tablePredicate;
             this.pattern = pattern;
@@ -43,12 +52,12 @@
 
     
 
-    internal class TableCall<T1,T2,T3> : SingleRowTableCall
+    internal class TableCallUsingRowSet<T1,T2,T3> : SingleRowTableCall
     {
         private readonly TablePredicate<T1,T2,T3> predicate;
         private readonly Pattern<T1,T2,T3> pattern;
 
-        public TableCall(TablePredicate<T1,T2,T3> tablePredicate, Pattern<T1,T2,T3> pattern) : base(tablePredicate)
+        public TableCallUsingRowSet(TablePredicate<T1,T2,T3> tablePredicate, Pattern<T1,T2,T3> pattern) : base(tablePredicate)
         {
             predicate = tablePredicate;
             this.pattern = pattern;
@@ -64,12 +73,12 @@
         }
     }
 
-    internal class TableCall<T1,T2,T3,T4> : SingleRowTableCall
+    internal class TableCallUsingRowSet<T1,T2,T3,T4> : SingleRowTableCall
     {
         private readonly TablePredicate<T1,T2,T3,T4> predicate;
         private readonly Pattern<T1,T2,T3,T4> pattern;
 
-        public TableCall(TablePredicate<T1,T2,T3,T4> tablePredicate, Pattern<T1,T2,T3,T4> pattern) : base(tablePredicate)
+        public TableCallUsingRowSet(TablePredicate<T1,T2,T3,T4> tablePredicate, Pattern<T1,T2,T3,T4> pattern) : base(tablePredicate)
         {
             predicate = tablePredicate;
             this.pattern = pattern;
@@ -85,12 +94,12 @@
         }
     }
 
-    internal class TableCall<T1,T2,T3,T4,T5> : SingleRowTableCall
+    internal class TableCallUsingRowSet<T1,T2,T3,T4,T5> : SingleRowTableCall
     {
         private readonly TablePredicate<T1,T2,T3,T4,T5> predicate;
         private readonly Pattern<T1,T2,T3,T4,T5> pattern;
 
-        public TableCall(TablePredicate<T1,T2,T3,T4,T5> tablePredicate, Pattern<T1,T2,T3,T4,T5> pattern) : base(tablePredicate)
+        public TableCallUsingRowSet(TablePredicate<T1,T2,T3,T4,T5> tablePredicate, Pattern<T1,T2,T3,T4,T5> pattern) : base(tablePredicate)
         {
             predicate = tablePredicate;
             this.pattern = pattern;
@@ -106,12 +115,12 @@
         }
     }
 
-    internal class TableCall<T1,T2,T3,T4,T5,T6> : SingleRowTableCall
+    internal class TableCallUsingRowSet<T1,T2,T3,T4,T5,T6> : SingleRowTableCall
     {
         private readonly TablePredicate<T1,T2,T3,T4,T5,T6> predicate;
         private readonly Pattern<T1,T2,T3,T4,T5,T6> pattern;
 
-        public TableCall(TablePredicate<T1,T2,T3,T4,T5,T6> tablePredicate, Pattern<T1,T2,T3,T4,T5,T6> pattern) : base(tablePredicate)
+        public TableCallUsingRowSet(TablePredicate<T1,T2,T3,T4,T5,T6> tablePredicate, Pattern<T1,T2,T3,T4,T5,T6> pattern) : base(tablePredicate)
         {
             predicate = tablePredicate;
             this.pattern = pattern;

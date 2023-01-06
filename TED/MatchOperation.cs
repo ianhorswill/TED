@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace TED
 {
@@ -17,11 +18,28 @@ namespace TED
     [DebuggerDisplay("{debuggerDisplay}")]
     internal readonly struct MatchOperation<T>
     {
+        /// <summary>
+        /// How to match this formal argument in a pattern to the value in a table row.
+        /// </summary>
         enum Opcode
         {
+            /// <summary>
+            /// The argument is a variable and it's already been bound to a value by a previous call.
+            /// So match the value of the variable's ValueCell to the value.
+            /// </summary>
             Read,
+            /// <summary>
+            /// The argument is a variable that has not yet been bound to a variable.
+            /// So write the value into the variable's ValueCell
+            /// </summary>
             Write,
+            /// <summary>
+            /// The value is a constant stored in a ValueCell, so match the value passed to the one in the ValueCell
+            /// </summary>
             Constant,
+            /// <summary>
+            /// The argument is a variable that isn't used anywhere else.  So don't bother doing anything.
+            /// </summary>
             Ignore
         };
 
@@ -68,6 +86,7 @@ namespace TED
         /// Write the value of the variable or constant in the MatchOperation to the specified location
         /// </summary>
         /// <param name="target"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(out T target) => target = ValueCell.Value;
 
         /// <summary>
@@ -76,7 +95,8 @@ namespace TED
         /// <param name="target"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public bool Match(T target)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Match(in T target)
         {
             switch (opcode)
             {
@@ -101,6 +121,7 @@ namespace TED
         /// </summary>
         public T Value
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 switch (opcode)

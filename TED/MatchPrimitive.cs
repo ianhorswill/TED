@@ -2,16 +2,19 @@
 
 namespace TED
 {
-    internal interface IMatchPrimitive { }
+    /// <summary>
+    /// Just a type tag so we can test whether something is a EvalPrimitive
+    /// </summary>
+    internal interface IEvalPrimitive { }
 
     /// <summary>
-    /// Implements negation of a goal
+    /// Implements evaluation of a functional expression and matching/storing it to a variable
     /// </summary>
-    public class MatchPrimitive<T> : PrimitivePredicate<T,T>, IMatchPrimitive
+    public sealed class EvalPrimitive<T> : PrimitivePredicate<T,T>, IEvalPrimitive
     {
-        public static MatchPrimitive<T> Singleton = new MatchPrimitive<T>();
+        public static EvalPrimitive<T> Singleton = new EvalPrimitive<T>();
 
-        public MatchPrimitive() : base("Match")
+        public EvalPrimitive() : base("Eval")
         {
         }
 

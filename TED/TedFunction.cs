@@ -3,9 +3,15 @@ using System.Diagnostics;
 
 namespace TED
 {
+    /// <summary>
+    /// Untyped base class for objects that wrap C# functions
+    /// </summary>
     [DebuggerDisplay("{Name}")]
     public abstract class TedFunction
     {
+        /// <summary>
+        /// Name, for debugging purposes
+        /// </summary>
         public readonly string Name;
 
         public TedFunction(string name)

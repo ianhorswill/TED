@@ -5,7 +5,7 @@ namespace TED
     /// <summary>
     /// Implements negation of a goal
     /// </summary>
-    public class NotPrimitive : PrimitivePredicate<AnyGoal>
+    public sealed class NotPrimitive : PrimitivePredicate<AnyGoal>
     {
         public static NotPrimitive Singleton = new NotPrimitive();
 
