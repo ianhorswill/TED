@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using TED;
 using static TED.Language;
 
@@ -121,7 +122,7 @@ namespace Tests
                 t, m, rt);
 
             var HasBoolMethod = Predicate("HasBoolMethods", t).If(Methods[t, m, typeof(bool)]);
-            Assert.IsTrue(HasBoolMethod.Length > 0); ;
+            Assert.IsTrue(HasBoolMethod.Length > 0);
         }
     }
 }

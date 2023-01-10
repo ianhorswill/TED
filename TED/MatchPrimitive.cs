@@ -19,15 +19,15 @@ namespace TED
         }
 
         internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc) =>
-            new SetCall(this, tc.Emit(g.Arg1), g.Arg2.MakeEvaluator(tc));
+            new EvalCall(this, tc.Emit(g.Arg1), g.Arg2.MakeEvaluator(tc));
 
-        private class SetCall : AnyCall
+        private class EvalCall : AnyCall
         {
             private readonly MatchOperation<T> matcher;
             private readonly Func<T> expressionEvaluator;
             private bool restarted;
 
-            public SetCall(AnyPredicate p, MatchOperation<T> matcher, Func<T> expressionEvaluator) : base(p)
+            public EvalCall(AnyPredicate p, MatchOperation<T> matcher, Func<T> expressionEvaluator) : base(p)
             {
                 this.matcher = matcher;
                 this.expressionEvaluator = expressionEvaluator;

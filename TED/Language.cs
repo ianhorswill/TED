@@ -49,6 +49,15 @@ namespace TED
             RandomElementPrimitive<T>.Singleton[predicate, output];
 
         /// <summary>
+        /// True when element is an element of the collection
+        /// </summary>
+        /// <typeparam name="T">element/collection type</typeparam>
+        /// <param name="element">Candidate element of the collection</param>
+        /// <param name="collection">Collection to check</param>
+        public static AnyGoal In<T>(Term<T> element, Term<ICollection<T>> collection) =>
+            InPrimitive<T>.Singleton[element, collection];
+
+        /// <summary>
         /// Matches output against a randomly chosen element of choices using a uniform distribution.
         /// </summary>
         public static AnyGoal PickRandomly<T>(Term<T> output, params T[] choices) =>

@@ -99,5 +99,26 @@ namespace Tests
             Assert.AreEqual(5, results[2]);
             Assert.AreEqual(6, results[3]);
         }
+
+        [TestMethod]
+        public void InTestModeTest()
+        {
+            var c = new[] { 1, 2, 3, 4, 5 };
+            var n = (Var<int>)"n";
+            var Test = Predicate("Test", n);
+            Test[0].If(In<int>(0, c));
+            Test[1].If(In<int>(4, c));
+            CollectionAssert.AreEqual(new[]{1}, Test.Rows.ToArray());
+        }
+
+        [TestMethod]
+        public void InGenerateModeTest()
+        {
+            var c = new[] { 1, 2, 3, 4, 5 };
+            var n = (Var<int>)"n";
+            var Test = Predicate("Test", n);
+            Test[n].If(In<int>(n, c));  // Should just copy c into Test
+            CollectionAssert.AreEqual(c, Test.Rows.ToArray());
+        }
     }
 }
