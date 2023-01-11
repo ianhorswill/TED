@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using static TED.Definition;
 
@@ -19,7 +20,7 @@ namespace TED
         /// Reduce a series of goals to a different series in canonical form.
         /// Canonical form contains no calls to Definitions and has FunctionalExpressions only as arguments to Eval.
         /// </summary>
-        public static IEnumerable<AnyGoal> CanonicalizeGoals(params AnyGoal[] body)
+        public static IEnumerable<AnyGoal> CanonicalizeGoals(IEnumerable<AnyGoal> body)
             => ExpandDefinitions(body.SelectMany(HoistFunctionalExpressions).ToArray()).ToArray();
 
         /// <summary>
@@ -27,6 +28,13 @@ namespace TED
         /// </summary>
         public static AnyCall[] GenerateCalls(GoalAnalyzer ga, params AnyGoal[] body) 
             => CanonicalizeGoals(body).Select(s => s.MakeCall(ga)).ToArray();
+
+        public static (T, AnyCall[]) GenerateCalls<T>(GoalAnalyzer ga, T head, AnyGoal[] body) where T : AnyTableGoal
+        {
+            var (_, hoistedHead, hoistedEvals) = HoistedVersion(head);
+            var calls = CanonicalizeGoals(body.Concat(hoistedEvals)).Select(s => s.MakeCall(ga)).ToArray();
+            return ((T)hoistedHead, calls);
+        }
 
         /// <summary>
         /// Generate a single Call object that will run the goals in body.  The GoalAnalyzer will retain
@@ -83,6 +91,20 @@ namespace TED
         public static IEnumerable<AnyTerm> FunctionalExpressions(AnyGoal g) =>
             g.Arguments.Where(a => a.IsFunctionalExpression);
 
+        internal static (bool isHoisted, AnyGoal hoistedGoal, IEnumerable<AnyGoal> hoistedFunctionalExpressions)
+            HoistedVersion(AnyGoal g)
+        {
+            if (g.Predicate is IEvalPrimitive)
+                return (false, g, Array.Empty<AnyGoal>());
+
+            var fes = FunctionalExpressions(g).ToArray();
+            if (!fes.Any())
+                return (false, g, Array.Empty<AnyGoal>());
+            var liftedExpressions = fes.Select(fe => fe.HoistInfo()).ToArray();
+            var newG = g.RenameArguments(new Substitution(liftedExpressions.Select(l => (l.Expression, l.Var)), false));
+            return (true, newG, liftedExpressions.Select(l => l.EvalGoal));
+        }
+
         /// <summary>
         /// Replace any calls to functional expressions in the Goal with temporary variables and prepend the
         /// transformed version with calls to Eval to bind the temporary variables with function expressions.
@@ -90,16 +112,12 @@ namespace TED
         /// - P(x,y) is unchanged; it maps to P(x,y)
         /// - P(x+1,y) is mapped to: Eval(t, x+1), P(t,y)
         /// </summary>
-        public static IEnumerable<AnyGoal> HoistFunctionalExpressions(AnyGoal g)
+        internal static IEnumerable<AnyGoal> HoistFunctionalExpressions(AnyGoal g)
         {
-            if (g.Predicate is IEvalPrimitive)
+            var (changed, goal, evalCalls) = HoistedVersion(g);
+            if (!changed)
                 return new[] { g };
-            var fes = FunctionalExpressions(g).ToArray();
-            if (!fes.Any())
-                return new[] { g };
-            var liftedExpressions = fes.Select(fe => fe.HoistInfo()).ToArray();
-            var newG = g.RenameArguments(new Substitution(liftedExpressions.Select(l => (l.Expression, l.Var)), false));
-            return liftedExpressions.Select(l => l.EvalGoal).Append(newG);
+            return evalCalls.Append(goal);
         }
     }
 }

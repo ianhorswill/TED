@@ -71,5 +71,15 @@ namespace Tests
             };
             CollectionAssert.AreEqual(rightAnswer, NextDay.Rows.ToArray());
         }
+
+        [TestMethod]
+        public void HoistHead()
+        {
+            var n = (Var<int>)"n";
+            var Number = Predicate("Number", new[] { 1, 2, 3, 4, 5 }, n);
+            var Next = Predicate("Next", n); 
+            Next[n+1].If(Number[n]);
+            CollectionAssert.AreEqual(new [] { 2, 3, 4, 5, 6 }, Next.Rows.ToArray());
+        }
     }
 }
