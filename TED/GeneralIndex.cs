@@ -117,7 +117,7 @@ namespace TED
         /// This will read the row from the table to get its column value for the purpose of indexing.
         /// </summary>
         /// <param name="row">Row number of the row we're adding</param>
-        public sealed override void Add(uint row)
+        internal sealed override void Add(uint row)
         {
             uint b;
             var value = projection(table.Data[row]);

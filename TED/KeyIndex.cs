@@ -9,7 +9,7 @@ namespace TED
     /// </summary>
     /// <typeparam name="TRow">Type of the rows of the table; this will be a typle type unless it is a single-column table</typeparam>
     /// <typeparam name="TKey">Type of the column we're indexing on</typeparam>
-    internal sealed class KeyIndex<TRow, TKey> : TableIndex<TRow, TKey>
+    public sealed class KeyIndex<TRow, TKey> : TableIndex<TRow, TKey>
     {
         //
         // Indices are implemented as direct-addressed hash tables in hopes of maximizing cache locality.
@@ -51,7 +51,7 @@ namespace TED
         /// </summary>
         private static readonly EqualityComparer<TKey> Comparer = EqualityComparer<TKey>.Default;
 
-        public KeyIndex(TablePredicate p, Table<TRow> t, int columnNumber, Projection projection) : base(columnNumber, projection)
+        internal KeyIndex(TablePredicate p, Table<TRow> t, int columnNumber, Projection projection) : base(columnNumber, projection)
         {
             predicate = p;
             table = t;
@@ -69,11 +69,22 @@ namespace TED
         private static uint HashInternal(TKey value, uint mask) => (uint)Comparer.GetHashCode(value) & mask;
 
         /// <summary>
+        /// Return a reference to the row with the specified key.
+        /// This will blow up if there is no such row.
+        /// </summary>
+        public ref TRow this[in TKey key] => ref table.PositionReference(RowWithKey(in key));
+        
+        /// <summary>
+        /// Test if the table contains a row with the specified key
+        /// </summary>
+        public bool ContainsKey(in TKey key) => RowWithKey(in key) != AnyTable.NoRow;
+
+        /// <summary>
         /// Row containing this key, if any
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public uint RowWithKey(in TKey value)
+        internal uint RowWithKey(in TKey value)
         {
             for (var b = HashInternal(value, mask); buckets[b].row != AnyTable.NoRow; b = (b + 1) & mask)
                 if (Comparer.Equals(buckets[b].key, value))
@@ -91,7 +102,7 @@ namespace TED
         /// </summary>
         /// <param name="row">Number of the row</param>
         /// <exception cref="DuplicateKeyException">If there is always a row in the table containing that key value</exception>
-        public sealed override void Add(uint row)
+        internal override void Add(uint row)
         {
             uint b;
             var key = projection(table.Data[row]);
@@ -127,7 +138,7 @@ namespace TED
         /// <summary>
         /// Reindex the table.  Call Clear() first.
         /// </summary>
-        internal sealed override void Reindex()
+        internal override void Reindex()
         {
             // Build the initial index
             for (var i = 0u; i < table.Length; i++)

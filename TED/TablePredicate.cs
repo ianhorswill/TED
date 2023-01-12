@@ -91,13 +91,19 @@ namespace TED
 
         private void AddIndex(AnyTerm t, bool keyIndex)
         {
+            var index = ColumnPositionOfDefaultVariable(t);
+            AddIndex(index, keyIndex);
+        }
+
+        protected int ColumnPositionOfDefaultVariable(AnyTerm t)
+        {
             if (DefaultVariables == null)
                 throw new InvalidOperationException(
                     $"No default arguments defined for table {Name}, so no known column {t}");
             var index = Array.IndexOf(DefaultVariables, t);
             if (index < 0)
                 throw new ArgumentException($"Table {Name} has no column named {t}");
-            AddIndex(index, keyIndex);
+            return index;
         }
 
         protected abstract void AddIndex(int columnIndex, bool keyIndex);
@@ -556,6 +562,21 @@ namespace TED
             if (inputs != null)
                 foreach (var input in inputs) Append(input);
         }
+
+        /// <summary>
+        /// Get the index for the specified key
+        /// </summary>
+        /// <typeparam name="T">Type of the indexed column</typeparam>
+        /// <param name="column">Default variable representing the column</param>
+        /// <returns>The index</returns>
+        /// <exception cref="InvalidOperationException">If there is no index or it's not a key index</exception>
+        public KeyIndex<(T1, T2), T> KeyIndex<T>(Var<T> column)
+        {
+            var i = IndexFor(ColumnPositionOfDefaultVariable(column), true);
+            if (i == null)
+                throw new InvalidOperationException($"No key index defined for {column}");
+            return (KeyIndex<(T1, T2), T>)i;
+        }
     }
 
     /// <summary>
@@ -592,6 +613,21 @@ namespace TED
                 default:
                     throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
             }
+        }
+
+        /// <summary>
+        /// Get the index for the specified key
+        /// </summary>
+        /// <typeparam name="T">Type of the indexed column</typeparam>
+        /// <param name="column">Default variable representing the column</param>
+        /// <returns>The index</returns>
+        /// <exception cref="InvalidOperationException">If there is no index or it's not a key index</exception>
+        public KeyIndex<(T1, T2, T3), T> KeyIndex<T>(Var<T> column)
+        {
+            var i = IndexFor(ColumnPositionOfDefaultVariable(column), true);
+            if (i == null)
+                throw new InvalidOperationException($"No key index defined for {column}");
+            return (KeyIndex<(T1, T2, T3), T>)i;
         }
 
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3")
@@ -785,8 +821,21 @@ namespace TED
             }
         }
 
-
-
+        /// <summary>
+        /// Get the index for the specified key
+        /// </summary>
+        /// <typeparam name="TKey">Type of the indexed column</typeparam>
+        /// <param name="column">Default variable representing the column</param>
+        /// <returns>The index</returns>
+        /// <exception cref="InvalidOperationException">If there is no index or it's not a key index</exception>
+        public KeyIndex<(T1, T2, T3, T4), TKey> KeyIndex<TKey>(Var<TKey> column)
+        {
+            var i = IndexFor(ColumnPositionOfDefaultVariable(column), true);
+            if (i == null)
+                throw new InvalidOperationException($"No key index defined for {column}");
+            return (KeyIndex<(T1, T2, T3, T4), TKey>)i;
+        }
+        
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
             string col4 = "col4") : base(name, new []{ col1, col2, col3, col4 })
         {
@@ -986,6 +1035,21 @@ namespace TED
             }
         }
 
+        /// <summary>
+        /// Get the index for the specified key
+        /// </summary>
+        /// <typeparam name="TKey">Type of the indexed column</typeparam>
+        /// <param name="column">Default variable representing the column</param>
+        /// <returns>The index</returns>
+        /// <exception cref="InvalidOperationException">If there is no index or it's not a key index</exception>
+        public KeyIndex<(T1, T2, T3, T4, T5), TKey> KeyIndex<TKey>(Var<TKey> column)
+        {
+            var i = IndexFor(ColumnPositionOfDefaultVariable(column), true);
+            if (i == null)
+                throw new InvalidOperationException($"No key index defined for {column}");
+            return (KeyIndex<(T1, T2, T3, T4, T5), TKey>)i;
+        }
+        
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
             string col4 = "col4", string col5 = "col5") : base(name, new []{ col1, col2, col3, col4, col5 })
         {
@@ -1194,7 +1258,21 @@ namespace TED
             }
         }
 
-
+        /// <summary>
+        /// Get the index for the specified key
+        /// </summary>
+        /// <typeparam name="TKey">Type of the indexed column</typeparam>
+        /// <param name="column">Default variable representing the column</param>
+        /// <returns>The index</returns>
+        /// <exception cref="InvalidOperationException">If there is no index or it's not a key index</exception>
+        public KeyIndex<(T1, T2, T3, T4, T5, T6), TKey> KeyIndex<TKey>(Var<TKey> column)
+        {
+            var i = IndexFor(ColumnPositionOfDefaultVariable(column), true);
+            if (i == null)
+                throw new InvalidOperationException($"No key index defined for {column}");
+            return (KeyIndex<(T1, T2, T3, T4, T5, T6), TKey>)i;
+        }
+        
         public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
             string col4 = "col4", string col5 = "col5", string col6 = "col6")
             : base(name, new []{ col1, col2, col3, col4, col5, col6 })

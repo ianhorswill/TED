@@ -5,7 +5,7 @@ namespace TED
     /// <summary>
     /// Base type of indices into tables
     /// </summary>
-    internal abstract class TableIndex
+    public abstract class TableIndex
     {
         /// <summary>
         /// Position of the column: 0=first column, 1=second, etc.
@@ -21,7 +21,7 @@ namespace TED
         /// Add a row to the index
         /// </summary>
         /// <param name="row">Position within the table array of the row to add</param>
-        public abstract void Add(uint row);
+        internal abstract void Add(uint row);
 
         /// <summary>
         /// Double the size of the table.
@@ -61,7 +61,7 @@ namespace TED
     /// </summary>
     /// <typeparam name="TRow">Type of the rows of the table</typeparam>
     /// <typeparam name="TColumn">Type of the column being indexed</typeparam>
-    internal abstract class TableIndex<TRow, TColumn> : TableIndex
+    public abstract class TableIndex<TRow, TColumn> : TableIndex
     {
         /// <summary>
         /// Returns the key value given the row

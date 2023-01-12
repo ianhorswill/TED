@@ -1,4 +1,5 @@
 using TED;
+using static TED.Language;
 
 namespace Tests
 {
@@ -139,6 +140,19 @@ namespace Tests
                 Assert.AreEqual(i, next);
                 Assert.AreEqual(AnyTable.NoRow, index.NextRowWithValue(next));
             }
+        }
+
+        [TestMethod]
+        public void UserKeyIndexTest()
+        {
+            var n = (Var<int>)"n";
+            var m = (Var<int>)"m";
+            var nums = new[] { 1, 2, 3, 4, 5, 6 };
+            var Table = Predicate("Table", nums.Select(i => (i, i+1)), n, m);
+            Table.IndexByKey(n);
+            var nKey = Table.KeyIndex(n);
+            foreach (var i in nums)
+                Assert.AreEqual(i+1, nKey[i].Item2);
         }
     }
 }
