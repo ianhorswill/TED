@@ -6,20 +6,21 @@ namespace TED
     /// <summary>
     /// Wrapper for C# comparison operators (<, >, etc.) for some type.
     /// </summary>
-    public sealed class ComparisonPrimitive<T> : PrimitivePredicate<T,T>
+    internal sealed class ComparisonPrimitive<T> : PrimitivePredicate<T,T>
     {
-        public static readonly ComparisonPrimitive<T> LessThan = new ComparisonPrimitive<T>("<", "op_LessThan");
-        public static readonly ComparisonPrimitive<T> LessThanEq = new ComparisonPrimitive<T>("<=", "op_LessThanOrEqual");
-        public static readonly ComparisonPrimitive<T> GreaterThan = new ComparisonPrimitive<T>(">", "op_GreaterThan");
-        public static readonly ComparisonPrimitive<T> GreaterThanEq = new ComparisonPrimitive<T>(">=", "op_GreaterThanOrEqual");
+        internal static readonly ComparisonPrimitive<T> LessThan = new ComparisonPrimitive<T>("<", "op_LessThan");
+        internal static readonly ComparisonPrimitive<T> LessThanEq = new ComparisonPrimitive<T>("<=", "op_LessThanOrEqual");
+        internal static readonly ComparisonPrimitive<T> GreaterThan = new ComparisonPrimitive<T>(">", "op_GreaterThan");
+        internal static readonly ComparisonPrimitive<T> GreaterThanEq = new ComparisonPrimitive<T>(">=", "op_GreaterThanOrEqual");
 
         private readonly Func<T, T, bool> comparison;
 
         private ComparisonPrimitive(string name, string operatorName) : base(name)
         {
-            var methodInfo = typeof(T).GetOperatorMethodInfo(operatorName);
+            var type = typeof(T);
+            var methodInfo = type.GetOperatorMethodInfo(operatorName, typeof(bool), type, type);
             if (methodInfo == null)
-                throw new ArgumentException($"There is no {name} overload defined for type {typeof(T).Name}");
+                throw new ArgumentException($"There is no {name} overload defined for comparing two {type.Name}s");
             comparison = (Func<T, T, bool>)methodInfo.CreateDelegate(typeof(Func<T, T, bool>));
         }
 
