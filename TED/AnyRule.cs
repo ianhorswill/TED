@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace TED
 {
@@ -8,7 +10,7 @@ namespace TED
     /// They consist of the Pattern for the head of the rule and an array of call objects
     /// for each of the subgoals in the body
     /// </summary>
-    internal abstract class AnyRule
+    public abstract class AnyRule
     {
         /// <summary>
         /// Predicate this rule applies to.
@@ -32,11 +34,17 @@ namespace TED
         /// </summary>
         public readonly TablePredicate[] Dependencies;
 
-        protected AnyRule(TablePredicate predicate, AnyCall[] body, TablePredicate[] dependencies)
+        /// <summary>
+        /// Cells holding the values of the variables in the rule.
+        /// </summary>
+        public readonly ValueCell[] ValueCells;
+
+        protected AnyRule(TablePredicate predicate, AnyCall[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
         {
             Predicate = predicate;
             Body = body;
             Dependencies = dependencies;
+            ValueCells = valueCells;
         }
 
         /// <summary>
@@ -49,37 +57,43 @@ namespace TED
         /// Repeatedly runs all the calls in the body and backtracks them to completion
         /// Calls WriteHead each time a solution is found to write it into the table.
         /// </summary>
-        public void AddAllSolutions()
+        internal void AddAllSolutions()
         {
-            if (Body.Length == 0)
-            {
-                WriteHead();
-                return;
-            }
-
             var subgoal = 0;
-
-            foreach (var d in Dependencies)
-                d.EnsureUpToDate();
-
-            Body[subgoal].Reset();
-            while (subgoal >= 0)
+            try
             {
-                if (Body[subgoal].NextSolution())
+                if (Body.Length == 0)
                 {
-                    // Succeeded
-                    if (subgoal == Body.Length - 1)
-                        WriteHead();
-                    else
-                    {
-                        // Advance to the next subgoal
-                        subgoal++;
-                        Body[subgoal].Reset();
-                    }
+                    WriteHead();
+                    return;
                 }
-                else
-                    // Failed
-                    subgoal--;
+
+                foreach (var d in Dependencies)
+                    d.EnsureUpToDate();
+
+                Body[subgoal].Reset();
+                while (subgoal >= 0)
+                {
+                    if (Body[subgoal].NextSolution())
+                    {
+                        // Succeeded
+                        if (subgoal == Body.Length - 1)
+                            WriteHead();
+                        else
+                        {
+                            // Advance to the next subgoal
+                            subgoal++;
+                            Body[subgoal].Reset();
+                        }
+                    }
+                    else
+                        // Failed
+                        subgoal--;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new RuleExecutionException(this, Body[subgoal], e);
             }
         }
 

@@ -13,13 +13,13 @@ namespace TED
     /// </summary>
     internal class GoalAnalyzer
     {
-        private GoalAnalyzer(Dictionary<AnyTerm, object> variableCells, HashSet<TablePredicate> dependencies)
+        private GoalAnalyzer(Dictionary<AnyTerm, ValueCell> variableCells, HashSet<TablePredicate> dependencies)
         {
             variableValueCells = variableCells;
             tableDependencies = dependencies;
         }
 
-        public GoalAnalyzer() : this(new Dictionary<AnyTerm, object>(), new HashSet<TablePredicate>())
+        public GoalAnalyzer() : this(new Dictionary<AnyTerm, ValueCell>(), new HashSet<TablePredicate>())
         { }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace TED
         /// Dependencies will be added, however.
         /// </summary>
         public GoalAnalyzer MakeChild()
-            => new GoalAnalyzer(new Dictionary<AnyTerm, object>(variableValueCells), tableDependencies);
+            => new GoalAnalyzer(new Dictionary<AnyTerm, ValueCell>(variableValueCells), tableDependencies);
         
         /// <summary>
         /// Maps Var objects, which are the abstract syntax tree representation for a TED variable,
@@ -35,7 +35,7 @@ namespace TED
         /// The key type of the dictionary is AnyTerm just because Var is a generic type, it's parent, Term
         /// is also a generic type, and so AnyTerm is the most immediate ancestor that's a parent to all Vars.
         /// </summary>
-        private readonly Dictionary<AnyTerm, object> variableValueCells;
+        private readonly Dictionary<AnyTerm, ValueCell> variableValueCells;
 
         private readonly HashSet<TablePredicate> tableDependencies;
 
@@ -68,5 +68,10 @@ namespace TED
             variableValueCells[v] = vc;
             return MatchOperation<T>.Write(vc);
         }
+
+        /// <summary>
+        /// ValueCells for all the variables in the rule
+        /// </summary>
+        public ValueCell[] VariableValueCells() => variableValueCells.Select(p => p.Value).ToArray();
     }
 }

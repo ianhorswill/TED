@@ -2,6 +2,31 @@
 
 namespace TED
 {
+    public abstract class ValueCell
+    {
+        protected const string constantName = " const ";
+        
+        /// <summary>
+        /// Name, for debugging purposes
+        /// </summary>
+        public readonly string Name;
+
+        protected ValueCell(string name)
+        {
+            Name = name;
+        }
+
+        /// <summary>
+        /// Is this the value cell for a variable or for a constant?
+        /// </summary>
+        public bool IsVariable => Name != constantName;
+
+        /// <summary>
+        /// Value stored in the cell, typed as object
+        /// </summary>
+        public abstract object? BoxedValue { get; }
+    }
+
     /// <summary>
     /// A container for a run-time value manipulated by Calls in a Rule
     /// These are used to hold:
@@ -11,12 +36,15 @@ namespace TED
     /// or written to a row in a table using its Write method.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class ValueCell<T>
+    internal sealed class ValueCell<T> : ValueCell
     {
         /// <summary>
         /// Data stored in the cell.
         /// </summary>
         public T Value;
+
+        /// <inheritdoc />
+        public override object? BoxedValue => Value;
 
         /// <summary>
         /// Object used to test equality of two objects of type T
@@ -28,18 +56,12 @@ namespace TED
         /// Table of ValueCells used for different constants of type T
         /// </summary>
         private static readonly Dictionary<T, ValueCell<T>> ConstantTable = new Dictionary<T, ValueCell<T>>();
-
-        private ValueCell(T value, string name = "constant")
+        
+        private ValueCell(T value, string name) : base(name)
         {
             Value = value;
-            Name = name;
         }
-
-        /// <summary>
-        /// Name, for debugging purposes
-        /// </summary>
-        public readonly string Name;
-
+        
         /// <summary>
         /// Make a ValueCell to hold the run-time value of a variable (a Var[T]).
         /// </summary>
@@ -53,7 +75,7 @@ namespace TED
         {
             if (!ConstantTable.TryGetValue(value, out var c))
             {
-                c = new ValueCell<T>(value);
+                c = new ValueCell<T>(value, constantName);
                 ConstantTable[value] = c;
             }
 
