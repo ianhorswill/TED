@@ -27,15 +27,14 @@ namespace TED
     /// </summary>
     public class TedFunction<TOut> : TedFunction
     {
-        
-        private readonly Func<TOut> function;
+        internal readonly Func<TOut> Implementation;
 
-        public TedFunction(string name, Func<TOut> function) : base(name)
+        public TedFunction(string name, Func<TOut> implementation) : base(name)
         {
-            this.function = function;
+            Implementation = implementation;
         }
 
-        public FunctionCall<TOut> Call() => new FunctionCall<TOut>(function);
+        public FunctionCall<TOut> Call() => new FunctionCall<TOut>(this);
     }
 
     /// <summary>
@@ -44,14 +43,14 @@ namespace TED
     public class TedFunction<TIn, TOut> : TedFunction
     {
         
-        private readonly Func<TIn, TOut> function;
+        internal readonly Func<TIn, TOut> Implementation;
 
-        public TedFunction(string name, Func<TIn, TOut> function) : base(name)
+        public TedFunction(string name, Func<TIn, TOut> implementation) : base(name)
         {
-            this.function = function;
+            Implementation = implementation;
         }
 
-        public FunctionCall<TIn, TOut> this[Term<TIn> arg] => new FunctionCall<TIn, TOut>(function, arg);
+        public FunctionCall<TIn, TOut> this[Term<TIn> arg] => new FunctionCall<TIn, TOut>(this, arg);
     }
 
     /// <summary>
@@ -60,13 +59,13 @@ namespace TED
     public class TedFunction<TIn1, TIn2, TOut> : TedFunction
     {
         
-        private readonly Func<TIn1, TIn2, TOut> function;
+        internal readonly Func<TIn1, TIn2, TOut> Implementation;
 
-        public TedFunction(string name, Func<TIn1, TIn2, TOut> function) : base(name)
+        public TedFunction(string name, Func<TIn1, TIn2, TOut> implementation) : base(name)
         {
-            this.function = function;
+            Implementation = implementation;
         }
 
-        public FunctionCall<TIn1, TIn2, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2] => new FunctionCall<TIn1, TIn2, TOut>(function, arg1, arg2);
+        public FunctionCall<TIn1, TIn2, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2] => new FunctionCall<TIn1, TIn2, TOut>(this, arg1, arg2);
     }
 }

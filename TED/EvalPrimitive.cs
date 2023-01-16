@@ -19,18 +19,20 @@ namespace TED
         }
 
         internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc) =>
-            new EvalCall(this, tc.Emit(g.Arg1), g.Arg2.MakeEvaluator(tc));
+            new EvalCall(this, tc.Emit(g.Arg1), g.Arg2.MakeEvaluator(tc), g);
 
         private class EvalCall : AnyCall
         {
             private readonly MatchOperation<T> matcher;
             private readonly Func<T> expressionEvaluator;
+            private readonly Goal originalGoal;
             private bool restarted;
 
-            public EvalCall(AnyPredicate p, MatchOperation<T> matcher, Func<T> expressionEvaluator) : base(p)
+            public EvalCall(AnyPredicate p, MatchOperation<T> matcher, Func<T> expressionEvaluator, Goal originalGoal) : base(p)
             {
                 this.matcher = matcher;
                 this.expressionEvaluator = expressionEvaluator;
+                this.originalGoal = originalGoal;
             }
 
 
@@ -47,6 +49,8 @@ namespace TED
                 restarted = false;
                 return matcher.Match(expressionEvaluator());
             }
+
+            public override string ToString() => $"{originalGoal.Arg1} == {originalGoal.Arg2}";
         }
     }
 }
