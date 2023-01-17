@@ -5,11 +5,8 @@ namespace TED
     /// <summary>
     /// Wrapper for one of the unary "op_" methods that operator expressions in C# compile to.
     /// </summary>
-    internal class UnaryArithmeticOperator<T> : TedFunction<T,T>
+    internal abstract class UnaryArithmeticOperator<T> : TedFunction<T,T>
     {
-        internal static readonly UnaryArithmeticOperator<T> Negate = new UnaryArithmeticOperator<T>("-", "op_UnaryNegation");
-        internal static readonly UnaryArithmeticOperator<T> BitwiseNot = new UnaryArithmeticOperator<T>("~", "op_OnesComplement");
-
         private static Func<T, T> LookupOperator(string name, string methodName)
         {
             var type = typeof(T);
@@ -18,10 +15,25 @@ namespace TED
                 throw new ArgumentException($"There is no {name} overload defined for type {type.Name} that maps a {type.Name} to itself");
             return (Func<T, T>)methodInfo.CreateDelegate(typeof(Func<T, T>));
         }
-        private UnaryArithmeticOperator(string name, string methodName) : base(name, LookupOperator(name, methodName))
+        protected UnaryArithmeticOperator(string name, string methodName) : base(name, LookupOperator(name, methodName))
         {
 
         }
     }
 
+    internal sealed class NegationOperator<T> : UnaryArithmeticOperator<T>
+    {
+        internal static readonly NegationOperator<T> Singleton = new NegationOperator<T>();
+
+        private NegationOperator() : base("-", "op_UnaryNegation")
+        { }
+    }
+
+    internal sealed class BitwiseNegationOperator<T> : UnaryArithmeticOperator<T>
+    {
+        internal static readonly BitwiseNegationOperator<T> Singleton = new BitwiseNegationOperator<T>();
+
+        private BitwiseNegationOperator() : base("~", "op_OnesComplement")
+        { }
+    }
 }

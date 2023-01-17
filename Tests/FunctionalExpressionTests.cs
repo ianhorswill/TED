@@ -47,6 +47,34 @@ namespace Tests
             Assert.AreEqual(3, r[0]);
         }
 
+        readonly struct V2Int
+        {
+            public readonly int X;
+            public readonly int Y;
+
+            public static V2Int Zero = new V2Int(0, 0);
+            public static V2Int UnitX = new V2Int(1, 0);
+            public static V2Int UnitY = new V2Int(0, 1);
+
+            public V2Int(int x, int y)
+            {
+                X = x;
+                Y = y;
+            }
+
+            public static V2Int operator +(V2Int a, V2Int b) => new V2Int(a.X + b.X, a.Y+b.Y);
+        }
+
+        [TestMethod]
+        public void CustomClassAdditionTest()
+        {
+            var n = (Var<V2Int>)"n";
+            var T = Predicate("t", n).If(n == V2Int.UnitX + V2Int.UnitY);
+            var r = T.Rows.ToArray();
+            Assert.AreEqual(1, r.Length);
+            Assert.AreEqual(new V2Int(1,1), r[0]);
+        }
+
         [TestMethod]
         public void NegationTest()
         {

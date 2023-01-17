@@ -88,33 +88,33 @@ namespace TED
         public static AnyGoal operator >=(Term<T> a, Term<T> b) => ComparisonPrimitive<T>.GreaterThanEq[a, b];
 
         public static FunctionalExpression<T> operator +(Term<T> a, Term<T> b)
-            => BinaryArithmeticOperator<T>.Add[a,b];
+            => AdditionOperator<T>.Singleton[a,b];
 
         public static FunctionalExpression<T> operator -(Term<T> a, Term<T> b)
-            => BinaryArithmeticOperator<T>.Subtract[a,b];
+            => SubtractionOperator<T>.Singleton[a,b];
 
         public static FunctionalExpression<T> operator -(Term<T> a)
-            => UnaryArithmeticOperator<T>.Negate[a];
+            => NegationOperator<T>.Singleton[a];
 
         public static FunctionalExpression<T> operator *(Term<T> a, Term<T> b)
-            => BinaryArithmeticOperator<T>.Multiply[a,b];
+            => MultiplicationOperator<T>.Singleton[a,b];
 
         public static FunctionalExpression<T> operator /(Term<T> a, Term<T> b)
-            => BinaryArithmeticOperator<T>.Divide[a,b];
+            => DivisionOperator<T>.Singleton[a,b];
 
         public static FunctionalExpression<T> operator %(Term<T> a, Term<T> b)
-            => BinaryArithmeticOperator<T>.Modulus[a,b];
+            => ModulusOperator<T>.Singleton[a,b];
 
         public static FunctionalExpression<T> operator |(Term<T> a, Term<T> b)
-            => BinaryArithmeticOperator<T>.BitwiseOr[a,b];
+            => BitwiseOrOperator<T>.Singleton[a,b];
 
         public static FunctionalExpression<T> operator &(Term<T> a, Term<T> b)
-            => BinaryArithmeticOperator<T>.BitwiseAnd[a,b];
+            => BitwiseAndOperator<T>.Singleton[a,b];
 
         public static FunctionalExpression<T> operator ^(Term<T> a, Term<T> b)
-            => BinaryArithmeticOperator<T>.BitwiseXor[a,b];
+            => BitwiseXOrOperator<T>.Singleton[a,b];
 
         public static FunctionalExpression<T> operator ~(Term<T> a)
-            => UnaryArithmeticOperator<T>.BitwiseNot[a];
+            => BitwiseNegationOperator<T>.Singleton[a];
     }
 }
