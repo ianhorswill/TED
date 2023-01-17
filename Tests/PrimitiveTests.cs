@@ -29,6 +29,55 @@ namespace Tests
             }
         }
 
+        readonly struct Vector2Int
+        {
+            public readonly int X;
+            public readonly int Y;
+
+            public static Vector2Int Zero = new Vector2Int(0, 0);
+            public static Vector2Int UnitX = new Vector2Int(1, 0);
+            public static Vector2Int UnitY = new Vector2Int(0, 1);
+
+            public Vector2Int(int x, int y)
+            {
+                X = x;
+                Y = y;
+            }
+
+            public static Vector2Int operator +(Vector2Int a, Vector2Int b) => new Vector2Int(a.X + b.X, a.Y+b.Y);
+        }
+
+        [TestMethod]
+        public void SamTest()
+        {
+            var neighborhood = new[] { new Vector2Int(0, 1), new Vector2Int(1, 1),
+                new Vector2Int(1, 0), new Vector2Int(1, -1),
+                new Vector2Int(0, -1), new Vector2Int(-1, -1),
+                new Vector2Int(-1, 0), new Vector2Int(-1, 1) };
+            var cell =     (Var<Vector2Int>)"cell";
+            var neighbor = (Var<Vector2Int>)"neighbor";
+            var temp =     (Var<Vector2Int>)"temp";
+            //var where = (Var<Vector2Int>)"where";
+            var count = (Var<int>)"count";
+            var b = (Var<bool>)"b";
+            //var Neighbor = Definition("Neighbor", cell, neighbor).IfAndOnlyIf(In(temp, neighborhood), neighbor == cell + temp);
+
+            var tileTable = Predicate("tileTable", cell, b);
+            tileTable.AddRow(Vector2Int.Zero, true);
+
+            var NeighborCount = Predicate("NeighborCount", cell, count);
+            NeighborCount[cell, count].If(tileTable[cell, b], count == Count(And[In(temp, neighborhood), neighbor == cell + temp, tileTable[neighbor, true]]));
+            //NeighborCount[where, count].If(tileTable[cell, b], count == Count(And[Neighbor[where, neighbor], tileTable[neighbor, true]]));
+            //NeighborCount[where, Count(And[Neighbor[where, neighbor], tileTable[neighbor, true]])].If(tileTable[where, b]);
+
+            var s = new TablePredicate<Vector2Int>("s");
+            var x = (Var<Vector2Int>)"x";
+            s[x].If(tileTable[x, true], Constant(1) <= Constant(2));
+
+            s[x].If(tileTable[x, true], NeighborCount[x, count], count < 2);
+            Assert.IsTrue(s.Rows.Any());
+        }
+
         [TestMethod]
         public void NegationTest()
         {
