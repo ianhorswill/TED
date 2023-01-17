@@ -14,6 +14,7 @@ namespace TED
         /// </summary>
         /// <param name="t">Type to get the operator for</param>
         /// <param name="name">Internal string name of the method used by C# for the operator, for example, op_Addition, op_LessThan, etc.</param>
+        /// <param name="returnType">Type to be returned by the method</param>
         /// <param name="parameterTypes">Types to be passed to the parameters</param>
         /// <returns>The MethodInfo object for the method implementing the operator, or null if the type doesn't implement the operator.</returns>
         internal static MethodInfo? GetOperatorMethodInfo(this Type t, string name, Type returnType, params Type[] parameterTypes)
@@ -27,21 +28,22 @@ namespace TED
                     continue;
                 for (var i = 0; i<p.Length; i++)
                     if (!p[i].ParameterType.IsAssignableFrom(parameterTypes[i]))
-                        continue;
+                        goto nextOne;
                 return m;
+                nextOne: ;
             }
 
-            if (operatorOverrideTable.TryGetValue((t, name), out var impl))
+            if (OperatorOverrideTable.TryGetValue((t, name), out var impl))
                 return impl;
 
             return null;
         }
 
-        private static Dictionary<(Type t, string methodName), MethodInfo> operatorOverrideTable =
+        private static readonly Dictionary<(Type t, string methodName), MethodInfo> OperatorOverrideTable =
             new Dictionary<(Type t, string methodName), MethodInfo>();
 
         public static void AddOperatorImplementation(Type t, string operatorName, MethodInfo m) =>
-            operatorOverrideTable[(t, operatorName)] = m;
+            OperatorOverrideTable[(t, operatorName)] = m;
 
         public static void AddOperatorImplementation(Type t, string operatorName, Delegate d) =>
             AddOperatorImplementation(t, operatorName, d.Method);
