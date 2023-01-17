@@ -19,6 +19,8 @@ namespace TED
         {
 
         }
+
+        public override bool RenderAsOperator => true;
     }
 
     internal sealed class NegationOperator<T> : UnaryArithmeticOperator<T>

@@ -20,6 +20,8 @@ namespace TED
         }
 
         public override string ToString() => Name;
+
+        public virtual bool RenderAsOperator => false;
     }
 
     /// <summary>

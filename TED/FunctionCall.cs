@@ -42,7 +42,7 @@ namespace TED
             return () => Function.Implementation(arg1E());
         }
 
-        public override string ToString() => $"{Function.Name}({Arg1})";
+        public override string ToString() => Function.RenderAsOperator?$"{Function.Name}{Arg1}":$"{Function.Name}({Arg1})";
     }
 
     /// <summary>
@@ -71,6 +71,6 @@ namespace TED
             return () => Function.Implementation(arg1E(), arg2E());
         }
 
-        public override string ToString() => $"{Function.Name}({Arg1}, {Arg2})";
+        public override string ToString() => Function.RenderAsOperator?$"{Arg1}{Function.Name}{Arg2}":$"{Function.Name}({Arg1}, {Arg2})";
     }
 }
