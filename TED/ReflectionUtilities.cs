@@ -54,9 +54,9 @@ namespace TED
 
             // Int type
             AddOperatorImplementation(typeof(int), "op_LessThan", (Func<int, int, bool>)IntLessThan);
-            AddOperatorImplementation(typeof(int), "op_LessThanEqual", (Func<int, int, bool>)IntLessThanEqual);
+            AddOperatorImplementation(typeof(int), "op_LessThanOrEqual", (Func<int, int, bool>)IntLessThanEqual);
             AddOperatorImplementation(typeof(int), "op_GreaterThan", (Func<int, int, bool>)IntGreaterThan);
-            AddOperatorImplementation(typeof(int), "op_GreaterThanEqual", (Func<int, int, bool>)IntGreaterThanEqual);
+            AddOperatorImplementation(typeof(int), "op_GreaterThanOrEqual", (Func<int, int, bool>)IntGreaterThanEqual);
             AddOperatorImplementation(typeof(int), "op_Equality", (Func<int, int, bool>)IntEquality);
             AddOperatorImplementation(typeof(int), "op_Inequality", (Func<int, int, bool>)IntInequality);
 
