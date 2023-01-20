@@ -66,7 +66,7 @@ namespace TED
         /// <summary>
         /// Equality predicate for TColumn.
         /// </summary>
-        private static readonly EqualityComparer<TColumn> Comparer = EqualityComparer<TColumn>.Default;
+        private static readonly EqualityComparer<TColumn> Comparer = Comparer<TColumn>.Default;
 
         internal GeneralIndex(TablePredicate p, Table<TRow> t, int columnNumber, Projection projection) : base(columnNumber, projection)
         {

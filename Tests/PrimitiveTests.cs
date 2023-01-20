@@ -63,6 +63,8 @@ namespace Tests
             //var Neighbor = Definition("Neighbor", cell, neighbor).IfAndOnlyIf(In(temp, neighborhood), neighbor == cell + temp);
 
             var tileTable = Predicate("tileTable", cell, b);
+            tileTable.IndexByKey(cell);
+            var index = tileTable.KeyIndex(cell);
             tileTable.AddRow(Vector2Int.Zero, true);
 
             var NeighborCount = Predicate("NeighborCount", cell, count);

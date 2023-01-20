@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -9,6 +10,7 @@ namespace TED
     /// Untyped base class for TablePredicates
     /// These are predicates that store an explicit list (table) of their extensions (all their ground instances, aka rows)
     /// </summary>
+    [DebuggerDisplay("{Name}")]
     public abstract class TablePredicate : AnyPredicate
     {
         /// <summary>
@@ -118,9 +120,14 @@ namespace TED
             => TableUntyped.Indices.FirstOrDefault(i => i.ColumnNumber == columnIndex && key == i.IsKey);
 
         /// <summary>
+        /// All indices for the table
+        /// </summary>
+        public IEnumerable<TableIndex> Indices => TableUntyped.Indices;
+
+        /// <summary>
         /// Rules that can be used to prove goals involving this predicate
         /// </summary>
-        internal List<AnyRule>? Rules;
+        public List<AnyRule>? Rules;
 
         #if PROFILER
         /// <summary>

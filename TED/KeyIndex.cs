@@ -49,7 +49,7 @@ namespace TED
         /// <summary>
         /// Equality predicate for TKey
         /// </summary>
-        private static readonly EqualityComparer<TKey> Comparer = EqualityComparer<TKey>.Default;
+        private static readonly EqualityComparer<TKey> Comparer = Comparer<TKey>.Default;
 
         internal KeyIndex(TablePredicate p, Table<TRow> t, int columnNumber, Projection projection) : base(columnNumber, projection)
         {
