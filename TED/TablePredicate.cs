@@ -122,6 +122,13 @@ namespace TED
         /// </summary>
         internal List<AnyRule>? Rules;
 
+        #if PROFILER
+        /// <summary>
+        /// Combined average execution time of all the rules for this predicate.
+        /// </summary>
+        public float RuleExecutionTime => Rules == null?0:Rules.Select(r => r.AverageExecutionTime).Sum();
+        #endif
+
         /// <summary>
         /// A TablePredicate is "intensional" if it's defined by rules.  Otherwise it's "extensional"
         /// </summary>

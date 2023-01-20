@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace TED
@@ -39,7 +38,20 @@ namespace TED
         /// </summary>
         public readonly ValueCell[] ValueCells;
 
+        #if PROFILER
+        private readonly System.Diagnostics.Stopwatch executionTimer = new System.Diagnostics.Stopwatch();
+        private int executionCount;
+
+        /// <summary>
+        /// Average number of milliseconds required to run this rule
+        /// </summary>
+        public float AverageExecutionTime =>
+            executionCount == 0 ? 0 : ((float)executionTimer.ElapsedMilliseconds) / executionCount;
+        #endif
+
+#pragma warning disable CS1591
         protected AnyRule(TablePredicate predicate, AnyCall[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
+#pragma warning restore CS1591
         {
             Predicate = predicate;
             Body = body;
@@ -59,6 +71,11 @@ namespace TED
         /// </summary>
         internal void AddAllSolutions()
         {
+            #if PROFILER
+            executionTimer.Start();
+            executionCount++;
+            #endif
+
             var subgoal = 0;
             try
             {
@@ -95,8 +112,13 @@ namespace TED
             {
                 throw new RuleExecutionException(this, Body[subgoal], e);
             }
+
+            #if PROFILER
+            executionTimer.Stop();
+            #endif
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             var b = new StringBuilder();

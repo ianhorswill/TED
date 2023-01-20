@@ -97,6 +97,16 @@ namespace TED
         /// </summary>
         public override bool IsKey => true;
 
+        #if PROFILER
+        private uint insertions;
+        private uint probes;
+
+        /// <summary>
+        /// Average number of probes of the table until an insertion finds a free slot
+        /// </summary>
+        public float ProbesPerInsertion => ((float)probes) / insertions;
+        #endif
+
         /// <summary>
         /// Add the row with the specified row number to the table
         /// </summary>
@@ -107,12 +117,20 @@ namespace TED
             uint b;
             var key = projection(table.Data[row]);
             for (b = HashInternal(key, mask); buckets[b].row != AnyTable.NoRow; b = ((b + 1) & mask))
+            {
+                #if PROFILER
+                probes++;
+                #endif
                 if (Comparer.Equals(key, buckets[b].key))
                     // It's already there
                     throw new DuplicateKeyException(predicate, key!);
+            }
 
             // It's not there, but b is a free bucket, so store it there
             buckets[b] = (key, row);
+            #if PROFILER
+            insertions++;
+            #endif
         }
 
         /// <summary>

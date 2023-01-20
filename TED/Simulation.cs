@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace TED
 {
@@ -23,6 +24,13 @@ namespace TED
             Name = name;
             Current = this;
         }
+
+        #if PROFILER
+        /// <summary>
+        /// Average combined execution time for all the rules in the simulation
+        /// </summary>
+        public float RuleExecutionTime => Tables.Select(t => t.RuleExecutionTime).Sum();
+        #endif
 
         public override string ToString() => Name;
 
