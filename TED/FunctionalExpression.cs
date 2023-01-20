@@ -12,5 +12,14 @@
             var v = new Var<T>("temp");
             return (this, v, Language.Eval(v, this));
         }
+
+        internal sealed override Term<T> ApplySubstitution(Substitution s)
+        {
+            if (s.Substitutions.TryGetValue(this, out var newValue))
+                return (Term<T>)newValue;
+            return RecursivelySubstitute(s);
+        }
+
+        internal abstract Term<T> RecursivelySubstitute(Substitution s);
     }
 }

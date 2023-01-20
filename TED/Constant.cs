@@ -33,7 +33,14 @@ namespace TED
                 default: return Value.ToString();
             }
         }
-
+        
         /// <inheritdoc />
         internal override Func<T> MakeEvaluator(GoalAnalyzer _) => () => Value;
+
+        internal override Term<T> ApplySubstitution(Substitution s)
+        {
+            if (this is Constant<AnyGoal> subgoal)
+                return (Term<T>)(object)(new Constant<AnyGoal>(subgoal.Value.RenameArguments(s)));
+            return this;
+        }
     }}

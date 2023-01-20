@@ -18,6 +18,8 @@ namespace TED
         internal override Func<TOut> MakeEvaluator(GoalAnalyzer _) => Function.Implementation;
 
         public override string ToString() => Function.Name;
+
+        internal override Term<TOut> RecursivelySubstitute(Substitution s) => this;
     }
 
     /// <summary>
@@ -35,6 +37,9 @@ namespace TED
             Function = function;
             Arg1 = arg1;
         }
+
+        internal override Term<TOut> RecursivelySubstitute(Substitution s) =>
+            new FunctionCall<TIn1,TOut>(Function, s.Substitute(Arg1));
 
         internal override Func<TOut> MakeEvaluator(GoalAnalyzer ga)
         {
@@ -63,6 +68,9 @@ namespace TED
             Arg1 = arg1;
             Arg2 = arg2;
         }
+
+        internal override Term<TOut> RecursivelySubstitute(Substitution s) =>
+            new FunctionCall<TIn1,TIn2, TOut>(Function, s.Substitute(Arg1), s.Substitute(Arg2));
 
         internal override Func<TOut> MakeEvaluator(GoalAnalyzer ga)
         {

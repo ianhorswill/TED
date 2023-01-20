@@ -47,32 +47,32 @@ namespace Tests
             Assert.AreEqual(3, r[0]);
         }
 
-        readonly struct V2Int
+        readonly struct Vector2Int
         {
             public readonly int X;
             public readonly int Y;
 
-            public static V2Int Zero = new V2Int(0, 0);
-            public static V2Int UnitX = new V2Int(1, 0);
-            public static V2Int UnitY = new V2Int(0, 1);
+            public static Vector2Int Zero = new Vector2Int(0, 0);
+            public static Vector2Int UnitX = new Vector2Int(1, 0);
+            public static Vector2Int UnitY = new Vector2Int(0, 1);
 
-            public V2Int(int x, int y)
+            public Vector2Int(int x, int y)
             {
                 X = x;
                 Y = y;
             }
 
-            public static V2Int operator +(V2Int a, V2Int b) => new V2Int(a.X + b.X, a.Y+b.Y);
+            public static Vector2Int operator +(Vector2Int a, Vector2Int b) => new Vector2Int(a.X + b.X, a.Y+b.Y);
         }
 
         [TestMethod]
         public void CustomClassAdditionTest()
         {
-            var n = (Var<V2Int>)"n";
-            var T = Predicate("t", n).If(n == V2Int.UnitX + V2Int.UnitY);
+            var n = (Var<Vector2Int>)"n";
+            var T = Predicate("t", n).If(n == Vector2Int.UnitX + Vector2Int.UnitY);
             var r = T.Rows.ToArray();
             Assert.AreEqual(1, r.Length);
-            Assert.AreEqual(new V2Int(1,1), r[0]);
+            Assert.AreEqual(new Vector2Int(1,1), r[0]);
         }
 
         [TestMethod]
@@ -123,6 +123,50 @@ namespace Tests
             var answers = Q.Rows.ToArray();
             Assert.AreEqual(1, answers.Length);
             Assert.AreEqual(12, answers[0]);
+        }
+
+        [TestMethod]
+        public void CellCountTest()
+        {
+            
+            var neighborhood = new[] { new Vector2Int(0, 1), new Vector2Int(1, 1),
+                new Vector2Int(1, 0), new Vector2Int(1, -1),
+                new Vector2Int(0, -1), new Vector2Int(-1, -1),
+                new Vector2Int(-1, 0), new Vector2Int(-1, 1) };
+            var state = (Var<bool>)"state";
+            var cell = (Var<Vector2Int>)"cell";
+            var neighbor = (Var<Vector2Int>)"neighbor";
+            var t = (Var<Vector2Int>)"t";
+            var where = (Var<Vector2Int>)"where";
+            var count = (Var<int>)"count";
+            var b = (Var<bool>)"b";
+            var tileTable = Predicate("tileTable", cell, state);
+            var Neighbor = Definition("Neighbor", cell, neighbor).IfAndOnlyIf(In(t, neighborhood), neighbor == cell + t);
+            var NeighborCount = Predicate("NeighborCount", cell, count);
+
+            NeighborCount[where, count].If(tileTable[where, b], count == Count(And[Neighbor[where, neighbor], tileTable[neighbor, true]]));
+        }
+
+        [TestMethod]
+        public void CellCountTest2()
+        {
+            
+            var neighborhood = new[] { new Vector2Int(0, 1), new Vector2Int(1, 1),
+                new Vector2Int(1, 0), new Vector2Int(1, -1),
+                new Vector2Int(0, -1), new Vector2Int(-1, -1),
+                new Vector2Int(-1, 0), new Vector2Int(-1, 1) };
+            var state = (Var<bool>)"state";
+            var cell = (Var<Vector2Int>)"cell";
+            var neighbor = (Var<Vector2Int>)"neighbor";
+            var t = (Var<Vector2Int>)"t";
+            var where = (Var<Vector2Int>)"where";
+            var count = (Var<int>)"count";
+            var b = (Var<bool>)"b";
+            var tileTable = Predicate("tileTable", cell, state);
+            var Neighbor = Definition("Neighbor", cell, neighbor).IfAndOnlyIf();
+            var NeighborCount = Predicate("NeighborCount", cell, count);
+
+            NeighborCount[cell, count].If(tileTable[cell, b], count == Count(And[In(t, neighborhood), neighbor == cell + t, tileTable[neighbor, true]]));
         }
     }
 }

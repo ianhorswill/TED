@@ -52,5 +52,9 @@ namespace TED
                 return result;
             };
         }
+
+        internal override Term<T> RecursivelySubstitute(Substitution s)
+            => new AggregateFunctionCall<T>(Goal.RenameArguments(s), s.Substitute(AggregationTerm), InitialValue,
+                Aggregator);
     }
 }

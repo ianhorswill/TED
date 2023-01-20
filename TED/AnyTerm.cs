@@ -56,6 +56,8 @@ namespace TED
 
         internal abstract Func<T> MakeEvaluator(GoalAnalyzer ga);
 
+        internal abstract Term<T> ApplySubstitution(Substitution s);
+
         public static AnyGoal operator ==(Var<T> v, Term<T> exp) => EvalPrimitive<T>.Singleton[v, exp];
         public static AnyGoal operator !=(Var<T> v, Term<T> exp) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 

@@ -4,7 +4,7 @@ namespace TED
 {
     public class Substitution
     {
-        private Dictionary<AnyTerm, AnyTerm> substitutions = new Dictionary<AnyTerm, AnyTerm>();
+        internal Dictionary<AnyTerm, AnyTerm> Substitutions = new Dictionary<AnyTerm, AnyTerm>();
         /// <summary>
         /// If true, all variables not otherwise substituted should be substituted with copies of themselves.
         /// </summary>
@@ -19,38 +19,53 @@ namespace TED
         {
             AlphaConvert = alphaConvert;
             foreach (var (original, substitution) in mappings)
-                substitutions[original] = substitution;
+                Substitutions[original] = substitution;
         }
 
-        public void ReplaceWith<T>(Var<T> old, Term<T> newV) => substitutions[old] = newV;
+        public void ReplaceWith<T>(Var<T> old, Term<T> newV) => Substitutions[old] = newV;
 
         public Term<T> Substitute<T>(Term<T> old)
         {
-            switch (old)
-            {
-                case Var<T> v:
-                    if (!substitutions.TryGetValue(v, out AnyTerm newV))
-                    {
-                        if (!AlphaConvert)
-                            return old;
-                        newV = v.Clone();
-                        substitutions[v] = newV;
-                    }
+            return old.ApplySubstitution(this);
+            //switch (old)
+            //{
+            //    case Var<T> v:
+            //        if (!Substitutions.TryGetValue(v, out AnyTerm newV))
+            //        {
+            //            if (!AlphaConvert)
+            //                return old;
+            //            newV = v.Clone();
+            //            Substitutions[v] = newV;
+            //        }
 
-                    return (Term<T>)newV;
+            //        return (Term<T>)newV;
 
-                case FunctionalExpression<T> _:
-                    if (substitutions.TryGetValue(old, out var newValue))
-                        return (Term<T>)newValue;
-                    return old;
+            //    case FunctionalExpression<T> _:
+            //        if (Substitutions.TryGetValue(old, out var newValue))
+            //            return (Term<T>)newValue;
+            //        return old;
 
-                case Constant<AnyGoal> goalTerm:
-                    return (Term<T>)(object)(new Constant<AnyGoal>(goalTerm.Value.RenameArguments(this)));
+            //    case Constant<AnyGoal> goalTerm:
+            //        return (Term<T>)(object)(new Constant<AnyGoal>(goalTerm.Value.RenameArguments(this)));
 
-                default:
-                    return old;
+            //    default:
+            //        return old;
 
-            }
+            //}
+        }
+
+        /// <summary>
+        /// Apply substitution to a variable, returning the variable it's mapped to or the original variable.
+        /// </summary>
+        internal Term<T> SubstituteVariable<T>(Var<T> v)
+        {
+            if (Substitutions.TryGetValue(v, out var sub))
+                return (Term<T>)sub;
+            if (!AlphaConvert)
+                return v;
+            var newV = v.Clone();
+            Substitutions[v] = newV;
+            return (Term<T>)newV;
         }
     }
 }

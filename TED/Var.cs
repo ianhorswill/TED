@@ -36,6 +36,8 @@ namespace TED
         /// <param name="s"></param>
         public static explicit operator Var<T>(string s) => new Var<T>(s);
 
+        internal override Term<T> ApplySubstitution(Substitution s) => s.SubstituteVariable(this);
+
         internal override Func<T> MakeEvaluator(GoalAnalyzer ga)
         {
             var ma = ga.Emit(this);
