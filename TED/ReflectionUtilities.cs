@@ -79,7 +79,7 @@ namespace TED
         static bool IntLessThan(int a, int b) => a < b;
         static bool IntLessThanEqual(int a, int b) => a <= b;
         static bool IntGreaterThan(int a, int b) => a > b;
-        static bool IntGreaterThanEqual(int a, int b) => a > b;
+        static bool IntGreaterThanEqual(int a, int b) => a >= b;
         static bool IntEquality(int a, int b) => a == b;
         static bool IntInequality(int a, int b) => a != b;
 
