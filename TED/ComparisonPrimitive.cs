@@ -24,7 +24,7 @@ namespace TED
             comparison = (Func<T, T, bool>)methodInfo.CreateDelegate(typeof(Func<T, T, bool>));
         }
 
-        internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
         {
             var i1 = tc.Emit(g.Arg1);
             var i2 = tc.Emit(g.Arg2);

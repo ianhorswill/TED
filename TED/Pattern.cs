@@ -10,7 +10,7 @@ namespace TED
     /// </summary>
     /// <typeparam name="T1">Type of the goal's argument</typeparam>
     [DebuggerDisplay("{DebuggerDisplay}")]
-    internal readonly struct Pattern<T1> : IPattern
+    public readonly struct Pattern<T1> : IPattern
     {
         public readonly MatchOperation<T1> Arg1;
 
@@ -48,7 +48,7 @@ namespace TED
     /// <typeparam name="T1">Type of the goal's first argument</typeparam>
     /// <typeparam name="T2">Type of the goal's second argument</typeparam>
     [DebuggerDisplay("{DebuggerDisplay}")]
-    internal readonly struct Pattern<T1, T2> : IPattern
+    public readonly struct Pattern<T1, T2> : IPattern
     {
         public readonly MatchOperation<T1> Arg1;
         public readonly MatchOperation<T2> Arg2;
@@ -90,7 +90,7 @@ namespace TED
     /// <typeparam name="T2">Type of the goal's second argument</typeparam>
     /// <typeparam name="T3">Type of the goal's third argument</typeparam>
     [DebuggerDisplay("{DebuggerDisplay}")]
-    internal readonly struct Pattern<T1, T2, T3> : IPattern
+    public readonly struct Pattern<T1, T2, T3> : IPattern
     {
         public readonly MatchOperation<T1> Arg1;
         public readonly MatchOperation<T2> Arg2;
@@ -137,7 +137,7 @@ namespace TED
     /// <typeparam name="T3">Type of the goal's third argument</typeparam>
     /// <typeparam name="T4">Type of the goal's fourth argument</typeparam>
     [DebuggerDisplay("{DebuggerDisplay}")]
-    internal readonly struct Pattern<T1, T2, T3, T4> : IPattern
+    public readonly struct Pattern<T1, T2, T3, T4> : IPattern
     {
         public readonly MatchOperation<T1> Arg1;
         public readonly MatchOperation<T2> Arg2;
@@ -190,7 +190,7 @@ namespace TED
     /// <typeparam name="T4">Type of the goal's fourth argument</typeparam>
     /// <typeparam name="T5">Type of the goal's fifth argument</typeparam>
     [DebuggerDisplay("{DebuggerDisplay}")]
-    internal readonly struct Pattern<T1, T2, T3, T4, T5> : IPattern
+    public readonly struct Pattern<T1, T2, T3, T4, T5> : IPattern
     {
         public readonly MatchOperation<T1> Arg1;
         public readonly MatchOperation<T2> Arg2;
@@ -248,7 +248,7 @@ namespace TED
     /// <typeparam name="T5">Type of the goal's fifth argument</typeparam>
     /// <typeparam name="T6">Type of the goal's sixth argument</typeparam>
     [DebuggerDisplay("{DebuggerDisplay}")]
-    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6> : IPattern
+    public readonly struct Pattern<T1, T2, T3, T4, T5, T6> : IPattern
     {
         public readonly MatchOperation<T1> Arg1;
         public readonly MatchOperation<T2> Arg2;
@@ -312,7 +312,7 @@ namespace TED
     }
 
     [DebuggerDisplay("{DebuggerDisplay}")]
-    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7> : IPattern
+    public readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -376,7 +376,7 @@ namespace TED
     }
 
     [DebuggerDisplay("{DebuggerDisplay}")]
-    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8> : IPattern
+    public readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -445,7 +445,7 @@ namespace TED
     }
 
     [DebuggerDisplay("{DebuggerDisplay}")]
-    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8, T9> : IPattern
+    public readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8, T9> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;
@@ -519,7 +519,7 @@ namespace TED
     }
 
     [DebuggerDisplay("{DebuggerDisplay}")]
-    internal readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : IPattern
+    public readonly struct Pattern<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : IPattern
     {
         private readonly MatchOperation<T1> arg1;
         private readonly MatchOperation<T2> arg2;

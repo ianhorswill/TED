@@ -11,7 +11,7 @@ namespace TED
     /// - What ValueCells do they correspond to?
     /// - Have they been bound by some previous goal yet?
     /// </summary>
-    internal class GoalAnalyzer
+    public class GoalAnalyzer
     {
         private GoalAnalyzer(Dictionary<AnyTerm, ValueCell> variableCells, HashSet<TablePredicate> dependencies)
         {
@@ -39,7 +39,7 @@ namespace TED
 
         private readonly HashSet<TablePredicate> tableDependencies;
 
-        internal void AddDependency(TablePredicate p) => tableDependencies.Add(p);
+        public void AddDependency(TablePredicate p) => tableDependencies.Add(p);
 
         
         /// <summary>

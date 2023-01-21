@@ -23,7 +23,7 @@ namespace TED
         }
 
         /// <inheritdoc />
-        internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
         {
             var i = tc.Emit(g.Arg1);
             if (!i.IsInstantiated)
@@ -81,7 +81,7 @@ namespace TED
         }
 
         /// <inheritdoc />
-        internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
         {
             var i1 = tc.Emit(g.Arg1);
             var i2 = tc.Emit(g.Arg2);

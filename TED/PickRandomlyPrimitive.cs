@@ -7,7 +7,7 @@
         {
         }
 
-        internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
         {
             var choices = ((Constant<T[]>)g.Arg2).Value;
             return new Call(this, choices, tc.Emit(g.Arg1));

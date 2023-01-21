@@ -14,7 +14,7 @@ namespace TED
         {
         }
 
-        internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
         {
             var p = new Pattern<T, ICollection<T>>(tc.Emit(g.Arg1), tc.Emit(g.Arg2));
             if (!p.Arg2.IsInstantiated)

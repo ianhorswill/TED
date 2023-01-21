@@ -18,7 +18,7 @@ namespace TED
         {
         }
 
-        internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc) =>
+        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc) =>
             new EvalCall(this, tc.Emit(g.Arg1), g.Arg2.MakeEvaluator(tc), g);
 
         private class EvalCall : AnyCall

@@ -16,7 +16,7 @@ namespace TED
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [DebuggerDisplay("{debuggerDisplay}")]
-    internal readonly struct MatchOperation<T>
+    public readonly struct MatchOperation<T>
     {
         /// <summary>
         /// How to match this formal argument in a pattern to the value in a table row.

@@ -21,7 +21,7 @@ namespace TED
         /// <summary>
         /// Map a Goal (AST for call) to a Call object (the internal form used by the interpreter)
         /// </summary>
-        internal abstract AnyCall MakeCall(Goal g, GoalAnalyzer tc);
+        public abstract AnyCall MakeCall(Goal g, GoalAnalyzer tc);
 
         /// <summary>
         /// Custom goal representation for this primitive
@@ -72,7 +72,7 @@ namespace TED
         /// <summary>
         /// Map a Goal (AST for call) to a Call object (the internal form used by the interpreter)
         /// </summary>
-        internal abstract AnyCall MakeCall(Goal g, GoalAnalyzer tc);
+        public abstract AnyCall MakeCall(Goal g, GoalAnalyzer tc);
 
         /// <summary>
         /// Custom goal class for this particular primitive

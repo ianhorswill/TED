@@ -36,7 +36,7 @@ namespace TED
     /// or written to a row in a table using its Write method.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal sealed class ValueCell<T> : ValueCell
+    public sealed class ValueCell<T> : ValueCell
     {
         /// <summary>
         /// Data stored in the cell.

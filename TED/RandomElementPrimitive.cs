@@ -11,7 +11,7 @@
         {
         }
 
-        internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
         {
             var predicate = ((Constant<TablePredicate<T>>)g.Arg1).Value;
             return new Call(predicate, tc.Emit(g.Arg2));

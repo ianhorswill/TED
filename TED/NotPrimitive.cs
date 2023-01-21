@@ -13,7 +13,7 @@ namespace TED
         {
         }
 
-        internal override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
         {
             switch (g.Arg1)
             {
