@@ -94,7 +94,7 @@ namespace Tests
             Assert.AreEqual("test", t.Name);
             Assert.AreEqual("Name", t.ColumnHeadings[0]);
             Assert.AreEqual("Age", t.ColumnHeadings[1]);
-            var rows = t.Rows.ToArray();
+            var rows = t.ToArray();
             Assert.AreEqual(4, rows.Length);
             Assert.AreEqual("Fred", rows[0].Item1);
             Assert.AreEqual(10, rows[0].Item2);
@@ -107,8 +107,8 @@ namespace Tests
         {
             var types = Predicate("types", typeof(ExtensionalPredicateTests).Assembly.DefinedTypes);
 
-            Assert.IsTrue(types.Rows.Contains(typeof(ExtensionalPredicateTests)));
-            Assert.IsFalse(types.Rows.Contains(typeof(int)));
+            Assert.IsTrue(types.Contains(typeof(ExtensionalPredicateTests)));
+            Assert.IsFalse(types.Contains(typeof(int)));
         }
 
         [TestMethod]

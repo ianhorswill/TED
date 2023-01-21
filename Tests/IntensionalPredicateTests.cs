@@ -19,7 +19,7 @@ namespace Tests
 
             s[x].If(t[x, x]);
 
-            var hits = s.Rows.ToArray();
+            var hits = s.ToArray();
             for (var j = 0; j < 10; j++)
             {
                 Assert.AreEqual(j, hits[j]);
@@ -44,7 +44,7 @@ namespace Tests
 
             s[x].If(t[x, x], u[x]);
 
-            var hits = s.Rows.ToArray();
+            var hits = s.ToArray();
             Assert.AreEqual(3, hits.Length);
             Assert.AreEqual(2, hits[0]);
             Assert.AreEqual(4, hits[1]);
@@ -76,7 +76,7 @@ namespace Tests
             var Mapped = Predicate("Mapped", d, n).If(Day[d], NextDay[d, n]);
             var rule = Mapped.Rules![0];
             Assert.IsInstanceOfType(rule.Body[1], typeof(TableCallWithKey<string, string, string>));
-            CollectionAssert.AreEqual(NextDay.Rows.ToArray(), Mapped.Rows.ToArray());
+            CollectionAssert.AreEqual(NextDay.ToArray(), Mapped.ToArray());
         }
 
         [TestMethod]
@@ -95,7 +95,7 @@ namespace Tests
             Assert.IsInstanceOfType(rule.Body[1], typeof(TableCallWithKey<string, string, string>));
             CollectionAssert.AreEqual(
                 new[] { ("Monday", "Tuesday"), ("Wednesday", "Thursday"), ("Friday", "Saturday") },
-                Mapped.Rows.ToArray());
+                Mapped.ToArray());
         }
 
         [TestMethod, ExpectedException(typeof(RuleExecutionException))]
@@ -106,7 +106,7 @@ namespace Tests
 
             var Number = Predicate("Number", new [] { 1, 2, 3, 0, 4, 5, 6 }, x);
             var Reciprocal = Predicate("Reciprocal", y).If(Number[x], y == 100 / x);
-            Console.WriteLine(Reciprocal.Rows);
+            Console.WriteLine(Reciprocal.ToArray());
         }
     }
 }

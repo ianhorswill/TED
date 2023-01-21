@@ -69,7 +69,7 @@ namespace Tests
                 ("Monday", "Tuesday"), ("Tuesday", "Wednesday"), ("Wednesday", "Thursday"), ("Thursday", "Friday"),
                 ("Friday", "Saturday"), ("Saturday", "Sunday"), ("Sunday", "Monday")
             };
-            CollectionAssert.AreEqual(rightAnswer, NextDay.Rows.ToArray());
+            CollectionAssert.AreEqual(rightAnswer, NextDay.ToArray());
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@ namespace Tests
             var Number = Predicate("Number", new[] { 1, 2, 3, 4, 5 }, n);
             var Next = Predicate("Next", n); 
             Next[n+1].If(Number[n]);
-            CollectionAssert.AreEqual(new [] { 2, 3, 4, 5, 6 }, Next.Rows.ToArray());
+            CollectionAssert.AreEqual(new [] { 2, 3, 4, 5, 6 }, Next.ToArray());
         }
     }
 }

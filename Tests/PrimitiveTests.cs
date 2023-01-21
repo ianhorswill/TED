@@ -20,7 +20,7 @@ namespace Tests
 
             s[x, y].If(t[x, y], x < y);
 
-            var hits = s.Rows.ToArray();
+            var hits = s.ToArray();
             for (var j = 0; j < 10; j++)
             {
                 Assert.AreEqual(45, hits.Length);
@@ -77,7 +77,7 @@ namespace Tests
             s[x].If(tileTable[x, true], Constant(1) <= Constant(2));
 
             s[x].If(tileTable[x, true], NeighborCount[x, count], count < 2);
-            Assert.IsTrue(s.Rows.Any());
+            Assert.IsTrue(s.Any());
         }
 
         [TestMethod]
@@ -100,7 +100,7 @@ namespace Tests
             u[x,y].If(t[x,y], !s[x,y]);
             v[x,y].If(t[x,y], !(x < y));
 
-            var hits = u.Rows.ToArray();
+            var hits = u.ToArray();
             for (var j = 0; j < 10; j++)
             {
                 Assert.AreEqual(55, hits.Length);
@@ -127,7 +127,7 @@ namespace Tests
 
             s[x].If(And[t[x,x], And[u[x]]]);
 
-            var hits = s.Rows.ToArray();
+            var hits = s.ToArray();
             Assert.AreEqual(3, hits.Length);
             Assert.AreEqual(2, hits[0]);
             Assert.AreEqual(4, hits[1]);
@@ -143,7 +143,7 @@ namespace Tests
             var C = Predicate("C", new[] { 3, 4, 5, 6 }, n);
             var D = Definition("D", n).IfAndOnlyIf(B[n], C[n]);
             var E = Predicate("E", n).If(A[n], !D[n]);
-            var results = E.Rows.ToArray();
+            var results = E.ToArray();
             Assert.AreEqual(4, results.Length);
             Assert.AreEqual(1, results[0]);
             Assert.AreEqual(2, results[1]);
@@ -159,7 +159,7 @@ namespace Tests
             var Test = Predicate("Test", n);
             Test[0].If(In<int>(0, c));
             Test[1].If(In<int>(4, c));
-            CollectionAssert.AreEqual(new[]{1}, Test.Rows.ToArray());
+            CollectionAssert.AreEqual(new[]{1}, Test.ToArray());
         }
 
         [TestMethod]
@@ -169,7 +169,7 @@ namespace Tests
             var n = (Var<int>)"n";
             var Test = Predicate("Test", n);
             Test[n].If(In<int>(n, c));  // Should just copy c into Test
-            CollectionAssert.AreEqual(c, Test.Rows.ToArray());
+            CollectionAssert.AreEqual(c, Test.ToArray());
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -8,7 +9,7 @@ namespace TED
     /// A list of rows that hold the extension of a predicate
     /// </summary>
     /// <typeparam name="T">Type of the rows of the table (a tuple of the predicate arguments)</typeparam>
-    internal class Table<T> : AnyTable
+    internal class Table<T> : AnyTable, IEnumerable<T>
     {
         public Table()
         {
@@ -112,15 +113,6 @@ namespace TED
         /// Report back all the rows, in order
         /// This allocates storage, so it shouldn't be used in inner loops.
         /// </summary>
-        public IEnumerable<T> Rows
-        {
-            get
-            {
-                for (var i = 0; i < Length; i++)
-                    yield return Data[i];
-            }
-        }
-
         public class RowSet
         {
             private uint[] buckets;
@@ -195,5 +187,37 @@ namespace TED
                 Array.Fill(buckets, Empty);
             }
         }
+
+        public class TableEnumerator : IEnumerator<T>
+        {
+            private readonly T[] array;
+            private readonly int limit;
+            private int position;
+
+            public TableEnumerator(T[] array, int limit)
+            {
+                this.array = array;
+                this.limit = limit;
+                position = -1;
+            }
+
+            public bool MoveNext() => ++position < limit;
+
+            public void Reset()
+            {
+                position = -1;
+            }
+
+            public T Current => array[position];
+
+            object IEnumerator.Current => Current!;
+
+            public void Dispose()
+            { }
+        }
+
+        public IEnumerator<T> GetEnumerator() => new TableEnumerator(Data, (int)Length);
+
+        IEnumerator IEnumerable.GetEnumerator() => new TableEnumerator(Data, (int)Length);
     }
 }
