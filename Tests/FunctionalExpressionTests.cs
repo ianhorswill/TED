@@ -21,7 +21,7 @@ namespace Tests
             var Negative = Function<int,int>("Negative", n => -n);
             var n = (Var<int>)"n";
             var T = Predicate("T", n).If(Eval(n, Negative[1]));
-            var r = T.Rows.ToArray();
+            var r = T.ToArray();
             Assert.AreEqual(1, r.Length);
             Assert.AreEqual(-1, r[0]);
         }
@@ -32,7 +32,7 @@ namespace Tests
             var Negative = Function<int,int>("Negative", n => -n);
             var n = (Var<int>)"n";
             var T = Predicate("T", n).If(n == Negative[1]);
-            var r = T.Rows.ToArray();
+            var r = T.ToArray();
             Assert.AreEqual(1, r.Length);
             Assert.AreEqual(-1, r[0]);
         }
@@ -42,7 +42,7 @@ namespace Tests
         {
             var n = (Var<int>)"n";
             var T = Predicate("t", n).If(n == 1 + 2);
-            var r = T.Rows.ToArray();
+            var r = T.ToArray();
             Assert.AreEqual(1, r.Length);
             Assert.AreEqual(3, r[0]);
         }
@@ -70,7 +70,7 @@ namespace Tests
         {
             var n = (Var<Vector2Int>)"n";
             var T = Predicate("t", n).If(n == Vector2Int.UnitX + Vector2Int.UnitY);
-            var r = T.Rows.ToArray();
+            var r = T.ToArray();
             Assert.AreEqual(1, r.Length);
             Assert.AreEqual(new Vector2Int(1,1), r[0]);
         }
@@ -81,7 +81,7 @@ namespace Tests
             var n = (Var<int>)"n";
             var m = (Var<int>)"m";
             var T = Predicate("t", n).If(m == 1, n == -m);
-            var r = T.Rows.ToArray();
+            var r = T.ToArray();
             Assert.AreEqual(1, r.Length);
             Assert.AreEqual(-1, r[0]);
         }
@@ -94,7 +94,7 @@ namespace Tests
             var m = (Var<int>)"m";
             var P = Predicate("P", new[] { 1, 2, 3, 4, 5, 6 }, n);
             var Q = Predicate("Q", n).If(P[n], n%2 == Constant(0));
-            var answers = Q.Rows.ToArray();
+            var answers = Q.ToArray();
             Assert.AreEqual(3, answers.Length);
             Assert.AreEqual(2, answers[0]);
             Assert.AreEqual(4, answers[1]);
@@ -108,7 +108,7 @@ namespace Tests
             var m = (Var<int>)"m";
             var P = Predicate("P", new[] { 1, 2, 3, 4, 5, 6 }, n);
             var Q = Predicate("Q", n).If(n == Count(And[P[m], m%2 == Constant(0)]));
-            var answers = Q.Rows.ToArray();
+            var answers = Q.ToArray();
             Assert.AreEqual(1, answers.Length);
             Assert.AreEqual(3, answers[0]);
         }
@@ -120,7 +120,7 @@ namespace Tests
             var m = (Var<int>)"m";
             var P = Predicate("P", new[] { 1, 2, 3, 4, 5, 6 }, n);
             var Q = Predicate("Q", n).If(n == SumInt(m, And[P[m], m%2 == Constant(0)]));
-            var answers = Q.Rows.ToArray();
+            var answers = Q.ToArray();
             Assert.AreEqual(1, answers.Length);
             Assert.AreEqual(12, answers[0]);
         }

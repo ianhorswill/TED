@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -238,7 +239,7 @@ namespace TED
     /// A 1-argument TablePredicate
     /// </summary>
     /// <typeparam name="T1">Type of the predicate's argument</typeparam>
-    public class TablePredicate<T1> : TablePredicate
+    public class TablePredicate<T1> : TablePredicate, IEnumerable<T1>
     {
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
@@ -348,12 +349,6 @@ namespace TED
         }
 
         /// <summary>
-        /// Return all the rows of the table
-        /// This allocates memory; do not use in inner lops
-        /// </summary>
-        public IEnumerable<T1> Rows => Table.Rows;
-
-        /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
         /// </summary>
         public override void RowToStrings(uint rowNumber, string[] buffer)
@@ -398,6 +393,13 @@ namespace TED
             if (inputs != null)
                 foreach (var input in inputs) Append(input);
         }
+
+        public IEnumerator<T1> GetEnumerator() => Table.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 
     /// <summary>
@@ -405,7 +407,7 @@ namespace TED
     /// </summary>
     /// <typeparam name="T1">Type of the predicate's 1st argument</typeparam>
     /// <typeparam name="T2">Type of the predicate's 2nd argument</typeparam>
-    public class TablePredicate<T1, T2> : TablePredicate
+    public class TablePredicate<T1, T2> : TablePredicate, IEnumerable<(T1,T2)>
     {
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
@@ -489,12 +491,6 @@ namespace TED
                     yield return e;
             }
         }
-        
-        /// <summary>
-        /// Return all the rows of the table
-        /// This allocates memory; do not use in inner lops
-        /// </summary>
-        public IEnumerable<(T1,T2)> Rows => Table.Rows;
 
         /// <summary>
         /// Read an extensional predicate from a CSV file
@@ -591,6 +587,13 @@ namespace TED
                 throw new InvalidOperationException($"No key index defined for {column}");
             return (KeyIndex<(T1, T2), T>)i;
         }
+
+        public IEnumerator<(T1, T2)> GetEnumerator() => Table.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 
     /// <summary>
@@ -599,7 +602,7 @@ namespace TED
     /// <typeparam name="T1">Type of the predicate's 1st argument</typeparam>
     /// <typeparam name="T2">Type of the predicate's 2nd argument</typeparam>
     /// <typeparam name="T3">Type of the predicate's 3rd argument</typeparam>
-    public class TablePredicate<T1, T2, T3> : TablePredicate
+    public class TablePredicate<T1, T2, T3> : TablePredicate, IEnumerable<(T1,T2,T3)>
     {
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
@@ -705,12 +708,6 @@ namespace TED
         }
 
         /// <summary>
-        /// Return all the rows of the table
-        /// This allocates memory; do not use in inner lops
-        /// </summary>
-        public IEnumerable<(T1,T2, T3)> Rows => Table.Rows;
-
-        /// <summary>
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="name">Predicate name</param>
@@ -791,6 +788,13 @@ namespace TED
             if (inputs != null)
                 foreach (var input in inputs) Append(input);
         }
+
+        public IEnumerator<(T1, T2, T3)> GetEnumerator() => Table.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 
     /// <summary>
@@ -800,7 +804,7 @@ namespace TED
     /// <typeparam name="T2">Type of the predicate's 2nd argument</typeparam>
     /// <typeparam name="T3">Type of the predicate's 3rd argument</typeparam>
     /// <typeparam name="T4">Type of the predicate's 4th argument</typeparam>
-    public class TablePredicate<T1, T2, T3, T4> : TablePredicate
+    public class TablePredicate<T1, T2, T3, T4> : TablePredicate, IEnumerable<(T1,T2,T3,T4)>
     {
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
@@ -913,12 +917,6 @@ namespace TED
         }
         
         /// <summary>
-        /// Return all the rows of the table
-        /// This allocates memory; do not use in inner lops
-        /// </summary>
-        public IEnumerable<(T1,T2, T3, T4)> Rows => Table.Rows;
-
-        /// <summary>
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="name">Predicate name</param>
@@ -1000,6 +998,13 @@ namespace TED
             if (inputs != null)
                 foreach (var input in inputs) Append(input);
         }
+
+        public IEnumerator<(T1, T2, T3, T4)> GetEnumerator() => Table.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 
     /// <summary>
@@ -1010,7 +1015,7 @@ namespace TED
     /// <typeparam name="T3">Type of the predicate's 3rd argument</typeparam>
     /// <typeparam name="T4">Type of the predicate's 4th argument</typeparam>
     /// <typeparam name="T5">Type of the predicate's 5th argument</typeparam>
-    public class TablePredicate<T1, T2, T3, T4, T5> : TablePredicate
+    public class TablePredicate<T1, T2, T3, T4, T5> : TablePredicate, IEnumerable<(T1,T2,T3,T4,T5)>
     {
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
@@ -1129,12 +1134,6 @@ namespace TED
         }
         
         /// <summary>
-        /// Return all the rows of the table
-        /// This allocates memory; do not use in inner lops
-        /// </summary>
-        public IEnumerable<(T1,T2, T3, T4, T5)> Rows => Table.Rows;
-
-        /// <summary>
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="name">Predicate name</param>
@@ -1218,6 +1217,13 @@ namespace TED
             if (inputs != null)
                 foreach (var input in inputs) Append(input);
         }
+
+        public IEnumerator<(T1, T2, T3, T4, T5)> GetEnumerator() => Table.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 
     /// <summary>
@@ -1229,7 +1235,7 @@ namespace TED
     /// <typeparam name="T4">Type of the predicate's 4th argument</typeparam>
     /// <typeparam name="T5">Type of the predicate's 5th argument</typeparam>
     /// <typeparam name="T6">Type of the predicate's 6th argument</typeparam>
-    public class TablePredicate<T1, T2, T3, T4, T5, T6> : TablePredicate
+    public class TablePredicate<T1, T2, T3, T4, T5, T6> : TablePredicate, IEnumerable<(T1,T2,T3,T4,T5,T6)>
     {
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
@@ -1351,12 +1357,6 @@ namespace TED
                     yield return e;
             }
         }
-        
-        /// <summary>
-        /// Return all the rows of the table
-        /// This allocates memory; do not use in inner lops
-        /// </summary>
-        public IEnumerable<(T1,T2, T3, T4, T5, T6)> Rows => Table.Rows;
 
         /// <summary>
         /// Read an extensional predicate from a CSV file
@@ -1443,6 +1443,12 @@ namespace TED
         {
             if (inputs != null)
                 foreach (var input in inputs) Append(input);
+        }
+
+        public IEnumerator<(T1, T2, T3, T4, T5, T6)> GetEnumerator() => Table.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
