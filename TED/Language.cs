@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Numerics;
 
 namespace TED
 {
@@ -93,6 +92,118 @@ namespace TED
         /// </summary>
         public static AggregateFunctionCall<float> SumFloat(Var<float> v, AnyGoal g)
             => new AggregateFunctionCall<float>(g, v, 0, (a, b) => a + b);
+        #endregion
+
+        #region Math functions
+        /// <summary>
+        /// The largest of two arguments
+        /// </summary>
+        public static readonly TedFunction<int, int, int> MaxInt = new TedFunction<int, int, int>("Max", Math.Max);
+        /// <summary>
+        /// The largest of two arguments
+        /// </summary>
+        public static readonly TedFunction<float, float, float> MaxFloat = new TedFunction<float, float, float>("Max", Math.Max);
+        
+        /// <summary>
+        /// The smaller of two arguments
+        /// </summary>
+        public static readonly TedFunction<int, int, int> MinInt = new TedFunction<int, int, int>("Min", Math.Min);
+        /// <summary>
+        /// The smaller of two arguments
+        /// </summary>
+        public static readonly TedFunction<float, float, float> MinFloat = new TedFunction<float, float, float>("Min", Math.Min);
+
+        /// <summary>
+        /// The absolute value of a number
+        /// </summary>
+        public static readonly TedFunction<int, int> AbsInt = new TedFunction<int, int>("Abs", Math.Abs);
+        /// <summary>
+        /// The absolute value of a number
+        /// </summary>
+        public static readonly TedFunction<float, float> AbsFloat = new TedFunction<float, float>("Abs", MathF.Abs);
+
+        /// <summary>
+        /// Sign number (1, 0, or -1) of x
+        /// </summary>
+        public static readonly TedFunction<int, int> SignInt = new TedFunction<int, int>("Sign", Math.Sign);
+        /// <summary>
+        /// Sign number (1, 0, or -1) of x
+        /// </summary>
+        public static readonly TedFunction<float, int> SignFloat = new TedFunction<float, int>("Sign", MathF.Sign);
+
+
+        /// <summary>
+        /// The square root of a float
+        /// </summary>
+        public static readonly TedFunction<float, float> Sqrt = new TedFunction<float, float>("Sqrt", MathF.Sqrt);
+
+        /// <summary>
+        /// The natural log of a float
+        /// </summary>
+        public static readonly TedFunction<float, float> Log = new TedFunction<float, float>("Log", MathF.Log);
+        /// <summary>
+        /// e^x
+        /// </summary>
+        public static readonly TedFunction<float, float> Exp = new TedFunction<float, float>("Exp", MathF.Exp);
+
+        /// <summary>
+        /// x^y
+        /// </summary>
+        public static readonly TedFunction<float, float, float> Pow = new TedFunction<float, float, float>("Pow", MathF.Pow);
+
+        /// <summary>
+        /// Sin x
+        /// </summary>
+        public static readonly TedFunction<float, float> Sin = new TedFunction<float, float>("Sin", MathF.Sin);
+        /// <summary>
+        /// Cos x
+        /// </summary>
+        public static readonly TedFunction<float, float> Cos = new TedFunction<float, float>("Cos", MathF.Cos);
+        /// <summary>
+        /// Tan x
+        /// </summary>
+        public static readonly TedFunction<float, float> Tan = new TedFunction<float, float>("Tan", MathF.Tan);
+
+        /// <summary>
+        /// Arc Sin x
+        /// </summary>
+        public static readonly TedFunction<float, float> Asin = new TedFunction<float, float>("Asin", MathF.Asin);
+        /// <summary>
+        /// Arc Cos x
+        /// </summary>
+        public static readonly TedFunction<float, float> ACos = new TedFunction<float, float>("Acos", MathF.Acos);
+        /// <summary>
+        /// Arc Tan x
+        /// </summary>
+        public static readonly TedFunction<float, float> Atan = new TedFunction<float, float>("Atan", MathF.Atan);
+        /// <summary>
+        /// Arc Tan x/y
+        /// </summary>
+        public static readonly TedFunction<float, float, float> Atan2 = new TedFunction<float, float, float>("Atan2", MathF.Atan2);
+
+        /// <summary>
+        /// Returns (int)x
+        /// </summary>
+        public static readonly TedFunction<float, int> Int = new TedFunction<float, int>("Int", x => (int)x);
+        /// <summary>
+        /// Returns (float)x
+        /// </summary>
+        public static readonly TedFunction<int, float> Float = new TedFunction<int, float>("Float", x => x);
+
+        /// <summary>
+        /// Smallest integer larger than x
+        /// </summary>
+        public static readonly TedFunction<float, int> Ceiling = new TedFunction<float, int>("Ceiling", x => (int)MathF.Ceiling(x));
+        /// <summary>
+        /// Largest integer less than x
+        /// </summary>
+        public static readonly TedFunction<float, int> Floor = new TedFunction<float, int>("Floor", x => (int)MathF.Floor(x));
+        /// <summary>
+        /// The nearest integer to x
+        /// </summary>
+        public static readonly TedFunction<float, int> Round = new TedFunction<float, int>("Round", x => (int)MathF.Round(x));
+
+
         #endregion
 
         /// <summary>
