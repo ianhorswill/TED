@@ -70,8 +70,19 @@ namespace TED
         }
 
         /// <summary>
+        /// Forcibly make a MatchOperation that will write v, even when v is already instantiated.
+        /// Used for iteration constructs like Maximize.
+        /// </summary>
+        public MatchOperation<T> MakeWrite<T>(Var<T> v) => MatchOperation<T>.Write((ValueCell<T>)variableValueCells[v]);
+
+        /// <summary>
         /// ValueCells for all the variables in the rule
         /// </summary>
         public ValueCell[] VariableValueCells() => variableValueCells.Select(p => p.Value).ToArray();
+
+        /// <summary>
+        /// True if subsequent uses of this variable will be match to the value in the cell rather than store into it.
+        /// </summary>
+        public bool IsInstantiated(AnyTerm v) => variableValueCells.ContainsKey(v);
     }
 }

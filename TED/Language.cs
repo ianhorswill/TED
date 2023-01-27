@@ -94,6 +94,29 @@ namespace TED
             => new AggregateFunctionCall<float>(g, v, 0, (a, b) => a + b);
         #endregion
 
+        #region Optimization predicates
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
+        /// <typeparam name="T">Type of the arg variable</typeparam>
+        /// <param name="arg">Variable from goal to report the value of for the maximal solution</param>
+        /// <param name="objective">Variable to maximize across solutions to goal</param>
+        /// <param name="goal">Goal to find the maximal solution of</param>
+        public static AnyGoal Maximal<T>(Var<T> arg, Var<float> objective, AnyGoal goal) =>
+            MaximalPrimitive<T>.Singleton[arg, objective, goal];
+        
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
+        /// <typeparam name="T1">Type of the first variable to report back</typeparam>
+        /// <typeparam name="T2">Type of the second variable to report back</typeparam>
+        /// <param name="args">Variables from Goal to report the values of for the maximal solution</param>
+        /// <param name="objective">Variable to maximize across solutions to goal</param>
+        /// <param name="goal">Goal to find the maximal solution of</param>
+        public static AnyGoal Maximal<T1, T2>((Var<T1>, Var<T2>)args, Var<float> objective, AnyGoal goal) =>
+            MaximalPrimitive<T1, T2>.Singleton[args.Item1, args.Item2, objective, goal];
+        #endregion
+
         #region Math functions
         /// <summary>
         /// The largest of two arguments

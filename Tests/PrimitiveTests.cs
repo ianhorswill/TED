@@ -171,5 +171,41 @@ namespace Tests
             Test[n].If(In<int>(n, c));  // Should just copy c into Test
             CollectionAssert.AreEqual(c, Test.ToArray());
         }
+
+        [TestMethod]
+        public void MaximalTest()
+        {
+            var t = TablePredicate<string, int>.FromCsv("test", "../../../TestTable.csv");
+            var name = (Var<string>)"name";
+            var age = (Var<int>)"age";
+            var floatAge = (Var<float>)"floatAge";
+            var M = Predicate("M", name, floatAge).If(Maximal(name, floatAge, And[t[name, age], floatAge == Float[age]]));
+            var rows = M.ToArray();
+            Assert.AreEqual(1,rows.Length);
+            Assert.AreEqual(("Jenny", 12.0f), rows[0]);
+        }
+
+        [TestMethod]
+        public void TwoArgMaximalTest()
+        {
+            var name = (Var<string>)"name";
+            var family = (Var<string>)"family";
+            var age = (Var<float>)"age";
+            var t = Predicate("t",
+                new (string, string, float)[]
+                {
+                    ("billie", "george", 36),
+                    ("george", "billie", 37),
+                    ("sandra", "mitchell", 24)
+                },
+                name,
+                family,
+                age);
+
+            var M = Predicate("M", name, family, age).If(Maximal((name, family), age, t[name, family, age]));
+            var rows = M.ToArray();
+            Assert.AreEqual(1,rows.Length);
+            Assert.AreEqual(("george", "billie", 37.0f), rows[0]);
+        }
     }
 }
