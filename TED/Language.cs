@@ -103,7 +103,17 @@ namespace TED
         /// <param name="objective">Variable to maximize across solutions to goal</param>
         /// <param name="goal">Goal to find the maximal solution of</param>
         public static AnyGoal Maximal<T>(Var<T> arg, Var<float> objective, AnyGoal goal) =>
-            MaximalPrimitive<T>.Singleton[arg, objective, goal];
+            MaximalPrimitive<T>.Maximal[arg, objective, goal];
+
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
+        /// <typeparam name="T">Type of the arg variable</typeparam>
+        /// <param name="arg">Variable from goal to report the value of for the minimal solution</param>
+        /// <param name="objective">Variable to minimize across solutions to goal</param>
+        /// <param name="goal">Goal to find the minimal solution of</param>
+        public static AnyGoal Minimal<T>(Var<T> arg, Var<float> objective, AnyGoal goal) =>
+            MaximalPrimitive<T>.Minimal[arg, objective, goal];
         
         /// <summary>
         /// Find the solution to goal with maximal value of objective
@@ -114,7 +124,18 @@ namespace TED
         /// <param name="objective">Variable to maximize across solutions to goal</param>
         /// <param name="goal">Goal to find the maximal solution of</param>
         public static AnyGoal Maximal<T1, T2>((Var<T1>, Var<T2>)args, Var<float> objective, AnyGoal goal) =>
-            MaximalPrimitive<T1, T2>.Singleton[args.Item1, args.Item2, objective, goal];
+            MaximalPrimitive<T1, T2>.Maximal[args.Item1, args.Item2, objective, goal];
+
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
+        /// <typeparam name="T1">Type of the first variable to report back</typeparam>
+        /// <typeparam name="T2">Type of the second variable to report back</typeparam>
+        /// <param name="args">Variables from Goal to report the values of for the minimal solution</param>
+        /// <param name="objective">Variable to minimize across solutions to goal</param>
+        /// <param name="goal">Goal to find the minimal solution of</param>
+        public static AnyGoal Minimal<T1, T2>((Var<T1>, Var<T2>)args, Var<float> objective, AnyGoal goal) =>
+            MaximalPrimitive<T1, T2>.Minimal[args.Item1, args.Item2, objective, goal];
         #endregion
 
         #region Math functions
