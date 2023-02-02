@@ -235,4 +235,137 @@
             }
         }
     }
+
+        /// <summary>
+    /// Implements negation of a goal
+    /// </summary>
+    public sealed class MaximalPrimitive<T1, T2, T3> : AnyPredicate
+    {
+        public static MaximalPrimitive<T1, T2, T3> Maximal = new MaximalPrimitive<T1, T2, T3>(1);
+        public static MaximalPrimitive<T1, T2, T3> Minimal = new MaximalPrimitive<T1, T2, T3>(-1);
+
+        private readonly int Multiplier;
+
+        public MaximalPrimitive(int multiplier) : base("Maximal")
+        {
+            Multiplier = multiplier;
+        }
+
+        public Goal this[Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<float> utility, AnyGoal g] => new Goal(this, arg1, arg2, arg3, utility, new Constant<AnyGoal>(g));
+
+        public class Goal : AnyGoal
+        {
+            private readonly MaximalPrimitive<T1, T2, T3> predicate;
+            private readonly Var<T1> Arg1;
+            private readonly Var<T2> Arg2;
+            private readonly Var<T3> Arg3;
+            private readonly Var<float> Utility;
+            private readonly AnyGoal Generator;
+
+            public Goal(MaximalPrimitive<T1, T2, T3> predicate, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<float> utility, Constant<AnyGoal> g) : base(new AnyTerm[] { arg1, utility, g })
+            {
+                Arg1 = arg1;
+                Arg2 = arg2;
+                Arg3 = arg3;
+                Utility = utility;
+                this.predicate = predicate;
+                Generator = g.Value;
+            }
+
+            public override AnyPredicate Predicate => predicate;
+
+            internal override AnyGoal RenameArguments(Substitution s)
+                => new Goal(predicate, (Var<T1>)s.SubstituteVariable(Arg1), (Var<T2>)s.SubstituteVariable(Arg2), (Var<T3>)s.SubstituteVariable(Arg3), (Var<float>)s.SubstituteVariable(Utility), new Constant<AnyGoal>(Generator.RenameArguments(s)));
+
+            internal override AnyCall MakeCall(GoalAnalyzer ga)
+            {
+                if (ga.IsInstantiated(Arg1))
+                    throw new InstantiationException(Maximal, Arg1);
+                if (ga.IsInstantiated(Arg2))
+                    throw new InstantiationException(Maximal, Arg2);
+                if (ga.IsInstantiated(Utility))
+                    throw new InstantiationException(Maximal, Utility);
+
+                var call = Generator.MakeCall(ga);
+
+                if (!ga.IsInstantiated(Arg1))
+                    throw new InstantiationException($"Goal {Generator} does not bind the variable {Arg1} in call {this}");
+                if (!ga.IsInstantiated(Arg2))
+                    throw new InstantiationException($"Goal {Generator} does not bind the variable {Arg2} in call {this}");
+                if (!ga.IsInstantiated(Utility))
+                    throw new InstantiationException($"Goal {Generator} does not bind the variable {Utility} in call {this}");
+
+                return new Call(predicate, ga.Emit(Arg1), ga.Emit(Arg2), ga.Emit(Arg3), ga.Emit(Utility), call);
+            }
+        }
+
+        private class Call : AnyCall
+        {
+            private readonly MaximalPrimitive<T1, T2, T3> predicate;
+            private readonly MatchOperation<T1> Arg1;
+            private readonly MatchOperation<T2> Arg2;
+            private readonly MatchOperation<T3> Arg3;
+            private readonly MatchOperation<float> Utility;
+            private readonly AnyCall Goal;
+            private bool restart;
+
+            public Call(MaximalPrimitive<T1, T2, T3> predicate, MatchOperation<T1> arg1, MatchOperation<T2> arg2, MatchOperation<T3> arg3, MatchOperation<float> utility, AnyCall call) : base(Maximal)
+            {
+                Arg1 = arg1;
+                Arg2 = arg2;
+                Arg3 = arg3;
+                Utility = utility;
+                Goal = call;
+                this.predicate = predicate;
+            }
+
+            public override IPattern ArgumentPattern => new Pattern<T1, T2, float, AnyCall>(Arg1, Arg2, Utility,
+                MatchOperation<AnyCall>.Constant(Goal));
+
+            public override void Reset()
+            {
+                restart = true;
+            }
+
+            public override bool NextSolution()
+            {
+                if (!restart) return false;
+                restart = false;
+                Goal.Reset();
+                var gotOne = false;
+                var arg1Cell = Arg1.ValueCell;
+                var arg2Cell = Arg2.ValueCell;
+                var arg3Cell = Arg3.ValueCell;
+                var utilityCell = Utility.ValueCell;
+                var bestArg1 = arg1Cell.Value;
+                var bestArg2 = arg2Cell.Value;
+                var bestArg3 = arg3Cell.Value;
+                var bestUtil = utilityCell.Value;
+                while (Goal.NextSolution())
+                {
+                    var u = utilityCell.Value * predicate.Multiplier;
+                    if (!gotOne || u > bestUtil)
+                    {
+                        bestArg1 = arg1Cell.Value;
+                        bestArg2 = arg2Cell.Value;
+                        bestArg3 = arg3Cell.Value;
+                        bestUtil = u;
+                    }
+
+                    gotOne = true;
+                }
+
+                if (gotOne)
+                {
+                    arg1Cell.Value = bestArg1;
+                    arg2Cell.Value = bestArg2;
+                    arg3Cell.Value = bestArg3;
+                    utilityCell.Value = bestUtil * predicate.Multiplier;
+                }
+
+                return gotOne;
+            }
+        }
+    }
+
 }

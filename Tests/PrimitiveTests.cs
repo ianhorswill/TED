@@ -243,5 +243,31 @@ namespace Tests
             Assert.AreEqual(1,rows.Length);
             Assert.AreEqual(("sandra", "mitchell", 24.0f), rows[0]);
         }
+
+        [TestMethod]
+        public void ThreeArgMaximalTest()
+        {
+            var name = (Var<string>)"name";
+            var family = (Var<string>)"family";
+            var gender = (Var<string>)"gender";
+            var age = (Var<float>)"age";
+
+            var t = Predicate("t",
+                new (string, string, string, float)[]
+                {
+                    ("billie", "george", "m", 36),
+                    ("sandra", "mitchell", "f", 44),
+                    ("george", "billie", "m", 37)
+                },
+                name,
+                family,
+                gender,
+                age);
+
+            var M = Predicate("M", name, family, gender, age).If(Maximal((name, family, gender), age, t[name, family, gender, age]));
+            var rows = M.ToArray();
+            Assert.AreEqual(1,rows.Length);
+            Assert.AreEqual(("sandra", "mitchell", "f", 44.0f), rows[0]);
+        }
     }
 }
