@@ -68,12 +68,12 @@ namespace TED
             AddOperatorImplementation(typeof(int), "op_UnaryNegation", (Func<int, int>)IntUnaryNegation);
 
             // Float type
-            AddOperatorImplementation(typeof(float), "op_Addition", (Func<float, float, float>)((a, b) => a + b));
-            AddOperatorImplementation(typeof(float), "op_Subtraction", (Func<float, float, float>)((a, b) => a - b));
-            AddOperatorImplementation(typeof(float), "op_Multiply", (Func<float, float, float>)((a, b) => a * b));
-            AddOperatorImplementation(typeof(float), "op_Division", (Func<float, float, float>)((a, b) => a / b));
-            AddOperatorImplementation(typeof(float), "op_Modulus", (Func<float, float, float>)((a, b) => a % b));
-            AddOperatorImplementation(typeof(float), "op_UnaryNegation", (Func<float, float>)(a => -a));
+            AddOperatorImplementation(typeof(float), "op_Addition", (Func<float, float, float>)FloatAddition);
+            AddOperatorImplementation(typeof(float), "op_Subtraction", (Func<float, float, float>)FloatSubtraction);
+            AddOperatorImplementation(typeof(float), "op_Multiply", (Func<float, float, float>)FloatMultiply);
+            AddOperatorImplementation(typeof(float), "op_Division", (Func<float, float, float>)FloatDivision);
+            AddOperatorImplementation(typeof(float), "op_Modulus", (Func<float, float, float>)FloatModulus);
+            AddOperatorImplementation(typeof(float), "op_UnaryNegation", (Func<float, float>)FloatUnaryNegation);
         }
 
         static bool IntLessThan(int a, int b) => a < b;
@@ -92,5 +92,15 @@ namespace TED
         static int IntModulus(int a, int b) => a % b;
 
         static int IntUnaryNegation(int a) => -a;
+
+        // Floats
+
+        static float FloatAddition(float a, float b) => a + b;
+        static float FloatSubtraction(float a, float b) => a - b;
+        static float FloatMultiply(float a, float b) => a * b;
+        static float FloatDivision(float a, float b) => a / b;
+        static float FloatModulus(float a, float b) => a % b;
+
+        static float FloatUnaryNegation(float a) => -a;
     }
 }
