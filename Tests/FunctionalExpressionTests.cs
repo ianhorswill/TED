@@ -38,10 +38,20 @@ namespace Tests
         }
 
         [TestMethod]
-        public void AdditionTest()
+        public void IntAdditionTest()
         {
             var n = (Var<int>)"n";
             var T = Predicate("t", n).If(n == 1 + 2);
+            var r = T.ToArray();
+            Assert.AreEqual(1, r.Length);
+            Assert.AreEqual(3, r[0]);
+        }
+
+        [TestMethod]
+        public void FloatAdditionTest()
+        {
+            var n = (Var<float>)"n";
+            var T = Predicate("t", n).If(n == 1f + 2f);
             var r = T.ToArray();
             Assert.AreEqual(1, r.Length);
             Assert.AreEqual(3, r[0]);
@@ -69,7 +79,17 @@ namespace Tests
         public void CustomClassAdditionTest()
         {
             var n = (Var<Vector2Int>)"n";
-            var T = Predicate("t", n).If(n == Vector2Int.UnitX + Vector2Int.UnitY);
+            var T = Predicate("t", n).If(n == Constant(Vector2Int.UnitX) + Constant(Vector2Int.UnitY));
+            var r = T.ToArray();
+            Assert.AreEqual(1, r.Length);
+            Assert.AreEqual(new Vector2Int(1,1), r[0]);
+        }
+
+        [TestMethod, ExpectedException(typeof(MissingMethodException))]
+        public void CustomClassMissingOperatorTest()
+        {
+            var n = (Var<Vector2Int>)"n";
+            var T = Predicate("t", n).If(n == Constant(Vector2Int.UnitX) * Constant(Vector2Int.UnitY));
             var r = T.ToArray();
             Assert.AreEqual(1, r.Length);
             Assert.AreEqual(new Vector2Int(1,1), r[0]);

@@ -73,50 +73,79 @@ namespace TED
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator <(Term<T> a, Term<T> b) => ComparisonPrimitive<T>.LessThan[a, b];
+        public static AnyGoal operator <(Term<T> a, Term<T> b) => CatchComparisonTypeInitializerProblem<T>(() 
+            => ComparisonPrimitive<T>.LessThan[a, b], "<");
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator >(Term<T> a, Term<T> b) => ComparisonPrimitive<T>.GreaterThan[a, b];
+        public static AnyGoal operator >(Term<T> a, Term<T> b)
+            => CatchComparisonTypeInitializerProblem<T>(() => ComparisonPrimitive<T>.GreaterThan[a, b], ">");
 
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator <=(Term<T> a, Term<T> b) => ComparisonPrimitive<T>.LessThanEq[a, b];
-
+        public static AnyGoal operator <=(Term<T> a, Term<T> b)
+            => CatchComparisonTypeInitializerProblem<T>(() => ComparisonPrimitive<T>.LessThanEq[a, b], "<=");
+        
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator >=(Term<T> a, Term<T> b) => ComparisonPrimitive<T>.GreaterThanEq[a, b];
+        public static AnyGoal operator >=(Term<T> a, Term<T> b)
+            => CatchComparisonTypeInitializerProblem<T>(() => ComparisonPrimitive<T>.GreaterThanEq[a, b], ">=");
+
+        
+        private static AnyGoal CatchComparisonTypeInitializerProblem<T>(Func<AnyGoal> thunk, string operation)
+        {
+            try
+            {
+                return thunk();
+            }
+            catch (TypeInitializationException e)
+            {
+                throw new MissingMethodException($"There is no {operation} overload defined for type {typeof(T).Name}");
+            }
+        }
 
         public static FunctionalExpression<T> operator +(Term<T> a, Term<T> b)
-            => AdditionOperator<T>.Singleton[a,b];
+            => CatchFunctionalExpressionTypeInitializerProblem(() => AdditionOperator<T>.Singleton[a, b], "+");
 
         public static FunctionalExpression<T> operator -(Term<T> a, Term<T> b)
-            => SubtractionOperator<T>.Singleton[a,b];
+            => CatchFunctionalExpressionTypeInitializerProblem(() => SubtractionOperator<T>.Singleton[a,b], "-");
 
         public static FunctionalExpression<T> operator -(Term<T> a)
-            => NegationOperator<T>.Singleton[a];
+            => CatchFunctionalExpressionTypeInitializerProblem(() => NegationOperator<T>.Singleton[a], "unary -");
 
         public static FunctionalExpression<T> operator *(Term<T> a, Term<T> b)
-            => MultiplicationOperator<T>.Singleton[a,b];
+            => CatchFunctionalExpressionTypeInitializerProblem(() => MultiplicationOperator<T>.Singleton[a,b], "*");
 
         public static FunctionalExpression<T> operator /(Term<T> a, Term<T> b)
-            => DivisionOperator<T>.Singleton[a,b];
+            => CatchFunctionalExpressionTypeInitializerProblem(() => DivisionOperator<T>.Singleton[a,b], "/");
 
         public static FunctionalExpression<T> operator %(Term<T> a, Term<T> b)
-            => ModulusOperator<T>.Singleton[a,b];
+            => CatchFunctionalExpressionTypeInitializerProblem(() => ModulusOperator<T>.Singleton[a,b], "%");
 
         public static FunctionalExpression<T> operator |(Term<T> a, Term<T> b)
-            => BitwiseOrOperator<T>.Singleton[a,b];
+            => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseOrOperator<T>.Singleton[a,b], "|");
 
         public static FunctionalExpression<T> operator &(Term<T> a, Term<T> b)
-            => BitwiseAndOperator<T>.Singleton[a,b];
+            => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseAndOperator<T>.Singleton[a,b], "&");
 
         public static FunctionalExpression<T> operator ^(Term<T> a, Term<T> b)
-            => BitwiseXOrOperator<T>.Singleton[a,b];
+            => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseXOrOperator<T>.Singleton[a,b], "^");
 
         public static FunctionalExpression<T> operator ~(Term<T> a)
-            => BitwiseNegationOperator<T>.Singleton[a];
+            => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseNegationOperator<T>.Singleton[a], "~");
+
+        private static FunctionalExpression<T> CatchFunctionalExpressionTypeInitializerProblem<T>(Func<FunctionalExpression<T>> thunk, string operation)
+        {
+            try
+            {
+                return thunk();
+            }
+            catch (TypeInitializationException e)
+            {
+                throw new MissingMethodException($"There is no {operation} overload defined for type {typeof(T).Name}");
+            }
+        }
     }
 }
