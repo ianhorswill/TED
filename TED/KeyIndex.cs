@@ -72,8 +72,17 @@ namespace TED
         /// Return a reference to the row with the specified key.
         /// This will blow up if there is no such row.
         /// </summary>
-        public ref TRow this[in TKey key] => ref table.PositionReference(RowWithKey(in key));
-        
+        public ref TRow this[in TKey key]
+        {
+            get
+            {
+                var rowWithKey = RowWithKey(in key);
+                if (rowWithKey == AnyTable.NoRow)
+                    throw new KeyNotFoundException($"No row in table has key {key}");
+                return ref table.PositionReference(rowWithKey);
+            }
+        }
+
         /// <summary>
         /// Test if the table contains a row with the specified key
         /// </summary>
