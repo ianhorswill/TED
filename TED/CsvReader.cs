@@ -21,6 +21,8 @@ namespace TED
                 return int.Parse(cell);
             if (t == typeof(float))
                 return float.Parse(cell);
+            if (t.IsEnum)
+                return Enum.Parse(t, cell, true);
             throw new ArgumentException($"Can't convert cells of type {t.Name}");
         }
 
