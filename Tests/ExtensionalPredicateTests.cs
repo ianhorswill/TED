@@ -100,6 +100,9 @@ namespace Tests
             Assert.AreEqual(10, rows[0].Item2);
             Assert.AreEqual("Elroy", rows[3].Item1);
             Assert.AreEqual(9, rows[3].Item2);
+
+            CsvReader.DeclareParser(typeof(byte), s =>byte.Parse(s));
+            Assert.AreEqual(42, CsvReader.ConvertCell<byte>("42"));
         }
 
         [TestMethod]
