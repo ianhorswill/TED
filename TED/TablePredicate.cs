@@ -17,19 +17,26 @@ namespace TED
         /// <summary>
         /// Make a new predicate
         /// </summary>
-        protected TablePredicate(string name, string[] columnHeadings, AnyTerm[]? defaultVars) : base(name)
+        protected TablePredicate(string name, params IColumnSpec[] columns) : base(name)
         {
             Simulation.AddToCurrentSimulation(this);
-            ColumnHeadings = columnHeadings;
-            DefaultVariables = defaultVars;
+            DefaultVariables = columns.Select(spec => spec.UntypedVariable).ToArray();
+            ColumnHeadings = DefaultVariables.Select(v => v.ToString()).ToArray();
+            for (var i = 0; i < columns.Length; i++)
+                switch (columns[i].IndexMode)
+                {
+                    case IndexMode.Key:
+                        IndexByKey(i);
+                        break;
+
+                    case IndexMode.NonKey:
+                        IndexBy(i);
+                        break;
+
+                    default:
+                        break;
+                }
         }
-
-        protected TablePredicate(string name, string[] columnHeadings) : this(name, columnHeadings, null)
-        { }
-
-        protected TablePredicate(string name, AnyTerm[] defaultVars)
-            : this(name, defaultVars.Select(t => t.ToString()).ToArray(), defaultVars)
-        { }
 
         internal abstract AnyTable TableUntyped { get; }
 
@@ -265,20 +272,13 @@ namespace TED
         }
 
         /// <summary>
-        /// Make a new table predicate with the specified name and no default variables
-        /// </summary>
-        /// <param name="name">Name of the predicate</param>
-        /// <param name="col1">Name for the first argument</param>
-        public TablePredicate(string name, string col1 = "col1") : base(name, new []{ col1 })
-        { }
-
-        /// <summary>
         /// Make a new table predicate with the specified name
         /// </summary>
         /// <param name="name">Name of the predicate</param>
         /// <param name="arg1">Default variable for the first argument</param>
-        public TablePredicate(string name, Var<T1> arg1) : base(name, new AnyTerm[]{ arg1 })
-        { }
+        public TablePredicate(string name, IColumnSpec<T1> arg1) : base(name, arg1)
+        {
+        }
 
         /// <summary>
         /// Read an extensional predicate from a CSV file
@@ -286,10 +286,10 @@ namespace TED
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1> FromCsv(string name, string path)
+        public static TablePredicate<T1> FromCsv(string name, string path, IColumnSpec<T1> arg1)
         {
             var (header, data) = CsvReader.ReadCsv(path);
-            var p = new TablePredicate<T1>(name, header[0]);
+            var p = new TablePredicate<T1>(name, arg1);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]));
             return p;
@@ -300,7 +300,7 @@ namespace TED
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+        public static TablePredicate<T1> FromCsv(string path, IColumnSpec<T1> arg1) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1);
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<T1> _table = new Table<T1>();
@@ -433,18 +433,13 @@ namespace TED
             }
         }
 
-        public TablePredicate(string name, string col1 = "col1", string col2 = "col2") 
-            : base(name, new []{ col1, col2 })
-        {
-        }
-
         /// <summary>
         /// Make a new table predicate with the specified name
         /// </summary>
         /// <param name="name">Name of the predicate</param>
         /// <param name="arg1">Default variable for the first argument</param>
         /// <param name="arg2">Default variable for the second argument</param>
-        public TablePredicate(string name, Term<T1> arg1, Term<T2> arg2) : base(name, new AnyTerm[]{ arg1, arg2 })
+        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) : base(name, arg1, arg2)
         { }
 
         // ReSharper disable once InconsistentNaming
@@ -498,10 +493,10 @@ namespace TED
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1, T2> FromCsv(string name, string path)
+        public static TablePredicate<T1, T2> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2)
         {
             var (header, data) = CsvReader.ReadCsv(path);
-            var p = new TablePredicate<T1, T2>(name, header[0], header[1]);
+            var p = new TablePredicate<T1, T2>(name, arg1, arg2);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]));
             return p;
@@ -513,7 +508,7 @@ namespace TED
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1, T2> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+        public static TablePredicate<T1, T2> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2);
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -677,11 +672,6 @@ namespace TED
             return (KeyIndex<(T1, T2, T3), T>)i;
         }
 
-        public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3")
-            : base(name, new []{ col1, col2, col3 })
-        {
-        }
-
         /// <summary>
         /// Make a new table predicate with the specified name
         /// </summary>
@@ -689,7 +679,7 @@ namespace TED
         /// <param name="arg1">Default variable for the first argument</param>
         /// <param name="arg2">Default variable for the second argument</param>
         /// <param name="arg3">Default variable for the third argument</param>
-        public TablePredicate(string name, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3) : base(name, new AnyTerm[]{ arg1, arg2, arg3 })
+        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) : base(name, arg1, arg2, arg3)
         { }
         
         // ReSharper disable once InconsistentNaming
@@ -743,10 +733,10 @@ namespace TED
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1, T2, T3> FromCsv(string name, string path)
+        public static TablePredicate<T1, T2, T3> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3)
         {
             var (header, data) = CsvReader.ReadCsv(path);
-            var p = new TablePredicate<T1, T2, T3>(name, header[0], header[1], header[2]);
+            var p = new TablePredicate<T1, T2, T3>(name, arg1, arg2, arg3);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]), CsvReader.ConvertCell<T3>(row[2]));
             return p;
@@ -758,7 +748,7 @@ namespace TED
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1, T2, T3> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+        public static TablePredicate<T1, T2, T3> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3);
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -899,11 +889,6 @@ namespace TED
             return (KeyIndex<(T1, T2, T3, T4), TKey>)i;
         }
         
-        public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
-            string col4 = "col4") : base(name, new []{ col1, col2, col3, col4 })
-        {
-        }
-
         /// <summary>
         /// Make a new table predicate with the specified name
         /// </summary>
@@ -912,7 +897,7 @@ namespace TED
         /// <param name="arg2">Default variable for the second argument</param>
         /// <param name="arg3">Default variable for the third argument</param>
         /// <param name="arg4">Default variable for the fourth argument</param>
-        public TablePredicate(string name, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4) : base(name, new AnyTerm[]{ arg1, arg2, arg3, arg4 })
+        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4) : base(name, arg1, arg2, arg3, arg4)
         { }
         
         // ReSharper disable once InconsistentNaming
@@ -967,10 +952,10 @@ namespace TED
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1, T2, T3, T4> FromCsv(string name, string path)
+        public static TablePredicate<T1, T2, T3, T4> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4)
         {
             var (header, data) = CsvReader.ReadCsv(path);
-            var p = new TablePredicate<T1, T2, T3, T4>(name, header[0], header[1], header[2], header[3]);
+            var p = new TablePredicate<T1, T2, T3, T4>(name, arg1, arg2, arg3, arg4);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]), CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]));
             return p;
@@ -982,7 +967,7 @@ namespace TED
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1, T2, T3, T4> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+        public static TablePredicate<T1, T2, T3, T4> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4);
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -1128,12 +1113,7 @@ namespace TED
                 throw new InvalidOperationException($"No key index defined for column {column}");
             return (KeyIndex<(T1, T2, T3, T4, T5), TKey>)i;
         }
-
-        public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
-            string col4 = "col4", string col5 = "col5") : base(name, new []{ col1, col2, col3, col4, col5 })
-        {
-        }
-
+        
         /// <summary>
         /// Make a new table predicate with the specified name
         /// </summary>
@@ -1143,8 +1123,8 @@ namespace TED
         /// <param name="arg3">Default variable for the third argument</param>
         /// <param name="arg4">Default variable for the fourth argument</param>
         /// <param name="arg5">Default variable for the fifth argument</param>
-        public TablePredicate(string name, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5) 
-            : base(name, new AnyTerm[]{ arg1, arg2, arg3, arg4, arg5 })
+        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5) 
+            : base(name, arg1, arg2, arg3, arg4, arg5)
         { }
 
         // ReSharper disable once InconsistentNaming
@@ -1199,10 +1179,10 @@ namespace TED
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string name, string path)
+        public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5)
         {
             var (header, data) = CsvReader.ReadCsv(path);
-            var p = new TablePredicate<T1, T2, T3, T4, T5>(name, header[0], header[1], header[2], header[3], header[4]);
+            var p = new TablePredicate<T1, T2, T3, T4, T5>(name, arg1, arg2, arg3, arg4, arg5);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
                     CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]));
@@ -1214,7 +1194,7 @@ namespace TED
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+        public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5);
 
 
         /// <summary>
@@ -1368,12 +1348,6 @@ namespace TED
             return (KeyIndex<(T1, T2, T3, T4, T5, T6), TKey>)i;
         }
 
-        public TablePredicate(string name, string col1 = "col1", string col2 = "col2", string col3 = "col3",
-            string col4 = "col4", string col5 = "col5", string col6 = "col6")
-            : base(name, new []{ col1, col2, col3, col4, col5, col6 })
-        {
-        }
-
         /// <summary>
         /// Make a new table predicate with the specified name
         /// </summary>
@@ -1384,8 +1358,8 @@ namespace TED
         /// <param name="arg4">Default variable for the fourth argument</param>
         /// <param name="arg5">Default variable for the fifth argument</param>
         /// <param name="arg6">Default variable for the sixth argument</param>
-        public TablePredicate(string name, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6) 
-            : base(name, new AnyTerm[]{ arg1, arg2, arg3, arg4, arg5, arg6 })
+        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6) 
+            : base(name, arg1, arg2, arg3, arg4, arg5, arg6)
         { }
 
         // ReSharper disable once InconsistentNaming
@@ -1439,10 +1413,10 @@ namespace TED
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string name, string path)
+        public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6)
         {
             var (header, data) = CsvReader.ReadCsv(path);
-            var p = new TablePredicate<T1, T2, T3, T4, T5, T6>(name, header[0], header[1], header[2], header[3], header[4], header[5]);
+            var p = new TablePredicate<T1, T2, T3, T4, T5, T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
                     CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]),
@@ -1455,7 +1429,7 @@ namespace TED
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
         /// <returns>The TablePredicate</returns>
-        public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string path) => FromCsv(Path.GetFileNameWithoutExtension(path), path);
+        public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6);
 
 
         /// <summary>

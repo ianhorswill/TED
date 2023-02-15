@@ -9,13 +9,16 @@ namespace Tests
         [TestMethod]
         public void SingleSubgoal()
         {
-            var t = new TablePredicate<int, int>("t");
+            var x = (Var<int>)"x";
+            var y = (Var<int>)"y";
+
+            var t = new TablePredicate<int, int>("t", x, y);
             for (var i = 0; i < 10; i++)
             for (var j = 0; j < 10; j++)
                 t.AddRow(i, j);
 
-            var s = new TablePredicate<int>("s");
-            var x = (Var<int>)"x";
+            var s = new TablePredicate<int>("s", x);
+
 
             s[x].If(t[x, x]);
 
@@ -29,18 +32,20 @@ namespace Tests
         [TestMethod]
         public void DualSubgoal()
         {
-            var t = new TablePredicate<int, int>("t");
+            var x = (Var<int>)"x";
+            var y = (Var<int>)"y";
+
+            var t = new TablePredicate<int, int>("t", x, y);
             for (var i = 0; i < 10; i++)
             for (var j = 0; j < 10; j++)
                 t.AddRow(i, j);
 
-            var u = new TablePredicate<int>("u");
+            var u = new TablePredicate<int>("u", x);
             u.AddRow(2);
             u.AddRow(4);
             u.AddRow(6);
 
-            var s = new TablePredicate<int>("s");
-            var x = (Var<int>)"x";
+            var s = new TablePredicate<int>("s", x);
 
             s[x].If(t[x, x], u[x]);
 

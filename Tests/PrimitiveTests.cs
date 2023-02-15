@@ -9,14 +9,15 @@ namespace Tests
         [TestMethod]
         public void LessThanTest()
         {
-            var t = new TablePredicate<int, int>("t");
+            var x = (Var<int>)"x";
+            var y = (Var<int>)"y";
+
+            var t = new TablePredicate<int, int>("t", x,y);
             for (var i = 0; i < 10; i++)
             for (var j = 0; j < 10; j++)
                 t.AddRow(i, j);
 
-            var s = new TablePredicate<int, int>("s");
-            var x = (Var<int>)"x";
-            var y = (Var<int>)"y";
+            var s = new TablePredicate<int, int>("s", x, y);
 
             s[x, y].If(t[x, y], x < y);
 
@@ -72,8 +73,8 @@ namespace Tests
             //NeighborCount[where, count].If(tileTable[cell, b], count == Count(And[Neighbor[where, neighbor], tileTable[neighbor, true]]));
             //NeighborCount[where, Count(And[Neighbor[where, neighbor], tileTable[neighbor, true]])].If(tileTable[where, b]);
 
-            var s = new TablePredicate<Vector2Int>("s");
             var x = (Var<Vector2Int>)"x";
+            var s = new TablePredicate<Vector2Int>("s", x);
             s[x].If(tileTable[x, true], Constant(1) <= Constant(2));
 
             s[x].If(tileTable[x, true], NeighborCount[x, count], count < 2);
@@ -83,19 +84,20 @@ namespace Tests
         [TestMethod]
         public void NegationTest()
         {
-            var t = new TablePredicate<int, int>("t");
+            var x = (Var<int>)"x";
+            var y = (Var<int>)"y";
+            var t = new TablePredicate<int, int>("t", x, y);
             for (var i = 0; i < 10; i++)
             for (var j = 0; j < 10; j++)
                 t.AddRow(i, j);
 
-            var s = new TablePredicate<int, int>("s");
-            var x = (Var<int>)"x";
-            var y = (Var<int>)"y";
+            var s = new TablePredicate<int, int>("s", x, y);
+
 
             s[x, y].If(t[x, y], x < y);
 
-            var u = new TablePredicate<int, int>("u");
-            var v = new TablePredicate<int, int>("v");
+            var u = new TablePredicate<int, int>("u", x, y);
+            var v = new TablePredicate<int, int>("v", x, y);
 
             u[x,y].If(t[x,y], !s[x,y]);
             v[x,y].If(t[x,y], !(x < y));
@@ -112,18 +114,20 @@ namespace Tests
         [TestMethod]
         public void AndTest()
         {
-            var t = new TablePredicate<int, int>("t");
+            var x = (Var<int>)"x";
+            var y = (Var<int>)"y";
+
+            var t = new TablePredicate<int, int>("t", x, y);
             for (var i = 0; i < 10; i++)
             for (var j = 0; j < 10; j++)
                 t.AddRow(i, j);
 
-            var u = new TablePredicate<int>("u");
+            var u = new TablePredicate<int>("u", x);
             u.AddRow(2);
             u.AddRow(4);
             u.AddRow(6);
 
-            var s = new TablePredicate<int>("s");
-            var x = (Var<int>)"x";
+            var s = new TablePredicate<int>("s", x);
 
             s[x].If(And[t[x,x], And[u[x]]]);
 
@@ -175,9 +179,11 @@ namespace Tests
         [TestMethod]
         public void MaximalTest()
         {
-            var t = TablePredicate<string, int>.FromCsv("test", "../../../TestTable.csv");
             var name = (Var<string>)"name";
             var age = (Var<int>)"age";
+
+            var t = TablePredicate<string, int>.FromCsv("test", "../../../TestTable.csv", name, age);
+
             var floatAge = (Var<float>)"floatAge";
             var M = Predicate("M", name, floatAge).If(Maximal(name, floatAge, And[t[name, age], floatAge == Float[age]]));
             var rows = M.ToArray();
@@ -188,9 +194,10 @@ namespace Tests
         [TestMethod]
         public void MinimalTest()
         {
-            var t = TablePredicate<string, int>.FromCsv("test", "../../../TestTable.csv");
             var name = (Var<string>)"name";
             var age = (Var<int>)"age";
+
+            var t = TablePredicate<string, int>.FromCsv("test", "../../../TestTable.csv", name, age);
             var floatAge = (Var<float>)"floatAge";
             var M = Predicate("M", name, floatAge).If(Minimal(name, floatAge, And[t[name, age], floatAge == Float[age]]));
             var rows = M.ToArray();

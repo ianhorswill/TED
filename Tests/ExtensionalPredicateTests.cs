@@ -11,7 +11,7 @@ namespace Tests
         [TestMethod]
         public void MatchConstant()
         {
-            var t = new TablePredicate<int>("t");
+            var t = new TablePredicate<int>("t", (Var<int>)"x");
             var target = 49;
             for (var i = 0; i < 100; i++)
                 t.AddRow(i);
@@ -31,7 +31,7 @@ namespace Tests
         [TestMethod]
         public void MatchWrite()
         {
-            var t = new TablePredicate<int>("t");
+            var t = new TablePredicate<int>("t", (Var<int>)"x");
             for (var i = 0; i < 100; i++)
                 t.AddRow(i);
 
@@ -51,7 +51,7 @@ namespace Tests
         [TestMethod]
         public void MatchRead()
         {
-            var t = new TablePredicate<int>("t");
+            var t = new TablePredicate<int>("t", (Var<int>)"x");
             for (var i = 0; i < 100; i++)
                 t.AddRow(i);
 
@@ -70,7 +70,7 @@ namespace Tests
         [TestMethod]
         public void MatchWriteRead()
         {
-            var t = new TablePredicate<int, int>("t");
+            var t = new TablePredicate<int, int>("t", (Var<int>)"x", (Var<int>)"y");
             for (var i = 0; i < 10; i++)
                 for (var j = 0; j < 10; j++)
                     t.AddRow(i, j);
@@ -90,10 +90,10 @@ namespace Tests
         [TestMethod]
         public void CsvReaderTest()
         {
-            var t = TablePredicate<string, int>.FromCsv("test", "../../../TestTable.csv");
+            var t = TablePredicate<string, int>.FromCsv("test", "../../../TestTable.csv", (Var<string>)"name", (Var<int>)"age");
             Assert.AreEqual("test", t.Name);
-            Assert.AreEqual("Name", t.ColumnHeadings[0]);
-            Assert.AreEqual("Age", t.ColumnHeadings[1]);
+            Assert.AreEqual("name", t.ColumnHeadings[0]);
+            Assert.AreEqual("age", t.ColumnHeadings[1]);
             var rows = t.ToArray();
             Assert.AreEqual(4, rows.Length);
             Assert.AreEqual("Fred", rows[0].Item1);

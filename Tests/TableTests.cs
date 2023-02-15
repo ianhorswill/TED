@@ -148,8 +148,7 @@ namespace Tests
             var n = (Var<int>)"n";
             var m = (Var<int>)"m";
             var nums = new[] { 1, 2, 3, 4, 5, 6 };
-            var Table = Predicate("Table", nums.Select(i => (i, i+1)), n, m);
-            Table.IndexByKey(n);
+            var Table = Predicate("Table", nums.Select(i => (i, i+1)), n.Key, m);
             var nKey = Table.KeyIndex(n);
             foreach (var i in nums)
                 Assert.AreEqual(i+1, nKey[i].Item2);

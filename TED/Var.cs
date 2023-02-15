@@ -9,7 +9,7 @@ namespace TED
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [DebuggerDisplay("{DebugName}")]
-    public class Var<T> : Term<T>
+    public class Var<T> : Term<T>, IColumnSpec<T>
     {
         /// <summary>
         /// Make a new variable
@@ -56,5 +56,21 @@ namespace TED
         /// Make a different variable with the same name and type
         /// </summary>
         public AnyTerm Clone() => new Var<T>(Name);
+
+        /// <summary>
+        /// Make a column spec for this variable that specifies the column should be indexed as a key
+        /// </summary>
+        public IColumnSpec<T> Key => new IndexedColumnSpec<T>(this, IndexMode.Key);
+
+        /// <summary>
+        /// Make a column spec for this variable that specifies this column should be indexed, but is not a key.
+        /// </summary>
+        public IColumnSpec<T> Indexed => new IndexedColumnSpec<T>(this, IndexMode.NonKey);
+
+        public IndexMode IndexMode => IndexMode.None;
+
+        public Var<T> TypedVariable => this;
+
+        public AnyTerm UntypedVariable => this;
     }
 }

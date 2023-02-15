@@ -286,7 +286,7 @@ namespace TED
         /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
         /// <param name="name">Name for the predicate, for debugging purposes</param>
         /// <param name="arg">Variable to be used as the default first argument.</param>
-        public static TablePredicate<T1> Predicate<T1>(string name, Var<T1> arg) 
+        public static TablePredicate<T1> Predicate<T1>(string name, IColumnSpec<T1> arg) 
             => new TablePredicate<T1>(name, arg);
         
         /// <summary>
@@ -297,7 +297,7 @@ namespace TED
         /// <param name="name">Name for the predicate, for debugging purposes</param>
         /// <param name="arg1">Variable to be used as the default first argument.</param>
         /// <param name="arg2">Variable to be used as the default second argument.</param>
-        public static TablePredicate<T1,T2> Predicate<T1,T2>(string name, Var<T1> arg1, Var<T2> arg2) 
+        public static TablePredicate<T1,T2> Predicate<T1,T2>(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) 
             => new TablePredicate<T1,T2>(name, arg1, arg2);
         
         /// <summary>
@@ -310,7 +310,7 @@ namespace TED
         /// <param name="arg1">Variable to be used as the default first argument.</param>
         /// <param name="arg2">Variable to be used as the default second argument.</param>
         /// <param name="arg3">Variable to be used as the default third argument.</param>
-        public static TablePredicate<T1,T2,T3> Predicate<T1,T2,T3>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3) 
+        public static TablePredicate<T1,T2,T3> Predicate<T1,T2,T3>(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) 
             => new TablePredicate<T1,T2,T3>(name, arg1, arg2, arg3);
         
         /// <summary>
@@ -325,7 +325,7 @@ namespace TED
         /// <param name="arg2">Variable to be used as the default second argument.</param>
         /// <param name="arg3">Variable to be used as the default third argument.</param>
         /// <param name="arg4">Variable to be used as the default fourth argument.</param>
-        public static TablePredicate<T1,T2,T3,T4> Predicate<T1,T2,T3,T4>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4) 
+        public static TablePredicate<T1,T2,T3,T4> Predicate<T1,T2,T3,T4>(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4) 
             => new TablePredicate<T1,T2,T3,T4>(name, arg1, arg2, arg3, arg4);
         
         /// <summary>
@@ -342,7 +342,7 @@ namespace TED
         /// <param name="arg3">Variable to be used as the default third argument.</param>
         /// <param name="arg4">Variable to be used as the default fourth argument.</param>
         /// <param name="arg5">Variable to be used as the default fifth argument.</param>
-        public static TablePredicate<T1,T2,T3,T4,T5> Predicate<T1,T2,T3,T4,T5>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5) 
+        public static TablePredicate<T1,T2,T3,T4,T5> Predicate<T1,T2,T3,T4,T5>(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5) 
             => new TablePredicate<T1,T2,T3,T4,T5>(name, arg1, arg2, arg3, arg4, arg5);
         
         /// <summary>
@@ -361,7 +361,7 @@ namespace TED
         /// <param name="arg4">Variable to be used as the default fourth argument.</param>
         /// <param name="arg5">Variable to be used as the default fifth argument.</param>
         /// <param name="arg6">Variable to be used as the default sixth argument.</param>
-        public static TablePredicate<T1,T2,T3,T4,T5,T6> Predicate<T1,T2,T3,T4,T5,T6>(string name, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5, Var<T6> arg6) 
+        public static TablePredicate<T1,T2,T3,T4,T5,T6> Predicate<T1,T2,T3,T4,T5,T6>(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6) 
             => new TablePredicate<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5,arg6);
 
         /// <summary>
@@ -369,7 +369,7 @@ namespace TED
         /// </summary>
         public static TablePredicate<T1> Predicate<T1>(string name, IEnumerable<T1> generator, string arg1 = "arg1")
         {
-            var p = new TablePredicate<T1>(name, arg1);
+            var p = new TablePredicate<T1>(name, (Var<T1>)arg1);
             p.AddRows(generator);
             return p;
         }
@@ -379,7 +379,7 @@ namespace TED
         /// </summary>
         public static TablePredicate<T1,T2> Predicate<T1,T2>(string name, IEnumerable<(T1,T2)> generator, string arg1 = "arg1", string arg2 = "arg2")
         {
-            var p = new TablePredicate<T1,T2>(name, arg1, arg2);
+            var p = new TablePredicate<T1,T2>(name, (Var<T1>)arg1, (Var<T2>)arg2);
             p.AddRows(generator);
             return p;
         }
@@ -389,7 +389,7 @@ namespace TED
         /// </summary>
         public static TablePredicate<T1,T2,T3> Predicate<T1,T2, T3>(string name, IEnumerable<(T1,T2,T3)> generator, string arg1 = "arg1", string arg2 = "arg2", string arg3="arg3")
         {
-            var p = new TablePredicate<T1,T2,T3>(name, arg1, arg2, arg3);
+            var p = new TablePredicate<T1,T2,T3>(name, (Var<T1>)arg1, (Var<T2>)arg2, (Var<T3>)arg3);
             p.AddRows(generator);
             return p;
         }
@@ -399,7 +399,7 @@ namespace TED
         /// </summary>
         public static TablePredicate<T1,T2,T3,T4> Predicate<T1,T2, T3, T4>(string name, IEnumerable<(T1,T2,T3,T4)> generator, string arg1 = "arg1", string arg2 = "arg2", string arg3="arg3", string arg4="arg4")
         {
-            var p = new TablePredicate<T1,T2,T3,T4>(name, arg1, arg2, arg3, arg4);
+            var p = new TablePredicate<T1,T2,T3,T4>(name, (Var<T1>)arg1, (Var<T2>)arg2, (Var<T3>)arg3, (Var<T4>)arg4);
             p.AddRows(generator);
             return p;
         }
@@ -409,7 +409,7 @@ namespace TED
         /// </summary>
         public static TablePredicate<T1,T2,T3,T4,T5> Predicate<T1,T2, T3, T4, T5>(string name, IEnumerable<(T1,T2,T3,T4,T5)> generator, string arg1 = "arg1", string arg2 = "arg2", string arg3="arg3", string arg4="arg4", string arg5="arg5")
         {
-            var p = new TablePredicate<T1,T2,T3,T4,T5>(name, arg1, arg2, arg3, arg4, arg5);
+            var p = new TablePredicate<T1,T2,T3,T4,T5>(name, (Var<T1>)arg1, (Var<T2>)arg2, (Var<T3>)arg3, (Var<T4>)arg4, (Var<T5>)arg5);
             p.AddRows(generator);
             return p;
         }
@@ -419,7 +419,7 @@ namespace TED
         /// </summary>
         public static TablePredicate<T1,T2,T3,T4,T5,T6> Predicate<T1,T2, T3, T4, T5, T6>(string name, IEnumerable<(T1,T2,T3,T4,T5,T6)> generator, string arg1 = "arg1", string arg2 = "arg2", string arg3="arg3", string arg4="arg4", string arg5="arg5", string arg6="arg6")
         {
-            var p = new TablePredicate<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
+            var p = new TablePredicate<T1,T2,T3,T4,T5,T6>(name, (Var<T1>)arg1, (Var<T2>)arg2, (Var<T3>)arg3, (Var<T4>)arg4, (Var<T5>)arg5, (Var<T6>)arg6);
             p.AddRows(generator);
             return p;
         }
@@ -427,7 +427,7 @@ namespace TED
         /// <summary>
         /// Make a new TablePredicate from a row generator, and pre-populate it with rows from the generator.
         /// </summary>
-        public static TablePredicate<T1> Predicate<T1>(string name, IEnumerable<T1> generator, Var<T1> arg1)
+        public static TablePredicate<T1> Predicate<T1>(string name, IEnumerable<T1> generator, IColumnSpec<T1> arg1)
         {
             var p = new TablePredicate<T1>(name, arg1);
             p.AddRows(generator);
@@ -437,7 +437,7 @@ namespace TED
         /// <summary>
         /// Make a new TablePredicate from a row generator, and pre-populate it with rows from the generator.
         /// </summary>
-        public static TablePredicate<T1,T2> Predicate<T1,T2>(string name, IEnumerable<(T1,T2)> generator, Var<T1> arg1, Var<T2> arg2)
+        public static TablePredicate<T1,T2> Predicate<T1,T2>(string name, IEnumerable<(T1,T2)> generator, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2)
         {
             var p = new TablePredicate<T1,T2>(name, arg1, arg2);
             p.AddRows(generator);
@@ -447,7 +447,7 @@ namespace TED
         /// <summary>
         /// Make a new TablePredicate from a row generator, and pre-populate it with rows from the generator.
         /// </summary>
-        public static TablePredicate<T1,T2,T3> Predicate<T1,T2, T3>(string name, IEnumerable<(T1,T2,T3)> generator, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3)
+        public static TablePredicate<T1,T2,T3> Predicate<T1,T2, T3>(string name, IEnumerable<(T1,T2,T3)> generator, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3)
         {
             var p = new TablePredicate<T1,T2,T3>(name, arg1, arg2, arg3);
             p.AddRows(generator);
@@ -457,7 +457,7 @@ namespace TED
         /// <summary>
         /// Make a new TablePredicate from a row generator, and pre-populate it with rows from the generator.
         /// </summary>
-        public static TablePredicate<T1,T2,T3,T4> Predicate<T1,T2, T3, T4>(string name, IEnumerable<(T1,T2,T3,T4)> generator, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4)
+        public static TablePredicate<T1,T2,T3,T4> Predicate<T1,T2, T3, T4>(string name, IEnumerable<(T1,T2,T3,T4)> generator, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4)
         {
             var p = new TablePredicate<T1,T2,T3,T4>(name, arg1, arg2, arg3, arg4);
             p.AddRows(generator);
@@ -467,7 +467,7 @@ namespace TED
         /// <summary>
         /// Make a new TablePredicate from a row generator, and pre-populate it with rows from the generator.
         /// </summary>
-        public static TablePredicate<T1,T2,T3,T4,T5> Predicate<T1,T2, T3, T4, T5>(string name, IEnumerable<(T1,T2,T3,T4,T5)> generator, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5)
+        public static TablePredicate<T1,T2,T3,T4,T5> Predicate<T1,T2, T3, T4, T5>(string name, IEnumerable<(T1,T2,T3,T4,T5)> generator, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5)
         {
             var p = new TablePredicate<T1,T2,T3,T4,T5>(name, arg1, arg2, arg3, arg4, arg5);
             p.AddRows(generator);
@@ -477,7 +477,7 @@ namespace TED
         /// <summary>
         /// Make a new TablePredicate from a row generator, and pre-populate it with rows from the generator.
         /// </summary>
-        public static TablePredicate<T1,T2,T3,T4,T5,T6> Predicate<T1,T2, T3, T4, T5, T6>(string name, IEnumerable<(T1,T2,T3,T4,T5,T6)> generator, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5, Var<T6> arg6)
+        public static TablePredicate<T1,T2,T3,T4,T5,T6> Predicate<T1,T2, T3, T4, T5, T6>(string name, IEnumerable<(T1,T2,T3,T4,T5,T6)> generator, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6)
         {
             var p = new TablePredicate<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
             p.AddRows(generator);

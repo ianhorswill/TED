@@ -27,10 +27,10 @@ namespace TablePredicateViewer
             // ReSharper disable InconsistentNaming
 
             // Predicates loaded from disk
-            var Person = TablePredicate<string, string, int>.FromCsv("../../../Population.csv");
+            var Person = TablePredicate<string, string, int>.FromCsv("../../../Population.csv", person, sex, age);
             Person.IndexBy(1);
-            var MaleName = TablePredicate<string>.FromCsv("../../../male_name.csv");
-            var FemaleName = TablePredicate<string>.FromCsv("../../../female_name.csv");
+            var MaleName = TablePredicate<string>.FromCsv("../../../male_name.csv", person);
+            var FemaleName = TablePredicate<string>.FromCsv("../../../female_name.csv", person);
 
             // Death
             var Dead = Predicate("Dead", person);
