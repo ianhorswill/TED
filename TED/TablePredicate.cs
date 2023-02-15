@@ -57,7 +57,7 @@ namespace TED
         /// <summary>
         /// Default variables for use in TrueWhen()
         /// </summary>
-        public readonly AnyTerm[]? DefaultVariables;
+        public readonly AnyTerm[] DefaultVariables;
 
         /// <summary>
         /// Returns a goal of the predicate applied to the specified arguments
@@ -240,6 +240,8 @@ namespace TED
         /// Append all the rows of the tables in Inputs to this table
         /// </summary>
         internal abstract void AppendInputs();
+
+        public static implicit operator AnyGoal(TablePredicate p) => p.GetGoal(p.DefaultVariables);
     }
 
     /// <summary>
