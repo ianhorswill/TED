@@ -4,7 +4,7 @@ namespace TED
 {
     public class Substitution
     {
-        internal Dictionary<AnyTerm, AnyTerm> Substitutions = new Dictionary<AnyTerm, AnyTerm>();
+        internal Dictionary<Term, Term> Substitutions = new Dictionary<Term, Term>();
         /// <summary>
         /// If true, all variables not otherwise substituted should be substituted with copies of themselves.
         /// </summary>
@@ -15,7 +15,7 @@ namespace TED
             AlphaConvert = alphaConvert;
         }
 
-        public Substitution(IEnumerable<(AnyTerm, AnyTerm)> mappings, bool alphaConvert)
+        public Substitution(IEnumerable<(Term, Term)> mappings, bool alphaConvert)
         {
             AlphaConvert = alphaConvert;
             foreach (var (original, substitution) in mappings)

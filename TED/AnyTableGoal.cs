@@ -18,7 +18,7 @@ namespace TED
         /// <summary>
         /// Make a new goal object
         /// </summary>
-        protected AnyTableGoal(TablePredicate predicate, AnyTerm[] args) : base(args)
+        protected AnyTableGoal(TablePredicate predicate, Term[] args) : base(args)
         {
             TablePredicate = predicate;
         }

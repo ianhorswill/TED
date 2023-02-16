@@ -20,7 +20,7 @@ namespace TED
         public Constant(T value)
         {
             // If value is a Term then something has gone wrong with your typing
-            Debug.Assert(!(Value is AnyTerm));
+            Debug.Assert(!(Value is Term));
             Value = value;
         }
 

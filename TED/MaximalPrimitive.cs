@@ -24,7 +24,7 @@
             private readonly Var<float> Utility;
             private readonly AnyGoal Generator;
 
-            public Goal(MaximalPrimitive<T1> predicate, Var<T1> arg, Var<float> utility, Constant<AnyGoal> g) : base(new AnyTerm[] { arg, utility, g })
+            public Goal(MaximalPrimitive<T1> predicate, Var<T1> arg, Var<float> utility, Constant<AnyGoal> g) : base(new Term[] { arg, utility, g })
             {
                 Arg = arg;
                 Utility = utility;
@@ -137,7 +137,7 @@
             private readonly Var<float> Utility;
             private readonly AnyGoal Generator;
 
-            public Goal(MaximalPrimitive<T1, T2> predicate, Var<T1> arg1, Var<T2> arg2, Var<float> utility, Constant<AnyGoal> g) : base(new AnyTerm[] { arg1, utility, g })
+            public Goal(MaximalPrimitive<T1, T2> predicate, Var<T1> arg1, Var<T2> arg2, Var<float> utility, Constant<AnyGoal> g) : base(new Term[] { arg1, utility, g })
             {
                 Arg1 = arg1;
                 Arg2 = arg2;
@@ -262,7 +262,7 @@
             private readonly Var<float> Utility;
             private readonly AnyGoal Generator;
 
-            public Goal(MaximalPrimitive<T1, T2, T3> predicate, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<float> utility, Constant<AnyGoal> g) : base(new AnyTerm[] { arg1, utility, g })
+            public Goal(MaximalPrimitive<T1, T2, T3> predicate, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<float> utility, Constant<AnyGoal> g) : base(new Term[] { arg1, utility, g })
             {
                 Arg1 = arg1;
                 Arg2 = arg2;

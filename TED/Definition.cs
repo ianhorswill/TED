@@ -23,7 +23,7 @@ namespace TED
         {
             public readonly Definition Definition;
 
-            protected AnyDefinitionGoal(Definition definition, AnyTerm[] arguments) : base(arguments)
+            protected AnyDefinitionGoal(Definition definition, Term[] arguments) : base(arguments)
             {
                 Definition = definition;
             }
@@ -77,7 +77,7 @@ namespace TED
         {
             public readonly Term<T1> Arg1;
 
-            public Goal(Definition<T1> definition, Term<T1> arg1) : base(definition, new AnyTerm[] { arg1 })
+            public Goal(Definition<T1> definition, Term<T1> arg1) : base(definition, new Term[] { arg1 })
             {
                 Arg1 = arg1;
             }
@@ -126,7 +126,7 @@ namespace TED
             public readonly Term<T2> Arg2;
 
             public Goal(Definition<T1, T2> definition, Term<T1> arg1, Term<T2> arg2) : base(definition,
-                new AnyTerm[] { arg1, arg2 })
+                new Term[] { arg1, arg2 })
             {
                 Arg1 = arg1;
                 Arg2 = arg2;
@@ -180,7 +180,7 @@ namespace TED
             public readonly Term<T3> Arg3;
 
             public Goal(Definition<T1, T2, T3> definition, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3) : base(
-                definition, new AnyTerm[] { arg1, arg2, arg3 })
+                definition, new Term[] { arg1, arg2, arg3 })
             {
                 Arg1 = arg1;
                 Arg2 = arg2;
@@ -240,7 +240,7 @@ namespace TED
 
             public Goal(Definition<T1, T2, T3, T4> definition, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3,
                 Term<T4> arg4) : base(
-                definition, new AnyTerm[] { arg1, arg2, arg3, arg4 })
+                definition, new Term[] { arg1, arg2, arg3, arg4 })
             {
                 Arg1 = arg1;
                 Arg2 = arg2;
@@ -308,7 +308,7 @@ namespace TED
 
             public Goal(Definition<T1,T2,T3,T4,T5> definition, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3,
                 Term<T4> arg4, Term<T5> arg5) : base(
-                definition, new AnyTerm[] { arg1, arg2, arg3, arg4, arg5 })
+                definition, new Term[] { arg1, arg2, arg3, arg4, arg5 })
             {
                 Arg1 = arg1;
                 Arg2 = arg2;
@@ -378,7 +378,7 @@ namespace TED
 
             public Goal(Definition<T1,T2,T3,T4,T5,T6> definition, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3,
                 Term<T4> arg4, Term<T5> arg5, Term<T6> arg6) : base(
-                definition, new AnyTerm[] { arg1, arg2, arg3, arg4, arg5, arg6 })
+                definition, new Term[] { arg1, arg2, arg3, arg4, arg5, arg6 })
             {
                 Arg1 = arg1;
                 Arg2 = arg2;

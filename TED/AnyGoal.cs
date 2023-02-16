@@ -17,14 +17,14 @@ namespace TED
         /// <summary>
         /// All arguments, as an array.  Used by the printer
         /// </summary>
-        public readonly AnyTerm[] Arguments;
+        public readonly Term[] Arguments;
 
         /// <summary>
         /// The predicate being called
         /// </summary>
         public abstract AnyPredicate Predicate { get; }
 
-        protected AnyGoal(AnyTerm[] arguments)
+        protected AnyGoal(Term[] arguments)
         {
             Arguments = arguments;
         }

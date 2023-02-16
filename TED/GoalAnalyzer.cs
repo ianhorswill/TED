@@ -13,13 +13,13 @@ namespace TED
     /// </summary>
     public class GoalAnalyzer
     {
-        private GoalAnalyzer(Dictionary<AnyTerm, ValueCell> variableCells, HashSet<TablePredicate> dependencies)
+        private GoalAnalyzer(Dictionary<Term, ValueCell> variableCells, HashSet<TablePredicate> dependencies)
         {
             variableValueCells = variableCells;
             tableDependencies = dependencies;
         }
 
-        public GoalAnalyzer() : this(new Dictionary<AnyTerm, ValueCell>(), new HashSet<TablePredicate>())
+        public GoalAnalyzer() : this(new Dictionary<Term, ValueCell>(), new HashSet<TablePredicate>())
         { }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace TED
         /// Dependencies will be added, however.
         /// </summary>
         public GoalAnalyzer MakeChild()
-            => new GoalAnalyzer(new Dictionary<AnyTerm, ValueCell>(variableValueCells), tableDependencies);
+            => new GoalAnalyzer(new Dictionary<Term, ValueCell>(variableValueCells), tableDependencies);
         
         /// <summary>
         /// Maps Var objects, which are the abstract syntax tree representation for a TED variable,
@@ -35,7 +35,7 @@ namespace TED
         /// The key type of the dictionary is AnyTerm just because Var is a generic type, it's parent, Term
         /// is also a generic type, and so AnyTerm is the most immediate ancestor that's a parent to all Vars.
         /// </summary>
-        private readonly Dictionary<AnyTerm, ValueCell> variableValueCells;
+        private readonly Dictionary<Term, ValueCell> variableValueCells;
 
         private readonly HashSet<TablePredicate> tableDependencies;
 
@@ -83,6 +83,6 @@ namespace TED
         /// <summary>
         /// True if subsequent uses of this variable will be match to the value in the cell rather than store into it.
         /// </summary>
-        public bool IsInstantiated(AnyTerm v) => variableValueCells.ContainsKey(v);
+        public bool IsInstantiated(Term v) => variableValueCells.ContainsKey(v);
     }
 }

@@ -57,13 +57,13 @@ namespace TED
         /// <summary>
         /// Default variables for use in TrueWhen()
         /// </summary>
-        public readonly AnyTerm[] DefaultVariables;
+        public readonly IVariable[] DefaultVariables;
 
         /// <summary>
         /// Returns a goal of the predicate applied to the specified arguments
         /// </summary>
         /// <param name="args">Arguments to the predicate</param>
-        public AnyTableGoal this[AnyTerm[] args]
+        public AnyTableGoal this[Term[] args]
         {
             get
             {
@@ -77,12 +77,12 @@ namespace TED
         /// Returns a goal of the predicate applied to the specified arguments
         /// </summary>
         /// <param name="args">Arguments to the predicate</param>
-        public abstract AnyTableGoal GetGoal(AnyTerm[] args);
+        public abstract AnyTableGoal GetGoal(Term[] args);
 
         /// <summary>
         /// A call to this predicate using it's "default" arguments
         /// </summary>
-        public AnyTableGoal DefaultGoal => GetGoal(DefaultVariables);
+        public AnyTableGoal DefaultGoal => GetGoal(DefaultVariables.Cast<Term>().ToArray());
 
         /// <summary>
         /// Add a key index
@@ -92,7 +92,7 @@ namespace TED
         /// <summary>
         /// Add a key index
         /// </summary>
-        public void IndexByKey(AnyTerm column) => AddIndex(column, true);
+        public void IndexByKey(Term column) => AddIndex(column, true);
 
         /// <summary>
         /// Add an index; the column isn't a key, i.e. rows aren't assumed to have unique values for this column
@@ -103,9 +103,9 @@ namespace TED
         /// Add an index; the column isn't a key, i.e. rows aren't assumed to have unique values for this column
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public void IndexBy(AnyTerm column) => AddIndex(column, false);
+        public void IndexBy(Term column) => AddIndex(column, false);
 
-        private void AddIndex(AnyTerm t, bool keyIndex)
+        private void AddIndex(Term t, bool keyIndex)
         {
             var index = ColumnPositionOfDefaultVariable(t);
             AddIndex(index, keyIndex);
@@ -114,7 +114,7 @@ namespace TED
         /// <summary>
         /// Find the column/argument position of an argument, given the variable used to declare it.
         /// </summary>
-        protected int ColumnPositionOfDefaultVariable(AnyTerm t)
+        protected int ColumnPositionOfDefaultVariable(Term t)
         {
             if (DefaultVariables == null)
                 throw new InvalidOperationException(
@@ -284,7 +284,7 @@ namespace TED
         public TableGoal<T1> this[Term<T1> arg1] => new TableGoal<T1>(this, arg1);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0]];
+        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -453,7 +453,7 @@ namespace TED
         public TableGoal<T1, T2> this[Term<T1> arg1, Term<T2> arg2] => new TableGoal<T1, T2>(this, arg1, arg2);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1]];
+        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -671,7 +671,7 @@ namespace TED
         public TableGoal<T1, T2, T3> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] => new TableGoal<T1, T2, T3>(this, arg1, arg2,arg3);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2]];
+        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -899,7 +899,7 @@ namespace TED
             => new TableGoal<T1, T2, T3, T4>(this, arg1, arg2,arg3, arg4);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3]];
+        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -1137,7 +1137,7 @@ namespace TED
             => new TableGoal<T1, T2, T3, T4, T5>(this, arg1, arg2,arg3, arg4, arg5);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4]];
+        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -1386,7 +1386,7 @@ namespace TED
             => new TableGoal<T1, T2, T3, T4, T5, T6>(this, arg1, arg2,arg3, arg4, arg5, arg6);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4], (Term<T6>)args[5]];
+        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4], (Term<T6>)args[5]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)

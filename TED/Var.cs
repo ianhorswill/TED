@@ -9,7 +9,7 @@ namespace TED
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [DebuggerDisplay("{DebugName}")]
-    public class Var<T> : Term<T>, IColumnSpec<T>
+    public class Var<T> : Term<T>, IColumnSpec<T>, IVariable
     {
         /// <summary>
         /// Make a new variable
@@ -27,11 +27,6 @@ namespace TED
 
         /// <inheritdoc />
         public string ColumnName => Name;
-        
-        /// <summary>
-        /// Yes, this is a variable
-        /// </summary>
-        public override bool IsVariable => true;
         
         /// <summary>
         /// Make a TED variable of the specified type and name
@@ -58,7 +53,7 @@ namespace TED
         /// <summary>
         /// Make a different variable with the same name and type
         /// </summary>
-        public AnyTerm Clone() => new Var<T>(Name);
+        public Term Clone() => new Var<T>(Name);
 
         /// <summary>
         /// Make a column spec for this variable that specifies the column should be indexed as a key
@@ -74,6 +69,6 @@ namespace TED
 
         public Var<T> TypedVariable => this;
 
-        public AnyTerm UntypedVariable => this;
+        public IVariable UntypedVariable => this;
     }
 }

@@ -6,7 +6,7 @@
     /// <typeparam name="T1">Type of predicate argument</typeparam>
     public class TableGoal<T1> : AnyTableGoal
     {
-        public TableGoal(TablePredicate predicate, Term<T1> arg1) : base(predicate, new AnyTerm[] { arg1 })
+        public TableGoal(TablePredicate predicate, Term<T1> arg1) : base(predicate, new Term[] { arg1 })
         {
             Arg1 = arg1;
         }
@@ -59,7 +59,7 @@
     /// <typeparam name="T2">Type of predicate's second argument</typeparam>
     public class TableGoal<T1, T2> : AnyTableGoal
     {
-        public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2) : base(predicate, new AnyTerm[] { arg1, arg2 })
+        public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2) : base(predicate, new Term[] { arg1, arg2 })
         {
             Arg1 = arg1;
             Arg2 = arg2;
@@ -130,7 +130,7 @@
     /// <typeparam name="T3">Type of predicate's third argument</typeparam>
     public class TableGoal<T1, T2, T3> : AnyTableGoal
     {
-        public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3) : base(predicate, new AnyTerm[] { arg1, arg2, arg3 })
+        public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3) : base(predicate, new Term[] { arg1, arg2, arg3 })
         {
             Arg1 = arg1;
             Arg2 = arg2;
@@ -213,7 +213,7 @@
     /// <typeparam name="T4">Type of predicate's fourth argument</typeparam>
     public class TableGoal<T1, T2, T3, T4> : AnyTableGoal
     {
-        public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4) : base(predicate, new AnyTerm[] { arg1, arg2, arg3, arg4 })
+        public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4) : base(predicate, new Term[] { arg1, arg2, arg3, arg4 })
         {
             Arg1 = arg1;
             Arg2 = arg2;
@@ -305,7 +305,7 @@
     /// <typeparam name="T5">Type of predicate's fifth argument</typeparam>
     public class TableGoal<T1, T2, T3, T4, T5> : AnyTableGoal
     {
-        public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5) : base(predicate, new AnyTerm[] { arg1, arg2, arg3, arg4, arg5 })
+        public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5) : base(predicate, new Term[] { arg1, arg2, arg3, arg4, arg5 })
         {
             Arg1 = arg1;
             Arg2 = arg2;
@@ -408,7 +408,7 @@
     /// <typeparam name="T6">Type of predicate's sixth argument</typeparam>
     public class TableGoal<T1, T2, T3, T4, T5, T6> : AnyTableGoal
     {
-        public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6) : base(predicate, new AnyTerm[] { arg1, arg2, arg3, arg4, arg5, arg6 })
+        public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6) : base(predicate, new Term[] { arg1, arg2, arg3, arg4, arg5, arg6 })
         {
             Arg1 = arg1;
             Arg2 = arg2;

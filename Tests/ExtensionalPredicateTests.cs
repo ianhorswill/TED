@@ -121,7 +121,7 @@ namespace Tests
             var m = (Var<MethodInfo>)"m";
             var rt = (Var<Type>)"rt";
             var Methods = Predicate("methods",
-                typeof(AnyTerm).Assembly.DefinedTypes.SelectMany(t => t.GetMethods().Select(m => (t, m, m.ReturnType))),
+                typeof(Term).Assembly.DefinedTypes.SelectMany(t => t.GetMethods().Select(m => (t, m, m.ReturnType))),
                 t, m, rt);
 
             var HasBoolMethod = Predicate("HasBoolMethods", t).If(Methods[t, m, typeof(bool)]);

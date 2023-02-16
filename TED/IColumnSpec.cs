@@ -12,7 +12,7 @@ namespace TED
         /// <summary>
         /// Default variable for this column
         /// </summary>
-        AnyTerm UntypedVariable { get; }
+        IVariable UntypedVariable { get; }
 
         /// <summary>
         /// Whether to index this column
@@ -46,7 +46,7 @@ namespace TED
         /// </summary>
         public Var<T> TypedVariable => variable;
 
-        public AnyTerm UntypedVariable => variable;
+        public IVariable UntypedVariable => variable;
 
         /// <summary>
         /// Whether to maintain an index for the column

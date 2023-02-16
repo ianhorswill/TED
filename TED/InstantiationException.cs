@@ -9,7 +9,7 @@ namespace TED
     {
         public InstantiationException(string message) : base(message)
         { }
-        public InstantiationException(AnyPredicate p, AnyTerm t)
+        public InstantiationException(AnyPredicate p, Term t)
             : base($"{p.Name} called with improperly instantiated argument {t}")
         { }
     }

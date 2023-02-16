@@ -33,7 +33,7 @@ namespace TED
 
             public override AnyPredicate Predicate => Primitive;
 
-            public Goal(PrimitivePredicate<T1> predicate, Term<T1> arg1)  : base(new AnyTerm[] {arg1})
+            public Goal(PrimitivePredicate<T1> predicate, Term<T1> arg1)  : base(new Term[] {arg1})
             {
                 Primitive = predicate;
                 Arg1 = arg1;
@@ -86,7 +86,7 @@ namespace TED
             public override AnyPredicate Predicate => Primitive;
 
 
-            public Goal(PrimitivePredicate<T1, T2> primitive, Term<T1> arg1, Term<T2> arg2) : base(new AnyTerm[] {arg1, arg2})
+            public Goal(PrimitivePredicate<T1, T2> primitive, Term<T1> arg1, Term<T2> arg2) : base(new Term[] {arg1, arg2})
             {
                 Primitive = primitive;
                 Arg1 = arg1;
@@ -142,7 +142,7 @@ namespace TED
             public override AnyPredicate Predicate => Primitive;
 
             public Goal(PrimitivePredicate<T1, T2, T3> primitive, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3) 
-                : base(new AnyTerm[] { arg1, arg2, arg3 })
+                : base(new Term[] { arg1, arg2, arg3 })
             {
                 Primitive = primitive;
                 Arg1 = arg1;
@@ -201,7 +201,7 @@ namespace TED
             public override AnyPredicate Predicate => Primitive;
 
             public Goal(PrimitivePredicate<T1, T2, T3, T4> primitive, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4)
-                : base(new AnyTerm[] { arg1, arg2, arg3, arg4 })
+                : base(new Term[] { arg1, arg2, arg3, arg4 })
             {
                 Primitive = primitive;
                 Arg1 = arg1;

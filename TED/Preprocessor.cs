@@ -88,8 +88,8 @@ namespace TED
         /// <summary>
         /// The arguments of the goal that happen to be functional expressions.
         /// </summary>
-        public static IEnumerable<AnyTerm> FunctionalExpressions(AnyGoal g) =>
-            g.Arguments.Where(a => a.IsFunctionalExpression);
+        public static IEnumerable<IFunctionalExpression> FunctionalExpressions(AnyGoal g) =>
+            g.Arguments.Where(a => a is IFunctionalExpression).Cast<IFunctionalExpression>();
 
         internal static (bool isHoisted, AnyGoal hoistedGoal, IEnumerable<AnyGoal> hoistedFunctionalExpressions)
             HoistedVersion(AnyGoal g)
