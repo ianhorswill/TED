@@ -19,6 +19,7 @@ namespace TablePredicateViewer
             
             // Variables for rules
             var person = (Var<string>)"person";
+            var name = (Var<string>)"name";
             var sex = (Var<string>)"sex";
             var age = (Var<int>)"age";
             var woman = (Var<string>)"woman";
@@ -29,8 +30,8 @@ namespace TablePredicateViewer
             // Predicates loaded from disk
             var Person = TablePredicate<string, string, int>.FromCsv("../../../Population.csv", person, sex, age);
             Person.IndexBy(1);
-            var MaleName = TablePredicate<string>.FromCsv("../../../male_name.csv", person);
-            var FemaleName = TablePredicate<string>.FromCsv("../../../female_name.csv", person);
+            var MaleName = TablePredicate<string>.FromCsv("../../../male_name.csv", name);
+            var FemaleName = TablePredicate<string>.FromCsv("../../../female_name.csv", name);
 
             // Death
             var Dead = Predicate("Dead", person);

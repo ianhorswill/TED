@@ -2,8 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+
+// ReSharper disable UnusedMember.Global
 
 namespace TED
 {
@@ -31,9 +34,6 @@ namespace TED
 
                     case IndexMode.NonKey:
                         IndexBy(i);
-                        break;
-
-                    default:
                         break;
                 }
         }
@@ -80,6 +80,11 @@ namespace TED
         public abstract AnyTableGoal GetGoal(AnyTerm[] args);
 
         /// <summary>
+        /// A call to this predicate using it's "default" arguments
+        /// </summary>
+        public AnyTableGoal DefaultGoal => GetGoal(DefaultVariables);
+
+        /// <summary>
         /// Add a key index
         /// </summary>
         public void IndexByKey(int columnIndex) => AddIndex(columnIndex, true);
@@ -97,6 +102,7 @@ namespace TED
         /// <summary>
         /// Add an index; the column isn't a key, i.e. rows aren't assumed to have unique values for this column
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public void IndexBy(AnyTerm column) => AddIndex(column, false);
 
         private void AddIndex(AnyTerm t, bool keyIndex)
@@ -105,6 +111,9 @@ namespace TED
             AddIndex(index, keyIndex);
         }
 
+        /// <summary>
+        /// Find the column/argument position of an argument, given the variable used to declare it.
+        /// </summary>
         protected int ColumnPositionOfDefaultVariable(AnyTerm t)
         {
             if (DefaultVariables == null)
@@ -116,6 +125,9 @@ namespace TED
             return index;
         }
 
+        /// <summary>
+        /// Add an index to the predicate's table
+        /// </summary>
         protected abstract void AddIndex(int columnIndex, bool keyIndex);
 
         /// <summary>
@@ -130,6 +142,7 @@ namespace TED
         /// <summary>
         /// All indices for the table
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public IEnumerable<TableIndex> Indices => TableUntyped.Indices;
 
         /// <summary>
@@ -153,6 +166,7 @@ namespace TED
         /// A predicate is "extensional" if it is defined by directly specifying its extension (the set of it instances/rows)
         /// using AddRow.  If it's defined by rules, it's "intensional".
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public bool IsExtensional => Rules == null;
 
         /// <summary>
@@ -185,7 +199,7 @@ namespace TED
         }
 
         /// <summary>
-        /// Force the recomputation of an intensional table
+        /// Force the re-computation of an intensional table
         /// </summary>
         public void ForceRecompute()
         {
@@ -205,13 +219,10 @@ namespace TED
             MustRecompute = true;
         }
 
-        protected void AddRule(params AnyGoal[] body)
-        {
-            if (DefaultVariables == null)
-                throw new ArgumentException(
-                    $"Can't call TrueWhen on predicate {Name} that has no default variables specified");
-            this[DefaultVariables].If(body);
-        }
+        /// <summary>
+        /// Add a rule that concludes the default arguments of this predicate
+        /// </summary>
+        protected void AddRule(params AnyGoal[] body) => DefaultGoal.If(body);
 
         /// <summary>
         /// Null-tolerant version of ToString.
@@ -241,7 +252,24 @@ namespace TED
         /// </summary>
         internal abstract void AppendInputs();
 
-        public static implicit operator AnyGoal(TablePredicate p) => p.GetGoal(p.DefaultVariables);
+        /// <summary>
+        /// If you put a predicate in a rule body without arguments, it defaults to the rule's "default" arguments.
+        /// </summary>
+        public static implicit operator AnyGoal(TablePredicate p) => p.DefaultGoal;
+
+        /// <summary>
+        /// Verify that the header row of a CSV file matches the declared variable names
+        /// </summary>
+        protected static void VerifyCsvColumnNames(string name, string[] headerRow, params IColumnSpec[] args)
+        {
+            if (headerRow.Length != args.Length)
+                throw new InvalidDataException(
+                    $"Predicate {name} declared with {args.Length} arguments, but CSV file contains {headerRow.Length} columns");
+            for (var i = 0; i < headerRow.Length; i++)
+                if (string.Compare(headerRow[i], args[i].ColumnName, true, CultureInfo.InvariantCulture) != 0)
+                    throw new InvalidDataException(
+                        $"For predicate {name}, the column name {headerRow[i]} in the CSV file does not match the declared name {args[i].ColumnName}");
+        }
     }
 
     /// <summary>
@@ -255,8 +283,10 @@ namespace TED
         /// </summary>
         public TableGoal<T1> this[Term<T1> arg1] => new TableGoal<T1>(this, arg1);
 
+        /// <inheritdoc />
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0]];
 
+        /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
         {
             throw new NotImplementedException("Single-column tables shouldn't be indexed.  Instead, set the Unique property to true.");
@@ -287,10 +317,12 @@ namespace TED
         /// </summary>
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Default argument to the predicate</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1> FromCsv(string name, string path, IColumnSpec<T1> arg1)
         {
             var (header, data) = CsvReader.ReadCsv(path);
+            VerifyCsvColumnNames(name, header, arg1);
             var p = new TablePredicate<T1>(name, arg1);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]));
@@ -301,6 +333,7 @@ namespace TED
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Argument to the predicate</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1> FromCsv(string path, IColumnSpec<T1> arg1) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1);
 
@@ -383,6 +416,8 @@ namespace TED
         /// <summary>
         /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
         /// </summary>
+        /// <param name="input">Predicate to append to this predicate on each tick</param>
+        /// <returns>This predicate</returns>
         public TablePredicate<T1> Accumulates(TablePredicate<T1> input)
         {
             inputs ??= new List<TablePredicate<T1>>();
@@ -396,6 +431,7 @@ namespace TED
                 foreach (var input in inputs) Append(input);
         }
 
+        /// <inheritdoc />
         public IEnumerator<T1> GetEnumerator() => Table.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -416,8 +452,10 @@ namespace TED
         /// </summary>
         public TableGoal<T1, T2> this[Term<T1> arg1, Term<T2> arg2] => new TableGoal<T1, T2>(this, arg1, arg2);
 
+        /// <inheritdoc />
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1]];
 
+        /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
         {
             switch (columnIndex)
@@ -494,21 +532,26 @@ namespace TED
         /// </summary>
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2)
         {
             var (header, data) = CsvReader.ReadCsv(path);
+            VerifyCsvColumnNames(name, header, arg1, arg2);
             var p = new TablePredicate<T1, T2>(name, arg1, arg2);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]));
             return p;
         }
 
-        
+
         /// <summary>
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2);
 
@@ -557,6 +600,11 @@ namespace TED
         
         private List<TablePredicate<T1, T2>>? inputs;
 
+        /// <summary>
+        /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
+        /// </summary>
+        /// <param name="input">Predicate to append to this predicate on each tick</param>
+        /// <returns>This predicate</returns>
         public TablePredicate<T1, T2> Accumulates(TablePredicate<T1, T2> input)
         {
             inputs ??= new List<TablePredicate<T1, T2>>();
@@ -600,6 +648,7 @@ namespace TED
             return (KeyIndex<(T1, T2), T>)i;
         }
 
+        /// <inheritdoc />
         public IEnumerator<(T1, T2)> GetEnumerator() => Table.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -621,8 +670,10 @@ namespace TED
         /// </summary>
         public TableGoal<T1, T2, T3> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] => new TableGoal<T1, T2, T3>(this, arg1, arg2,arg3);
 
+        /// <inheritdoc />
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2]];
 
+        /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
         {
             switch (columnIndex)
@@ -734,10 +785,14 @@ namespace TED
         /// </summary>
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3)
         {
             var (header, data) = CsvReader.ReadCsv(path);
+            VerifyCsvColumnNames(name, header, arg1, arg2, arg3);
             var p = new TablePredicate<T1, T2, T3>(name, arg1, arg2, arg3);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]), CsvReader.ConvertCell<T3>(row[2]));
@@ -749,6 +804,9 @@ namespace TED
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3);
 
@@ -798,6 +856,11 @@ namespace TED
 
         private List<TablePredicate<T1, T2, T3>>? inputs;
 
+        /// <summary>
+        /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
+        /// </summary>
+        /// <param name="input">Predicate to append to this predicate on each tick</param>
+        /// <returns>This predicate</returns>
         public TablePredicate<T1, T2, T3> Accumulates(TablePredicate<T1, T2, T3> input)
         {
             inputs ??= new List<TablePredicate<T1, T2, T3>>();
@@ -811,6 +874,7 @@ namespace TED
                 foreach (var input in inputs) Append(input);
         }
 
+        /// <inheritdoc />
         public IEnumerator<(T1, T2, T3)> GetEnumerator() => Table.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -834,8 +898,10 @@ namespace TED
         public TableGoal<T1, T2, T3, T4> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4] 
             => new TableGoal<T1, T2, T3, T4>(this, arg1, arg2,arg3, arg4);
 
+        /// <inheritdoc />
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3]];
 
+        /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
         {
             switch (columnIndex)
@@ -947,16 +1013,21 @@ namespace TED
                     yield return e;
             }
         }
-        
+
         /// <summary>
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
+        /// <param name="arg4">Fourth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4)
         {
             var (header, data) = CsvReader.ReadCsv(path);
+            VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4);
             var p = new TablePredicate<T1, T2, T3, T4>(name, arg1, arg2, arg3, arg4);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]), CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]));
@@ -968,6 +1039,10 @@ namespace TED
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
+        /// <param name="arg4">Fourth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4);
 
@@ -1018,6 +1093,11 @@ namespace TED
 
         private List<TablePredicate<T1, T2, T3, T4>>? inputs;
 
+        /// <summary>
+        /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
+        /// </summary>
+        /// <param name="input">Predicate to append to this predicate on each tick</param>
+        /// <returns>This predicate</returns>
         public TablePredicate<T1, T2, T3, T4> Accumulates(TablePredicate<T1, T2, T3, T4> input)
         {
             inputs ??= new List<TablePredicate<T1, T2, T3, T4>>();
@@ -1031,6 +1111,7 @@ namespace TED
                 foreach (var input in inputs) Append(input);
         }
 
+        /// <inheritdoc />
         public IEnumerator<(T1, T2, T3, T4)> GetEnumerator() => Table.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -1055,8 +1136,10 @@ namespace TED
         public TableGoal<T1, T2, T3, T4, T5> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5] 
             => new TableGoal<T1, T2, T3, T4, T5>(this, arg1, arg2,arg3, arg4, arg5);
 
+        /// <inheritdoc />
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4]];
 
+        /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
         {
             switch (columnIndex)
@@ -1174,16 +1257,22 @@ namespace TED
                     yield return e;
             }
         }
-        
+
         /// <summary>
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
+        /// <param name="arg4">Fourth argument</param>
+        /// <param name="arg5">Fifth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5)
         {
             var (header, data) = CsvReader.ReadCsv(path);
+            VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5);
             var p = new TablePredicate<T1, T2, T3, T4, T5>(name, arg1, arg2, arg3, arg4, arg5);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
@@ -1195,6 +1284,11 @@ namespace TED
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
+        /// <param name="arg4">Fourth argument</param>
+        /// <param name="arg5">Fifth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5);
 
@@ -1247,6 +1341,11 @@ namespace TED
 
         private List<TablePredicate<T1, T2, T3, T4, T5>>? inputs;
 
+        /// <summary>
+        /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
+        /// </summary>
+        /// <param name="input">Predicate to append to this predicate on each tick</param>
+        /// <returns>This predicate</returns>
         public TablePredicate<T1, T2, T3, T4, T5> Accumulates(TablePredicate<T1, T2, T3, T4, T5> input)
         {
             inputs ??= new List<TablePredicate<T1, T2, T3, T4, T5>>();
@@ -1260,6 +1359,7 @@ namespace TED
                 foreach (var input in inputs) Append(input);
         }
 
+        /// <inheritdoc />
         public IEnumerator<(T1, T2, T3, T4, T5)> GetEnumerator() => Table.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -1285,8 +1385,10 @@ namespace TED
         public TableGoal<T1, T2, T3, T4, T5, T6> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6] 
             => new TableGoal<T1, T2, T3, T4, T5, T6>(this, arg1, arg2,arg3, arg4, arg5, arg6);
 
+        /// <inheritdoc />
         public override AnyTableGoal GetGoal(AnyTerm[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4], (Term<T6>)args[5]];
 
+        /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
         {
             switch (columnIndex)
@@ -1414,10 +1516,17 @@ namespace TED
         /// </summary>
         /// <param name="name">Predicate name</param>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
+        /// <param name="arg4">Fourth argument</param>
+        /// <param name="arg5">Fifth argument</param>
+        /// <param name="arg6">Sixth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6)
         {
             var (header, data) = CsvReader.ReadCsv(path);
+            VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5, arg6);
             var p = new TablePredicate<T1, T2, T3, T4, T5, T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
             foreach (var row in data)
                 p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
@@ -1430,6 +1539,12 @@ namespace TED
         /// Read an extensional predicate from a CSV file
         /// </summary>
         /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
+        /// <param name="arg4">Fourth argument</param>
+        /// <param name="arg5">Fifth argument</param>
+        /// <param name="arg6">Sixth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6);
 
@@ -1483,6 +1598,11 @@ namespace TED
 
         private List<TablePredicate<T1, T2, T3, T4, T5, T6>>? inputs;
 
+        /// <summary>
+        /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
+        /// </summary>
+        /// <param name="input">Predicate to append to this predicate on each tick</param>
+        /// <returns>This predicate</returns>
         public TablePredicate<T1, T2, T3, T4, T5, T6> Accumulates(TablePredicate<T1, T2, T3, T4, T5, T6> input)
         {
             inputs ??= new List<TablePredicate<T1, T2, T3, T4, T5, T6>>();
@@ -1496,6 +1616,7 @@ namespace TED
                 foreach (var input in inputs) Append(input);
         }
 
+        /// <inheritdoc />
         public IEnumerator<(T1, T2, T3, T4, T5, T6)> GetEnumerator() => Table.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator()
         {

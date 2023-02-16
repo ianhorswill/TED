@@ -24,6 +24,9 @@ namespace TED
         /// Name of the variable, for debugging purposes
         /// </summary>
         public readonly string Name;
+
+        /// <inheritdoc />
+        public string ColumnName => Name;
         
         /// <summary>
         /// Yes, this is a variable

@@ -4,12 +4,27 @@ using System.Text;
 
 namespace TED
 {
+    /// <summary>
+    /// A specification of a column/argument in the declaration of a table predicate
+    /// </summary>
     public interface IColumnSpec
     {
+        /// <summary>
+        /// Default variable for this column
+        /// </summary>
         AnyTerm UntypedVariable { get; }
+
+        /// <summary>
+        /// Whether to index this column
+        /// </summary>
         IndexMode IndexMode { get; }
 
+        /// <summary>
+        /// Name of this column
+        /// </summary>
+        string ColumnName { get; }
     }
+
     /// <summary>
     /// Used in the constructor of a TablePredicate to specify information about a column (argument) of the table
     /// </summary>
@@ -49,5 +64,6 @@ namespace TED
             mode = indexMode;
         }
 
+        public string ColumnName => variable.Name;
     }
 }
