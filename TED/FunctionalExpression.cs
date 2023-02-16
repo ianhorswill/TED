@@ -6,7 +6,7 @@
     public abstract class FunctionalExpression<T> : Term<T>, IFunctionalExpression
     {
         /// <inheritdoc />
-        public (Term Expression, Term Var, AnyGoal EvalGoal) HoistInfo()
+        public (Term Expression, Term Var, Goal EvalGoal) HoistInfo()
         {
             var v = new Var<T>("temp");
             return (this, v, Language.Eval(v, this));

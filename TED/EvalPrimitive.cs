@@ -18,17 +18,17 @@ namespace TED
         {
         }
 
-        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc) =>
+        public override Call MakeCall(Goal g, GoalAnalyzer tc) =>
             new EvalCall(this, tc.Emit(g.Arg1), g.Arg2.MakeEvaluator(tc), g);
 
-        private class EvalCall : AnyCall
+        private class EvalCall : Call
         {
             private readonly MatchOperation<T> matcher;
             private readonly Func<T> expressionEvaluator;
             private readonly Goal originalGoal;
             private bool restarted;
 
-            public EvalCall(AnyPredicate p, MatchOperation<T> matcher, Func<T> expressionEvaluator, Goal originalGoal) : base(p)
+            public EvalCall(Predicate p, MatchOperation<T> matcher, Func<T> expressionEvaluator, Goal originalGoal) : base(p)
             {
                 this.matcher = matcher;
                 this.expressionEvaluator = expressionEvaluator;

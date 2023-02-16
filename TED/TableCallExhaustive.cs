@@ -1,12 +1,34 @@
 ﻿namespace TED
 {
+    /// <summary>
+    /// The iterator that handles calls to a TablePredicate that cannot be accelerated using a hash table
+    /// (index or RowSet).  This will test every row of the table against the call pattern.  This can be avoided
+    /// under the right circumstances by adding an index and/or setting the Unique property of the TablePredicate.
+    /// </summary>
+    internal abstract class TableCallExhaustive : Call
+    {
+        /// <summary>
+        /// What row we will text next in the table
+        /// </summary>
+        protected uint RowIndex;
+
+        /// <summary>
+        /// Move back to the beginning of the table.
+        /// </summary>
+        public override void Reset() => RowIndex = 0;
+
+        protected TableCallExhaustive(Predicate predicate) : base(predicate)
+        {
+        }
+    }
+
     //
     // This implements a call to a table predicate by exhaustively comparing the arguments to each row.
     // This is the call implementation of last resort and will not be used if there is an index or other hash
     // table that can be used to reduce the search.
     //
 
-    internal class TableCallExhaustive<T1> : AnyTableCallExhaustive
+    internal class TableCallExhaustive<T1> : TableCallExhaustive
     {
         public readonly TablePredicate<T1> TablePredicate;
         public readonly Pattern<T1> Pattern;
@@ -29,7 +51,7 @@
         }
     }
 
-    internal class TableCallExhaustive<T1, T2> : AnyTableCallExhaustive
+    internal class TableCallExhaustive<T1, T2> : TableCallExhaustive
     {
         public readonly TablePredicate<T1, T2> TablePredicate;
         public readonly Pattern<T1, T2> Pattern;
@@ -52,7 +74,7 @@
         }
     }
 
-    internal class TableCallExhaustive<T1, T2, T3> : AnyTableCallExhaustive
+    internal class TableCallExhaustive<T1, T2, T3> : TableCallExhaustive
     {
         public readonly TablePredicate<T1, T2, T3> TablePredicate;
         public readonly Pattern<T1, T2, T3> Pattern;
@@ -75,7 +97,7 @@
         }
     }
 
-    internal class TableCallExhaustive<T1, T2, T3, T4> : AnyTableCallExhaustive
+    internal class TableCallExhaustive<T1, T2, T3, T4> : TableCallExhaustive
     {
         public readonly TablePredicate<T1, T2, T3, T4> TablePredicate;
         public readonly Pattern<T1, T2, T3, T4> Pattern;
@@ -98,7 +120,7 @@
         }
     }
 
-    internal class TableCallExhaustive<T1, T2, T3, T4, T5> : AnyTableCallExhaustive
+    internal class TableCallExhaustive<T1, T2, T3, T4, T5> : TableCallExhaustive
     {
         public readonly TablePredicate<T1, T2, T3, T4, T5> TablePredicate;
         public readonly Pattern<T1, T2, T3, T4, T5> Pattern;
@@ -121,7 +143,7 @@
         }
     }
 
-    internal class TableCallExhaustive<T1, T2, T3, T4, T5, T6> : AnyTableCallExhaustive
+    internal class TableCallExhaustive<T1, T2, T3, T4, T5, T6> : TableCallExhaustive
     {
         public readonly TablePredicate<T1, T2, T3, T4, T5, T6> TablePredicate;
         public readonly Pattern<T1, T2, T3, T4, T5, T6> Pattern;

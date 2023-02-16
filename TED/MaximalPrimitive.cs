@@ -3,7 +3,7 @@
     /// <summary>
     /// Implements negation of a goal
     /// </summary>
-    internal sealed class MaximalPrimitive<T1> : AnyPredicate
+    internal sealed class MaximalPrimitive<T1> : Predicate
     {
         public static MaximalPrimitive<T1> Maximal = new MaximalPrimitive<T1>(1);
         public static MaximalPrimitive<T1> Minimal = new MaximalPrimitive<T1>(-1);
@@ -15,16 +15,16 @@
             Multiplier = multiplier;
         }
 
-        public Goal this[Var<T1> arg, Var<float> utility, AnyGoal g] => new Goal(this, arg, utility, new Constant<AnyGoal>(g));
+        public Goal this[Var<T1> arg, Var<float> utility, TED.Goal g] => new Goal(this, arg, utility, new Constant<TED.Goal>(g));
 
-        public class Goal : AnyGoal
+        public class Goal : TED.Goal
         {
             private readonly MaximalPrimitive<T1> predicate;
             private readonly Var<T1> Arg;
             private readonly Var<float> Utility;
-            private readonly AnyGoal Generator;
+            private readonly TED.Goal Generator;
 
-            public Goal(MaximalPrimitive<T1> predicate, Var<T1> arg, Var<float> utility, Constant<AnyGoal> g) : base(new Term[] { arg, utility, g })
+            public Goal(MaximalPrimitive<T1> predicate, Var<T1> arg, Var<float> utility, Constant<TED.Goal> g) : base(new Term[] { arg, utility, g })
             {
                 Arg = arg;
                 Utility = utility;
@@ -32,12 +32,12 @@
                 Generator = g.Value;
             }
 
-            public override AnyPredicate Predicate => predicate;
+            public override Predicate Predicate => predicate;
 
-            internal override AnyGoal RenameArguments(Substitution s)
-                => new Goal(predicate, (Var<T1>)s.SubstituteVariable(Arg), (Var<float>)s.SubstituteVariable(Utility), new Constant<AnyGoal>(Generator.RenameArguments(s)));
+            internal override TED.Goal RenameArguments(Substitution s)
+                => new Goal(predicate, (Var<T1>)s.SubstituteVariable(Arg), (Var<float>)s.SubstituteVariable(Utility), new Constant<TED.Goal>(Generator.RenameArguments(s)));
 
-            internal override AnyCall MakeCall(GoalAnalyzer ga)
+            internal override TED.Call MakeCall(GoalAnalyzer ga)
             {
                 if (ga.IsInstantiated(Arg))
                     throw new InstantiationException(Maximal, Arg);
@@ -55,15 +55,15 @@
             }
         }
 
-        private class Call : AnyCall
+        private class Call : TED.Call
         {
             private readonly MaximalPrimitive<T1> predicate;
             private readonly MatchOperation<T1> Arg;
             private readonly MatchOperation<float> Utility;
-            private readonly AnyCall Goal;
+            private readonly TED.Call Goal;
             private bool restart;
 
-            public Call(MaximalPrimitive<T1> predicate, MatchOperation<T1> arg, MatchOperation<float> utility, AnyCall call) : base(Maximal)
+            public Call(MaximalPrimitive<T1> predicate, MatchOperation<T1> arg, MatchOperation<float> utility, TED.Call call) : base(Maximal)
             {
                 Arg = arg;
                 Utility = utility;
@@ -71,8 +71,8 @@
                 this.predicate = predicate;
             }
 
-            public override IPattern ArgumentPattern => new Pattern<T1, float, AnyCall>(Arg, Utility,
-                MatchOperation<AnyCall>.Constant(Goal));
+            public override IPattern ArgumentPattern => new Pattern<T1, float, TED.Call>(Arg, Utility,
+                MatchOperation<TED.Call>.Constant(Goal));
 
             public override void Reset()
             {
@@ -115,7 +115,7 @@
     /// <summary>
     /// Implements negation of a goal
     /// </summary>
-    public sealed class MaximalPrimitive<T1, T2> : AnyPredicate
+    public sealed class MaximalPrimitive<T1, T2> : Predicate
     {
         public static MaximalPrimitive<T1, T2> Maximal = new MaximalPrimitive<T1, T2>(1);
         public static MaximalPrimitive<T1, T2> Minimal = new MaximalPrimitive<T1, T2>(-1);
@@ -127,17 +127,17 @@
             Multiplier = multiplier;
         }
 
-        public Goal this[Var<T1> arg1, Var<T2> arg2, Var<float> utility, AnyGoal g] => new Goal(this, arg1, arg2, utility, new Constant<AnyGoal>(g));
+        public Goal this[Var<T1> arg1, Var<T2> arg2, Var<float> utility, TED.Goal g] => new Goal(this, arg1, arg2, utility, new Constant<TED.Goal>(g));
 
-        public class Goal : AnyGoal
+        public class Goal : TED.Goal
         {
             private readonly MaximalPrimitive<T1, T2> predicate;
             private readonly Var<T1> Arg1;
             private readonly Var<T2> Arg2;
             private readonly Var<float> Utility;
-            private readonly AnyGoal Generator;
+            private readonly TED.Goal Generator;
 
-            public Goal(MaximalPrimitive<T1, T2> predicate, Var<T1> arg1, Var<T2> arg2, Var<float> utility, Constant<AnyGoal> g) : base(new Term[] { arg1, utility, g })
+            public Goal(MaximalPrimitive<T1, T2> predicate, Var<T1> arg1, Var<T2> arg2, Var<float> utility, Constant<TED.Goal> g) : base(new Term[] { arg1, utility, g })
             {
                 Arg1 = arg1;
                 Arg2 = arg2;
@@ -146,12 +146,12 @@
                 Generator = g.Value;
             }
 
-            public override AnyPredicate Predicate => predicate;
+            public override Predicate Predicate => predicate;
 
-            internal override AnyGoal RenameArguments(Substitution s)
-                => new Goal(predicate, (Var<T1>)s.SubstituteVariable(Arg1), (Var<T2>)s.SubstituteVariable(Arg2), (Var<float>)s.SubstituteVariable(Utility), new Constant<AnyGoal>(Generator.RenameArguments(s)));
+            internal override TED.Goal RenameArguments(Substitution s)
+                => new Goal(predicate, (Var<T1>)s.SubstituteVariable(Arg1), (Var<T2>)s.SubstituteVariable(Arg2), (Var<float>)s.SubstituteVariable(Utility), new Constant<TED.Goal>(Generator.RenameArguments(s)));
 
-            internal override AnyCall MakeCall(GoalAnalyzer ga)
+            internal override TED.Call MakeCall(GoalAnalyzer ga)
             {
                 if (ga.IsInstantiated(Arg1))
                     throw new InstantiationException(Maximal, Arg1);
@@ -173,16 +173,16 @@
             }
         }
 
-        private class Call : AnyCall
+        private class Call : TED.Call
         {
             private readonly MaximalPrimitive<T1, T2> predicate;
             private readonly MatchOperation<T1> Arg1;
             private readonly MatchOperation<T2> Arg2;
             private readonly MatchOperation<float> Utility;
-            private readonly AnyCall Goal;
+            private readonly TED.Call Goal;
             private bool restart;
 
-            public Call(MaximalPrimitive<T1, T2> predicate, MatchOperation<T1> arg1, MatchOperation<T2> arg2, MatchOperation<float> utility, AnyCall call) : base(Maximal)
+            public Call(MaximalPrimitive<T1, T2> predicate, MatchOperation<T1> arg1, MatchOperation<T2> arg2, MatchOperation<float> utility, TED.Call call) : base(Maximal)
             {
                 Arg1 = arg1;
                 Arg2 = arg2;
@@ -191,8 +191,8 @@
                 this.predicate = predicate;
             }
 
-            public override IPattern ArgumentPattern => new Pattern<T1, T2, float, AnyCall>(Arg1, Arg2, Utility,
-                MatchOperation<AnyCall>.Constant(Goal));
+            public override IPattern ArgumentPattern => new Pattern<T1, T2, float, TED.Call>(Arg1, Arg2, Utility,
+                MatchOperation<TED.Call>.Constant(Goal));
 
             public override void Reset()
             {
@@ -239,7 +239,7 @@
         /// <summary>
     /// Implements negation of a goal
     /// </summary>
-    public sealed class MaximalPrimitive<T1, T2, T3> : AnyPredicate
+    public sealed class MaximalPrimitive<T1, T2, T3> : Predicate
     {
         public static MaximalPrimitive<T1, T2, T3> Maximal = new MaximalPrimitive<T1, T2, T3>(1);
         public static MaximalPrimitive<T1, T2, T3> Minimal = new MaximalPrimitive<T1, T2, T3>(-1);
@@ -251,18 +251,18 @@
             Multiplier = multiplier;
         }
 
-        public Goal this[Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<float> utility, AnyGoal g] => new Goal(this, arg1, arg2, arg3, utility, new Constant<AnyGoal>(g));
+        public Goal this[Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<float> utility, TED.Goal g] => new Goal(this, arg1, arg2, arg3, utility, new Constant<TED.Goal>(g));
 
-        public class Goal : AnyGoal
+        public class Goal : TED.Goal
         {
             private readonly MaximalPrimitive<T1, T2, T3> predicate;
             private readonly Var<T1> Arg1;
             private readonly Var<T2> Arg2;
             private readonly Var<T3> Arg3;
             private readonly Var<float> Utility;
-            private readonly AnyGoal Generator;
+            private readonly TED.Goal Generator;
 
-            public Goal(MaximalPrimitive<T1, T2, T3> predicate, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<float> utility, Constant<AnyGoal> g) : base(new Term[] { arg1, utility, g })
+            public Goal(MaximalPrimitive<T1, T2, T3> predicate, Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<float> utility, Constant<TED.Goal> g) : base(new Term[] { arg1, utility, g })
             {
                 Arg1 = arg1;
                 Arg2 = arg2;
@@ -272,12 +272,12 @@
                 Generator = g.Value;
             }
 
-            public override AnyPredicate Predicate => predicate;
+            public override Predicate Predicate => predicate;
 
-            internal override AnyGoal RenameArguments(Substitution s)
-                => new Goal(predicate, (Var<T1>)s.SubstituteVariable(Arg1), (Var<T2>)s.SubstituteVariable(Arg2), (Var<T3>)s.SubstituteVariable(Arg3), (Var<float>)s.SubstituteVariable(Utility), new Constant<AnyGoal>(Generator.RenameArguments(s)));
+            internal override TED.Goal RenameArguments(Substitution s)
+                => new Goal(predicate, (Var<T1>)s.SubstituteVariable(Arg1), (Var<T2>)s.SubstituteVariable(Arg2), (Var<T3>)s.SubstituteVariable(Arg3), (Var<float>)s.SubstituteVariable(Utility), new Constant<TED.Goal>(Generator.RenameArguments(s)));
 
-            internal override AnyCall MakeCall(GoalAnalyzer ga)
+            internal override TED.Call MakeCall(GoalAnalyzer ga)
             {
                 if (ga.IsInstantiated(Arg1))
                     throw new InstantiationException(Maximal, Arg1);
@@ -299,17 +299,17 @@
             }
         }
 
-        private class Call : AnyCall
+        private class Call : TED.Call
         {
             private readonly MaximalPrimitive<T1, T2, T3> predicate;
             private readonly MatchOperation<T1> Arg1;
             private readonly MatchOperation<T2> Arg2;
             private readonly MatchOperation<T3> Arg3;
             private readonly MatchOperation<float> Utility;
-            private readonly AnyCall Goal;
+            private readonly TED.Call Goal;
             private bool restart;
 
-            public Call(MaximalPrimitive<T1, T2, T3> predicate, MatchOperation<T1> arg1, MatchOperation<T2> arg2, MatchOperation<T3> arg3, MatchOperation<float> utility, AnyCall call) : base(Maximal)
+            public Call(MaximalPrimitive<T1, T2, T3> predicate, MatchOperation<T1> arg1, MatchOperation<T2> arg2, MatchOperation<T3> arg3, MatchOperation<float> utility, TED.Call call) : base(Maximal)
             {
                 Arg1 = arg1;
                 Arg2 = arg2;
@@ -319,8 +319,8 @@
                 this.predicate = predicate;
             }
 
-            public override IPattern ArgumentPattern => new Pattern<T1, T2, float, AnyCall>(Arg1, Arg2, Utility,
-                MatchOperation<AnyCall>.Constant(Goal));
+            public override IPattern ArgumentPattern => new Pattern<T1, T2, float, TED.Call>(Arg1, Arg2, Utility,
+                MatchOperation<TED.Call>.Constant(Goal));
 
             public override void Reset()
             {

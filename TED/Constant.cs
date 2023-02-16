@@ -39,8 +39,8 @@ namespace TED
 
         internal override Term<T> ApplySubstitution(Substitution s)
         {
-            if (this is Constant<AnyGoal> subgoal)
-                return (Term<T>)(object)(new Constant<AnyGoal>(subgoal.Value.RenameArguments(s)));
+            if (this is Constant<Goal> subgoal)
+                return (Term<T>)(object)(new Constant<Goal>(subgoal.Value.RenameArguments(s)));
             return this;
         }
     }}

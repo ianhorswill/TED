@@ -1,10 +1,50 @@
-﻿namespace TED
+﻿using System.Diagnostics;
+
+namespace TED
 {
+    /// <summary>
+    /// A TableGoal represents a table predicate applied to arguments, e.g. p["a"], p[variable], etc.
+    /// Untyped base class for all goals involving TablePredicates
+    /// </summary>
+    [DebuggerDisplay("{" + nameof(DebugName) + "}")]
+    public abstract class TableGoal : Goal
+    {
+        /// <summary>
+        /// Predicate being called
+        /// </summary>
+        public readonly TablePredicate TablePredicate;
+
+        /// <summary>
+        /// Make a new goal object
+        /// </summary>
+        protected TableGoal(TablePredicate predicate, Term[] args) : base(args)
+        {
+            TablePredicate = predicate;
+        }
+
+        /// <summary>
+        /// Add a rule for inferring this predicate from other predicates
+        /// You cannot add rules to a table you add rows to using AddRow.
+        /// </summary>
+
+        public abstract void If(params Goal[] subgoals);
+
+        /// <summary>
+        /// Add a "fact" (rule with no subgoals) to the predicate
+        /// IMPORTANT: this is different from adding the data directly using AddRow!
+        /// A TablePredicate can either either rules (including facts) or you can add data manually
+        /// using AddRow, but not both.
+        /// </summary>
+        public void Fact() => If();
+
+        /// <inheritdoc />
+        public override Predicate Predicate => TablePredicate;
+    }
     /// <summary>
     /// Abstract syntax tree representing a call to a 1-argument TablePredicate
     /// </summary>
     /// <typeparam name="T1">Type of predicate argument</typeparam>
-    public class TableGoal<T1> : AnyTableGoal
+    public class TableGoal<T1> : TableGoal
     {
         public TableGoal(TablePredicate predicate, Term<T1> arg1) : base(predicate, new Term[] { arg1 })
         {
@@ -16,7 +56,7 @@
         /// </summary>
         public readonly Term<T1> Arg1;
 
-        internal override AnyGoal RenameArguments(Substitution s) => new TableGoal<T1>((TablePredicate<T1>)Predicate, s.Substitute(Arg1));
+        internal override Goal RenameArguments(Substitution s) => new TableGoal<T1>((TablePredicate<T1>)Predicate, s.Substitute(Arg1));
 
         /// <summary>
         /// Generate a Pattern for matching the goal's argument list.
@@ -29,7 +69,7 @@
         /// </summary>
         /// <param name="ga">GoalAnalyzer to track the read/write states of argument</param>
         /// <returns></returns>
-        internal override AnyCall MakeCall(GoalAnalyzer ga)
+        internal override Call MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
             var pattern = MakePattern(ga);
@@ -43,7 +83,7 @@
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public override void If(params AnyGoal[] subgoals)
+        public override void If(params Goal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
@@ -57,7 +97,7 @@
     /// </summary>
     /// <typeparam name="T1">Type of predicate's first argument</typeparam>
     /// <typeparam name="T2">Type of predicate's second argument</typeparam>
-    public class TableGoal<T1, T2> : AnyTableGoal
+    public class TableGoal<T1, T2> : TableGoal
     {
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2) : base(predicate, new Term[] { arg1, arg2 })
         {
@@ -74,7 +114,7 @@
         /// </summary>
         public readonly Term<T2> Arg2;
 
-        internal override AnyGoal RenameArguments(Substitution s)
+        internal override Goal RenameArguments(Substitution s)
             => new TableGoal<T1,T2>((TablePredicate<T1,T2>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2));
 
         /// <summary>
@@ -88,7 +128,7 @@
         /// </summary>
         /// <param name="ga">GoalAnalyzer to track the read/write states of argument</param>
         /// <returns></returns>
-        internal override AnyCall MakeCall(GoalAnalyzer ga)
+        internal override Call MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
             var pattern = MakePattern(ga);
@@ -113,7 +153,7 @@
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public override void If(params AnyGoal[] subgoals)
+        public override void If(params Goal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
@@ -128,7 +168,7 @@
     /// <typeparam name="T1">Type of predicate's first argument</typeparam>
     /// <typeparam name="T2">Type of predicate's second argument</typeparam>
     /// <typeparam name="T3">Type of predicate's third argument</typeparam>
-    public class TableGoal<T1, T2, T3> : AnyTableGoal
+    public class TableGoal<T1, T2, T3> : TableGoal
     {
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3) : base(predicate, new Term[] { arg1, arg2, arg3 })
         {
@@ -150,7 +190,7 @@
         /// </summary>
         public readonly Term<T3> Arg3;
 
-        internal override AnyGoal RenameArguments(Substitution s)
+        internal override Goal RenameArguments(Substitution s)
             => new TableGoal<T1,T2,T3>((TablePredicate<T1,T2,T3>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3));
 
 
@@ -165,7 +205,7 @@
         /// </summary>
         /// <param name="ga">GoalAnalyzer to track the read/write states of argument</param>
         /// <returns></returns>
-        internal override AnyCall MakeCall(GoalAnalyzer ga)
+        internal override Call MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
             var pattern = MakePattern(ga);
@@ -195,7 +235,7 @@
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public override void If(params AnyGoal[] subgoals)
+        public override void If(params Goal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
@@ -211,7 +251,7 @@
     /// <typeparam name="T2">Type of predicate's second argument</typeparam>
     /// <typeparam name="T3">Type of predicate's third argument</typeparam>
     /// <typeparam name="T4">Type of predicate's fourth argument</typeparam>
-    public class TableGoal<T1, T2, T3, T4> : AnyTableGoal
+    public class TableGoal<T1, T2, T3, T4> : TableGoal
     {
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4) : base(predicate, new Term[] { arg1, arg2, arg3, arg4 })
         {
@@ -238,7 +278,7 @@
         /// </summary>
         public readonly Term<T4> Arg4;
 
-        internal override AnyGoal RenameArguments(Substitution s)
+        internal override Goal RenameArguments(Substitution s)
             => new TableGoal<T1,T2,T3,T4>((TablePredicate<T1,T2,T3,T4>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4));
 
         /// <summary>
@@ -253,7 +293,7 @@
         /// </summary>
         /// <param name="ga">GoalAnalyzer to track the read/write states of argument</param>
         /// <returns></returns>
-        internal override AnyCall MakeCall(GoalAnalyzer ga)
+        internal override Call MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
             var pattern = MakePattern(ga);
@@ -286,7 +326,7 @@
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public override void If(params AnyGoal[] subgoals)
+        public override void If(params Goal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
@@ -303,7 +343,7 @@
     /// <typeparam name="T3">Type of predicate's third argument</typeparam>
     /// <typeparam name="T4">Type of predicate's fourth argument</typeparam>
     /// <typeparam name="T5">Type of predicate's fifth argument</typeparam>
-    public class TableGoal<T1, T2, T3, T4, T5> : AnyTableGoal
+    public class TableGoal<T1, T2, T3, T4, T5> : TableGoal
     {
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5) : base(predicate, new Term[] { arg1, arg2, arg3, arg4, arg5 })
         {
@@ -335,7 +375,7 @@
         /// </summary>
         public readonly Term<T5> Arg5;
 
-        internal override AnyGoal RenameArguments(Substitution s)
+        internal override Goal RenameArguments(Substitution s)
             => new TableGoal<T1,T2,T3,T4,T5>((TablePredicate<T1,T2,T3,T4,T5>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4), s.Substitute(Arg5));
 
         /// <summary>
@@ -351,7 +391,7 @@
         /// </summary>
         /// <param name="ga">GoalAnalyzer to track the read/write states of argument</param>
         /// <returns></returns>
-        internal override AnyCall MakeCall(GoalAnalyzer ga)
+        internal override Call MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
             var pattern = MakePattern(ga);
@@ -388,7 +428,7 @@
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public override void If(params AnyGoal[] subgoals)
+        public override void If(params Goal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
@@ -406,7 +446,7 @@
     /// <typeparam name="T4">Type of predicate's fourth argument</typeparam>
     /// <typeparam name="T5">Type of predicate's fifth argument</typeparam>
     /// <typeparam name="T6">Type of predicate's sixth argument</typeparam>
-    public class TableGoal<T1, T2, T3, T4, T5, T6> : AnyTableGoal
+    public class TableGoal<T1, T2, T3, T4, T5, T6> : TableGoal
     {
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6) : base(predicate, new Term[] { arg1, arg2, arg3, arg4, arg5, arg6 })
         {
@@ -443,7 +483,7 @@
         /// </summary>
         public readonly Term<T6> Arg6;
 
-        internal override AnyGoal RenameArguments(Substitution s)
+        internal override Goal RenameArguments(Substitution s)
             => new TableGoal<T1,T2,T3,T4,T5,T6>((TablePredicate<T1,T2,T3,T4,T5,T6>)Predicate, s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4), s.Substitute(Arg5), s.Substitute(Arg6));
 
 
@@ -460,7 +500,7 @@
         /// </summary>
         /// <param name="ga">GoalAnalyzer to track the read/write states of argument</param>
         /// <returns></returns>
-        internal override AnyCall MakeCall(GoalAnalyzer ga)
+        internal override Call MakeCall(GoalAnalyzer ga)
         {
             ga.AddDependency(TablePredicate);
             var pattern = MakePattern(ga);
@@ -501,7 +541,7 @@
         /// Add a rule for inferring this predicate from other predicates
         /// You cannot add rules to a table you add rows to using AddRow.
         /// </summary>
-        public override void If(params AnyGoal[] subgoals)
+        public override void If(params Goal[] subgoals)
         {
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body

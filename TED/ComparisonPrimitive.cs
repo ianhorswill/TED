@@ -24,7 +24,7 @@ namespace TED
             comparison = (Func<T, T, bool>)methodInfo.CreateDelegate(typeof(Func<T, T, bool>));
         }
 
-        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override TED.Call MakeCall(Goal g, GoalAnalyzer tc)
         {
             var i1 = tc.Emit(g.Arg1);
             var i2 = tc.Emit(g.Arg2);
@@ -35,7 +35,7 @@ namespace TED
             return new Call(this, i1.ValueCell, i2.ValueCell, comparison);
         }
 
-        private class Call : AnyCall
+        private class Call : TED.Call
         {
             private readonly ValueCell<T> arg1;
             private readonly ValueCell<T> arg2;

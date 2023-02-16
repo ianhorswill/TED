@@ -11,7 +11,7 @@ namespace TED
     /// - the extensions of other predicates
     /// </summary>
     [DebuggerDisplay("{Name}")]
-    public abstract class AnyPredicate
+    public abstract class Predicate
     {
         /// <summary>
         /// Human-readable name for this predicate
@@ -21,7 +21,7 @@ namespace TED
         /// <summary>
         /// Make a new predicate
         /// </summary>
-        protected AnyPredicate(string name)
+        protected Predicate(string name)
         {
             Name = name;
         }

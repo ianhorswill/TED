@@ -23,7 +23,7 @@ namespace TED
         /// <summary>
         /// Matches or stores the value of the functional expression to the variable.
         /// </summary>
-        public static AnyGoal Eval<T>(Var<T> v, FunctionalExpression<T> e) => EvalPrimitive<T>.Singleton[v, e];
+        public static Goal Eval<T>(Var<T> v, FunctionalExpression<T> e) => EvalPrimitive<T>.Singleton[v, e];
 
         /// <summary>
         /// Prob(p) succeeds with a probability of p (p in the range [0,1])
@@ -44,7 +44,7 @@ namespace TED
         /// <summary>
         /// Matches output against a random element of the table.
         /// </summary>
-        public static AnyGoal RandomElement<T>(TablePredicate<T> predicate, Term<T> output) =>
+        public static Goal RandomElement<T>(TablePredicate<T> predicate, Term<T> output) =>
             RandomElementPrimitive<T>.Singleton[predicate, output];
 
         /// <summary>
@@ -53,13 +53,13 @@ namespace TED
         /// <typeparam name="T">element/collection type</typeparam>
         /// <param name="element">Candidate element of the collection</param>
         /// <param name="collection">Collection to check</param>
-        public static AnyGoal In<T>(Term<T> element, Term<ICollection<T>> collection) =>
+        public static Goal In<T>(Term<T> element, Term<ICollection<T>> collection) =>
             InPrimitive<T>.Singleton[element, collection];
 
         /// <summary>
         /// Matches output against a randomly chosen element of choices using a uniform distribution.
         /// </summary>
-        public static AnyGoal PickRandomly<T>(Term<T> output, params T[] choices) =>
+        public static Goal PickRandomly<T>(Term<T> output, params T[] choices) =>
             PickRandomlyPrimitive<T>.Singleton[output, choices];
         #endregion
 
@@ -67,7 +67,7 @@ namespace TED
         /// <summary>
         /// The number of solutions to goal.
         /// </summary>
-        public static AggregateFunctionCall<int> Count(AnyGoal g)
+        public static AggregateFunctionCall<int> Count(Goal g)
             => new AggregateFunctionCall<int>(g, 1, 0, (a, b) => a + b);
 
         /// <summary>
@@ -78,19 +78,19 @@ namespace TED
         /// <param name="initialValue">Value to return if g has no solutions</param>
         /// <param name="aggregator">Function mapping the current total and a new value of the variable to a new total</param>
         /// <returns>The aggregate value</returns>
-        public static AggregateFunctionCall<T> Aggregate<T>(Var<T> v, AnyGoal g, T initialValue,
+        public static AggregateFunctionCall<T> Aggregate<T>(Var<T> v, Goal g, T initialValue,
             Func<T, T, T> aggregator)
             => new AggregateFunctionCall<T>(g, v, initialValue, aggregator);
 
         /// <summary>
         /// Return the sum of the specified variable from every solution to the goal
         /// </summary>
-        public static AggregateFunctionCall<int> SumInt(Var<int> v, AnyGoal g)
+        public static AggregateFunctionCall<int> SumInt(Var<int> v, Goal g)
             => new AggregateFunctionCall<int>(g, v, 0, (a, b) => a + b);
         /// <summary>
         /// Return the sum of the specified variable from every solution to the goal
         /// </summary>
-        public static AggregateFunctionCall<float> SumFloat(Var<float> v, AnyGoal g)
+        public static AggregateFunctionCall<float> SumFloat(Var<float> v, Goal g)
             => new AggregateFunctionCall<float>(g, v, 0, (a, b) => a + b);
         #endregion
 
@@ -102,7 +102,7 @@ namespace TED
         /// <param name="arg">Variable from goal to report the value of for the maximal solution</param>
         /// <param name="objective">Variable to maximize across solutions to goal</param>
         /// <param name="goal">Goal to find the maximal solution of</param>
-        public static AnyGoal Maximal<T>(Var<T> arg, Var<float> objective, AnyGoal goal) =>
+        public static Goal Maximal<T>(Var<T> arg, Var<float> objective, Goal goal) =>
             MaximalPrimitive<T>.Maximal[arg, objective, goal];
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace TED
         /// <param name="arg">Variable from goal to report the value of for the minimal solution</param>
         /// <param name="objective">Variable to minimize across solutions to goal</param>
         /// <param name="goal">Goal to find the minimal solution of</param>
-        public static AnyGoal Minimal<T>(Var<T> arg, Var<float> objective, AnyGoal goal) =>
+        public static Goal Minimal<T>(Var<T> arg, Var<float> objective, Goal goal) =>
             MaximalPrimitive<T>.Minimal[arg, objective, goal];
         
         /// <summary>
@@ -123,7 +123,7 @@ namespace TED
         /// <param name="args">Variables from Goal to report the values of for the maximal solution</param>
         /// <param name="objective">Variable to maximize across solutions to goal</param>
         /// <param name="goal">Goal to find the maximal solution of</param>
-        public static AnyGoal Maximal<T1, T2>((Var<T1>, Var<T2>)args, Var<float> objective, AnyGoal goal) =>
+        public static Goal Maximal<T1, T2>((Var<T1>, Var<T2>)args, Var<float> objective, Goal goal) =>
             MaximalPrimitive<T1, T2>.Maximal[args.Item1, args.Item2, objective, goal];
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace TED
         /// <param name="args">Variables from Goal to report the values of for the minimal solution</param>
         /// <param name="objective">Variable to minimize across solutions to goal</param>
         /// <param name="goal">Goal to find the minimal solution of</param>
-        public static AnyGoal Minimal<T1, T2>((Var<T1>, Var<T2>)args, Var<float> objective, AnyGoal goal) =>
+        public static Goal Minimal<T1, T2>((Var<T1>, Var<T2>)args, Var<float> objective, Goal goal) =>
             MaximalPrimitive<T1, T2>.Minimal[args.Item1, args.Item2, objective, goal];
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace TED
         /// <param name="args">Variables from Goal to report the values of for the minimal solution</param>
         /// <param name="objective">Variable to maximize across solutions to goal</param>
         /// <param name="goal">Goal to find the maximal solution of</param>
-        public static AnyGoal Maximal<T1, T2, T3>((Var<T1>, Var<T2>, Var<T3>)args, Var<float> objective, AnyGoal goal) =>
+        public static Goal Maximal<T1, T2, T3>((Var<T1>, Var<T2>, Var<T3>)args, Var<float> objective, Goal goal) =>
             MaximalPrimitive<T1, T2, T3>.Maximal[args.Item1, args.Item2, args.Item3, objective, goal];
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace TED
         /// <param name="args">Variables from Goal to report the values of for the minimal solution</param>
         /// <param name="objective">Variable to minimize across solutions to goal</param>
         /// <param name="goal">Goal to find the minimal solution of</param>
-        public static AnyGoal Minimal<T1, T2, T3>((Var<T1>, Var<T2>, Var<T3>)args, Var<float> objective, AnyGoal goal) =>
+        public static Goal Minimal<T1, T2, T3>((Var<T1>, Var<T2>, Var<T3>)args, Var<float> objective, Goal goal) =>
             MaximalPrimitive<T1, T2, T3>.Minimal[args.Item1, args.Item2, args.Item3, objective, goal];
         #endregion
 

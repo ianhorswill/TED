@@ -15,7 +15,7 @@ namespace TED
     /// These are predicates that store an explicit list (table) of their extensions (all their ground instances, aka rows)
     /// </summary>
     [DebuggerDisplay("{Name}")]
-    public abstract class TablePredicate : AnyPredicate
+    public abstract class TablePredicate : Predicate
     {
         /// <summary>
         /// Make a new predicate
@@ -38,7 +38,7 @@ namespace TED
                 }
         }
 
-        internal abstract AnyTable TableUntyped { get; }
+        internal abstract Table TableUntyped { get; }
 
         /// <summary>
         /// If true, the underlying table enforces uniqueness of row/tuples by indexing them with a hashtable.
@@ -63,7 +63,7 @@ namespace TED
         /// Returns a goal of the predicate applied to the specified arguments
         /// </summary>
         /// <param name="args">Arguments to the predicate</param>
-        public AnyTableGoal this[Term[] args]
+        public TableGoal this[Term[] args]
         {
             get
             {
@@ -77,12 +77,12 @@ namespace TED
         /// Returns a goal of the predicate applied to the specified arguments
         /// </summary>
         /// <param name="args">Arguments to the predicate</param>
-        public abstract AnyTableGoal GetGoal(Term[] args);
+        public abstract TableGoal GetGoal(Term[] args);
 
         /// <summary>
         /// A call to this predicate using it's "default" arguments
         /// </summary>
-        public AnyTableGoal DefaultGoal => GetGoal(DefaultVariables.Cast<Term>().ToArray());
+        public TableGoal DefaultGoal => GetGoal(DefaultVariables.Cast<Term>().ToArray());
 
         /// <summary>
         /// Add a key index
@@ -148,7 +148,7 @@ namespace TED
         /// <summary>
         /// Rules that can be used to prove goals involving this predicate
         /// </summary>
-        public List<AnyRule>? Rules;
+        public List<Rule>? Rules;
 
         #if PROFILER
         /// <summary>
@@ -210,11 +210,11 @@ namespace TED
         /// <summary>
         /// Add a rule to an intensional predicate
         /// </summary>
-        internal void AddRule(AnyRule r)
+        internal void AddRule(Rule r)
         {
             if (!r.Head.IsInstantiated)
                 throw new InstantiationException("Rules in table predicates must have fully instantiated heads");
-            Rules ??= new List<AnyRule>();
+            Rules ??= new List<Rule>();
             Rules.Add(r);
             MustRecompute = true;
         }
@@ -222,7 +222,7 @@ namespace TED
         /// <summary>
         /// Add a rule that concludes the default arguments of this predicate
         /// </summary>
-        protected void AddRule(params AnyGoal[] body) => DefaultGoal.If(body);
+        protected void AddRule(params Goal[] body) => DefaultGoal.If(body);
 
         /// <summary>
         /// Null-tolerant version of ToString.
@@ -255,7 +255,7 @@ namespace TED
         /// <summary>
         /// If you put a predicate in a rule body without arguments, it defaults to the rule's "default" arguments.
         /// </summary>
-        public static implicit operator AnyGoal(TablePredicate p) => p.DefaultGoal;
+        public static implicit operator Goal(TablePredicate p) => p.DefaultGoal;
 
         /// <summary>
         /// Verify that the header row of a CSV file matches the declared variable names
@@ -284,7 +284,7 @@ namespace TED
         public TableGoal<T1> this[Term<T1> arg1] => new TableGoal<T1>(this, arg1);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0]];
+        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -297,7 +297,7 @@ namespace TED
         /// </summary>
         /// <param name="body">Antecedents for the rule</param>
         /// <returns>The original predicate (so these can be chained)</returns>
-        public TablePredicate<T1> If(params AnyGoal[] body)
+        public TablePredicate<T1> If(params Goal[] body)
         {
             AddRule(body);
             return this;
@@ -348,7 +348,7 @@ namespace TED
             }
         }
 
-        internal override AnyTable TableUntyped => _table;
+        internal override Table TableUntyped => _table;
 
         /// <summary>
         /// Number of rows/items in the table/extension of the predicate
@@ -453,7 +453,7 @@ namespace TED
         public TableGoal<T1, T2> this[Term<T1> arg1, Term<T2> arg2] => new TableGoal<T1, T2>(this, arg1, arg2);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1]];
+        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -493,7 +493,7 @@ namespace TED
             }
         }
 
-        internal override AnyTable TableUntyped => _table;
+        internal override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -592,7 +592,7 @@ namespace TED
         /// </summary>
         /// <param name="body">subgoals</param>
         /// <returns>the original predicate</returns>
-        public TablePredicate<T1, T2> If(params AnyGoal[] body)
+        public TablePredicate<T1, T2> If(params Goal[] body)
         {
             AddRule(body);
             return this;
@@ -671,7 +671,7 @@ namespace TED
         public TableGoal<T1, T2, T3> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] => new TableGoal<T1, T2, T3>(this, arg1, arg2,arg3);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2]];
+        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -746,7 +746,7 @@ namespace TED
             }
         }
 
-        internal override AnyTable TableUntyped => _table;
+        internal override Table TableUntyped => _table;
         
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -848,7 +848,7 @@ namespace TED
         /// </summary>
         /// <param name="body">subgoals</param>
         /// <returns>the original predicate</returns>
-        public TablePredicate<T1, T2, T3> If(params AnyGoal[] body)
+        public TablePredicate<T1, T2, T3> If(params Goal[] body)
         {
             AddRule(body);
             return this;
@@ -899,7 +899,7 @@ namespace TED
             => new TableGoal<T1, T2, T3, T4>(this, arg1, arg2,arg3, arg4);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3]];
+        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -979,7 +979,7 @@ namespace TED
             }
         }
 
-        internal override AnyTable TableUntyped => _table;
+        internal override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -1085,7 +1085,7 @@ namespace TED
         /// </summary>
         /// <param name="body">subgoals</param>
         /// <returns>the original predicate</returns>
-        public TablePredicate<T1, T2, T3, T4> If(params AnyGoal[] body)
+        public TablePredicate<T1, T2, T3, T4> If(params Goal[] body)
         {
             AddRule(body);
             return this;
@@ -1137,7 +1137,7 @@ namespace TED
             => new TableGoal<T1, T2, T3, T4, T5>(this, arg1, arg2,arg3, arg4, arg5);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4]];
+        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -1223,7 +1223,7 @@ namespace TED
             }
         }
 
-        internal override AnyTable TableUntyped => _table;
+        internal override Table TableUntyped => _table;
         
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -1333,7 +1333,7 @@ namespace TED
         /// </summary>
         /// <param name="body">subgoals</param>
         /// <returns>the original predicate</returns>
-        public TablePredicate<T1, T2, T3, T4, T5> If(params AnyGoal[] body)
+        public TablePredicate<T1, T2, T3, T4, T5> If(params Goal[] body)
         {
             AddRule(body);
             return this;
@@ -1386,7 +1386,7 @@ namespace TED
             => new TableGoal<T1, T2, T3, T4, T5, T6>(this, arg1, arg2,arg3, arg4, arg5, arg6);
 
         /// <inheritdoc />
-        public override AnyTableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4], (Term<T6>)args[5]];
+        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4], (Term<T6>)args[5]];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -1477,7 +1477,7 @@ namespace TED
             }
         }
 
-        internal override AnyTable TableUntyped => _table;
+        internal override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -1590,7 +1590,7 @@ namespace TED
         /// </summary>
         /// <param name="body">subgoals</param>
         /// <returns>the original predicate</returns>
-        public TablePredicate<T1, T2, T3, T4, T5, T6> If(params AnyGoal[] body)
+        public TablePredicate<T1, T2, T3, T4, T5, T6> If(params Goal[] body)
         {
             AddRule(body);
             return this;

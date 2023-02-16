@@ -23,7 +23,7 @@ namespace TED
         }
 
         /// <inheritdoc />
-        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override TED.Call MakeCall(Goal g, GoalAnalyzer tc)
         {
             var i = tc.Emit(g.Arg1);
             if (!i.IsInstantiated)
@@ -31,7 +31,7 @@ namespace TED
             return new Call(this, i.ValueCell);
         }
 
-        private class Call : AnyCall
+        private class Call : TED.Call
         {
             private readonly PrimitiveTest<T1> _predicate;
             private readonly ValueCell<T1> arg;
@@ -81,7 +81,7 @@ namespace TED
         }
 
         /// <inheritdoc />
-        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override TED.Call MakeCall(Goal g, GoalAnalyzer tc)
         {
             var i1 = tc.Emit(g.Arg1);
             var i2 = tc.Emit(g.Arg2);
@@ -92,7 +92,7 @@ namespace TED
             return new Call(this, i1.ValueCell, i2.ValueCell);
         }
 
-        private class Call : AnyCall
+        private class Call : TED.Call
         {
             private readonly PrimitiveTest<T1, T2> _predicate;
             private readonly ValueCell<T1> arg1;

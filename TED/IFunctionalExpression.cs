@@ -13,6 +13,6 @@ namespace TED
         /// </summary>
         /// <returns>The expression, a variable of the right type to hold it's value, and a call to the Eval primitive to compute it</returns>
         /// <exception cref="NotImplementedException">If this object isn't a FunctionalExpression</exception>
-        public (Term Expression, Term Var, AnyGoal EvalGoal) HoistInfo();
+        public (Term Expression, Term Var, Goal EvalGoal) HoistInfo();
     }
 }

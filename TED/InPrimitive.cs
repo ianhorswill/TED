@@ -14,7 +14,7 @@ namespace TED
         {
         }
 
-        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override Call MakeCall(Goal g, GoalAnalyzer tc)
         {
             var p = new Pattern<T, ICollection<T>>(tc.Emit(g.Arg1), tc.Emit(g.Arg2));
             if (!p.Arg2.IsInstantiated)
@@ -24,7 +24,7 @@ namespace TED
             return new InCallGenerateMode(g, p);
         }
 
-        internal class InCallGenerateMode : AnyCall
+        internal class InCallGenerateMode : Call
         {
             private readonly ValueCell<T> element;
             private readonly ValueCell<ICollection<T>> collection;
@@ -61,7 +61,7 @@ namespace TED
             }
         }
 
-        internal class InCallTestMode : AnyCall
+        internal class InCallTestMode : Call
         {
             private readonly ValueCell<T> element;
             private readonly ValueCell<ICollection<T>> collection;

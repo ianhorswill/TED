@@ -4,7 +4,7 @@
     /// Untyped base class for calls to TablePredicates whose arguments are satisfiable by at most one row,
     /// so they don't require enumerating rows
     /// </summary>
-    internal abstract class SingleRowTableCall : AnyCall
+    internal abstract class SingleRowTableCall : Call
     {
         /// <summary>
         /// What row we will text next in the table
@@ -16,7 +16,7 @@
         /// </summary>
         public override void Reset() => primed = true;
 
-        protected SingleRowTableCall(AnyPredicate predicate) : base(predicate)
+        protected SingleRowTableCall(Predicate predicate) : base(predicate)
         {
         }
     }

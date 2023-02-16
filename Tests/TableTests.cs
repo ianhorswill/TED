@@ -95,7 +95,7 @@ namespace Tests
                 var value = i << 2;
                 Assert.AreEqual(i, index.RowWithKey((int)value));
             }
-            Assert.AreEqual(AnyTable.NoRow, index.RowWithKey(-1));
+            Assert.AreEqual(Table.NoRow, index.RowWithKey(-1));
         }
 
         [TestMethod, ExpectedException(typeof(DuplicateKeyException))]
@@ -123,9 +123,9 @@ namespace Tests
             {
                 var value = i << 2;
                 Assert.AreEqual(i, index.FirstRowWithValue((int)value));
-                Assert.AreEqual(AnyTable.NoRow, index.NextRowWithValue(i));
+                Assert.AreEqual(Table.NoRow, index.NextRowWithValue(i));
             }
-            Assert.AreEqual(AnyTable.NoRow, index.FirstRowWithValue(-1));
+            Assert.AreEqual(Table.NoRow, index.FirstRowWithValue(-1));
             for (var i = 0; i < 1025; i++)
             {
                 var value = i << 2;
@@ -138,7 +138,7 @@ namespace Tests
                 Assert.AreEqual(i+1025, first);
                 var next = index.NextRowWithValue(first);
                 Assert.AreEqual(i, next);
-                Assert.AreEqual(AnyTable.NoRow, index.NextRowWithValue(next));
+                Assert.AreEqual(Table.NoRow, index.NextRowWithValue(next));
             }
         }
 

@@ -12,7 +12,7 @@ namespace TED
     /// Goals are different from calls.  A Goal is the AST representing a predicate applied to arguments
     /// these are then "compiled" into Call objects when they're used in the body of a rule.
     /// </summary>
-    public abstract class AnyGoal
+    public abstract class Goal
     {
         /// <summary>
         /// All arguments, as an array.  Used by the printer
@@ -22,9 +22,9 @@ namespace TED
         /// <summary>
         /// The predicate being called
         /// </summary>
-        public abstract AnyPredicate Predicate { get; }
+        public abstract Predicate Predicate { get; }
 
-        protected AnyGoal(Term[] arguments)
+        protected Goal(Term[] arguments)
         {
             Arguments = arguments;
         }
@@ -34,14 +34,14 @@ namespace TED
         /// </summary>
         /// <param name="s">Substitution to apply</param>
         /// <returns>Transformed goal</returns>
-        internal abstract AnyGoal RenameArguments(Substitution s);
+        internal abstract Goal RenameArguments(Substitution s);
 
         /// <summary>
         /// Return the call object 
         /// </summary>
         /// <param name="ga">Goal scanner used at "compile time" to do binding analysis of variables and track dependencies.</param>
         /// <returns>The Call object</returns>
-        internal abstract AnyCall MakeCall(GoalAnalyzer ga);
+        internal abstract Call MakeCall(GoalAnalyzer ga);
 
         /// <summary>
         /// True if the goal is false
@@ -49,7 +49,7 @@ namespace TED
         /// </summary>
         /// <param name="g">Goal to negate</param>
         /// <returns></returns>
-        public static AnyGoal operator !(AnyGoal g) => Language.Not[g];
+        public static Goal operator !(Goal g) => Language.Not[g];
 
         
         #region Printing

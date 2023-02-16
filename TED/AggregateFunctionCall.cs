@@ -12,7 +12,7 @@ namespace TED
     {
         public readonly T InitialValue;
         public readonly Func<T, T, T> Aggregator;
-        public readonly AnyGoal Goal;
+        public readonly Goal Goal;
         public readonly Term<T> AggregationTerm;
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace TED
         /// <param name="aggregationTerm">Value to take from each solution; the values from all solutions will be aggregated together</param>
         /// <param name="initialValue">Initial value to start from when aggregating</param>
         /// <param name="aggregator">C# function mapping two values to an aggregate value</param>
-        public AggregateFunctionCall(AnyGoal goal, Term<T> aggregationTerm, T initialValue, Func<T, T, T> aggregator)
+        public AggregateFunctionCall(Goal goal, Term<T> aggregationTerm, T initialValue, Func<T, T, T> aggregator)
         {
             InitialValue = initialValue;
             Aggregator = aggregator;

@@ -74,9 +74,9 @@ namespace TED
             table = t;
             var capacity = t.Data.Length * 2;
             buckets = new (TColumn columnValue, uint firstRow)[capacity];
-            Array.Fill(buckets!, (default(TColumn), AnyTable.NoRow));
+            Array.Fill(buckets!, (default(TColumn), Table.NoRow));
             nextRow = new uint[t.Data.Length];
-            Array.Fill(nextRow, AnyTable.NoRow);
+            Array.Fill(nextRow, Table.NoRow);
             mask = (uint)(capacity - 1);
             Debug.Assert((mask & capacity) == 0, "Capacity must be a power of 2");
             Reindex();
@@ -96,10 +96,10 @@ namespace TED
         /// </summary>
         public uint FirstRowWithValue(in TColumn value)
         {
-            for (var b = HashInternal(value, mask); buckets[b].firstRow != AnyTable.NoRow; b = (b + 1) & mask)
+            for (var b = HashInternal(value, mask); buckets[b].firstRow != Table.NoRow; b = (b + 1) & mask)
                 if (Comparer.Equals(buckets[b].columnValue, value))
                     return buckets[b].firstRow;
-            return AnyTable.NoRow;
+            return Table.NoRow;
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace TED
             uint b;
             var value = projection(table.Data[row]);
             // Find the first bucket which either has this value, or which is empty
-            for (b = HashInternal(value, mask); buckets[b].firstRow != AnyTable.NoRow && !Comparer.Equals(value, buckets[b].columnValue); b = (b + 1) & mask)
+            for (b = HashInternal(value, mask); buckets[b].firstRow != Table.NoRow && !Comparer.Equals(value, buckets[b].columnValue); b = (b + 1) & mask)
             { }
 
             // Insert row at the beginning of the list for this value;
@@ -137,10 +137,10 @@ namespace TED
         internal override void Expand()
         {
             buckets = new (TColumn columnValue, uint firstRow)[buckets.Length * 2];
-            Array.Fill(buckets!, (default(TColumn), AnyTable.NoRow));
+            Array.Fill(buckets!, (default(TColumn), Table.NoRow));
             mask = (uint)(buckets.Length - 1);
             nextRow = new uint[nextRow.Length * 2];
-            Array.Fill(nextRow, AnyTable.NoRow);
+            Array.Fill(nextRow, Table.NoRow);
             Reindex();
         }
 
@@ -149,7 +149,7 @@ namespace TED
         /// </summary>
         internal override void Clear()
         {
-            Array.Fill(buckets!, (default(TColumn), AnyTable.NoRow));
+            Array.Fill(buckets!, (default(TColumn), Table.NoRow));
         }
 
         /// <summary>

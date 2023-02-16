@@ -22,7 +22,7 @@
             if (!primed) return false;
             primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != AnyTable.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
     
@@ -48,7 +48,7 @@
             if (!primed) return false;
             primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != AnyTable.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 
@@ -74,7 +74,7 @@
             if (!primed) return false;
             primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != AnyTable.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 
@@ -100,7 +100,7 @@
             if (!primed) return false;
             primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != AnyTable.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 
@@ -126,7 +126,7 @@
             if (!primed) return false;
             primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != AnyTable.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 }

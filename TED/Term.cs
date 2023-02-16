@@ -36,43 +36,43 @@ namespace TED
         /// <inheritdoc />
         public override Type Type => Type;
 
-        public static AnyGoal operator ==(Var<T> v, Term<T> exp) => EvalPrimitive<T>.Singleton[v, exp];
-        public static AnyGoal operator !=(Var<T> v, Term<T> exp) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
+        public static Goal operator ==(Var<T> v, Term<T> exp) => EvalPrimitive<T>.Singleton[v, exp];
+        public static Goal operator !=(Var<T> v, Term<T> exp) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
-        public static AnyGoal operator ==(Term<T> exp, Var<T> v) => EvalPrimitive<T>.Singleton[v, exp];
-        public static AnyGoal operator !=(Term<T> exp, Var<T> v) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
+        public static Goal operator ==(Term<T> exp, Var<T> v) => EvalPrimitive<T>.Singleton[v, exp];
+        public static Goal operator !=(Term<T> exp, Var<T> v) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
-        public static AnyGoal operator ==(Constant<T> v, Term<T> exp) => EvalPrimitive<T>.Singleton[v, exp];
-        public static AnyGoal operator !=(Constant<T> v, Term<T> exp) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
+        public static Goal operator ==(Constant<T> v, Term<T> exp) => EvalPrimitive<T>.Singleton[v, exp];
+        public static Goal operator !=(Constant<T> v, Term<T> exp) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
-        public static AnyGoal operator ==(Term<T> exp, Constant<T> v) => EvalPrimitive<T>.Singleton[v, exp];
-        public static AnyGoal operator !=(Term<T> exp, Constant<T> v) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
+        public static Goal operator ==(Term<T> exp, Constant<T> v) => EvalPrimitive<T>.Singleton[v, exp];
+        public static Goal operator !=(Term<T> exp, Constant<T> v) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator <(Term<T> a, Term<T> b) => CatchComparisonTypeInitializerProblem<T>(() 
+        public static Goal operator <(Term<T> a, Term<T> b) => CatchComparisonTypeInitializerProblem<T>(() 
             => ComparisonPrimitive<T>.LessThan[a, b], "<");
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator >(Term<T> a, Term<T> b)
+        public static Goal operator >(Term<T> a, Term<T> b)
             => CatchComparisonTypeInitializerProblem<T>(() => ComparisonPrimitive<T>.GreaterThan[a, b], ">");
 
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator <=(Term<T> a, Term<T> b)
+        public static Goal operator <=(Term<T> a, Term<T> b)
             => CatchComparisonTypeInitializerProblem<T>(() => ComparisonPrimitive<T>.LessThanEq[a, b], "<=");
         
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static AnyGoal operator >=(Term<T> a, Term<T> b)
+        public static Goal operator >=(Term<T> a, Term<T> b)
             => CatchComparisonTypeInitializerProblem<T>(() => ComparisonPrimitive<T>.GreaterThanEq[a, b], ">=");
 
         
-        private static AnyGoal CatchComparisonTypeInitializerProblem<T>(Func<AnyGoal> thunk, string operation)
+        private static Goal CatchComparisonTypeInitializerProblem<T>(Func<Goal> thunk, string operation)
         {
             try
             {

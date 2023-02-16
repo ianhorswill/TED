@@ -11,13 +11,13 @@
         {
         }
 
-        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override TED.Call MakeCall(Goal g, GoalAnalyzer tc)
         {
             var predicate = ((Constant<TablePredicate<T>>)g.Arg1).Value;
             return new Call(predicate, tc.Emit(g.Arg2));
         }
 
-        private class Call : AnyCall
+        private class Call : TED.Call
         {
             private readonly TablePredicate<T> predicate;
             private readonly MatchOperation<T> outputArg;

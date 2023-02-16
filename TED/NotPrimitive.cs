@@ -5,7 +5,7 @@ namespace TED
     /// <summary>
     /// Implements negation of a goal
     /// </summary>
-    public sealed class NotPrimitive : PrimitivePredicate<AnyGoal>
+    public sealed class NotPrimitive : PrimitivePredicate<Goal>
     {
         public static NotPrimitive Singleton = new NotPrimitive();
 
@@ -13,11 +13,11 @@ namespace TED
         {
         }
 
-        public override AnyCall MakeCall(Goal g, GoalAnalyzer tc)
+        public override Call MakeCall(Goal g, GoalAnalyzer tc)
         {
             switch (g.Arg1)
             {
-                case Constant<AnyGoal> target:
+                case Constant<TED.Goal> target:
                     return new NotCall(Preprocessor.BodyToCallWithLocalBindings(tc, target.Value).Call);
 
                 default:
@@ -25,17 +25,17 @@ namespace TED
             }
         }
 
-        private class NotCall : AnyCall
+        private class NotCall : Call
         {
-            private readonly AnyCall call;
+            private readonly Call call;
             private bool restarted;
 
-            public NotCall(AnyCall call) : base(Language.Not)
+            public NotCall(Call call) : base(Language.Not)
             {
                 this.call = call;
             }
 
-            public override IPattern ArgumentPattern => new Pattern<AnyCall>(MatchOperation<AnyCall>.Constant(call));
+            public override IPattern ArgumentPattern => new Pattern<Call>(MatchOperation<Call>.Constant(call));
 
             public override void Reset()
             {

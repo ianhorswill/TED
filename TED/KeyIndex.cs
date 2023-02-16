@@ -57,7 +57,7 @@ namespace TED
             table = t;
             var capacity = t.Data.Length * 2;
             buckets = new (TKey key, uint row)[capacity];
-            Array.Fill(buckets!, (default(TKey), AnyTable.NoRow));
+            Array.Fill(buckets!, (default(TKey), Table.NoRow));
             mask = (uint)(capacity - 1);
             Debug.Assert((mask & capacity) == 0, "Capacity must be a power of 2");
             Reindex();
@@ -77,7 +77,7 @@ namespace TED
             get
             {
                 var rowWithKey = RowWithKey(in key);
-                if (rowWithKey == AnyTable.NoRow)
+                if (rowWithKey == Table.NoRow)
                     throw new KeyNotFoundException($"No row in table has key {key}");
                 return ref table.PositionReference(rowWithKey);
             }
@@ -86,7 +86,7 @@ namespace TED
         /// <summary>
         /// Test if the table contains a row with the specified key
         /// </summary>
-        public bool ContainsKey(in TKey key) => RowWithKey(in key) != AnyTable.NoRow;
+        public bool ContainsKey(in TKey key) => RowWithKey(in key) != Table.NoRow;
 
         /// <summary>
         /// Row containing this key, if any
@@ -95,10 +95,10 @@ namespace TED
         /// <returns></returns>
         internal uint RowWithKey(in TKey value)
         {
-            for (var b = HashInternal(value, mask); buckets[b].row != AnyTable.NoRow; b = (b + 1) & mask)
+            for (var b = HashInternal(value, mask); buckets[b].row != Table.NoRow; b = (b + 1) & mask)
                 if (Comparer.Equals(buckets[b].key, value))
                     return buckets[b].row;
-            return AnyTable.NoRow;
+            return Table.NoRow;
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace TED
         {
             uint b;
             var key = projection(table.Data[row]);
-            for (b = HashInternal(key, mask); buckets[b].row != AnyTable.NoRow; b = ((b + 1) & mask))
+            for (b = HashInternal(key, mask); buckets[b].row != Table.NoRow; b = ((b + 1) & mask))
             {
                 #if PROFILER
                 probes++;
@@ -149,7 +149,7 @@ namespace TED
         internal override void Expand()
         {
             buckets = new (TKey key, uint row)[buckets.Length * 2];
-            Array.Fill(buckets!, (default(TKey), AnyTable.NoRow));
+            Array.Fill(buckets!, (default(TKey), Table.NoRow));
             mask = (uint)(buckets.Length - 1);
             Reindex();
         }
@@ -159,7 +159,7 @@ namespace TED
         /// </summary>
         internal override void Clear()
         {
-            Array.Fill(buckets!, (default(TKey), AnyTable.NoRow));
+            Array.Fill(buckets!, (default(TKey), Table.NoRow));
         }
 
         /// <summary>

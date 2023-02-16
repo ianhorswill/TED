@@ -9,11 +9,11 @@ namespace TED
     /// have different call objects because they need different state information
     /// </summary>
     [DebuggerDisplay("{DebugString}")]
-    public abstract class AnyCall
+    public abstract class Call
     {
-        public readonly AnyPredicate Predicate;
+        public readonly Predicate Predicate;
 
-        protected AnyCall(AnyPredicate predicate)
+        protected Call(Predicate predicate)
         {
             Predicate = predicate;
         }

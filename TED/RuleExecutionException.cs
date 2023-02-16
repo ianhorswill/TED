@@ -8,11 +8,11 @@ namespace TED
         /// <summary>
         /// Rule in which the exception occurred
         /// </summary>
-        public readonly AnyRule Rule;
+        public readonly Rule Rule;
 
-        public readonly AnyCall Call;
+        public readonly Call Call;
         
-        internal RuleExecutionException(AnyRule rule, AnyCall call, Exception innerException) : 
+        internal RuleExecutionException(Rule rule, Call call, Exception innerException) : 
             base($"{innerException!.GetType().Name} occurred while executing {call} in the rule:\n{rule}\nLocalVariables:\n{VariablesOfRule(rule)}", innerException)
         {
             Rule = rule;
@@ -24,7 +24,7 @@ namespace TED
         /// </summary>
         public string LocalVariables => VariablesOfRule(Rule);
 
-        private static string VariablesOfRule(AnyRule rule) => string.Join('\n', rule.ValueCells.Select(c => $"{c.Name}={c.BoxedValue}"));
+        private static string VariablesOfRule(Rule rule) => string.Join('\n', rule.ValueCells.Select(c => $"{c.Name}={c.BoxedValue}"));
 
         /// <summary>
         /// Predicate for which the rule is defined

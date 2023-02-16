@@ -34,7 +34,7 @@ namespace Tests
             Assert.AreEqual(1, e.Length);
             var newGoal = e[0];
             Assert.AreEqual(Language.Not, newGoal.Predicate);
-            var subgoal = ((Constant<AnyGoal>)newGoal.Arguments[0]).Value;
+            var subgoal = ((Constant<Goal>)newGoal.Arguments[0]).Value;
             Assert.AreEqual(p, subgoal.Predicate);
             var arg = subgoal.Arguments[0];
             Assert.AreEqual(5, ((Constant<int>)arg).Value);
@@ -52,7 +52,7 @@ namespace Tests
             Assert.AreEqual(2, e.Length);
             var newGoal = e[0];
             Assert.AreEqual(Language.Not, newGoal.Predicate);
-            var subgoal = ((Constant<AnyGoal>)newGoal.Arguments[0]).Value;
+            var subgoal = ((Constant<Goal>)newGoal.Arguments[0]).Value;
             Assert.AreEqual(p, subgoal.Predicate);
             var arg = subgoal.Arguments[0];
             Assert.AreEqual(5, ((Constant<int>)arg).Value);

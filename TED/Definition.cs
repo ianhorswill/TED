@@ -11,28 +11,28 @@ namespace TED
     /// It's a predicate that gets in-lined whenever it's called.
     /// Definitions currently only allow one rule.
     /// </summary>
-    public abstract class Definition : AnyPredicate
+    public abstract class Definition : Predicate
     {
-        public AnyGoal[]? Body;
+        public Goal[]? Body;
 
         protected Definition(string name) : base(name)
         {
         }
 
-        public abstract class AnyDefinitionGoal : AnyGoal
+        public abstract class DefinitionGoal : Goal
         {
             public readonly Definition Definition;
 
-            protected AnyDefinitionGoal(Definition definition, Term[] arguments) : base(arguments)
+            protected DefinitionGoal(Definition definition, Term[] arguments) : base(arguments)
             {
                 Definition = definition;
             }
 
-            public override AnyPredicate Predicate => Definition;
+            public override Predicate Predicate => Definition;
 
             public abstract Substitution MakeSubstitution();
 
-            public IEnumerable<AnyGoal> Expand()
+            public IEnumerable<Goal> Expand()
             {
                 if (Definition.Body == null)
                     throw new Exception($"No body defined for definition {Definition.Name}");
@@ -40,7 +40,7 @@ namespace TED
                 return Definition.Body.Select(g => g.RenameArguments(s));
             }
 
-            internal override AnyCall MakeCall(GoalAnalyzer ga)
+            internal override Call MakeCall(GoalAnalyzer ga)
             {
                 throw new InvalidOperationException("Definitions are not directly callable");
             }
@@ -65,7 +65,7 @@ namespace TED
         /// </summary>
         public Goal this[Term<T1> a1] => new Goal(this, a1);
 
-        public Definition<T1> IfAndOnlyIf(params AnyGoal[] body)
+        public Definition<T1> IfAndOnlyIf(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -73,7 +73,7 @@ namespace TED
             return this;
         }
 
-        public class Goal : AnyDefinitionGoal
+        public class Goal : DefinitionGoal
         {
             public readonly Term<T1> Arg1;
 
@@ -82,7 +82,7 @@ namespace TED
                 Arg1 = arg1;
             }
 
-            internal override AnyGoal RenameArguments(Substitution s) =>
+            internal override TED.Goal RenameArguments(Substitution s) =>
                 new Goal((Definition<T1>)Definition, s.Substitute(Arg1));
 
             public override Substitution MakeSubstitution()
@@ -108,7 +108,7 @@ namespace TED
 
         public Goal this[Term<T1> a1, Term<T2> a2] => new Goal(this, a1, a2);
 
-        public Definition<T1, T2> IfAndOnlyIf(params AnyGoal[] body)
+        public Definition<T1, T2> IfAndOnlyIf(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -120,7 +120,7 @@ namespace TED
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
 
-        public class Goal : AnyDefinitionGoal
+        public class Goal : DefinitionGoal
         {
             public readonly Term<T1> Arg1;
             public readonly Term<T2> Arg2;
@@ -132,7 +132,7 @@ namespace TED
                 Arg2 = arg2;
             }
 
-            internal override AnyGoal RenameArguments(Substitution s) => new Goal((Definition<T1, T2>)Definition,
+            internal override TED.Goal RenameArguments(Substitution s) => new Goal((Definition<T1, T2>)Definition,
                 s.Substitute(Arg1), s.Substitute(Arg2));
 
             public override Substitution MakeSubstitution()
@@ -165,7 +165,7 @@ namespace TED
 
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3] => new Goal(this, a1, a2, a3);
 
-        public Definition<T1, T2, T3> IfAndOnlyIf(params AnyGoal[] body)
+        public Definition<T1, T2, T3> IfAndOnlyIf(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -173,7 +173,7 @@ namespace TED
             return this;
         }
 
-        public class Goal : AnyDefinitionGoal
+        public class Goal : DefinitionGoal
         {
             public readonly Term<T1> Arg1;
             public readonly Term<T2> Arg2;
@@ -187,7 +187,7 @@ namespace TED
                 Arg3 = arg3;
             }
 
-            internal override AnyGoal RenameArguments(Substitution s) => new Goal((Definition<T1, T2, T3>)Definition,
+            internal override TED.Goal RenameArguments(Substitution s) => new Goal((Definition<T1, T2, T3>)Definition,
                 s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3));
 
             public override Substitution MakeSubstitution()
@@ -223,7 +223,7 @@ namespace TED
 
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4] => new Goal(this, a1, a2, a3, a4);
 
-        public Definition<T1, T2, T3, T4> IfAndOnlyIf(params AnyGoal[] body)
+        public Definition<T1, T2, T3, T4> IfAndOnlyIf(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -231,7 +231,7 @@ namespace TED
             return this;
         }
 
-        public class Goal : AnyDefinitionGoal
+        public class Goal : DefinitionGoal
         {
             public readonly Term<T1> Arg1;
             public readonly Term<T2> Arg2;
@@ -248,7 +248,7 @@ namespace TED
                 Arg4 = arg4;
             }
 
-            internal override AnyGoal RenameArguments(Substitution s)
+            internal override TED.Goal RenameArguments(Substitution s)
                 => new Goal((Definition<T1, T2, T3, T4>)Definition,
                     s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4));
 
@@ -290,7 +290,7 @@ namespace TED
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5] 
             => new Goal(this, a1, a2, a3, a4, a5);
 
-        public Definition<T1,T2,T3,T4,T5> IfAndOnlyIf(params AnyGoal[] body)
+        public Definition<T1,T2,T3,T4,T5> IfAndOnlyIf(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -298,7 +298,7 @@ namespace TED
             return this;
         }
 
-        public class Goal : AnyDefinitionGoal
+        public class Goal : DefinitionGoal
         {
             public readonly Term<T1> Arg1;
             public readonly Term<T2> Arg2;
@@ -317,7 +317,7 @@ namespace TED
                 Arg5 = arg5;
             }
 
-            internal override AnyGoal RenameArguments(Substitution s)
+            internal override TED.Goal RenameArguments(Substitution s)
                 => new Goal((Definition<T1,T2,T3,T4,T5>)Definition,
                     s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4), s.Substitute(Arg5));
 
@@ -359,7 +359,7 @@ namespace TED
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5, Term<T6> a6] 
             => new Goal(this, a1, a2, a3, a4, a5, a6);
 
-        public Definition<T1,T2,T3,T4,T5,T6> IfAndOnlyIf(params AnyGoal[] body)
+        public Definition<T1,T2,T3,T4,T5,T6> IfAndOnlyIf(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -367,7 +367,7 @@ namespace TED
             return this;
         }
 
-        public class Goal : AnyDefinitionGoal
+        public class Goal : DefinitionGoal
         {
             public readonly Term<T1> Arg1;
             public readonly Term<T2> Arg2;
@@ -388,7 +388,7 @@ namespace TED
                 Arg6 = arg6;
             }
 
-            internal override AnyGoal RenameArguments(Substitution s)
+            internal override TED.Goal RenameArguments(Substitution s)
                 => new Goal((Definition<T1,T2,T3,T4,T5,T6>)Definition,
                     s.Substitute(Arg1), s.Substitute(Arg2), s.Substitute(Arg3), s.Substitute(Arg4), s.Substitute(Arg5), s.Substitute(Arg6));
 

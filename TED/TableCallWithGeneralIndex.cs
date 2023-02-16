@@ -8,7 +8,7 @@
     // This will not be used if it's possible to use TableCallWithKey or TableCallUsingRowSet, which are preferable.
     //
 
-    internal abstract class TableCallWithGeneralIndex : AnyCall
+    internal abstract class TableCallWithGeneralIndex : Call
     {
         public TableCallWithGeneralIndex(TablePredicate p) : base(p)
         { }
@@ -41,10 +41,10 @@
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != AnyTable.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != AnyTable.NoRow;
+            return Row != Table.NoRow;
         }
     }
     
@@ -70,10 +70,10 @@
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != AnyTable.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != AnyTable.NoRow;
+            return Row != Table.NoRow;
         }
     }
 
@@ -99,10 +99,10 @@
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != AnyTable.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != AnyTable.NoRow;
+            return Row != Table.NoRow;
         }
     }
 
@@ -128,10 +128,10 @@
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != AnyTable.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != AnyTable.NoRow;
+            return Row != Table.NoRow;
         }
     }
 
@@ -157,10 +157,10 @@
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != AnyTable.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != AnyTable.NoRow;
+            return Row != Table.NoRow;
         }
     }
 }
