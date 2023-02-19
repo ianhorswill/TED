@@ -35,7 +35,7 @@ namespace TablePredicateViewer
 
             // Death
             var Dead = Predicate("Dead", person);
-            var Alive = Definition("Alive", person).IfAndOnlyIf(Not[Dead[person]]);
+            var Alive = Definition("Alive", person).Is(Not[Dead[person]]);
 
             var Died = Predicate("Died", person).If(Person, Prob[0.01f], Alive[person]);
             Dead.Accumulates(Died);

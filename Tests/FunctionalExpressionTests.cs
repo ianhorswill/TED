@@ -161,7 +161,7 @@ namespace Tests
             var count = (Var<int>)"count";
             var b = (Var<bool>)"b";
             var tileTable = Predicate("tileTable", cell, state);
-            var Neighbor = Definition("Neighbor", cell, neighbor).IfAndOnlyIf(In(t, neighborhood), neighbor == cell + t);
+            var Neighbor = Definition("Neighbor", cell, neighbor).Is(In(t, neighborhood), neighbor == cell + t);
             var NeighborCount = Predicate("NeighborCount", cell, count);
 
             NeighborCount[where, count].If(tileTable[where, b], count == Count(And[Neighbor[where, neighbor], tileTable[neighbor, true]]));
@@ -183,7 +183,7 @@ namespace Tests
             var count = (Var<int>)"count";
             var b = (Var<bool>)"b";
             var tileTable = Predicate("tileTable", cell, state);
-            var Neighbor = Definition("Neighbor", cell, neighbor).IfAndOnlyIf();
+            var Neighbor = Definition("Neighbor", cell, neighbor).Is();
             var NeighborCount = Predicate("NeighborCount", cell, count);
 
             NeighborCount[cell, count].If(tileTable[cell, b], count == Count(And[In(t, neighborhood), neighbor == cell + t, tileTable[neighbor, true]]));

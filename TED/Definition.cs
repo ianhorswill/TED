@@ -65,7 +65,7 @@ namespace TED
         /// </summary>
         public Goal this[Term<T1> a1] => new Goal(this, a1);
 
-        public Definition<T1> IfAndOnlyIf(params TED.Goal[] body)
+        public Definition<T1> Is(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -108,7 +108,7 @@ namespace TED
 
         public Goal this[Term<T1> a1, Term<T2> a2] => new Goal(this, a1, a2);
 
-        public Definition<T1, T2> IfAndOnlyIf(params TED.Goal[] body)
+        public Definition<T1, T2> Is(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -165,7 +165,7 @@ namespace TED
 
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3] => new Goal(this, a1, a2, a3);
 
-        public Definition<T1, T2, T3> IfAndOnlyIf(params TED.Goal[] body)
+        public Definition<T1, T2, T3> Is(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -223,7 +223,7 @@ namespace TED
 
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4] => new Goal(this, a1, a2, a3, a4);
 
-        public Definition<T1, T2, T3, T4> IfAndOnlyIf(params TED.Goal[] body)
+        public Definition<T1, T2, T3, T4> Is(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -290,7 +290,7 @@ namespace TED
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5] 
             => new Goal(this, a1, a2, a3, a4, a5);
 
-        public Definition<T1,T2,T3,T4,T5> IfAndOnlyIf(params TED.Goal[] body)
+        public Definition<T1,T2,T3,T4,T5> Is(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -359,7 +359,7 @@ namespace TED
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5, Term<T6> a6] 
             => new Goal(this, a1, a2, a3, a4, a5, a6);
 
-        public Definition<T1,T2,T3,T4,T5,T6> IfAndOnlyIf(params TED.Goal[] body)
+        public Definition<T1,T2,T3,T4,T5,T6> Is(params TED.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");

@@ -145,7 +145,7 @@ namespace Tests
             var A = Predicate("A", new[] { 1, 2, 3, 4, 5, 6 }, n);
             var B = Predicate("B", new[] { 1, 2, 3, 4 }, n);
             var C = Predicate("C", new[] { 3, 4, 5, 6 }, n);
-            var D = Definition("D", n).IfAndOnlyIf(B[n], C[n]);
+            var D = Definition("D", n).Is(B[n], C[n]);
             var E = Predicate("E", n).If(A[n], !D[n]);
             var results = E.ToArray();
             Assert.AreEqual(4, results.Length);
