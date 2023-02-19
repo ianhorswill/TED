@@ -27,6 +27,9 @@ namespace TED
 
         /// <inheritdoc />
         public string ColumnName => Name;
+
+        /// <inheritdoc />
+        public string VariableName => Name;
         
         /// <summary>
         /// Make a TED variable of the specified type and name

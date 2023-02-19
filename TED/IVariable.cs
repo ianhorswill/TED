@@ -7,5 +7,9 @@
     /// </summary>
     public interface IVariable
     {
+        /// <summary>
+        /// Name of the variable
+        /// </summary>
+        public string VariableName { get;  }
     }
 }

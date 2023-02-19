@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using TED;
+﻿using TED;
 using static TED.Language;
 
 namespace Tests

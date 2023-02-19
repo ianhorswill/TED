@@ -13,6 +13,11 @@ namespace TED
         /// Type of this term
         /// </summary>
         public abstract Type Type { get; }
+
+        /// <summary>
+        /// Make a variable of the same type as this term
+        /// </summary>
+        internal abstract Term MakeVariable(string name);
     }
 
     /// <summary>
@@ -35,6 +40,8 @@ namespace TED
 
         /// <inheritdoc />
         public override Type Type => Type;
+
+        internal override Term MakeVariable(string name) => (Var<T>)name;
 
         public static Goal operator ==(Var<T> v, Term<T> exp) => EvalPrimitive<T>.Singleton[v, exp];
         public static Goal operator !=(Var<T> v, Term<T> exp) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];

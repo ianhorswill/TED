@@ -270,6 +270,13 @@ namespace TED
                     throw new InvalidDataException(
                         $"For predicate {name}, the column name {headerRow[i]} in the CSV file does not match the declared name {args[i].ColumnName}");
         }
+
+        protected Term<T> CastArg<T>(Term arg, int position)
+        {
+            if (arg is Term<T> result)
+                return result;
+            throw new ArgumentException($"Argument {position} to {Name} should be of type {typeof(T).Name}");
+        }
     }
 
     /// <summary>
@@ -284,7 +291,7 @@ namespace TED
         public TableGoal<T1> this[Term<T1> arg1] => new TableGoal<T1>(this, arg1);
 
         /// <inheritdoc />
-        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0]];
+        public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1)];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -453,7 +460,7 @@ namespace TED
         public TableGoal<T1, T2> this[Term<T1> arg1, Term<T2> arg2] => new TableGoal<T1, T2>(this, arg1, arg2);
 
         /// <inheritdoc />
-        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1]];
+        public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2)];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -671,7 +678,8 @@ namespace TED
         public TableGoal<T1, T2, T3> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] => new TableGoal<T1, T2, T3>(this, arg1, arg2,arg3);
 
         /// <inheritdoc />
-        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2]];
+        public override TableGoal GetGoal(Term[] args) 
+            => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2), CastArg<T3>(args[2], 3)];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -899,7 +907,8 @@ namespace TED
             => new TableGoal<T1, T2, T3, T4>(this, arg1, arg2,arg3, arg4);
 
         /// <inheritdoc />
-        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3]];
+        public override TableGoal GetGoal(Term[] args)
+            => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2), CastArg<T3>(args[2], 3), CastArg<T4>(args[3], 4)];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -1137,7 +1146,8 @@ namespace TED
             => new TableGoal<T1, T2, T3, T4, T5>(this, arg1, arg2,arg3, arg4, arg5);
 
         /// <inheritdoc />
-        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4]];
+        public override TableGoal GetGoal(Term[] args)
+            => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2), CastArg<T3>(args[2], 3), CastArg<T4>(args[3], 4), CastArg<T5>(args[4], 5)];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
@@ -1386,7 +1396,9 @@ namespace TED
             => new TableGoal<T1, T2, T3, T4, T5, T6>(this, arg1, arg2,arg3, arg4, arg5, arg6);
 
         /// <inheritdoc />
-        public override TableGoal GetGoal(Term[] args) => this[(Term<T1>)args[0], (Term<T2>)args[1], (Term<T3>)args[2], (Term<T4>)args[3], (Term<T5>)args[4], (Term<T6>)args[5]];
+        public override TableGoal GetGoal(Term[] args)
+            => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2), CastArg<T3>(args[2], 3),
+                CastArg<T4>(args[3], 4), CastArg<T5>(args[4], 5), CastArg<T6>(args[5], 6)];
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex)
