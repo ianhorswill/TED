@@ -34,6 +34,12 @@ namespace TED
         /// <param name="value"></param>
         public static implicit operator Term<T>(T value) => new Constant<T>(value);
 
+        /// <summary>
+        /// Call a 0-arity TedFunction with return type T by name and return Term of type T from the function Call
+        /// </summary>
+        /// <param name="func"></param>
+        public static implicit operator Term<T>(TedFunction<T> func) => func.Call();
+
         internal abstract Func<T> MakeEvaluator(GoalAnalyzer ga);
 
         internal abstract Term<T> ApplySubstitution(Substitution s);
