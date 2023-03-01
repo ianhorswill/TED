@@ -568,7 +568,25 @@ namespace TED
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         public static TedFunction<TIn1, TIn2, TOut> Function<TIn1, TIn2, TOut>(string name, Func<TIn1, TIn2, TOut> fn) => new TedFunction<TIn1, TIn2, TOut>(name, fn);
+        /// <summary>
+        /// Makes a function that can be placed in functional expressions
+        /// </summary>
+        /// <param name="name">Name, for debugging purposes</param>
+        /// <param name="fn">C# code implementing the function</param>
+        public static TedFunction<TIn1, TIn2, TIn3, TOut> Function<TIn1, TIn2, TIn3, TOut>(string name, Func<TIn1, TIn2, TIn3, TOut> fn) => new TedFunction<TIn1, TIn2, TIn3, TOut>(name, fn);
+        /// <summary>
+        /// Makes a function that can be placed in functional expressions
+        /// </summary>
+        /// <param name="name">Name, for debugging purposes</param>
+        /// <param name="fn">C# code implementing the function</param>
+        public static TedFunction<TIn1, TIn2, TIn3, TIn4, TOut> Function<TIn1, TIn2, TIn3, TIn4, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new TedFunction<TIn1, TIn2, TIn3, TIn4, TOut>(name, fn);
+        /// <summary>
+        /// Makes a function that can be placed in functional expressions
+        /// </summary>
+        /// <param name="name">Name, for debugging purposes</param>
+        /// <param name="fn">C# code implementing the function</param>
+        public static TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(name, fn);
         #endregion
-        
+
     }
 }
