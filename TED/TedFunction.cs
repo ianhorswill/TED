@@ -115,4 +115,34 @@ namespace TED
         public FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5] =>
             new FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(this, arg1, arg2, arg3, arg4, arg5);
     }
+
+    /// <summary>
+    /// A wrapper for a C# function to allow it to be called from TED expressions
+    /// </summary>
+    public class TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> : TedFunction {
+
+        internal readonly Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Implementation;
+
+        public TedFunction(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> implementation) : base(name) {
+            Implementation = implementation;
+        }
+
+        public FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5, Term<TIn6> arg6] =>
+            new FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(this, arg1, arg2, arg3, arg4, arg5, arg6);
+    }
+
+    /// <summary>
+    /// A wrapper for a C# function to allow it to be called from TED expressions
+    /// </summary>
+    public class TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> : TedFunction {
+
+        internal readonly Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Implementation;
+
+        public TedFunction(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> implementation) : base(name) {
+            Implementation = implementation;
+        }
+
+        public FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5, Term<TIn6> arg6, Term<TIn7> arg7] =>
+            new FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+    }
 }
