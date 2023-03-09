@@ -165,4 +165,44 @@
             return false;
         }
     }
+
+    internal class TableCallExhaustive<T1, T2, T3, T4, T5, T6, T7> : TableCallExhaustive {
+        public readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7> TablePredicate;
+        public readonly Pattern<T1, T2, T3, T4, T5, T6, T7> Pattern;
+        public override IPattern ArgumentPattern => Pattern;
+
+        public TableCallExhaustive(TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, Pattern<T1, T2, T3, T4, T5, T6, T7> pattern) : base(predicate) {
+            TablePredicate = predicate;
+            Pattern = pattern;
+        }
+
+        public override bool NextSolution() {
+            var predicateTable = TablePredicate.Table;
+            while (RowIndex < predicateTable.Length)
+                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+                    return true;
+
+            return false;
+        }
+    }
+
+    internal class TableCallExhaustive<T1, T2, T3, T4, T5, T6, T7, T8> : TableCallExhaustive {
+        public readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> TablePredicate;
+        public readonly Pattern<T1, T2, T3, T4, T5, T6, T7, T8> Pattern;
+        public override IPattern ArgumentPattern => Pattern;
+
+        public TableCallExhaustive(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, Pattern<T1, T2, T3, T4, T5, T6, T7, T8> pattern) : base(predicate) {
+            TablePredicate = predicate;
+            Pattern = pattern;
+        }
+
+        public override bool NextSolution() {
+            var predicateTable = TablePredicate.Table;
+            while (RowIndex < predicateTable.Length)
+                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+                    return true;
+
+            return false;
+        }
+    }
 }

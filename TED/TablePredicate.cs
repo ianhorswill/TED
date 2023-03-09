@@ -1635,4 +1635,507 @@ namespace TED
             return GetEnumerator();
         }
     }
+
+
+
+    /// <summary>
+    /// A 7-argument TablePredicate
+    /// </summary>
+    /// <typeparam name="T1">Type of the predicate's 1st argument</typeparam>
+    /// <typeparam name="T2">Type of the predicate's 2nd argument</typeparam>
+    /// <typeparam name="T3">Type of the predicate's 3rd argument</typeparam>
+    /// <typeparam name="T4">Type of the predicate's 4th argument</typeparam>
+    /// <typeparam name="T5">Type of the predicate's 5th argument</typeparam>
+    /// <typeparam name="T6">Type of the predicate's 6th argument</typeparam>
+    /// <typeparam name="T7">Type of the predicate's 7th argument</typeparam>
+    public class TablePredicate<T1, T2, T3, T4, T5, T6, T7> : TablePredicate, IEnumerable<(T1, T2, T3, T4, T5, T6, T7)> {
+        /// <summary>
+        /// Make a Goal from this predicate with the specified argument value.
+        /// </summary>
+        public TableGoal<T1, T2, T3, T4, T5, T6, T7> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7]
+            => new TableGoal<T1, T2, T3, T4, T5, T6, T7>(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+
+        /// <inheritdoc />
+        public override TableGoal GetGoal(Term[] args)
+            => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2), CastArg<T3>(args[2], 3),
+                CastArg<T4>(args[3], 4), CastArg<T5>(args[4], 5), CastArg<T6>(args[5], 6), CastArg<T7>(args[6], 7)];
+
+        /// <inheritdoc />
+        protected override void AddIndex(int columnIndex, bool keyIndex) {
+            switch (columnIndex) {
+                case 0:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item1, keyIndex));
+                    break;
+
+                case 1:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item2, keyIndex));
+                    break;
+
+                case 2:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item3, keyIndex));
+                    break;
+
+                case 3:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item4, keyIndex));
+                    break;
+
+                case 4:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item5, keyIndex));
+                    break;
+
+                case 5:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item6, keyIndex));
+                    break;
+
+                case 6:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item7, keyIndex));
+                    break;
+
+                default:
+                    throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
+            }
+        }
+
+        /// <summary>
+        /// Get the index for the specified key
+        /// </summary>
+        /// <typeparam name="TKey">Type of the indexed column</typeparam>
+        /// <param name="column">Default variable representing the column</param>
+        /// <returns>The index</returns>
+        /// <exception cref="InvalidOperationException">If there is no index or it's not a key index</exception>
+        public KeyIndex<(T1, T2, T3, T4, T5, T6, T7), TKey> KeyIndex<TKey>(Var<TKey> column) {
+            var i = IndexFor(ColumnPositionOfDefaultVariable(column), true);
+            if (i == null)
+                throw new InvalidOperationException($"No key index defined for {column}");
+            return (KeyIndex<(T1, T2, T3, T4, T5, T6, T7), TKey>)i;
+        }
+
+        /// <summary>
+        /// Get the index for the specified key
+        /// </summary>
+        /// <typeparam name="TKey">Type of the indexed column</typeparam>
+        /// <param name="column">Position of the column</param>
+        /// <returns>The index</returns>
+        /// <exception cref="InvalidOperationException">If there is no index or it's not a key index</exception>
+        public KeyIndex<(T1, T2, T3, T4, T5, T6, T7), TKey> KeyIndex<TKey>(int column) {
+            var i = IndexFor(column, true);
+            if (i == null)
+                throw new InvalidOperationException($"No key index defined for column {column}");
+            return (KeyIndex<(T1, T2, T3, T4, T5, T6, T7), TKey>)i;
+        }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        /// <param name="arg4">Default variable for the fourth argument</param>
+        /// <param name="arg5">Default variable for the fifth argument</param>
+        /// <param name="arg6">Default variable for the sixth argument</param>
+        /// <param name="arg7">Default variable for the seventh argument</param>
+        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7)
+            : base(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7) { }
+
+        // ReSharper disable once InconsistentNaming
+        internal readonly Table<(T1, T2, T3, T4, T5, T6, T7)> _table = new Table<(T1, T2, T3, T4, T5, T6, T7)>();
+
+        internal Table<(T1, T2, T3, T4, T5, T6, T7)> Table {
+            get {
+                EnsureUpToDate();
+                return _table;
+            }
+        }
+
+        internal override Table TableUntyped => _table;
+
+        /// <summary>
+        /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
+        /// </summary>
+        public override uint Length => Table.Length;
+
+        /// <summary>
+        /// Manually add a row (ground instance) to the extension of the predicate
+        /// This cannot be mixed with rules using If.  If you want to have rules for the predicate
+        /// use Fact() instead of AddRow.
+        /// </summary>
+        public void AddRow(in T1 v1, in T2 v2, in T3 v3, in T4 v4, in T5 v5, in T6 v6, in T7 v7)
+            => _table.Add((v1, v2, v3, v4, v5, v6, v7));
+
+        /// <summary>
+        /// Add a set of rows from a generator
+        /// </summary>
+        public void AddRows(IEnumerable<(T1, T2, T3, T4, T5, T6, T7)> generator) {
+            var t = Table;
+            foreach (var r in generator) t.Add(r);
+        }
+        internal IEnumerable<(T1, T2, T3, T4, T5, T6, T7)> Match(Pattern<T1, T2, T3, T4, T5, T6, T7> pat) {
+            var t = Table;
+            for (var i = 0u; i < t.Length; i++) {
+                var e = t.PositionReference(i);
+                if (pat.Match(e))
+                    yield return e;
+            }
+        }
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="name">Predicate name</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
+        /// <param name="arg4">Fourth argument</param>
+        /// <param name="arg5">Fifth argument</param>
+        /// <param name="arg6">Sixth argument</param>
+        /// <param name="arg7">Seventh argument</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6, T7> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7) {
+            var (header, data) = CsvReader.ReadCsv(path);
+            VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+            var p = new TablePredicate<T1, T2, T3, T4, T5, T6, T7>(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+            foreach (var row in data)
+                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
+                    CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]),
+                    CsvReader.ConvertCell<T6>(row[5]), CsvReader.ConvertCell<T7>(row[6]));
+            return p;
+        }
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
+        /// <param name="arg4">Fourth argument</param>
+        /// <param name="arg5">Fifth argument</param>
+        /// <param name="arg6">Sixth argument</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6, T7> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        public override void RowToStrings(uint rowNumber, string[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = Stringify(r.Item1);
+            buffer[1] = Stringify(r.Item2);
+            buffer[2] = Stringify(r.Item3);
+            buffer[3] = Stringify(r.Item4);
+            buffer[4] = Stringify(r.Item5);
+            buffer[5] = Stringify(r.Item6);
+            buffer[6] = Stringify(r.Item7);
+        }
+
+        /// <summary>
+        /// Call method on every row of the table, passing it a reference so it can rewrite it as it likes
+        /// </summary>
+        /// <param name="u"></param>
+        public void UpdateRows(Update<(T1, T2, T3, T4, T5, T6, T7)> u) {
+            for (var i = 0u; i < _table.Length; i++)
+                u(ref _table.PositionReference(i));
+        }
+
+        /// <summary>
+        /// Add rows of t to rows of this predicate
+        /// </summary>
+        public void Append(TablePredicate<T1, T2, T3, T4, T5, T6, T7> t) {
+            for (var i = 0u; i < t._table.Length; i++) {
+                var row = t._table.PositionReference(i);
+                AddRow(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7);
+            }
+        }
+
+        /// <summary>
+        /// Add a rule using the default arguments as the head.
+        /// </summary>
+        /// <param name="body">subgoals</param>
+        /// <returns>the original predicate</returns>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7> If(params Goal[] body) {
+            AddRule(body);
+            return this;
+        }
+
+        private List<TablePredicate<T1, T2, T3, T4, T5, T6, T7>>? inputs;
+
+        /// <summary>
+        /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
+        /// </summary>
+        /// <param name="input">Predicate to append to this predicate on each tick</param>
+        /// <returns>This predicate</returns>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7> Accumulates(TablePredicate<T1, T2, T3, T4, T5, T6, T7> input) {
+            inputs ??= new List<TablePredicate<T1, T2, T3, T4, T5, T6, T7>>();
+            inputs.Add(input);
+            return this;
+        }
+
+        internal override void AppendInputs() {
+            if (inputs != null)
+                foreach (var input in inputs) Append(input);
+        }
+
+        /// <inheritdoc />
+        public IEnumerator<(T1, T2, T3, T4, T5, T6, T7)> GetEnumerator() => Table.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
+    }
+
+    /// <summary>
+    /// A 8-argument TablePredicate
+    /// </summary>
+    /// <typeparam name="T1">Type of the predicate's 1st argument</typeparam>
+    /// <typeparam name="T2">Type of the predicate's 2nd argument</typeparam>
+    /// <typeparam name="T3">Type of the predicate's 3rd argument</typeparam>
+    /// <typeparam name="T4">Type of the predicate's 4th argument</typeparam>
+    /// <typeparam name="T5">Type of the predicate's 5th argument</typeparam>
+    /// <typeparam name="T6">Type of the predicate's 6th argument</typeparam>
+    /// <typeparam name="T7">Type of the predicate's 7th argument</typeparam>
+    /// <typeparam name="T8">Type of the predicate's 8th argument</typeparam>
+    public class TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> : TablePredicate, IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8)> {
+        /// <summary>
+        /// Make a Goal from this predicate with the specified argument value.
+        /// </summary>
+        public TableGoal<T1, T2, T3, T4, T5, T6, T7, T8> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7, Term<T8> arg8]
+            => new TableGoal<T1, T2, T3, T4, T5, T6, T7, T8>(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+
+        /// <inheritdoc />
+        public override TableGoal GetGoal(Term[] args)
+            => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2), CastArg<T3>(args[2], 3), CastArg<T4>(args[3], 4),
+                    CastArg<T5>(args[4], 5), CastArg<T6>(args[5], 6), CastArg<T7>(args[6], 7), CastArg<T8>(args[7], 8)];
+
+        /// <inheritdoc />
+        protected override void AddIndex(int columnIndex, bool keyIndex) {
+            switch (columnIndex) {
+                case 0:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item1, keyIndex));
+                    break;
+
+                case 1:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item2, keyIndex));
+                    break;
+
+                case 2:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item3, keyIndex));
+                    break;
+
+                case 3:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item4, keyIndex));
+                    break;
+
+                case 4:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item5, keyIndex));
+                    break;
+
+                case 5:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item6, keyIndex));
+                    break;
+
+                case 6:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item7, keyIndex));
+                    break;
+
+                case 7:
+                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item8, keyIndex));
+                    break;
+
+                default:
+                    throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
+            }
+        }
+
+        /// <summary>
+        /// Get the index for the specified key
+        /// </summary>
+        /// <typeparam name="TKey">Type of the indexed column</typeparam>
+        /// <param name="column">Default variable representing the column</param>
+        /// <returns>The index</returns>
+        /// <exception cref="InvalidOperationException">If there is no index or it's not a key index</exception>
+        public KeyIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey> KeyIndex<TKey>(Var<TKey> column) {
+            var i = IndexFor(ColumnPositionOfDefaultVariable(column), true);
+            if (i == null)
+                throw new InvalidOperationException($"No key index defined for {column}");
+            return (KeyIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey>)i;
+        }
+
+        /// <summary>
+        /// Get the index for the specified key
+        /// </summary>
+        /// <typeparam name="TKey">Type of the indexed column</typeparam>
+        /// <param name="column">Position of the column</param>
+        /// <returns>The index</returns>
+        /// <exception cref="InvalidOperationException">If there is no index or it's not a key index</exception>
+        public KeyIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey> KeyIndex<TKey>(int column) {
+            var i = IndexFor(column, true);
+            if (i == null)
+                throw new InvalidOperationException($"No key index defined for column {column}");
+            return (KeyIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey>)i;
+        }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        /// <param name="arg4">Default variable for the fourth argument</param>
+        /// <param name="arg5">Default variable for the fifth argument</param>
+        /// <param name="arg6">Default variable for the sixth argument</param>
+        /// <param name="arg7">Default variable for the seventh argument</param>
+        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8)
+            : base(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) { }
+
+        // ReSharper disable once InconsistentNaming
+        internal readonly Table<(T1, T2, T3, T4, T5, T6, T7, T8)> _table = new Table<(T1, T2, T3, T4, T5, T6, T7, T8)>();
+
+        internal Table<(T1, T2, T3, T4, T5, T6, T7, T8)> Table {
+            get {
+                EnsureUpToDate();
+                return _table;
+            }
+        }
+
+        internal override Table TableUntyped => _table;
+
+        /// <summary>
+        /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
+        /// </summary>
+        public override uint Length => Table.Length;
+
+        /// <summary>
+        /// Manually add a row (ground instance) to the extension of the predicate
+        /// This cannot be mixed with rules using If.  If you want to have rules for the predicate
+        /// use Fact() instead of AddRow.
+        /// </summary>
+        public void AddRow(in T1 v1, in T2 v2, in T3 v3, in T4 v4, in T5 v5, in T6 v6, in T7 v7, in T8 v8)
+            => _table.Add((v1, v2, v3, v4, v5, v6, v7, v8));
+
+        /// <summary>
+        /// Add a set of rows from a generator
+        /// </summary>
+        public void AddRows(IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8)> generator) {
+            var t = Table;
+            foreach (var r in generator) t.Add(r);
+        }
+        internal IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8)> Match(Pattern<T1, T2, T3, T4, T5, T6, T7, T8> pat) {
+            var t = Table;
+            for (var i = 0u; i < t.Length; i++) {
+                var e = t.PositionReference(i);
+                if (pat.Match(e))
+                    yield return e;
+            }
+        }
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="name">Predicate name</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
+        /// <param name="arg4">Fourth argument</param>
+        /// <param name="arg5">Fifth argument</param>
+        /// <param name="arg6">Sixth argument</param>
+        /// <param name="arg7">Seventh argument</param>
+        /// <param name="arg8">Eighth argument</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8) {
+            var (header, data) = CsvReader.ReadCsv(path);
+            VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+            var p = new TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+            foreach (var row in data)
+                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
+                    CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]),
+                    CsvReader.ConvertCell<T6>(row[5]), CsvReader.ConvertCell<T7>(row[6]), CsvReader.ConvertCell<T8>(row[7]));
+            return p;
+        }
+
+        /// <summary>
+        /// Read an extensional predicate from a CSV file
+        /// </summary>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">First argument</param>
+        /// <param name="arg2">Second argument</param>
+        /// <param name="arg3">Third argument</param>
+        /// <param name="arg4">Fourth argument</param>
+        /// <param name="arg5">Fifth argument</param>
+        /// <param name="arg6">Sixth argument</param>
+        /// <returns>The TablePredicate</returns>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        public override void RowToStrings(uint rowNumber, string[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = Stringify(r.Item1);
+            buffer[1] = Stringify(r.Item2);
+            buffer[2] = Stringify(r.Item3);
+            buffer[3] = Stringify(r.Item4);
+            buffer[4] = Stringify(r.Item5);
+            buffer[5] = Stringify(r.Item6);
+            buffer[6] = Stringify(r.Item7);
+            buffer[7] = Stringify(r.Item8);
+        }
+
+        /// <summary>
+        /// Call method on every row of the table, passing it a reference so it can rewrite it as it likes
+        /// </summary>
+        /// <param name="u"></param>
+        public void UpdateRows(Update<(T1, T2, T3, T4, T5, T6, T7, T8)> u) {
+            for (var i = 0u; i < _table.Length; i++)
+                u(ref _table.PositionReference(i));
+        }
+
+        /// <summary>
+        /// Add rows of t to rows of this predicate
+        /// </summary>
+        public void Append(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> t) {
+            for (var i = 0u; i < t._table.Length; i++) {
+                var row = t._table.PositionReference(i);
+                AddRow(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8);
+            }
+        }
+
+        /// <summary>
+        /// Add a rule using the default arguments as the head.
+        /// </summary>
+        /// <param name="body">subgoals</param>
+        /// <returns>the original predicate</returns>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> If(params Goal[] body) {
+            AddRule(body);
+            return this;
+        }
+
+        private List<TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>>? inputs;
+
+        /// <summary>
+        /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
+        /// </summary>
+        /// <param name="input">Predicate to append to this predicate on each tick</param>
+        /// <returns>This predicate</returns>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> Accumulates(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> input) {
+            inputs ??= new List<TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>>();
+            inputs.Add(input);
+            return this;
+        }
+
+        internal override void AppendInputs() {
+            if (inputs != null)
+                foreach (var input in inputs) Append(input);
+        }
+
+        /// <inheritdoc />
+        public IEnumerator<(T1, T2, T3, T4, T5, T6, T7, T8)> GetEnumerator() => Table.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
+    }
 }
