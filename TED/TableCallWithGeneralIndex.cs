@@ -163,4 +163,56 @@
             return Row != Table.NoRow;
         }
     }
+
+    internal class TableCallWithGeneralIndex<TKey, T1, T2, T3, T4, T5, T6, T7> : TableCallWithGeneralIndex {
+        private readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate;
+        private readonly Pattern<T1, T2, T3, T4, T5, T6, T7> pattern;
+        private readonly GeneralIndex<(T1, T2, T3, T4, T5, T6, T7), TKey> index;
+        private readonly ValueCell<TKey> keyCell;
+
+        public TableCallWithGeneralIndex(TablePredicate<T1, T2, T3, T4, T5, T6, T7> tablePredicate, Pattern<T1, T2, T3, T4, T5, T6, T7> pattern, GeneralIndex<(T1, T2, T3, T4, T5, T6, T7), TKey> index, ValueCell<TKey> keyCell) : base(tablePredicate) {
+            predicate = tablePredicate;
+            this.pattern = pattern;
+            this.index = index;
+            this.keyCell = keyCell;
+        }
+
+        public override IPattern ArgumentPattern => pattern;
+
+        public override bool NextSolution() {
+            Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
+            Primed = false;
+
+            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+                Row = index.NextRowWithValue(Row);
+
+            return Row != Table.NoRow;
+        }
+    }
+
+    internal class TableCallWithGeneralIndex<TKey, T1, T2, T3, T4, T5, T6, T7, T8> : TableCallWithGeneralIndex {
+        private readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate;
+        private readonly Pattern<T1, T2, T3, T4, T5, T6, T7, T8> pattern;
+        private readonly GeneralIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey> index;
+        private readonly ValueCell<TKey> keyCell;
+
+        public TableCallWithGeneralIndex(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> tablePredicate, Pattern<T1, T2, T3, T4, T5, T6, T7, T8> pattern, GeneralIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey> index, ValueCell<TKey> keyCell) : base(tablePredicate) {
+            predicate = tablePredicate;
+            this.pattern = pattern;
+            this.index = index;
+            this.keyCell = keyCell;
+        }
+
+        public override IPattern ArgumentPattern => pattern;
+
+        public override bool NextSolution() {
+            Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
+            Primed = false;
+
+            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+                Row = index.NextRowWithValue(Row);
+
+            return Row != Table.NoRow;
+        }
+    }
 }

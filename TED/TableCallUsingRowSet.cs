@@ -135,4 +135,40 @@
             return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
         }
     }
+
+    internal class TableCallUsingRowSet<T1, T2, T3, T4, T5, T6, T7> : SingleRowTableCall {
+        private readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate;
+        private readonly Pattern<T1, T2, T3, T4, T5, T6, T7> pattern;
+
+        public TableCallUsingRowSet(TablePredicate<T1, T2, T3, T4, T5, T6, T7> tablePredicate, Pattern<T1, T2, T3, T4, T5, T6, T7> pattern) : base(tablePredicate) {
+            predicate = tablePredicate;
+            this.pattern = pattern;
+        }
+
+        public override IPattern ArgumentPattern => pattern;
+
+        public override bool NextSolution() {
+            if (!primed) return false;
+            primed = false;
+            return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
+        }
+    }
+
+    internal class TableCallUsingRowSet<T1, T2, T3, T4, T5, T6, T7, T8> : SingleRowTableCall {
+        private readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate;
+        private readonly Pattern<T1, T2, T3, T4, T5, T6, T7, T8> pattern;
+
+        public TableCallUsingRowSet(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> tablePredicate, Pattern<T1, T2, T3, T4, T5, T6, T7, T8> pattern) : base(tablePredicate) {
+            predicate = tablePredicate;
+            this.pattern = pattern;
+        }
+
+        public override IPattern ArgumentPattern => pattern;
+
+        public override bool NextSolution() {
+            if (!primed) return false;
+            primed = false;
+            return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
+        }
+    }
 }

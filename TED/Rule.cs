@@ -304,4 +304,61 @@ namespace TED
             TablePredicate._table.Add(in result);
         }
     }
+
+    /// <summary>
+    /// Represents the final, "compiled" representation of a rule.
+    /// </summary>
+    /// <typeparam name="T1">Type of the first argument to the rule's head (conclusion)</typeparam>
+    /// <typeparam name="T2">Type of the second argument to the rule's head</typeparam>
+    /// <typeparam name="T3">Type of the third argument to the rule's head</typeparam>
+    /// <typeparam name="T4">Type of the fourth argument to the rule's head</typeparam>
+    /// <typeparam name="T5">Type of the fifth argument to the rule's head</typeparam>
+    /// <typeparam name="T6">Type of the sixth argument to the rule's head</typeparam>
+    /// <typeparam name="T7">Type of the seventh argument to the rule's head</typeparam>
+    internal sealed class Rule<T1, T2, T3, T4, T5, T6, T7> : Rule {
+        public readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7> TablePredicate;
+        public readonly Pattern<T1, T2, T3, T4, T5, T6, T7> HeadPattern;
+        public override IPattern Head => HeadPattern;
+
+        public Rule(TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, Pattern<T1, T2, T3, T4, T5, T6, T7> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
+            : base(predicate, body, dependencies, valueCells) {
+            HeadPattern = headPattern;
+            TablePredicate = predicate;
+        }
+
+        internal override void WriteHead() {
+            // Whole body succeed
+            HeadPattern.Write(out var result);
+            TablePredicate._table.Add(in result);
+        }
+    }
+
+    /// <summary>
+    /// Represents the final, "compiled" representation of a rule.
+    /// </summary>
+    /// <typeparam name="T1">Type of the first argument to the rule's head (conclusion)</typeparam>
+    /// <typeparam name="T2">Type of the second argument to the rule's head</typeparam>
+    /// <typeparam name="T3">Type of the third argument to the rule's head</typeparam>
+    /// <typeparam name="T4">Type of the fourth argument to the rule's head</typeparam>
+    /// <typeparam name="T5">Type of the fifth argument to the rule's head</typeparam>
+    /// <typeparam name="T6">Type of the sixth argument to the rule's head</typeparam>
+    /// <typeparam name="T7">Type of the seventh argument to the rule's head</typeparam>
+    /// <typeparam name="T8">Type of the eighth argument to the rule's head</typeparam>
+    internal sealed class Rule<T1, T2, T3, T4, T5, T6, T7, T8> : Rule {
+        public readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> TablePredicate;
+        public readonly Pattern<T1, T2, T3, T4, T5, T6, T7, T8> HeadPattern;
+        public override IPattern Head => HeadPattern;
+
+        public Rule(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, Pattern<T1, T2, T3, T4, T5, T6, T7, T8> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
+            : base(predicate, body, dependencies, valueCells) {
+            HeadPattern = headPattern;
+            TablePredicate = predicate;
+        }
+
+        internal override void WriteHead() {
+            // Whole body succeed
+            HeadPattern.Write(out var result);
+            TablePredicate._table.Add(in result);
+        }
+    }
 }
