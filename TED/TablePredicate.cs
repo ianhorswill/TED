@@ -1813,6 +1813,7 @@ namespace TED
         /// <param name="arg4">Fourth argument</param>
         /// <param name="arg5">Fifth argument</param>
         /// <param name="arg6">Sixth argument</param>
+        /// <param name="arg7">Seventh argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6, T7> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
@@ -1987,6 +1988,7 @@ namespace TED
         /// <param name="arg5">Default variable for the fifth argument</param>
         /// <param name="arg6">Default variable for the sixth argument</param>
         /// <param name="arg7">Default variable for the seventh argument</param>
+        /// <param name="arg8">Default variable for the eighth argument</param>
         public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8)
             : base(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) { }
 
@@ -2066,6 +2068,8 @@ namespace TED
         /// <param name="arg4">Fourth argument</param>
         /// <param name="arg5">Fifth argument</param>
         /// <param name="arg6">Sixth argument</param>
+        /// <param name="arg7">Seventh argument</param>
+        /// <param name="arg8">Eighth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
