@@ -1,7 +1,6 @@
 ﻿using System;
 
-namespace TED
-{
+namespace TED {
     /// <summary>
     /// Untyped base class of all Terms.  Terms are expressions representing arguments to predicates.
     /// This only has one direct subclass, Term[T], whose subclasses are variables (Var[T]), constants (Constant[T]),
@@ -18,6 +17,24 @@ namespace TED
         /// Make a variable of the same type as this term
         /// </summary>
         internal abstract Term MakeVariable(string name);
+
+        protected static Goal CatchComparisonTypeInitializerProblem(Func<Goal> thunk, string operation) {
+            try {
+                return thunk();
+            }
+            catch (TypeInitializationException e) {
+                throw new MissingMethodException($"There is no {operation} overload defined for type {e.TypeName}");
+            }
+        }
+
+        protected static FunctionalExpression<T> CatchFunctionalExpressionTypeInitializerProblem<T>(Func<FunctionalExpression<T>> thunk, string operation) {
+            try {
+                return thunk();
+            }
+            catch (TypeInitializationException e) {
+                throw new MissingMethodException($"There is no {operation} overload defined for type {e.TypeName}");
+            }
+        }
     }
 
     /// <summary>
@@ -64,38 +81,23 @@ namespace TED
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
-        public static Goal operator <(Term<T> a, Term<T> b) => CatchComparisonTypeInitializerProblem<T>(() 
-            => ComparisonPrimitive<T>.LessThan[a, b], "<");
+        public static Goal operator <(Term<T> a, Term<T> b) =>
+            CatchComparisonTypeInitializerProblem(() => ComparisonPrimitive<T>.LessThan[a, b], "<");
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
         public static Goal operator >(Term<T> a, Term<T> b)
-            => CatchComparisonTypeInitializerProblem<T>(() => ComparisonPrimitive<T>.GreaterThan[a, b], ">");
-
+            => CatchComparisonTypeInitializerProblem(() => ComparisonPrimitive<T>.GreaterThan[a, b], ">");
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
         public static Goal operator <=(Term<T> a, Term<T> b)
-            => CatchComparisonTypeInitializerProblem<T>(() => ComparisonPrimitive<T>.LessThanEq[a, b], "<=");
-        
+            => CatchComparisonTypeInitializerProblem(() => ComparisonPrimitive<T>.LessThanEq[a, b], "<=");
         /// <summary>
         /// Compare the magnitudes of two values
         /// </summary>
         public static Goal operator >=(Term<T> a, Term<T> b)
-            => CatchComparisonTypeInitializerProblem<T>(() => ComparisonPrimitive<T>.GreaterThanEq[a, b], ">=");
-
-        
-        private static Goal CatchComparisonTypeInitializerProblem<T>(Func<Goal> thunk, string operation)
-        {
-            try
-            {
-                return thunk();
-            }
-            catch (TypeInitializationException e)
-            {
-                throw new MissingMethodException($"There is no {operation} overload defined for type {typeof(T).Name}");
-            }
-        }
+            => CatchComparisonTypeInitializerProblem(() => ComparisonPrimitive<T>.GreaterThanEq[a, b], ">=");
 
         public static FunctionalExpression<T> operator +(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => AdditionOperator<T>.Singleton[a, b], "+");
@@ -126,17 +128,5 @@ namespace TED
 
         public static FunctionalExpression<T> operator ~(Term<T> a)
             => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseNegationOperator<T>.Singleton[a], "~");
-
-        private static FunctionalExpression<T> CatchFunctionalExpressionTypeInitializerProblem<T>(Func<FunctionalExpression<T>> thunk, string operation)
-        {
-            try
-            {
-                return thunk();
-            }
-            catch (TypeInitializationException e)
-            {
-                throw new MissingMethodException($"There is no {operation} overload defined for type {typeof(T).Name}");
-            }
-        }
     }
 }
