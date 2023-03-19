@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using static TED.Repl.ParserState;
 
 namespace TED.Repl
 {
     internal static class Parser
     {
-        public static TablePredicate PredicateNamed(string name) => Simulation.Current.Tables.First(t => t.Name == name);
+        public static TablePredicate PredicateNamed(string name) => Simulation.Current!.Tables.First(t => t.Name == name);
         public static bool Identifier(ParserState s, Continuation<string> k) => s.ReadToken(char.IsLetter, k);
         public static bool Predicate(ParserState s, Continuation<TablePredicate> k) => s.ReadToken(char.IsLetter, PredicateNamed, k);
 

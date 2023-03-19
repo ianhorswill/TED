@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Reflection;
 
 namespace TED
 {
     /// <summary>
-    /// Wrapper for C# comparison operators (<, >, etc.) for some type.
+    /// Wrapper for C# comparison operators for some type.
     /// </summary>
     internal sealed class ComparisonPrimitive<T> : PrimitivePredicate<T,T>
     {

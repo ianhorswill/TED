@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace TED
 {
@@ -8,6 +9,9 @@ namespace TED
     /// </summary>
     public sealed class AndPrimitive : Predicate
     {
+        /// <summary>
+        /// The And primitive itself
+        /// </summary>
         public static readonly AndPrimitive Singleton = new AndPrimitive();
         private AndPrimitive() : base("And")
         { }
@@ -15,7 +19,15 @@ namespace TED
         /// <summary>
         /// True when all the subgoals are true
         /// </summary>
-        public TED.Goal this[params TED.Goal[] subgoals] => new Goal(subgoals);
+        public TED.Goal this[params TED.Goal[] subgoals] => new Goal(Flatten(subgoals).ToArray());
+
+        private static IEnumerable<TED.Goal> Flatten(TED.Goal[] subgoals) => subgoals.SelectMany(FlattenOne);
+
+        private static TED.Goal UnwrapGoalConstant(Constant<TED.Goal> c) => c.Value;
+        private static IEnumerable<TED.Goal> FlattenOne(TED.Goal g)
+            => g.Predicate is AndPrimitive
+                ? g.Arguments.SelectMany(subgoal => FlattenOne(UnwrapGoalConstant((Constant<TED.Goal>)subgoal))) 
+                : new[] { g };
 
         public class Goal : TED.Goal
         {
