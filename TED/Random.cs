@@ -1,7 +1,7 @@
 ﻿namespace TED
 {
     /// <summary>
-    /// Shared RNG used by al all the randomization primtiives
+    /// Shared RNG used by al all the randomization primitives
     /// </summary>
     public static class Random
     {

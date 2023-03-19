@@ -1,7 +1,41 @@
 ﻿using System;
 
-namespace TED
-{
+namespace TED {
+    /// <summary>
+    /// A primitive that tests for truth using a C# function.
+    /// </summary>
+    public class PrimitiveTest : PrimitivePredicate {
+        internal readonly Func<bool> Implementation;
+
+        /// <summary>
+        /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.
+        /// </summary>
+        /// <param name="name">Name, for debugging purposes</param>
+        /// <param name="implementation">C# implementation.
+        /// This will be called with the values of the arguments.
+        /// If it returns true, the call to the test succeeds, otherwise, it fails and the system backtracks</param>
+        public PrimitiveTest(string name, Func<bool> implementation) : base(name) {
+            Implementation = implementation;
+        }
+
+        /// <inheritdoc />
+        public override TED.Call MakeCall(Goal g, GoalAnalyzer tc) => new Call(this);
+
+        private class Call : TED.Call {
+            private readonly PrimitiveTest _predicate;
+            private bool ready;
+
+            public override IPattern ArgumentPattern => new Pattern();
+            public Call(PrimitiveTest predicate) : base(predicate) => _predicate = predicate;
+            public override void Reset() => ready = true;
+            public override bool NextSolution() {
+                if (!ready) return false;
+                ready = false;
+                return _predicate.Implementation();
+            }
+        }
+    }
+
     /// <summary>
     /// A primitive that tests instantiated argument. Throws an instantiation exception if its argument is an unbound variable.
     /// </summary>

@@ -7,6 +7,19 @@ namespace TED {
     /// Describes how to match or write the value of the arguments in a Goal
     /// Compiled from the arguments to a Goal object
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay}")]
+    public readonly struct Pattern : IPattern {
+        public bool IsInstantiated => true;
+
+        public override string ToString() => "[No pattern]";
+
+        private string DebuggerDisplay => ToString();
+    }
+
+    /// <summary>
+    /// Describes how to match or write the value of the arguments in a Goal
+    /// Compiled from the arguments to a Goal object
+    /// </summary>
     /// <typeparam name="T1">Type of the goal's argument</typeparam>
     [DebuggerDisplay("{DebuggerDisplay}")]
     public readonly struct Pattern<T1> : IPattern {

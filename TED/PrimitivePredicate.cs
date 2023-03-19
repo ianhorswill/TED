@@ -1,7 +1,46 @@
 ﻿using System.Collections.Generic;
 
-namespace TED
-{
+namespace TED {
+    /// <summary>
+    /// A primitive predicate (one computed by code rather than matching to a table) with no arguments
+    /// </summary>
+    public abstract class PrimitivePredicate : Predicate {
+        protected PrimitivePredicate(string name) : base(name) {}
+
+        /// <summary>
+        /// Return a goal representing a call to this primitive.
+        /// </summary>
+        public static implicit operator TED.Goal(PrimitivePredicate prim) => new Goal(prim);
+
+        /// <summary>
+        /// Map a Goal (AST for call) to a Call object (the internal form used by the interpreter)
+        /// </summary>
+        public abstract Call MakeCall(Goal g, GoalAnalyzer tc);
+
+        /// <summary>
+        /// Custom goal representation for this primitive
+        /// </summary>
+        public class Goal : TED.Goal {
+            public readonly PrimitivePredicate Primitive;
+
+            public override Predicate Predicate => Primitive;
+
+            public Goal(PrimitivePredicate predicate) : base(new Term[]{}) {
+                Primitive = predicate;
+            }
+
+            internal override TED.Goal RenameArguments(Substitution s) => new Goal(Primitive);
+
+            /// <summary>
+            /// Generate a custom Call object for a call to this particular predicate
+            /// You'll want to fill this in with a constructor for a Call class specific to your predicate
+            /// </summary>
+            /// <param name="ga">Goal analyzer for the rule this goal appears in.  Used to do mode analysis of the variables in the call.</param>
+            /// <returns>Instance of the custom call class for this particular primitive</returns>
+            internal override Call MakeCall(GoalAnalyzer ga) => Primitive.MakeCall(this, ga);
+        }
+    }
+
     /// <summary>
     /// A primitive predicate (one computed by code rather than matching to a table) with one argument
     /// </summary>

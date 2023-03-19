@@ -24,10 +24,7 @@ namespace TED
         /// </summary>
         public abstract Predicate Predicate { get; }
 
-        protected Goal(Term[] arguments)
-        {
-            Arguments = arguments;
-        }
+        protected Goal(Term[] arguments) => Arguments = arguments;
 
         /// <summary>
         /// Apply a substitution to the arguments of this goal
@@ -45,13 +42,21 @@ namespace TED
 
         /// <summary>
         /// True if the goal is false
-        /// Sugar for a call to Primitives.Not.
+        /// Sugar for a call to Language.Not.
         /// </summary>
         /// <param name="g">Goal to negate</param>
         /// <returns></returns>
         public static Goal operator !(Goal g) => Language.Not[g];
 
-        
+        /// <summary>
+        /// True if both the left-hand side and right-hand side goals are true.
+        /// Sugar for a call to Language.And.
+        /// </summary>
+        /// <param name="lhs">Left-hand side goal to and</param>
+        /// <param name="rhs">Right-hand side goal to and</param>
+        /// <returns></returns>
+        public static Goal operator &(Goal lhs, Goal rhs) => Language.And[lhs, rhs];
+
         #region Printing
         /// <summary>
         /// Convert the goal to a human-readable string, for purposes of printing.

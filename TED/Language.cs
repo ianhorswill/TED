@@ -563,6 +563,270 @@ namespace TED
             p.AddRows(generator);
             return p;
         }
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        public static TablePredicate<T1> FromCsv<T1>(string name, string path, IColumnSpec<T1> arg1)
+            => TablePredicate<T1>.FromCsv(name, path, arg1);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        public static TablePredicate<T1, T2> FromCsv<T1, T2>(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2)
+            => TablePredicate<T1, T2>.FromCsv(name, path, arg1, arg2);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        public static TablePredicate<T1, T2, T3> FromCsv<T1, T2, T3>(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3)
+            => TablePredicate<T1, T2, T3>.FromCsv(name, path, arg1, arg2, arg3);
+        
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        public static TablePredicate<T1, T2, T3, T4> FromCsv<T1, T2, T3, T4>(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4)
+            => TablePredicate<T1, T2, T3, T4>.FromCsv(name, path, arg1, arg2, arg3, arg4);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        /// <param name="arg5">Variable to be used as the default fifth argument.</param>
+        public static TablePredicate<T1, T2, T3, T4, T5> FromCsv<T1, T2, T3, T4, T5>(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5)
+            => TablePredicate<T1, T2, T3, T4, T5>.FromCsv(name, path, arg1, arg2, arg3, arg4, arg5);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
+        /// <typeparam name="T6">Type of the sixth argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        /// <param name="arg5">Variable to be used as the default fifth argument.</param>
+        /// <param name="arg6">Variable to be used as the default sixth argument.</param>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv<T1, T2, T3, T4, T5, T6>(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6)
+            => TablePredicate<T1, T2, T3, T4, T5, T6>.FromCsv(name, path, arg1, arg2, arg3, arg4, arg5, arg6);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
+        /// <typeparam name="T6">Type of the sixth argument to the predicate</typeparam>
+        /// <typeparam name="T7">Type of the seventh argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        /// <param name="arg5">Variable to be used as the default fifth argument.</param>
+        /// <param name="arg6">Variable to be used as the default sixth argument.</param>
+        /// <param name="arg7">Variable to be used as the default seventh argument.</param>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6, T7> FromCsv<T1, T2, T3, T4, T5, T6, T7>(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7)
+            => TablePredicate<T1, T2, T3, T4, T5, T6, T7>.FromCsv(name, path, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
+        /// <typeparam name="T6">Type of the sixth argument to the predicate</typeparam>
+        /// <typeparam name="T7">Type of the seventh argument to the predicate</typeparam>
+        /// <typeparam name="T8">Type of the eighth argument to the predicate</typeparam>
+        /// <param name="name">Name for the predicate, for debugging purposes</param>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        /// <param name="arg5">Variable to be used as the default fifth argument.</param>
+        /// <param name="arg6">Variable to be used as the default sixth argument.</param>
+        /// <param name="arg7">Variable to be used as the default seventh argument.</param>
+        /// <param name="arg8">Variable to be used as the default eighth argument.</param>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> FromCsv<T1, T2, T3, T4, T5, T6, T7, T8>(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8)
+            => TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>.FromCsv(name, path, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        public static TablePredicate<T1> FromCsv<T1>(string path, IColumnSpec<T1> arg1)
+            => TablePredicate<T1>.FromCsv(path, arg1);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        public static TablePredicate<T1, T2> FromCsv<T1, T2>(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2)
+            => TablePredicate<T1, T2>.FromCsv(path, arg1, arg2);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        public static TablePredicate<T1, T2, T3> FromCsv<T1, T2, T3>(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3)
+            => TablePredicate<T1, T2, T3>.FromCsv(path, arg1, arg2, arg3);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        public static TablePredicate<T1, T2, T3, T4> FromCsv<T1, T2, T3, T4>(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4)
+            => TablePredicate<T1, T2, T3, T4>.FromCsv(path, arg1, arg2, arg3, arg4);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        /// <param name="arg5">Variable to be used as the default fifth argument.</param>
+        public static TablePredicate<T1, T2, T3, T4, T5> FromCsv<T1, T2, T3, T4, T5>(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5)
+            => TablePredicate<T1, T2, T3, T4, T5>.FromCsv(path, arg1, arg2, arg3, arg4, arg5);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
+        /// <typeparam name="T6">Type of the sixth argument to the predicate</typeparam>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        /// <param name="arg5">Variable to be used as the default fifth argument.</param>
+        /// <param name="arg6">Variable to be used as the default sixth argument.</param>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv<T1, T2, T3, T4, T5, T6>(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6)
+            => TablePredicate<T1, T2, T3, T4, T5, T6>.FromCsv(path, arg1, arg2, arg3, arg4, arg5, arg6);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
+        /// <typeparam name="T6">Type of the sixth argument to the predicate</typeparam>
+        /// <typeparam name="T7">Type of the seventh argument to the predicate</typeparam>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        /// <param name="arg5">Variable to be used as the default fifth argument.</param>
+        /// <param name="arg6">Variable to be used as the default sixth argument.</param>
+        /// <param name="arg7">Variable to be used as the default seventh argument.</param>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6, T7> FromCsv<T1, T2, T3, T4, T5, T6, T7>(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7)
+            => TablePredicate<T1, T2, T3, T4, T5, T6, T7>.FromCsv(path, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+
+        /// <summary>
+        /// Make a new table predicate, loading in rows from the specified csv
+        /// </summary>
+        /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
+        /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
+        /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
+        /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
+        /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
+        /// <typeparam name="T6">Type of the sixth argument to the predicate</typeparam>
+        /// <typeparam name="T7">Type of the seventh argument to the predicate</typeparam>
+        /// <typeparam name="T8">Type of the eighth argument to the predicate</typeparam>
+        /// <param name="path">Path to the CSV file</param>
+        /// <param name="arg1">Variable to be used as the default first argument.</param>
+        /// <param name="arg2">Variable to be used as the default second argument.</param>
+        /// <param name="arg3">Variable to be used as the default third argument.</param>
+        /// <param name="arg4">Variable to be used as the default fourth argument.</param>
+        /// <param name="arg5">Variable to be used as the default fifth argument.</param>
+        /// <param name="arg6">Variable to be used as the default sixth argument.</param>
+        /// <param name="arg7">Variable to be used as the default seventh argument.</param>
+        /// <param name="arg8">Variable to be used as the default eighth argument.</param>
+        public static TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> FromCsv<T1, T2, T3, T4, T5, T6, T7, T8>(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8)
+            => TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>.FromCsv(path, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
         #endregion
 
         #region Definition declaration sugar
