@@ -241,6 +241,16 @@ namespace TED
         /// </summary>
         public abstract uint Length { get; }
 
+        public List<string[]> TableToStrings()
+        {
+            var list = new List<string[]>();
+            for (var i = 0u; i < Length; i++) {
+                var buffer = new string[ColumnHeadings.Length];
+                RowToStrings(i, buffer);
+                list.Add(buffer); }
+            return list;
+        }
+
         /// <summary>
         /// Call the specified function on each row of the table, allowing it to overwrite them
         /// </summary>
