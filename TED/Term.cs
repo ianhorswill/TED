@@ -99,33 +99,63 @@ namespace TED {
         public static Goal operator >=(Term<T> a, Term<T> b)
             => CatchComparisonTypeInitializerProblem(() => ComparisonPrimitive<T>.GreaterThanEq[a, b], ">=");
 
+        /// <summary>
+        /// Add two terms using the existing overload for + for that datatype
+        /// </summary>
         public static FunctionalExpression<T> operator +(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => AdditionOperator<T>.Singleton[a, b], "+");
 
+        /// <summary>
+        /// Subtract two terms using the existing overload for - for that datatype
+        /// </summary>
         public static FunctionalExpression<T> operator -(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => SubtractionOperator<T>.Singleton[a,b], "-");
 
+        /// <summary>
+        /// Negate a term using the existing overload for - for that datatype
+        /// </summary>
         public static FunctionalExpression<T> operator -(Term<T> a)
             => CatchFunctionalExpressionTypeInitializerProblem(() => NegationOperator<T>.Singleton[a], "unary -");
 
+        /// <summary>
+        /// Multiply two terms using the existing overload for * for that datatype
+        /// </summary>
         public static FunctionalExpression<T> operator *(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => MultiplicationOperator<T>.Singleton[a,b], "*");
 
+        /// <summary>
+        /// Divide two terms using the existing overload for / for that datatype
+        /// </summary>
         public static FunctionalExpression<T> operator /(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => DivisionOperator<T>.Singleton[a,b], "/");
 
+        /// <summary>
+        /// Take the modulus of two terms using the existing overload for % for that datatype
+        /// </summary>
         public static FunctionalExpression<T> operator %(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => ModulusOperator<T>.Singleton[a,b], "%");
 
+        /// <summary>
+        /// Take the disjunction of two terms using the existing overload for | for that datatype
+        /// </summary>
         public static FunctionalExpression<T> operator |(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseOrOperator<T>.Singleton[a,b], "|");
 
+        /// <summary>
+        /// Take the conjunction of two terms using the existing overload for ampersand for that datatype
+        /// </summary>
         public static FunctionalExpression<T> operator &(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseAndOperator<T>.Singleton[a,b], "&");
 
+        /// <summary>
+        /// Take the power of two terms using the existing overload for ^ for that datatype
+        /// </summary>
         public static FunctionalExpression<T> operator ^(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseXOrOperator<T>.Singleton[a,b], "^");
 
+        /// <summary>
+        /// Invert a term using the existing overload for ~ for that datatype
+        /// </summary>
         public static FunctionalExpression<T> operator ~(Term<T> a)
             => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseNegationOperator<T>.Singleton[a], "~");
     }

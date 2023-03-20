@@ -139,6 +139,21 @@ namespace Tests
         }
 
         [TestMethod]
+        public void AndFlattening()
+        {
+            var n = (Var<int>)"n";
+            var p = Predicate("p", n);
+            var g = p[0] & p[1] & p[2];
+            var conjuncts = g.Arguments.Select(c => ((Constant<Goal>)c).Value).ToArray();
+            Assert.AreEqual(3, conjuncts.Length);
+            for (var i = 0; i < 3; i++)
+            {
+                Assert.AreEqual(p, conjuncts[i].Predicate);
+                Assert.AreEqual(i, ((Constant<int>)conjuncts[i].Arguments[0]).Value);
+            }
+        }
+
+        [TestMethod]
         public void NegatedDefinitionTest()
         {
             var n = (Var<int>)"n";
