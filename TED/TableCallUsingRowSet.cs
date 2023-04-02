@@ -23,8 +23,8 @@
         public override IPattern ArgumentPattern => pattern;
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
         }
     }
@@ -44,8 +44,8 @@
 
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
         }
     }
@@ -67,8 +67,8 @@
 
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
         }
     }
@@ -88,8 +88,8 @@
 
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
         }
     }
@@ -109,8 +109,8 @@
 
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
         }
     }
@@ -130,8 +130,8 @@
 
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
         }
     }
@@ -148,8 +148,8 @@
         public override IPattern ArgumentPattern => pattern;
 
         public override bool NextSolution() {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
         }
     }
@@ -166,8 +166,8 @@
         public override IPattern ArgumentPattern => pattern;
 
         public override bool NextSolution() {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             return predicate.Table.ContainsRowUsingRowSet(pattern.Value);
         }
     }

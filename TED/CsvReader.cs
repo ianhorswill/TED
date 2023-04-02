@@ -80,18 +80,18 @@ namespace TED
         ///// </summary>
         //private int LineNumber { get; private set; }
 
-        private readonly TextReader Input;
+        private readonly TextReader input;
 
         
         /// <summary>
         /// True if we're at the end of the stream
         /// </summary>
-        private bool End => Input.Peek() < 0;
+        private bool End => input.Peek() < 0;
 
-        /// <summary>
-        /// Return the current character, without advancing
-        /// </summary>
-        private char Peek => (char)(Input.Peek());
+        ///// <summary>
+        ///// Return the current character, without advancing
+        ///// </summary>
+        //private char Peek => (char)(input.Peek());
 
         private readonly StringBuilder stringBuffer = new StringBuilder();
         private readonly List<string> rowBuffer = new List<string>();
@@ -101,14 +101,14 @@ namespace TED
 
         private CsvReader(TextReader input)
         {
-            Input = input;
+            this.input = input;
         }
 
         bool EndOfLineChar
         {
             get
             {
-                var next = Input.Peek();
+                var next = input.Peek();
                 return next == '\n' || next == '\r';
             }
         }
@@ -139,7 +139,7 @@ namespace TED
             while (!EndOfLineChar && !End)
             {
                 char ch;
-                switch (ch = (char) Input.Read())
+                switch (ch = (char) input.Read())
                 {
                     case '\n':
                         case '\r':
@@ -161,7 +161,7 @@ namespace TED
             }
 
             // Now at EOL.
-            while (EndOfLineChar) Input.Read();
+            while (EndOfLineChar) input.Read();
 
             rowBuffer.Add(stringBuffer.ToString());
             stringBuffer.Clear();
@@ -185,13 +185,13 @@ namespace TED
             while (!EndOfLineChar && !End)
             {
                 char ch;
-                if ((ch = (char)Input.Read()) == '"')
+                if ((ch = (char)input.Read()) == '"')
                 {
-                    if (Input.Peek() == '"')
+                    if (input.Peek() == '"')
                     {
                         // It's an escaped quote mark
                         stringBuffer.Append('"');
-                        Input.Read(); // Skip second quote mark
+                        input.Read(); // Skip second quote mark
                     }
                     else 
                         // Quote marks the end of the column

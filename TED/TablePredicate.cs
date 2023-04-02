@@ -281,6 +281,14 @@ namespace TED
                         $"For predicate {name}, the column name {headerRow[i]} in the CSV file does not match the declared name {args[i].ColumnName}");
         }
 
+        /// <summary>
+        /// Attempt to cast an untyped Term to a typed Term.  Throw an exception if it's not of the right type
+        /// </summary>
+        /// <param name="arg">Argument term</param>
+        /// <param name="position">Which argument it is to the calling primitive</param>
+        /// <typeparam name="T">Expected type</typeparam>
+        /// <returns>Cast term</returns>
+        /// <exception cref="ArgumentException">If it's the wrong type</exception>
         protected Term<T> CastArg<T>(Term arg, int position)
         {
             if (arg is Term<T> result)

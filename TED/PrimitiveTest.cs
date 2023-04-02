@@ -22,16 +22,16 @@ namespace TED {
         public override TED.Call MakeCall(Goal g, GoalAnalyzer tc) => new Call(this);
 
         private class Call : TED.Call {
-            private readonly PrimitiveTest _predicate;
+            private readonly PrimitiveTest predicate;
             private bool ready;
 
             public override IPattern ArgumentPattern => new Pattern();
-            public Call(PrimitiveTest predicate) : base(predicate) => _predicate = predicate;
+            public Call(PrimitiveTest predicate) : base(predicate) => this.predicate = predicate;
             public override void Reset() => ready = true;
             public override bool NextSolution() {
                 if (!ready) return false;
                 ready = false;
-                return _predicate.Implementation();
+                return predicate.Implementation();
             }
         }
     }
@@ -67,7 +67,7 @@ namespace TED {
 
         private class Call : TED.Call
         {
-            private readonly PrimitiveTest<T1> _predicate;
+            private readonly PrimitiveTest<T1> predicate;
             private readonly ValueCell<T1> arg;
             private bool ready;
 
@@ -75,7 +75,7 @@ namespace TED {
 
             public Call(PrimitiveTest<T1> predicate, ValueCell<T1> arg) : base(predicate)
             {
-                _predicate = predicate;
+                this.predicate = predicate;
                 this.arg = arg;
             }
 
@@ -88,7 +88,7 @@ namespace TED {
             {
                 if (!ready) return false;
                 ready = false;
-                return _predicate.Implementation(arg.Value);
+                return predicate.Implementation(arg.Value);
             }
         }
     }
@@ -128,7 +128,7 @@ namespace TED {
 
         private class Call : TED.Call
         {
-            private readonly PrimitiveTest<T1, T2> _predicate;
+            private readonly PrimitiveTest<T1, T2> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
             private bool ready;
@@ -138,7 +138,7 @@ namespace TED {
 
             public Call(PrimitiveTest<T1, T2> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2) : base(predicate)
             {
-                _predicate = predicate;
+                this.predicate = predicate;
                 this.arg1 = arg1;
                 this.arg2 = arg2;
             }
@@ -152,7 +152,7 @@ namespace TED {
             {
                 if (!ready) return false;
                 ready = false;
-                return _predicate.Implementation(arg1.Value, arg2.Value);
+                return predicate.Implementation(arg1.Value, arg2.Value);
             }
         }
     }
@@ -192,7 +192,7 @@ namespace TED {
         }
 
         private class Call : TED.Call {
-            private readonly PrimitiveTest<T1, T2, T3> _predicate;
+            private readonly PrimitiveTest<T1, T2, T3> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
             private readonly ValueCell<T3> arg3;
@@ -202,7 +202,7 @@ namespace TED {
                 new Pattern<T1, T2, T3>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3));
 
             public Call(PrimitiveTest<T1, T2, T3> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3) : base(predicate) {
-                _predicate = predicate;
+                this.predicate = predicate;
                 this.arg1 = arg1;
                 this.arg2 = arg2;
                 this.arg3 = arg3;
@@ -215,7 +215,7 @@ namespace TED {
             public override bool NextSolution() {
                 if (!ready) return false;
                 ready = false;
-                return _predicate.Implementation(arg1.Value, arg2.Value, arg3.Value);
+                return predicate.Implementation(arg1.Value, arg2.Value, arg3.Value);
             }
         }
     }
@@ -259,7 +259,7 @@ namespace TED {
         }
 
         private class Call : TED.Call {
-            private readonly PrimitiveTest<T1, T2, T3, T4> _predicate;
+            private readonly PrimitiveTest<T1, T2, T3, T4> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
             private readonly ValueCell<T3> arg3;
@@ -270,7 +270,7 @@ namespace TED {
                 new Pattern<T1, T2, T3, T4>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3), MatchOperation<T4>.Read(arg4));
 
             public Call(PrimitiveTest<T1, T2, T3, T4> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3, ValueCell<T4> arg4) : base(predicate) {
-                _predicate = predicate;
+                this.predicate = predicate;
                 this.arg1 = arg1;
                 this.arg2 = arg2;
                 this.arg3 = arg3;
@@ -284,7 +284,7 @@ namespace TED {
             public override bool NextSolution() {
                 if (!ready) return false;
                 ready = false;
-                return _predicate.Implementation(arg1.Value, arg2.Value, arg3.Value, arg4.Value);
+                return predicate.Implementation(arg1.Value, arg2.Value, arg3.Value, arg4.Value);
             }
         }
     }
@@ -332,7 +332,7 @@ namespace TED {
         }
 
         private class Call : TED.Call {
-            private readonly PrimitiveTest<T1, T2, T3, T4, T5> _predicate;
+            private readonly PrimitiveTest<T1, T2, T3, T4, T5> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
             private readonly ValueCell<T3> arg3;
@@ -344,7 +344,7 @@ namespace TED {
                 new Pattern<T1, T2, T3, T4, T5>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3), MatchOperation<T4>.Read(arg4), MatchOperation<T5>.Read(arg5));
 
             public Call(PrimitiveTest<T1, T2, T3, T4, T5> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3, ValueCell<T4> arg4, ValueCell<T5> arg5) : base(predicate) {
-                _predicate = predicate;
+                this.predicate = predicate;
                 this.arg1 = arg1;
                 this.arg2 = arg2;
                 this.arg3 = arg3;
@@ -359,7 +359,7 @@ namespace TED {
             public override bool NextSolution() {
                 if (!ready) return false;
                 ready = false;
-                return _predicate.Implementation(arg1.Value, arg2.Value, arg3.Value, arg4.Value, arg5.Value);
+                return predicate.Implementation(arg1.Value, arg2.Value, arg3.Value, arg4.Value, arg5.Value);
             }
         }
     }
@@ -411,7 +411,7 @@ namespace TED {
         }
 
         private class Call : TED.Call {
-            private readonly PrimitiveTest<T1, T2, T3, T4, T5, T6> _predicate;
+            private readonly PrimitiveTest<T1, T2, T3, T4, T5, T6> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
             private readonly ValueCell<T3> arg3;
@@ -424,7 +424,7 @@ namespace TED {
                 new Pattern<T1, T2, T3, T4, T5, T6>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3), MatchOperation<T4>.Read(arg4), MatchOperation<T5>.Read(arg5), MatchOperation<T6>.Read(arg6));
 
             public Call(PrimitiveTest<T1, T2, T3, T4, T5, T6> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3, ValueCell<T4> arg4, ValueCell<T5> arg5, ValueCell<T6> arg6) : base(predicate) {
-                _predicate = predicate;
+                this.predicate = predicate;
                 this.arg1 = arg1;
                 this.arg2 = arg2;
                 this.arg3 = arg3;
@@ -440,7 +440,7 @@ namespace TED {
             public override bool NextSolution() {
                 if (!ready) return false;
                 ready = false;
-                return _predicate.Implementation(arg1.Value, arg2.Value, arg3.Value, arg4.Value, arg5.Value, arg6.Value);
+                return predicate.Implementation(arg1.Value, arg2.Value, arg3.Value, arg4.Value, arg5.Value, arg6.Value);
             }
         }
     }
@@ -496,7 +496,7 @@ namespace TED {
         }
 
         private class Call : TED.Call {
-            private readonly PrimitiveTest<T1, T2, T3, T4, T5, T6, T7> _predicate;
+            private readonly PrimitiveTest<T1, T2, T3, T4, T5, T6, T7> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
             private readonly ValueCell<T3> arg3;
@@ -510,7 +510,7 @@ namespace TED {
                 new Pattern<T1, T2, T3, T4, T5, T6, T7>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3), MatchOperation<T4>.Read(arg4), MatchOperation<T5>.Read(arg5), MatchOperation<T6>.Read(arg6), MatchOperation<T7>.Read(arg7));
 
             public Call(PrimitiveTest<T1, T2, T3, T4, T5, T6, T7> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3, ValueCell<T4> arg4, ValueCell<T5> arg5, ValueCell<T6> arg6, ValueCell<T7> arg7) : base(predicate) {
-                _predicate = predicate;
+                this.predicate = predicate;
                 this.arg1 = arg1;
                 this.arg2 = arg2;
                 this.arg3 = arg3;
@@ -527,7 +527,7 @@ namespace TED {
             public override bool NextSolution() {
                 if (!ready) return false;
                 ready = false;
-                return _predicate.Implementation(arg1.Value, arg2.Value, arg3.Value, arg4.Value, arg5.Value, arg6.Value, arg7.Value);
+                return predicate.Implementation(arg1.Value, arg2.Value, arg3.Value, arg4.Value, arg5.Value, arg6.Value, arg7.Value);
             }
         }
     }
@@ -587,7 +587,7 @@ namespace TED {
         }
 
         private class Call : TED.Call {
-            private readonly PrimitiveTest<T1, T2, T3, T4, T5, T6, T7, T8> _predicate;
+            private readonly PrimitiveTest<T1, T2, T3, T4, T5, T6, T7, T8> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
             private readonly ValueCell<T3> arg3;
@@ -602,7 +602,7 @@ namespace TED {
                 new Pattern<T1, T2, T3, T4, T5, T6, T7, T8>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3), MatchOperation<T4>.Read(arg4), MatchOperation<T5>.Read(arg5), MatchOperation<T6>.Read(arg6), MatchOperation<T7>.Read(arg7), MatchOperation<T8>.Read(arg8));
 
             public Call(PrimitiveTest<T1, T2, T3, T4, T5, T6, T7, T8> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3, ValueCell<T4> arg4, ValueCell<T5> arg5, ValueCell<T6> arg6, ValueCell<T7> arg7, ValueCell<T8> arg8) : base(predicate) {
-                _predicate = predicate;
+                this.predicate = predicate;
                 this.arg1 = arg1;
                 this.arg2 = arg2;
                 this.arg3 = arg3;
@@ -620,7 +620,7 @@ namespace TED {
             public override bool NextSolution() {
                 if (!ready) return false;
                 ready = false;
-                return _predicate.Implementation(arg1.Value, arg2.Value, arg3.Value, arg4.Value, arg5.Value, arg6.Value, arg7.Value, arg8.Value);
+                return predicate.Implementation(arg1.Value, arg2.Value, arg3.Value, arg4.Value, arg5.Value, arg6.Value, arg7.Value, arg8.Value);
             }
         }
     }

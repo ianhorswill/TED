@@ -12,7 +12,7 @@ namespace TED.Repl
         public static bool Predicate(ParserState s, Continuation<TablePredicate> k) => s.ReadToken(char.IsLetter, PredicateNamed, k);
 
         public static bool Number(ParserState s, Continuation<Term> k)
-            => s.ReadToken(char.IsDigit, (s, digits) => k(s, new Constant<int>(int.Parse(digits))));
+            => s.ReadToken(char.IsDigit, (st, digits) => k(st, new Constant<int>(int.Parse(digits))));
 
         public static bool String(ParserState s, Continuation<Term> k)
             => s.Match("\"",
@@ -53,7 +53,7 @@ namespace TED.Repl
 
         public class SymbolTable
         {
-            private readonly Dictionary<string, Term> VariableTable = new Dictionary<string, Term>();
+            private readonly Dictionary<string, Term> variableTable = new Dictionary<string, Term>();
 
             /// <summary>
             /// Get the variable with this name, if one has already been made.  Otherwise, make one of the same type as defaultArg.
@@ -63,10 +63,10 @@ namespace TED.Repl
             /// <returns></returns>
             public Term GetVariable(string name, Term defaultArg)
             {
-                if (!VariableTable.TryGetValue(name, out var variable))
+                if (!variableTable.TryGetValue(name, out var variable))
                 {
                     variable = defaultArg.MakeVariable(name);
-                    VariableTable[name] = variable;
+                    variableTable[name] = variable;
                 }
                 return variable;
             }

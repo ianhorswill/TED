@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
 
 namespace TED
 {
@@ -10,9 +7,21 @@ namespace TED
     /// </summary>
     public sealed class AggregateFunctionCall<T> : FunctionalExpression<T>
     {
+        /// <summary>
+        /// Starting value for the accumulator
+        /// </summary>
         public readonly T InitialValue;
+        /// <summary>
+        /// Function used to add a new value to the accumulator
+        /// </summary>
         public readonly Func<T, T, T> Aggregator;
-        public readonly Goal Goal;
+        /// <summary>
+        /// Goal that generates values for the AggregationTerm
+        /// </summary>
+        public readonly Goal Generator;
+        /// <summary>
+        /// Term to be aggregated (summed, multiplied, etc.) over the solutions to the Generator.
+        /// </summary>
         public readonly Term<T> AggregationTerm;
 
         /// <summary>
@@ -21,23 +30,23 @@ namespace TED
         /// If the goal is P[x] and x is the aggregation term, then it will find all the x's from all
         /// the solutions to P[x], and return aggregator(aggregator(aggregator(initialValue, x1), x2), x3) ...
         /// </summary>
-        /// <param name="goal">Goal to find solutions to</param>
+        /// <param name="generator">Goal to find solutions to</param>
         /// <param name="aggregationTerm">Value to take from each solution; the values from all solutions will be aggregated together</param>
         /// <param name="initialValue">Initial value to start from when aggregating</param>
         /// <param name="aggregator">C# function mapping two values to an aggregate value</param>
-        public AggregateFunctionCall(Goal goal, Term<T> aggregationTerm, T initialValue, Func<T, T, T> aggregator)
+        public AggregateFunctionCall(Goal generator, Term<T> aggregationTerm, T initialValue, Func<T, T, T> aggregator)
         {
             InitialValue = initialValue;
             Aggregator = aggregator;
             AggregationTerm = aggregationTerm;
-            Goal = goal;
+            Generator = generator;
         }
 
 
         /// <inheritdoc />
         internal override Func<T> MakeEvaluator(GoalAnalyzer ga)
         {
-            var (call, bindings) = Preprocessor.BodyToCallWithLocalBindings(ga, Goal);
+            var (call, bindings) = Preprocessor.BodyToCallWithLocalBindings(ga, Generator);
             var term = bindings.Emit(AggregationTerm);
             if (!term.IsInstantiated)
                 throw new InstantiationException(
@@ -54,7 +63,7 @@ namespace TED
         }
 
         internal override Term<T> RecursivelySubstitute(Substitution s)
-            => new AggregateFunctionCall<T>(Goal.RenameArguments(s), s.Substitute(AggregationTerm), InitialValue,
+            => new AggregateFunctionCall<T>(Generator.RenameArguments(s), s.Substitute(AggregationTerm), InitialValue,
                 Aggregator);
     }
 }

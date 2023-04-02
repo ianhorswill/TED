@@ -7,12 +7,16 @@ namespace TED
     /// </summary>
     public sealed class NotPrimitive : PrimitivePredicate<Goal>
     {
+        /// <summary>
+        /// The object implementing Not
+        /// </summary>
         public static NotPrimitive Singleton = new NotPrimitive();
 
-        public NotPrimitive() : base("Not")
+        private NotPrimitive() : base("Not")
         {
         }
 
+        /// <inheritdoc />
         public override Call MakeCall(Goal g, GoalAnalyzer tc)
         {
             switch (g.Arg1)

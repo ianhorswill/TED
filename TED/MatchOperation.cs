@@ -15,7 +15,7 @@ namespace TED
     ///     - It's ignored
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    [DebuggerDisplay("{debuggerDisplay}")]
+    [DebuggerDisplay("{DebuggerDisplay}")]
     public readonly struct MatchOperation<T>
     {
         /// <summary>
@@ -136,6 +136,7 @@ namespace TED
             }
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             switch (opcode)
@@ -157,6 +158,6 @@ namespace TED
             }
         }
 
-        private string debuggerDisplay => ToString();
+        private string DebuggerDisplay => ToString();
     }
 }

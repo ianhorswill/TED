@@ -7,7 +7,7 @@ namespace TED
     /// <summary>
     /// An index to a table that indexes by a column that is a key (has unique values for each row in the table)
     /// </summary>
-    /// <typeparam name="TRow">Type of the rows of the table; this will be a typle type unless it is a single-column table</typeparam>
+    /// <typeparam name="TRow">Type of the rows of the table; this will be a tuple type unless it is a single-column table</typeparam>
     /// <typeparam name="TKey">Type of the column we're indexing on</typeparam>
     public sealed class KeyIndex<TRow, TKey> : TableIndex<TRow, TKey>
     {
@@ -86,6 +86,7 @@ namespace TED
         /// <summary>
         /// Test if the table contains a row with the specified key
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public bool ContainsKey(in TKey key) => RowWithKey(in key) != Table.NoRow;
 
         /// <summary>
@@ -113,6 +114,7 @@ namespace TED
         /// <summary>
         /// Average number of probes of the table until an insertion finds a free slot
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public float ProbesPerInsertion => ((float)probes) / insertions;
         #endif
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TED
+﻿namespace TED
 {
     /// <summary>
     /// Specifies indexing to be used for a column of a TablePredicate

@@ -7,7 +7,7 @@ namespace TED
     /// Represents a variable in a Goal (abstract syntax tree of a call to a predicate)
     /// This is not the run-time representation of a variable.  That is held in a ValueCell.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Type of the variable's value</typeparam>
     [DebuggerDisplay("{DebugName}")]
     public class Var<T> : Term<T>, IColumnSpec<T>, IVariable
     {
@@ -49,9 +49,10 @@ namespace TED
             return () => cell.Value;
         }
 
+        /// <inheritdoc />
         public override string ToString() => Name;
 
-        public string DebugName => ToString();
+        internal string DebugName => ToString();
 
         /// <summary>
         /// Make a different variable with the same name and type
@@ -66,12 +67,18 @@ namespace TED
         /// <summary>
         /// Make a column spec for this variable that specifies this column should be indexed, but is not a key.
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public IColumnSpec<T> Indexed => new IndexedColumnSpec<T>(this, IndexMode.NonKey);
 
+        /// <summary>
+        /// For variables being used as formal parameters in predicate declarations: whether this column of the table is indexed or not
+        /// </summary>
         public IndexMode IndexMode => IndexMode.None;
 
+        /// <inheritdoc />
         public Var<T> TypedVariable => this;
 
+        /// <inheritdoc />
         public IVariable UntypedVariable => this;
     }
 }

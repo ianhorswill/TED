@@ -19,7 +19,7 @@ namespace TED
             tableDependencies = dependencies;
         }
 
-        public GoalAnalyzer() : this(new Dictionary<Term, ValueCell>(), new HashSet<TablePredicate>())
+        internal GoalAnalyzer() : this(new Dictionary<Term, ValueCell>(), new HashSet<TablePredicate>())
         { }
 
         /// <summary>
@@ -39,6 +39,10 @@ namespace TED
 
         private readonly HashSet<TablePredicate> tableDependencies;
 
+        /// <summary>
+        /// Note that the rule being processed depends on (reads from) the specified table predicate
+        /// and so must run after that table predicate has been updated.
+        /// </summary>
         public void AddDependency(TablePredicate p) => tableDependencies.Add(p);
 
         
@@ -73,6 +77,7 @@ namespace TED
         /// Forcibly make a MatchOperation that will write v, even when v is already instantiated.
         /// Used for iteration constructs like Maximize.
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public MatchOperation<T> MakeWrite<T>(Var<T> v) => MatchOperation<T>.Write((ValueCell<T>)variableValueCells[v]);
 
         /// <summary>

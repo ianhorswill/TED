@@ -19,8 +19,8 @@
 
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
             return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
@@ -45,8 +45,8 @@
 
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
             return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
@@ -71,8 +71,8 @@
 
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
             return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
@@ -97,8 +97,8 @@
 
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
             return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
@@ -123,8 +123,8 @@
 
         public override bool NextSolution()
         {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
             return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
@@ -146,8 +146,8 @@
         public override IPattern ArgumentPattern => pattern;
 
         public override bool NextSolution() {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
             return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
@@ -169,8 +169,8 @@
         public override IPattern ArgumentPattern => pattern;
 
         public override bool NextSolution() {
-            if (!primed) return false;
-            primed = false;
+            if (!Primed) return false;
+            Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
             return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }

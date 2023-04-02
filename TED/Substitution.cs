@@ -2,7 +2,12 @@
 
 namespace TED
 {
-    public class Substitution
+    /// <summary>
+    /// Represents a substitution of terms for other terms.
+    /// Used for expanding the bodies of Definitions (replacing formal vars with actual arguments)
+    /// and hoisting functional expressions (replacing FEs with temp vars)
+    /// </summary>
+    internal class Substitution
     {
         internal Dictionary<Term, Term> Substitutions = new Dictionary<Term, Term>();
         /// <summary>

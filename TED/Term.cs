@@ -18,7 +18,14 @@ namespace TED {
         /// </summary>
         internal abstract Term MakeVariable(string name);
 
-        protected static Goal CatchComparisonTypeInitializerProblem(Func<Goal> thunk, string operation) {
+        /// <summary>
+        /// Kluge to unwrap type initialization exceptions/
+        /// Operators on terms are implemented in a way that's efficient but that causes it
+        /// to throw a type initialization exception rather than a missing method exception
+        /// if you use an operator on a term whose type doesn't define it.  This just catches
+        /// that exception and generates a more meaningful error message.
+        /// </summary>
+        internal static Goal CatchComparisonTypeInitializerProblem(Func<Goal> thunk, string operation) {
             try {
                 return thunk();
             }
@@ -27,7 +34,14 @@ namespace TED {
             }
         }
 
-        protected static FunctionalExpression<T> CatchFunctionalExpressionTypeInitializerProblem<T>(Func<FunctionalExpression<T>> thunk, string operation) {
+        /// <summary>
+        /// Kluge to unwrap type initialization exceptions/
+        /// Operators on terms are implemented in a way that's efficient but that causes it
+        /// to throw a type initialization exception rather than a missing method exception
+        /// if you use an operator on a term whose type doesn't define it.  This just catches
+        /// that exception and generates a more meaningful error message.
+        /// </summary>
+        internal static FunctionalExpression<T> CatchFunctionalExpressionTypeInitializerProblem<T>(Func<FunctionalExpression<T>> thunk, string operation) {
             try {
                 return thunk();
             }
@@ -62,20 +76,38 @@ namespace TED {
         internal abstract Term<T> ApplySubstitution(Substitution s);
 
         /// <inheritdoc />
-        public override Type Type => Type;
+        public override Type Type => typeof(T);
 
         internal override Term MakeVariable(string name) => (Var<T>)name;
 
+        /// <summary>
+        /// True when the two sides are the same
+        /// </summary>
         public static Goal operator ==(Var<T> v, Term<T> exp) => EvalPrimitive<T>.Singleton[v, exp];
+        /// <summary>
+        /// True when the two sides are different
+        /// </summary>
         public static Goal operator !=(Var<T> v, Term<T> exp) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
         //public static Goal operator ==(Term<T> exp, Var<T> v) => EvalPrimitive<T>.Singleton[v, exp];
         //public static Goal operator !=(Term<T> exp, Var<T> v) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
+        /// <summary>
+        /// True when the two sides are the same
+        /// </summary>
         public static Goal operator ==(Constant<T> v, Term<T> exp) => EvalPrimitive<T>.Singleton[v, exp];
+        /// <summary>
+        /// True when the two sides are different
+        /// </summary>
         public static Goal operator !=(Constant<T> v, Term<T> exp) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
+        /// <summary>
+        /// True when the two sides are the same
+        /// </summary>
         public static Goal operator ==(Term<T> exp, Constant<T> v) => EvalPrimitive<T>.Singleton[v, exp];
+        /// <summary>
+        /// True when the two sides are different
+        /// </summary>
         public static Goal operator !=(Term<T> exp, Constant<T> v) => Language.Not[EvalPrimitive<T>.Singleton[v, exp]];
 
         /// <summary>
@@ -100,61 +132,61 @@ namespace TED {
             => CatchComparisonTypeInitializerProblem(() => ComparisonPrimitive<T>.GreaterThanEq[a, b], ">=");
 
         /// <summary>
-        /// Add two terms using the existing overload for + for that datatype
+        /// Add two terms using the existing overload for + for that data type
         /// </summary>
         public static FunctionalExpression<T> operator +(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => AdditionOperator<T>.Singleton[a, b], "+");
 
         /// <summary>
-        /// Subtract two terms using the existing overload for - for that datatype
+        /// Subtract two terms using the existing overload for - for that data type
         /// </summary>
         public static FunctionalExpression<T> operator -(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => SubtractionOperator<T>.Singleton[a,b], "-");
 
         /// <summary>
-        /// Negate a term using the existing overload for - for that datatype
+        /// Negate a term using the existing overload for - for that data type
         /// </summary>
         public static FunctionalExpression<T> operator -(Term<T> a)
             => CatchFunctionalExpressionTypeInitializerProblem(() => NegationOperator<T>.Singleton[a], "unary -");
 
         /// <summary>
-        /// Multiply two terms using the existing overload for * for that datatype
+        /// Multiply two terms using the existing overload for * for that data type
         /// </summary>
         public static FunctionalExpression<T> operator *(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => MultiplicationOperator<T>.Singleton[a,b], "*");
 
         /// <summary>
-        /// Divide two terms using the existing overload for / for that datatype
+        /// Divide two terms using the existing overload for / for that data type
         /// </summary>
         public static FunctionalExpression<T> operator /(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => DivisionOperator<T>.Singleton[a,b], "/");
 
         /// <summary>
-        /// Take the modulus of two terms using the existing overload for % for that datatype
+        /// Take the modulus of two terms using the existing overload for % for that data type
         /// </summary>
         public static FunctionalExpression<T> operator %(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => ModulusOperator<T>.Singleton[a,b], "%");
 
         /// <summary>
-        /// Take the disjunction of two terms using the existing overload for | for that datatype
+        /// Take the disjunction of two terms using the existing overload for | for that data type
         /// </summary>
         public static FunctionalExpression<T> operator |(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseOrOperator<T>.Singleton[a,b], "|");
 
         /// <summary>
-        /// Take the conjunction of two terms using the existing overload for ampersand for that datatype
+        /// Take the conjunction of two terms using the existing overload for ampersand for that data type
         /// </summary>
         public static FunctionalExpression<T> operator &(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseAndOperator<T>.Singleton[a,b], "&");
 
         /// <summary>
-        /// Take the power of two terms using the existing overload for ^ for that datatype
+        /// Take the power of two terms using the existing overload for ^ for that data type
         /// </summary>
         public static FunctionalExpression<T> operator ^(Term<T> a, Term<T> b)
             => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseXOrOperator<T>.Singleton[a,b], "^");
 
         /// <summary>
-        /// Invert a term using the existing overload for ~ for that datatype
+        /// Invert a term using the existing overload for ~ for that data type
         /// </summary>
         public static FunctionalExpression<T> operator ~(Term<T> a)
             => CatchFunctionalExpressionTypeInitializerProblem(() => BitwiseNegationOperator<T>.Singleton[a], "~");
