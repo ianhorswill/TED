@@ -241,6 +241,9 @@ namespace TED
         /// </summary>
         public abstract uint Length { get; }
 
+        /// <summary>
+        /// Get the RowToStrings output for every row in the table as a List of string arrays
+        /// </summary>
         public List<string[]> TableToStrings()
         {
             var list = new List<string[]>();
