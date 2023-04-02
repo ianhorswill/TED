@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static TED.Preprocessor;
+using TED.Interpreter;
+using TED.Preprocessing;
+using static TED.Preprocessing.Preprocessor;
 
 namespace TED
 {
@@ -95,7 +97,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public TED.Goal this[Term<T1> a1] => new Goal(this, a1);
+        public Interpreter.Goal this[Term<T1> a1] => new Goal(this, a1);
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -103,7 +105,7 @@ namespace TED
         /// <param name="body">Goals to substitute for the definition</param>
         /// <returns>The definition object</returns>
         /// <exception cref="InvalidOperationException">If a body has already been specified</exception>
-        public Definition<T1> Is(params TED.Goal[] body)
+        public Definition<T1> Is(params Interpreter.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -120,7 +122,7 @@ namespace TED
                 this.arg1 = arg1;
             }
 
-            internal override TED.Goal RenameArguments(Substitution s) =>
+            internal override Interpreter.Goal RenameArguments(Substitution s) =>
                 new Goal((Definition<T1>)Definition, s.Substitute(arg1));
 
             public override Substitution MakeSubstitution()
@@ -162,7 +164,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public TED.Goal this[Term<T1> a1, Term<T2> a2] => new Goal(this, a1, a2);
+        public Interpreter.Goal this[Term<T1> a1, Term<T2> a2] => new Goal(this, a1, a2);
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -170,7 +172,7 @@ namespace TED
         /// <param name="body">Goals to substitute for the definition</param>
         /// <returns>The definition object</returns>
         /// <exception cref="InvalidOperationException">If a body has already been specified</exception>
-        public Definition<T1, T2> Is(params TED.Goal[] body)
+        public Definition<T1, T2> Is(params Interpreter.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -199,7 +201,7 @@ namespace TED
                 this.arg2 = arg2;
             }
 
-            internal override TED.Goal RenameArguments(Substitution s) => new Goal((Definition<T1, T2>)Definition,
+            internal override Interpreter.Goal RenameArguments(Substitution s) => new Goal((Definition<T1, T2>)Definition,
                 s.Substitute(arg1), s.Substitute(arg2));
 
             public override Substitution MakeSubstitution()
@@ -250,7 +252,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public TED.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3] => new Goal(this, a1, a2, a3);
+        public Interpreter.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3] => new Goal(this, a1, a2, a3);
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -258,7 +260,7 @@ namespace TED
         /// <param name="body">Goals to substitute for the definition</param>
         /// <returns>The definition object</returns>
         /// <exception cref="InvalidOperationException">If a body has already been specified</exception>
-        public Definition<T1, T2, T3> Is(params TED.Goal[] body)
+        public Definition<T1, T2, T3> Is(params Interpreter.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -289,7 +291,7 @@ namespace TED
                 this.arg3 = arg3;
             }
 
-            internal override TED.Goal RenameArguments(Substitution s) => new Goal((Definition<T1, T2, T3>)Definition,
+            internal override Interpreter.Goal RenameArguments(Substitution s) => new Goal((Definition<T1, T2, T3>)Definition,
                 s.Substitute(arg1), s.Substitute(arg2), s.Substitute(arg3));
 
             public override Substitution MakeSubstitution()
@@ -346,7 +348,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public TED.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4] => new Goal(this, a1, a2, a3, a4);
+        public Interpreter.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4] => new Goal(this, a1, a2, a3, a4);
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -354,7 +356,7 @@ namespace TED
         /// <param name="body">Goals to substitute for the definition</param>
         /// <returns>The definition object</returns>
         /// <exception cref="InvalidOperationException">If a body has already been specified</exception>
-        public Definition<T1, T2, T3, T4> Is(params TED.Goal[] body)
+        public Definition<T1, T2, T3, T4> Is(params Interpreter.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -391,7 +393,7 @@ namespace TED
                 this.arg4 = arg4;
             }
 
-            internal override TED.Goal RenameArguments(Substitution s)
+            internal override Interpreter.Goal RenameArguments(Substitution s)
                 => new Goal((Definition<T1, T2, T3, T4>)Definition,
                     s.Substitute(arg1), s.Substitute(arg2), s.Substitute(arg3), s.Substitute(arg4));
 
@@ -456,7 +458,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public TED.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5] 
+        public Interpreter.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5] 
             => new Goal(this, a1, a2, a3, a4, a5);
 
         /// <summary>
@@ -465,7 +467,7 @@ namespace TED
         /// <param name="body">Goals to substitute for the definition</param>
         /// <returns>The definition object</returns>
         /// <exception cref="InvalidOperationException">If a body has already been specified</exception>
-        public Definition<T1,T2,T3,T4,T5> Is(params TED.Goal[] body)
+        public Definition<T1,T2,T3,T4,T5> Is(params Interpreter.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -507,7 +509,7 @@ namespace TED
                 this.arg5 = arg5;
             }
 
-            internal override TED.Goal RenameArguments(Substitution s)
+            internal override Interpreter.Goal RenameArguments(Substitution s)
                 => new Goal((Definition<T1,T2,T3,T4,T5>)Definition,
                     s.Substitute(arg1), s.Substitute(arg2), s.Substitute(arg3), s.Substitute(arg4), s.Substitute(arg5));
 
@@ -572,7 +574,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public TED.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5, Term<T6> a6] 
+        public Interpreter.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5, Term<T6> a6] 
             => new Goal(this, a1, a2, a3, a4, a5, a6);
 
         /// <summary>
@@ -581,7 +583,7 @@ namespace TED
         /// <param name="body">Goals to substitute for the definition</param>
         /// <returns>The definition object</returns>
         /// <exception cref="InvalidOperationException">If a body has already been specified</exception>
-        public Definition<T1,T2,T3,T4,T5,T6> Is(params TED.Goal[] body)
+        public Definition<T1,T2,T3,T4,T5,T6> Is(params Interpreter.Goal[] body)
         {
             if (Body != null)
                 throw new InvalidOperationException($"Attempt to add a second definition to {this.Name}");
@@ -628,7 +630,7 @@ namespace TED
                 this.arg6 = arg6;
             }
 
-            internal override TED.Goal RenameArguments(Substitution s)
+            internal override Interpreter.Goal RenameArguments(Substitution s)
                 => new Goal((Definition<T1,T2,T3,T4,T5,T6>)Definition,
                     s.Substitute(arg1), s.Substitute(arg2), s.Substitute(arg3), s.Substitute(arg4), s.Substitute(arg5), s.Substitute(arg6));
 

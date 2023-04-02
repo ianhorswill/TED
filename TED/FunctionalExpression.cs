@@ -1,4 +1,7 @@
-﻿namespace TED
+﻿using TED.Interpreter;
+using TED.Preprocessing;
+
+namespace TED
 {
     /// <summary>
     /// Base class for terms whose value is of type T but where the value is computed from other Terms by some function.

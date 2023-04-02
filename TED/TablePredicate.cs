@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using TED.Interpreter;
+using TED.Tables;
+using TED.Utilities;
 
 // ReSharper disable UnusedMember.Global
 

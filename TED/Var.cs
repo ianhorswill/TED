@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using TED.Interpreter;
+using TED.Preprocessing;
+using TED.Tables;
 
 namespace TED
 {

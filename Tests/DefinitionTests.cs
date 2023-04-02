@@ -1,4 +1,6 @@
 ﻿using TED;
+using TED.Interpreter;
+using TED.Preprocessing;
 using static TED.Language;
 
 namespace Tests

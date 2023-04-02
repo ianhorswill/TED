@@ -1,4 +1,5 @@
 using TED;
+using TED.Tables;
 using static TED.Language;
 
 namespace Tests
