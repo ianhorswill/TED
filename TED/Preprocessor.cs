@@ -83,7 +83,7 @@ namespace TED
         /// </summary>
         /// <param name="body">Sequence of Goals, some of which may be to Definitions</param>
         /// <returns>Expanded form with any calls to Definitions replaced with their expansions.</returns>
-        public static IEnumerable<Goal> ExpandDefinitions(IEnumerable<Goal> body) => body.SelectMany(g => ExpandDefinitions(g));
+        public static IEnumerable<Goal> ExpandDefinitions(IEnumerable<Goal> body) => body.SelectMany(ExpandDefinitions);
 
         /// <summary>
         /// The arguments of the goal that happen to be functional expressions.

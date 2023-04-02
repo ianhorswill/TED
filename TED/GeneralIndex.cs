@@ -61,6 +61,7 @@ namespace TED
         /// <summary>
         /// The TablePredicate to which the Table belongs.
         /// </summary>
+        // ReSharper disable once NotAccessedField.Local
         private readonly TablePredicate predicate;
 
         /// <summary>
@@ -117,7 +118,7 @@ namespace TED
         /// This will read the row from the table to get its column value for the purpose of indexing.
         /// </summary>
         /// <param name="row">Row number of the row we're adding</param>
-        internal sealed override void Add(uint row)
+        internal override void Add(uint row)
         {
             uint b;
             var value = projection(table.Data[row]);
@@ -156,7 +157,7 @@ namespace TED
         /// Add all the rows in the table to the index.
         /// Call Clear() first.
         /// </summary>
-        internal sealed override void Reindex()
+        internal override void Reindex()
         {
             // Build the initial index
             for (var i = 0u; i < table.Length; i++)

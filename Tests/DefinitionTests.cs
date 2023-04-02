@@ -28,7 +28,7 @@ namespace Tests
             var i = (Var<int>)"i";
             var p = Predicate("p", i);
             var d = Definition("d", i).Is(Not[p[i]]);
-            var g = d[5];
+            var g = (Definition.DefinitionGoal)d[5];
             var e = g.Expand().ToArray();
             Assert.AreEqual(1, e.Length);
             var newGoal = e[0];
@@ -46,7 +46,7 @@ namespace Tests
             var p = Predicate("p", i);
             var q = Predicate("q", i);
             var d = Definition("d", i).Is(Not[p[i]], q[i]);
-            var g = d[5];
+            var g = (Definition.DefinitionGoal)d[5];
             var e = g.Expand().ToArray();
             Assert.AreEqual(2, e.Length);
             var newGoal = e[0];
@@ -69,7 +69,7 @@ namespace Tests
             var p = Predicate("p", i, j);
             var q = Predicate("q", i, j);
             var d = Definition("d", i, j).Is(p[i,k], q[k, j]);
-            var g = d[5, k];
+            var g = (Definition.DefinitionGoal)d[5, k];
             var e = g.Expand().ToArray();
             Assert.AreEqual(2, e.Length);
             var newGoal = e[1];

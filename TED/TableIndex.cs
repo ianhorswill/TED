@@ -1,6 +1,4 @@
-﻿using System;using System.Data;using TED;
-
-namespace TED
+﻿namespace TED
 {
     /// <summary>
     /// Base type of indices into tables
@@ -36,6 +34,7 @@ namespace TED
         /// <summary>
         /// Forcibly rebuild the index
         /// </summary>
+        // ReSharper disable once UnusedMemberInSuper.Global
         internal abstract void Reindex();
 
         /// <summary>
@@ -68,6 +67,7 @@ namespace TED
         /// </summary>
         public delegate TColumn Projection(in TRow row);
 
+        /// <inheritdoc />
         protected TableIndex(int columnNumber, Projection projection) : base(columnNumber)
         {
             this.projection = projection;
@@ -76,6 +76,7 @@ namespace TED
         /// <summary>
         /// Function to extract the column value from a given row
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         protected readonly Projection projection;
     }
 

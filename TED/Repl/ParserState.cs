@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using static TED.Repl.Parser;
 
 namespace TED.Repl
 {
@@ -9,9 +7,9 @@ namespace TED.Repl
     {
         public delegate bool Continuation(ParserState s);
 
-        public delegate bool Continuation<T>(ParserState s, T payload);
+        public delegate bool Continuation<in T>(ParserState s, T payload);
 
-        public delegate bool Parser<T>(ParserState s, Continuation<T> k);
+        public delegate bool Parser<out T>(ParserState s, Continuation<T> k);
 
         public readonly string Text;
         public readonly int Position;
@@ -31,12 +29,20 @@ namespace TED.Repl
 
         public int RemainingChars => Text.Length - Position;
 
+        #if DEBUG
+        /// <summary>
+        /// Current next character, so you can check in the debugger
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public char Current => Text[Position];
+        #endif
 
         public bool Skip(Predicate<char> test, Continuation k, bool allowEmpty = true)
         {
             int i;
-            for (i = Position; i < Text.Length && test(Text[i]); i++) ;
+            for (i = Position; i < Text.Length && test(Text[i]); i++)
+            { }
+
             if (i == Position && !allowEmpty)
                 return false;
             return k(JumpTo(i));
@@ -47,7 +53,9 @@ namespace TED.Repl
         public bool ReadToken(Predicate<char> test, Continuation<string> k, bool allowEmpty = false)
         {
             int i;
-            for (i = Position; i < Text.Length && test(Text[i]); i++) ;
+            for (i = Position; i < Text.Length && test(Text[i]); i++)
+            { }
+
             if (i == Position && !allowEmpty)
                 return false;
             return k(JumpTo(i), Text.Substring(Position, i-Position));
@@ -56,7 +64,9 @@ namespace TED.Repl
         public bool ReadToken<T>(Predicate<char> test, Func<string, T> func, Continuation<T> k, bool allowEmpty = false)
         {
             int i;
-            for (i = Position; i < Text.Length && test(Text[i]); i++) ;
+            for (i = Position; i < Text.Length && test(Text[i]); i++)
+            { }
+
             if (i == Position && !allowEmpty)
                 return false;
             return k(JumpTo(i), func(Text.Substring(Position, i-Position)));
@@ -82,7 +92,9 @@ namespace TED.Repl
                        state = newState;
                        values.Add(newElement);
                        return true;
-                   })) ;
+                   }))
+            { }
+
             return k(state, values);
         }
 
@@ -107,7 +119,9 @@ namespace TED.Repl
                            SkipWhite();
                            return true; 
                        });
-                   })) ;
+                   }))
+            { }
+
             SkipWhite();
             return k(state, values);
         }

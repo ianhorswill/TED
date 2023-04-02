@@ -12,6 +12,7 @@
             return (this, v, Language.Eval(v, this));
         }
 
+        /// <inheritdoc />
         internal sealed override Term<T> ApplySubstitution(Substitution s)
         {
             if (s.Substitutions.TryGetValue(this, out var newValue))

@@ -24,6 +24,9 @@ namespace TED
         /// </summary>
         public abstract Predicate Predicate { get; }
 
+        /// <summary>
+        /// Make an object representing a specific goal, i.e. a specific call to a predicate within a rule.
+        /// </summary>
         protected Goal(Term[] arguments) => Arguments = arguments;
 
         /// <summary>

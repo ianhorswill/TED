@@ -11,13 +11,23 @@ namespace TED
     [DebuggerDisplay("{DebugString}")]
     public abstract class Call
     {
+        /// <summary>
+        /// The predicate being called
+        /// </summary>
         public readonly Predicate Predicate;
 
+        /// <summary>
+        /// Make an object to interpret a particular goal in a particular rule.
+        /// </summary>
+        /// <param name="predicate"></param>
         protected Call(Predicate predicate)
         {
             Predicate = predicate;
         }
 
+        /// <summary>
+        /// The formal arguments in the call - the variables and constants for each argument
+        /// </summary>
         public abstract IPattern ArgumentPattern { get; }
 
         /// <summary>
@@ -31,6 +41,7 @@ namespace TED
         /// <returns>True if it found another solution</returns>
         public abstract bool NextSolution();
 
+        /// <inheritdoc />
         public override string ToString() => $"{Predicate.Name}{ArgumentPattern}";
 
         private string DebugString => ToString();

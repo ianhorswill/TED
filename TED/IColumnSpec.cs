@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TED
+﻿namespace TED
 {
     /// <summary>
     /// A specification of a column/argument in the declaration of a table predicate
@@ -36,7 +32,7 @@ namespace TED
         public Var<T> TypedVariable { get;  }
     }
 
-    public class IndexedColumnSpec<T> : IColumnSpec<T>
+    internal class IndexedColumnSpec<T> : IColumnSpec<T>
     {
         private readonly Var<T> variable;
         private readonly IndexMode mode;

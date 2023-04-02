@@ -24,6 +24,7 @@ namespace TED
             Value = value;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             switch (Value)

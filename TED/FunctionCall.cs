@@ -8,8 +8,14 @@ namespace TED
     /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TOut> : FunctionalExpression<TOut>
     {
+        /// <summary>
+        /// The function to be called
+        /// </summary>
         public readonly TedFunction<TOut> Function;
 
+        /// <summary>
+        /// Make a term representing a call to a TEDFunction
+        /// </summary>
         public FunctionCall(TedFunction<TOut> function)
         {
             Function = function;
@@ -17,6 +23,7 @@ namespace TED
 
         internal override Func<TOut> MakeEvaluator(GoalAnalyzer _) => Function.Implementation;
 
+        /// <inheritdoc />
         public override string ToString() => Function.Name;
 
         internal override Term<TOut> RecursivelySubstitute(Substitution s) => this;
@@ -29,9 +36,18 @@ namespace TED
     /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TIn1, TOut> : FunctionalExpression<TOut>
     {
+        /// <summary>
+        /// The function to be called
+        /// </summary>
         public readonly TedFunction<TIn1, TOut> Function;
+        /// <summary>
+        /// The argument to the function
+        /// </summary>
         public readonly Term<TIn1> Arg1;
 
+        /// <summary>
+        /// Make a term representing a call to a TEDFunction
+        /// </summary>
         public FunctionCall(TedFunction<TIn1, TOut> function, Term<TIn1> arg1)
         {
             Function = function;
@@ -47,6 +63,7 @@ namespace TED
             return () => Function.Implementation(arg1E());
         }
 
+        /// <inheritdoc />
         public override string ToString() => Function.RenderAsOperator?$"{Function.Name}{Arg1}":$"{Function.Name}({Arg1})";
     }
 
@@ -58,10 +75,22 @@ namespace TED
     /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TIn1, TIn2, TOut> : FunctionalExpression<TOut>
     {
+        /// <summary>
+        /// The function to be called
+        /// </summary>
         public readonly TedFunction<TIn1, TIn2, TOut> Function;
+        /// <summary>
+        /// The first argument
+        /// </summary>
         public readonly Term<TIn1> Arg1;
+        /// <summary>
+        ///  The second argument
+        /// </summary>
         public readonly Term<TIn2> Arg2;
 
+        /// <summary>
+        /// Make a term representing a call to a TEDFunction
+        /// </summary>
         public FunctionCall(TedFunction<TIn1, TIn2, TOut> function, Term<TIn1> arg1, Term<TIn2> arg2)
         {
             Function = function;
@@ -79,6 +108,7 @@ namespace TED
             return () => Function.Implementation(arg1E(), arg2E());
         }
 
+        /// <inheritdoc />
         public override string ToString() => Function.RenderAsOperator?$"{Arg1}{Function.Name}{Arg2}":$"{Function.Name}({Arg1}, {Arg2})";
     }
 
@@ -90,11 +120,26 @@ namespace TED
     /// <typeparam name="TIn3">Type of the third input of the function</typeparam>
     /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TIn1, TIn2, TIn3, TOut> : FunctionalExpression<TOut> {
+        /// <summary>
+        /// The function to be called
+        /// </summary>
         public readonly TedFunction<TIn1, TIn2, TIn3, TOut> Function;
+        /// <summary>
+        /// The first argument
+        /// </summary>
         public readonly Term<TIn1> Arg1;
+        /// <summary>
+        ///  The second argument
+        /// </summary>
         public readonly Term<TIn2> Arg2;
+        /// <summary>
+        /// The third argument
+        /// </summary>
         public readonly Term<TIn3> Arg3;
 
+        /// <summary>
+        /// Make a term representing a call to a TEDFunction
+        /// </summary>
         public FunctionCall(TedFunction<TIn1, TIn2, TIn3, TOut> function, Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3) {
             Function = function;
             Arg1 = arg1;
@@ -113,6 +158,7 @@ namespace TED
         }
 
         // NOTE: No render as operator options for 3+ input args
+        /// <inheritdoc />
         public override string ToString() => $"{Function.Name}({Arg1}, {Arg2}, {Arg3})";
     }
 
@@ -125,12 +171,30 @@ namespace TED
     /// <typeparam name="TIn4">Type of the fourth input of the function</typeparam>
     /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TIn1, TIn2, TIn3, TIn4, TOut> : FunctionalExpression<TOut> {
+        /// <summary>
+        /// The function to be called
+        /// </summary>
         public readonly TedFunction<TIn1, TIn2, TIn3, TIn4, TOut> Function;
+        /// <summary>
+        /// The first argument
+        /// </summary>
         public readonly Term<TIn1> Arg1;
+        /// <summary>
+        ///  The second argument
+        /// </summary>
         public readonly Term<TIn2> Arg2;
+        /// <summary>
+        /// The third argument
+        /// </summary>
         public readonly Term<TIn3> Arg3;
+        /// <summary>
+        /// The fourth argument
+        /// </summary>
         public readonly Term<TIn4> Arg4;
-
+        
+        /// <summary>
+        /// Make a term representing a call to a TEDFunction
+        /// </summary>
         public FunctionCall(TedFunction<TIn1, TIn2, TIn3, TIn4, TOut> function, Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4) {
             Function = function;
             Arg1 = arg1;
@@ -151,6 +215,7 @@ namespace TED
         }
 
         // NOTE: No render as operator options for 3+ input args
+        /// <inheritdoc />
         public override string ToString() => $"{Function.Name}({Arg1}, {Arg2}, {Arg3}, {Arg4})";
     }
 
@@ -164,13 +229,34 @@ namespace TED
     /// <typeparam name="TIn5">Type of the fifth input of the function</typeparam>
     /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> : FunctionalExpression<TOut> {
+        /// <summary>
+        /// The function to be called
+        /// </summary>
         public readonly TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Function;
+        /// <summary>
+        /// The first argument
+        /// </summary>
         public readonly Term<TIn1> Arg1;
+        /// <summary>
+        ///  The second argument
+        /// </summary>
         public readonly Term<TIn2> Arg2;
+        /// <summary>
+        /// The third argument
+        /// </summary>
         public readonly Term<TIn3> Arg3;
+        /// <summary>
+        /// The fourth argument
+        /// </summary>
         public readonly Term<TIn4> Arg4;
+        /// <summary>
+        /// The fifth argument
+        /// </summary>
         public readonly Term<TIn5> Arg5;
 
+        /// <summary>
+        /// Make a term representing a call to a TEDFunction
+        /// </summary>
         public FunctionCall(TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> function, Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5) {
             Function = function;
             Arg1 = arg1;
@@ -193,6 +279,7 @@ namespace TED
         }
 
         // NOTE: No render as operator options for 3+ input args
+        /// <inheritdoc />
         public override string ToString() => $"{Function.Name}({Arg1}, {Arg2}, {Arg3}, {Arg4}, {Arg5})";
     }
 
@@ -207,14 +294,38 @@ namespace TED
     /// <typeparam name="TIn6">Type of the sixth input of the function</typeparam>
     /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> : FunctionalExpression<TOut> {
+        /// <summary>
+        /// The function to be called
+        /// </summary>
         public readonly TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Function;
+        /// <summary>
+        /// The first argument
+        /// </summary>
         public readonly Term<TIn1> Arg1;
+        /// <summary>
+        ///  The second argument
+        /// </summary>
         public readonly Term<TIn2> Arg2;
+        /// <summary>
+        /// The third argument
+        /// </summary>
         public readonly Term<TIn3> Arg3;
+        /// <summary>
+        /// The fourth argument
+        /// </summary>
         public readonly Term<TIn4> Arg4;
+        /// <summary>
+        /// The fifth argument
+        /// </summary>
         public readonly Term<TIn5> Arg5;
+        /// <summary>
+        /// The sixth argument
+        /// </summary>
         public readonly Term<TIn6> Arg6;
 
+        /// <summary>
+        /// Make a term representing a call to a TEDFunction
+        /// </summary>
         public FunctionCall(TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> function, Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5, Term<TIn6> arg6) {
             Function = function;
             Arg1 = arg1;
@@ -239,6 +350,7 @@ namespace TED
         }
 
         // NOTE: No render as operator options for 3+ input args
+        /// <inheritdoc />
         public override string ToString() => $"{Function.Name}({Arg1}, {Arg2}, {Arg3}, {Arg4}, {Arg5}, {Arg6})";
     }
 
@@ -254,15 +366,42 @@ namespace TED
     /// <typeparam name="TIn7">Type of the seventh input of the function</typeparam>
     /// <typeparam name="TOut">Type of the result of the function</typeparam>
     public class FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> : FunctionalExpression<TOut> {
+        /// <summary>
+        /// The function to be called
+        /// </summary>
         public readonly TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Function;
+        /// <summary>
+        /// The first argument
+        /// </summary>
         public readonly Term<TIn1> Arg1;
+        /// <summary>
+        ///  The second argument
+        /// </summary>
         public readonly Term<TIn2> Arg2;
+        /// <summary>
+        /// The third argument
+        /// </summary>
         public readonly Term<TIn3> Arg3;
+        /// <summary>
+        /// The fourth argument
+        /// </summary>
         public readonly Term<TIn4> Arg4;
+        /// <summary>
+        /// The fifth argument
+        /// </summary>
         public readonly Term<TIn5> Arg5;
+        /// <summary>
+        /// The sixth argument
+        /// </summary>
         public readonly Term<TIn6> Arg6;
+        /// <summary>
+        /// The seventh argument
+        /// </summary>
         public readonly Term<TIn7> Arg7;
 
+        /// <summary>
+        /// Make a term representing a call to a TEDFunction
+        /// </summary>
         public FunctionCall(TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> function, Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5, Term<TIn6> arg6, Term<TIn7> arg7) {
             Function = function;
             Arg1 = arg1;
@@ -289,6 +428,7 @@ namespace TED
         }
 
         // NOTE: No render as operator options for 3+ input args
+        /// <inheritdoc />
         public override string ToString() => $"{Function.Name}({Arg1}, {Arg2}, {Arg3}, {Arg4}, {Arg5}, {Arg6}, {Arg7})";
     }
 }

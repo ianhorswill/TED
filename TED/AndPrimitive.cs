@@ -29,25 +29,25 @@ namespace TED
                 ? g.Arguments.SelectMany(subgoal => FlattenOne(UnwrapGoalConstant((Constant<TED.Goal>)subgoal))) 
                 : new[] { g };
 
-        public class Goal : TED.Goal
+        private class Goal : TED.Goal
         {
-            public readonly TED.Goal[] Body;
+            private readonly TED.Goal[] body;
             // ReSharper disable once CoVariantArrayConversion
             public Goal(params TED.Goal[] body) : base(body.Select(g => new Constant<TED.Goal>(g)).ToArray())
             {
-                Body = body;
+                this.body = body;
             }
 
             public override Predicate Predicate => Singleton;
 
             internal override TED.Goal RenameArguments(Substitution s) 
-                => new Goal(Body.Select(g => g.RenameArguments(s)).ToArray());
+                => new Goal(body.Select(g => g.RenameArguments(s)).ToArray());
 
             internal override TED.Call MakeCall(GoalAnalyzer ga)
-                => new Call(Preprocessor.GenerateCalls(ga, Body), Body);
+                => new Call(Preprocessor.GenerateCalls(ga, body), body);
         }
 
-        public class Call : TED.Call
+        internal class Call : TED.Call
         {
             public readonly TED.Call[] Body;
             public readonly TED.Goal[] Source;

@@ -2,15 +2,26 @@
 
 namespace TED
 {
+    /// <summary>
+    /// Run-time representation of a variable or a constant
+    /// A typed object whose only purpose is to hold a value.  For constants, the values is
+    /// pre-stored in the cell. For variables, it's stored during write-mode matching.
+    /// </summary>
     public abstract class ValueCell
     {
-        protected const string constantName = " const ";
+        /// <summary>
+        /// Name to use for cells representing constants
+        /// </summary>
+        protected const string ConstantName = " const ";
         
         /// <summary>
         /// Name, for debugging purposes
         /// </summary>
         public readonly string Name;
 
+        /// <summary>
+        /// Make a cell with the specified name (name used only for debugging)
+        /// </summary>
         protected ValueCell(string name)
         {
             Name = name;
@@ -19,7 +30,8 @@ namespace TED
         /// <summary>
         /// Is this the value cell for a variable or for a constant?
         /// </summary>
-        public bool IsVariable => Name != constantName;
+        // ReSharper disable once UnusedMember.Global
+        public bool IsVariable => Name != ConstantName;
 
         /// <summary>
         /// Value stored in the cell, typed as object
@@ -75,7 +87,7 @@ namespace TED
         {
             if (!ConstantTable.TryGetValue(value, out var c))
             {
-                c = new ValueCell<T>(value, constantName);
+                c = new ValueCell<T>(value, ConstantName);
                 ConstantTable[value] = c;
             }
 

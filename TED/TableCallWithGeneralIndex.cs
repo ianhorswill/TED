@@ -10,7 +10,7 @@
 
     internal abstract class TableCallWithGeneralIndex : Call
     {
-        public TableCallWithGeneralIndex(TablePredicate p) : base(p)
+        protected TableCallWithGeneralIndex(TablePredicate p) : base(p)
         { }
 
         protected bool Primed;

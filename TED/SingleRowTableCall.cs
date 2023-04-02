@@ -9,12 +9,12 @@
         /// <summary>
         /// What row we will text next in the table
         /// </summary>
-        protected bool primed;
+        protected bool Primed;
 
         /// <summary>
         /// Move back to the beginning of the table.
         /// </summary>
-        public override void Reset() => primed = true;
+        public override void Reset() => Primed = true;
 
         protected SingleRowTableCall(Predicate predicate) : base(predicate)
         {

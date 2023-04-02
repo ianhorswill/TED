@@ -10,7 +10,7 @@ namespace TED
     /// <summary>
     /// Implements evaluation of a functional expression and matching/storing it to a variable
     /// </summary>
-    public sealed class EvalPrimitive<T> : PrimitivePredicate<T,T>, IEvalPrimitive
+    internal sealed class EvalPrimitive<T> : PrimitivePredicate<T,T>, IEvalPrimitive
     {
         public static EvalPrimitive<T> Singleton = new EvalPrimitive<T>();
 

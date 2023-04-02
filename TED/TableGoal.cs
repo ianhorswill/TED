@@ -46,6 +46,7 @@ namespace TED
     /// <typeparam name="T1">Type of predicate argument</typeparam>
     public class TableGoal<T1> : TableGoal
     {
+        /// <inheritdoc />
         public TableGoal(TablePredicate predicate, Term<T1> arg1) : base(predicate, new Term[] { arg1 })
         {
             Arg1 = arg1;
@@ -99,6 +100,7 @@ namespace TED
     /// <typeparam name="T2">Type of predicate's second argument</typeparam>
     public class TableGoal<T1, T2> : TableGoal
     {
+        /// <inheritdoc />
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2) : base(predicate, new Term[] { arg1, arg2 })
         {
             Arg1 = arg1;
@@ -170,6 +172,7 @@ namespace TED
     /// <typeparam name="T3">Type of predicate's third argument</typeparam>
     public class TableGoal<T1, T2, T3> : TableGoal
     {
+        /// <inheritdoc />
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3) : base(predicate, new Term[] { arg1, arg2, arg3 })
         {
             Arg1 = arg1;
@@ -253,6 +256,7 @@ namespace TED
     /// <typeparam name="T4">Type of predicate's fourth argument</typeparam>
     public class TableGoal<T1, T2, T3, T4> : TableGoal
     {
+        /// <inheritdoc />
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4) : base(predicate, new Term[] { arg1, arg2, arg3, arg4 })
         {
             Arg1 = arg1;
@@ -345,6 +349,7 @@ namespace TED
     /// <typeparam name="T5">Type of predicate's fifth argument</typeparam>
     public class TableGoal<T1, T2, T3, T4, T5> : TableGoal
     {
+        /// <inheritdoc />
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5) : base(predicate, new Term[] { arg1, arg2, arg3, arg4, arg5 })
         {
             Arg1 = arg1;
@@ -448,6 +453,7 @@ namespace TED
     /// <typeparam name="T6">Type of predicate's sixth argument</typeparam>
     public class TableGoal<T1, T2, T3, T4, T5, T6> : TableGoal
     {
+        /// <inheritdoc />
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6) : base(predicate, new Term[] { arg1, arg2, arg3, arg4, arg5, arg6 })
         {
             Arg1 = arg1;
@@ -561,6 +567,7 @@ namespace TED
     /// <typeparam name="T6">Type of predicate's sixth argument</typeparam>
     /// <typeparam name="T7">Type of predicate's seventh argument</typeparam>
     public class TableGoal<T1, T2, T3, T4, T5, T6, T7> : TableGoal {
+        /// <inheritdoc />
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7) : base(predicate, new Term[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 }) {
             Arg1 = arg1;
             Arg2 = arg2;
@@ -681,6 +688,7 @@ namespace TED
     /// <typeparam name="T7">Type of predicate's seventh argument</typeparam>
     /// <typeparam name="T8">Type of predicate's eighth argument</typeparam>
     public class TableGoal<T1, T2, T3, T4, T5, T6, T7, T8> : TableGoal {
+        /// <inheritdoc />
         public TableGoal(TablePredicate predicate, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7, Term<T8> arg8) : base(predicate, new Term[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 }) {
             Arg1 = arg1;
             Arg2 = arg2;
