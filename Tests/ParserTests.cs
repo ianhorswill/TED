@@ -1,6 +1,7 @@
 ﻿using TED;
 using static TED.Language;
 using TED.Repl;
+using TED.Interpreter;
 
 namespace Tests
 {

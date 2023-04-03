@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TED.Interpreter;
 using static TED.Repl.ParserState;
 
 namespace TED.Repl

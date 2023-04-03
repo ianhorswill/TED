@@ -1,6 +1,10 @@
 ﻿using System;
+using TED.Interpreter;
+using TED.Preprocessing;
+using TED.Primitives;
 
-namespace TED {
+namespace TED
+{
     /// <summary>
     /// Untyped base class of all Terms.  Terms are expressions representing arguments to predicates.
     /// This only has one direct subclass, Term[T], whose subclasses are variables (Var[T]), constants (Constant[T]),
@@ -69,7 +73,7 @@ namespace TED {
         /// Call a 0-arity TedFunction with return type T by name and return Term of type T from the function Call
         /// </summary>
         /// <param name="func"></param>
-        public static implicit operator Term<T>(TedFunction<T> func) => func.Call();
+        public static implicit operator Term<T>(Function<T> func) => func.Call();
 
         internal abstract Func<T> MakeEvaluator(GoalAnalyzer ga);
 

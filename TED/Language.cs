@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using TED.Interpreter;
+using TED.Primitives;
+using Random = TED.Utilities.Random;
 
 namespace TED
 {
@@ -171,142 +174,142 @@ namespace TED
         /// The largest of two arguments
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<int, int, int> MaxInt = new TedFunction<int, int, int>("Max", Math.Max);
+        public static readonly Function<int, int, int> MaxInt = new Function<int, int, int>("Max", Math.Max);
         /// <summary>
         /// The largest of two arguments
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float, float> MaxFloat = new TedFunction<float, float, float>("Max", Math.Max);
+        public static readonly Function<float, float, float> MaxFloat = new Function<float, float, float>("Max", Math.Max);
         
         /// <summary>
         /// The smaller of two arguments
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<int, int, int> MinInt = new TedFunction<int, int, int>("Min", Math.Min);
+        public static readonly Function<int, int, int> MinInt = new Function<int, int, int>("Min", Math.Min);
         /// <summary>
         /// The smaller of two arguments
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float, float> MinFloat = new TedFunction<float, float, float>("Min", Math.Min);
+        public static readonly Function<float, float, float> MinFloat = new Function<float, float, float>("Min", Math.Min);
 
         /// <summary>
         /// The absolute value of a number
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<int, int> AbsInt = new TedFunction<int, int>("Abs", Math.Abs);
+        public static readonly Function<int, int> AbsInt = new Function<int, int>("Abs", Math.Abs);
         /// <summary>
         /// The absolute value of a number
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float> AbsFloat = new TedFunction<float, float>("Abs", MathF.Abs);
+        public static readonly Function<float, float> AbsFloat = new Function<float, float>("Abs", MathF.Abs);
 
         /// <summary>
         /// Sign number (1, 0, or -1) of x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<int, int> SignInt = new TedFunction<int, int>("Sign", Math.Sign);
+        public static readonly Function<int, int> SignInt = new Function<int, int>("Sign", Math.Sign);
         /// <summary>
         /// Sign number (1, 0, or -1) of x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, int> SignFloat = new TedFunction<float, int>("Sign", MathF.Sign);
+        public static readonly Function<float, int> SignFloat = new Function<float, int>("Sign", MathF.Sign);
 
 
         /// <summary>
         /// The square root of a float
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float> Sqrt = new TedFunction<float, float>("Sqrt", MathF.Sqrt);
+        public static readonly Function<float, float> Sqrt = new Function<float, float>("Sqrt", MathF.Sqrt);
 
         /// <summary>
         /// The natural log of a float
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float> Log = new TedFunction<float, float>("Log", MathF.Log);
+        public static readonly Function<float, float> Log = new Function<float, float>("Log", MathF.Log);
         
         /// <summary>
         /// e^x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float> Exp = new TedFunction<float, float>("Exp", MathF.Exp);
+        public static readonly Function<float, float> Exp = new Function<float, float>("Exp", MathF.Exp);
 
         /// <summary>
         /// x^y
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float, float> Pow = new TedFunction<float, float, float>("Pow", MathF.Pow);
+        public static readonly Function<float, float, float> Pow = new Function<float, float, float>("Pow", MathF.Pow);
 
         /// <summary>
         /// Sin x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float> Sin = new TedFunction<float, float>("Sin", MathF.Sin);
+        public static readonly Function<float, float> Sin = new Function<float, float>("Sin", MathF.Sin);
         
         /// <summary>
         /// Cos x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float> Cos = new TedFunction<float, float>("Cos", MathF.Cos);
+        public static readonly Function<float, float> Cos = new Function<float, float>("Cos", MathF.Cos);
         
         /// <summary>
         /// Tan x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float> Tan = new TedFunction<float, float>("Tan", MathF.Tan);
+        public static readonly Function<float, float> Tan = new Function<float, float>("Tan", MathF.Tan);
 
         /// <summary>
         /// Arc Sin x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float> Asin = new TedFunction<float, float>("Asin", MathF.Asin);
+        public static readonly Function<float, float> Asin = new Function<float, float>("Asin", MathF.Asin);
         
         /// <summary>
         /// Arc Cos x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float> ACos = new TedFunction<float, float>("Acos", MathF.Acos);
+        public static readonly Function<float, float> ACos = new Function<float, float>("Acos", MathF.Acos);
         
         /// <summary>
         /// Arc Tan x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float> Atan = new TedFunction<float, float>("Atan", MathF.Atan);
+        public static readonly Function<float, float> Atan = new Function<float, float>("Atan", MathF.Atan);
         
         /// <summary>
         /// Arc Tan x/y
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, float, float> Atan2 = new TedFunction<float, float, float>("Atan2", MathF.Atan2);
+        public static readonly Function<float, float, float> Atan2 = new Function<float, float, float>("Atan2", MathF.Atan2);
 
         /// <summary>
         /// Returns (int)x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, int> Int = new TedFunction<float, int>("Int", x => (int)x);
+        public static readonly Function<float, int> Int = new Function<float, int>("Int", x => (int)x);
         
         /// <summary>
         /// Returns (float)x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<int, float> Float = new TedFunction<int, float>("Float", x => x);
+        public static readonly Function<int, float> Float = new Function<int, float>("Float", x => x);
 
         /// <summary>
         /// Smallest integer larger than x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, int> Ceiling = new TedFunction<float, int>("Ceiling", x => (int)MathF.Ceiling(x));
+        public static readonly Function<float, int> Ceiling = new Function<float, int>("Ceiling", x => (int)MathF.Ceiling(x));
         
         /// <summary>
         /// Largest integer less than x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, int> Floor = new TedFunction<float, int>("Floor", x => (int)MathF.Floor(x));
+        public static readonly Function<float, int> Floor = new Function<float, int>("Floor", x => (int)MathF.Floor(x));
         
         /// <summary>
         /// The nearest integer to x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly TedFunction<float, int> Round = new TedFunction<float, int>("Round", x => (int)MathF.Round(x));
+        public static readonly Function<float, int> Round = new Function<float, int>("Round", x => (int)MathF.Round(x));
 
 
         #endregion
@@ -957,55 +960,55 @@ namespace TED
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         // ReSharper disable once UnusedMember.Global
-        public static TedFunction<T> Function<T>(string name, Func<T> fn) => new TedFunction<T>(name, fn);
+        public static Function<T> Function<T>(string name, Func<T> fn) => new Function<T>(name, fn);
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
-        public static TedFunction<TIn, TOut> Function<TIn, TOut>(string name, Func<TIn, TOut> fn) => new TedFunction<TIn, TOut>(name, fn);
-        /// <summary>
-        /// Makes a function that can be placed in functional expressions
-        /// </summary>
-        /// <param name="name">Name, for debugging purposes</param>
-        /// <param name="fn">C# code implementing the function</param>
-        // ReSharper disable once UnusedMember.Global
-        public static TedFunction<TIn1, TIn2, TOut> Function<TIn1, TIn2, TOut>(string name, Func<TIn1, TIn2, TOut> fn) => new TedFunction<TIn1, TIn2, TOut>(name, fn);
+        public static Function<TIn, TOut> Function<TIn, TOut>(string name, Func<TIn, TOut> fn) => new Function<TIn, TOut>(name, fn);
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         // ReSharper disable once UnusedMember.Global
-        public static TedFunction<TIn1, TIn2, TIn3, TOut> Function<TIn1, TIn2, TIn3, TOut>(string name, Func<TIn1, TIn2, TIn3, TOut> fn) => new TedFunction<TIn1, TIn2, TIn3, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TOut> Function<TIn1, TIn2, TOut>(string name, Func<TIn1, TIn2, TOut> fn) => new Function<TIn1, TIn2, TOut>(name, fn);
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         // ReSharper disable once UnusedMember.Global
-        public static TedFunction<TIn1, TIn2, TIn3, TIn4, TOut> Function<TIn1, TIn2, TIn3, TIn4, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new TedFunction<TIn1, TIn2, TIn3, TIn4, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TIn3, TOut> Function<TIn1, TIn2, TIn3, TOut>(string name, Func<TIn1, TIn2, TIn3, TOut> fn) => new Function<TIn1, TIn2, TIn3, TOut>(name, fn);
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         // ReSharper disable once UnusedMember.Global
-        public static TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Function<TIn1, TIn2, TIn3, TIn4, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(name, fn);
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         // ReSharper disable once UnusedMember.Global
-        public static TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn) => new TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(name, fn);
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         // ReSharper disable once UnusedMember.Global
-        public static TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new TedFunction<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(name, fn);
+        /// <summary>
+        /// Makes a function that can be placed in functional expressions
+        /// </summary>
+        /// <param name="name">Name, for debugging purposes</param>
+        /// <param name="fn">C# code implementing the function</param>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(name, fn);
         #endregion
 
     }

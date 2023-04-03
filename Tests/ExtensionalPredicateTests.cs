@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using TED;
+using TED.Utilities;
 using static TED.Language;
 
 namespace Tests
