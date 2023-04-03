@@ -88,7 +88,12 @@ namespace TED
                 LoadingPrograms.Peek().Add(p);
         }
 
-        private void Add(TablePredicate predicate)
+        /// <summary>
+        /// Add a new predicate to the program/simulation
+        /// </summary>
+        /// <param name="predicate">Predicate to add</param>
+        /// <exception cref="InvalidOperationException">IF there is already a predicate by that name in the program/simulation</exception>
+        public void Add(TablePredicate predicate)
         {
             if (tables.ContainsKey(predicate.Name))
                 throw new InvalidOperationException(
