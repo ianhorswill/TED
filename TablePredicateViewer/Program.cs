@@ -16,6 +16,7 @@ namespace TablePredicateViewer
             ApplicationConfiguration.Initialize();
 
             Simulation = new Simulation("Test");
+            Simulation.Begin();
             
             // Variables for rules
             var person = (Var<string>)"person";
@@ -54,6 +55,7 @@ namespace TablePredicateViewer
             // Add births to the population
             Person.Accumulates(NewBorn);
             // ReSharper restore InconsistentNaming
+            Simulation.End();
 
             var timer = new System.Windows.Forms.Timer();
             timer.Tick += (_, _) => { UpdateCycle(Person); };

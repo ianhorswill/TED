@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using TED.Interpreter;
 using TED.Tables;
 using TED.Utilities;
@@ -21,11 +22,45 @@ namespace TED
     public abstract class TablePredicate : Predicate
     {
         /// <summary>
+        /// Create a new table predicate without knowing its column types in advance.
+        /// Note that this will not work on platforms that do not allow dynamic code generation,
+        /// such as iOS, because of the way that generics are implemented in the CLR.
+        /// </summary>
+        /// <param name="name">Name to give to the new predicate</param>
+        /// <param name="columns">Default variables for the columns</param>
+        /// <returns>The table predicate</returns>
+        /// <exception cref="ArgumentException">If columns is empty or longer than 8 elements.</exception>
+        public static TablePredicate Create(string name, IVariable[] columns)
+        {
+            var types = columns.Select(v => v.Type).ToArray();
+
+            Type generic = columns.Length switch
+            {
+                1 => typeof(TablePredicate<>),
+                2 => typeof(TablePredicate<,>),
+                3 => typeof(TablePredicate<,,>),
+                4 => typeof(TablePredicate<,,,>),
+                5 => typeof(TablePredicate<,,,,>),
+                6 => typeof(TablePredicate<,,,,,,>),
+                7 => typeof(TablePredicate<,,,,,,>),
+                8 => typeof(TablePredicate<,,,,,,,>),
+                _ => throw new ArgumentException($"Cannot create a table predicate with {columns.Length} columns")
+            };
+            var t = generic.MakeGenericType(types);
+
+            var args = new object[columns.Length+1];
+            args[0] = name;
+            for (var i = 0; i < columns.Length; i++)
+                args[i + 1] = (IColumnSpec)columns[i];
+            return (TablePredicate)t.InvokeMember(null, BindingFlags.CreateInstance, null, null, args);
+        }
+
+        /// <summary>
         /// Make a new predicate
         /// </summary>
         protected TablePredicate(string name, params IColumnSpec[] columns) : base(name)
         {
-            Simulation.AddToCurrentSimulation(this);
+            Program.MaybeAddPredicate(this);
             DefaultVariables = columns.Select(spec => spec.UntypedVariable).ToArray();
             ColumnHeadings = DefaultVariables.Select(v => v.ToString()).ToArray();
             for (var i = 0; i < columns.Length; i++)
@@ -40,6 +75,11 @@ namespace TED
                         break;
                 }
         }
+
+        /// <summary>
+        /// The Program or Simulation to which this predicate belongs
+        /// </summary>
+        public Program? Program;
 
         internal abstract Table TableUntyped { get; }
 
@@ -225,7 +265,7 @@ namespace TED
         /// <summary>
         /// Add a rule that concludes the default arguments of this predicate
         /// </summary>
-        protected void AddRule(params Goal[] body) => DefaultGoal.If(body);
+        internal void AddRule(params Goal[] body) => DefaultGoal.If(body);
 
         /// <summary>
         /// Null-tolerant version of ToString.
