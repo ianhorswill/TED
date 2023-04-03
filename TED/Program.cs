@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -89,7 +90,20 @@ namespace TED
 
         private void Add(TablePredicate predicate)
         {
+            if (tables.ContainsKey(predicate.Name))
+                throw new InvalidOperationException(
+                    $"Program {Name} already contains a predicate by the name {predicate.Name}");
             tables[predicate.Name] = predicate;
+        }
+
+        /// <summary>
+        /// Remove a table from the program
+        /// </summary>
+        /// <param name="table">Table to remove</param>
+        public void Remove(TablePredicate table)
+        {
+            Debug.Assert(tables[table.Name] == table, "Attempting to remove table from program but program has a different table listed under that name.");
+            tables.Remove(table.Name);
         }
     }
 }
