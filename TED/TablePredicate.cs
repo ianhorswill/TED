@@ -245,16 +245,19 @@ namespace TED
         public abstract uint Length { get; }
 
         /// <summary>
-        /// Get the RowToStrings output for every row in the table as a List of string arrays
+        /// Get the RowToStrings output for the specified rows in the table starting at startRow and ending
+        /// when the outer array in the buffer is full or when the end of the table is reached. Returns the
+        /// number of rows that were added to the buffer.
         /// </summary>
-        public List<string[]> TableToStrings()
-        {
-            var list = new List<string[]>();
-            for (var i = 0u; i < Length; i++) {
-                var buffer = new string[ColumnHeadings.Length];
-                RowToStrings(i, buffer);
-                list.Add(buffer); }
-            return list;
+        /// <param name="startRow">Row number within the table to start range from</param>
+        /// <param name="buffer">Buffer in which to write the string forms</param>
+        public uint RowRangeToStrings(uint startRow, string[][] buffer) {
+            uint i;
+            for (i = 0u; i < buffer.Length; i++) {
+                if (startRow + i > Length) continue;
+                RowToStrings(startRow + i, buffer[i]);
+            }
+            return i;
         }
 
         /// <summary>
