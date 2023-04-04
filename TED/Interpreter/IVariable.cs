@@ -1,4 +1,6 @@
-﻿namespace TED.Interpreter
+﻿using System;
+
+namespace TED.Interpreter
 {
     /// <summary>
     /// Untyped base interface to identify Terms as being Var[T] for some T.
@@ -11,5 +13,10 @@
         /// Name of the variable
         /// </summary>
         public string VariableName { get; }
+
+        /// <summary>
+        /// The type of the variable's value
+        /// </summary>
+        public Type Type { get; }
     }
 }

@@ -8,6 +8,13 @@ namespace Tests
     public class IntensionalPredicateTests
     {
         [TestMethod]
+        public void DynamicCreation()
+        {
+            Assert.IsInstanceOfType(TablePredicate.Create("test", new IVariable[]{ (Var<int>)"x", (Var<string>)"y"}),
+                typeof(TablePredicate<int,string>));
+        }
+
+        [TestMethod]
         public void SingleSubgoal()
         {
             var x = (Var<int>)"x";

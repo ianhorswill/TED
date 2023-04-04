@@ -7,9 +7,9 @@ namespace TED.Repl
     {
         public delegate bool Continuation(ParserState s);
 
-        public delegate bool Continuation<in T>(ParserState s, T payload);
+        public delegate bool Continuation<T>(ParserState s, T payload);
 
-        public delegate bool Parser<out T>(ParserState s, Continuation<T> k);
+        public delegate bool Parser<T>(ParserState s, Continuation<T> k);
 
         public readonly string Text;
         public readonly int Position;
@@ -29,20 +29,12 @@ namespace TED.Repl
 
         public int RemainingChars => Text.Length - Position;
 
-        #if DEBUG
-        /// <summary>
-        /// Current next character, so you can check in the debugger
-        /// </summary>
-        // ReSharper disable once UnusedMember.Global
         public char Current => Text[Position];
-        #endif
 
-        public bool Skip(Predicate<char> test, Continuation k, bool allowEmpty = true)
+        public bool Skip(System.Predicate<char> test, Continuation k, bool allowEmpty = true)
         {
             int i;
-            for (i = Position; i < Text.Length && test(Text[i]); i++)
-            { }
-
+            for (i = Position; i < Text.Length && test(Text[i]); i++) ;
             if (i == Position && !allowEmpty)
                 return false;
             return k(JumpTo(i));
@@ -50,23 +42,26 @@ namespace TED.Repl
 
         public bool SkipWhitespace(Continuation k) => Skip(char.IsWhiteSpace, k);
 
-        public bool ReadToken(Predicate<char> test, Continuation<string> k, bool allowEmpty = false)
+        public ParserState SkipWhitespace()
         {
             int i;
-            for (i = Position; i < Text.Length && test(Text[i]); i++)
-            { }
+            for (i = Position; i < Text.Length && char.IsWhiteSpace(Text[i]); i++) ;
+            return new ParserState(Text, i);
+        }
 
+        public bool ReadToken(System.Predicate<char> test, Continuation<string> k, bool allowEmpty = false)
+        {
+            int i;
+            for (i = Position; i < Text.Length && test(Text[i]); i++) ;
             if (i == Position && !allowEmpty)
                 return false;
             return k(JumpTo(i), Text.Substring(Position, i-Position));
         }
 
-        public bool ReadToken<T>(Predicate<char> test, Func<string, T> func, Continuation<T> k, bool allowEmpty = false)
+        public bool ReadToken<T>(System.Predicate<char> test, Func<string, T> func, Continuation<T> k, bool allowEmpty = false)
         {
             int i;
-            for (i = Position; i < Text.Length && test(Text[i]); i++)
-            { }
-
+            for (i = Position; i < Text.Length && test(Text[i]); i++) ;
             if (i == Position && !allowEmpty)
                 return false;
             return k(JumpTo(i), func(Text.Substring(Position, i-Position)));
@@ -83,6 +78,16 @@ namespace TED.Repl
             return k(JumpTo(Position + i));
         }
 
+        public bool MatchAnyOf(string matchingChars, Continuation k)
+        {
+            if (RemainingChars < 1)
+                return false;
+            int i;
+            if (!matchingChars.Contains(Text[Position]))
+                    return false;
+            return k(JumpTo(Position + 1));
+        }
+
         public bool Star<T>(Parser<T> parser, Continuation<IList<T>> k)
         {
             var values = new List<T>();
@@ -92,9 +97,7 @@ namespace TED.Repl
                        state = newState;
                        values.Add(newElement);
                        return true;
-                   }))
-            { }
-
+                   })) ;
             return k(state, values);
         }
 
@@ -119,9 +122,7 @@ namespace TED.Repl
                            SkipWhite();
                            return true; 
                        });
-                   }))
-            { }
-
+                   })) ;
             SkipWhite();
             return k(state, values);
         }
