@@ -65,12 +65,12 @@ namespace TED
         /// Start defining predicates for the program.  All predicates created between calling and calling End() will be added
         /// to the program.
         /// </summary>
-        public void Begin() => LoadingPrograms.Push(this);
+        public void BeginPredicates() => LoadingPrograms.Push(this);
 
         /// <summary>
         /// Stop adding new predicates to this Program.
         /// </summary>
-        public void End() => LoadingPrograms.Pop();
+        public void EndPredicates() => LoadingPrograms.Pop();
 
         /// <summary>
         /// The predicate with the specified name
