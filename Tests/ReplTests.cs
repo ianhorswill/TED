@@ -10,9 +10,9 @@ namespace Tests
         public void QueryTest()
         {
             var p = new Program(nameof(QueryTest));
-            p.Begin();
+            p.BeginPredicates();
             TablePredicate<string, int>.FromCsv("test", "../../../TestTable.csv", (Var<string>)"name", (Var<int>)"age");
-            p.End();
+            p.EndPredicates();
 
             var q = p.Repl.Query("TestQuery", "test[\"Tamika\", age]");
             Assert.IsInstanceOfType(q,typeof(TablePredicate<int>));

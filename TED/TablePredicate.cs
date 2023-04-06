@@ -496,6 +496,25 @@ namespace TED
             return this;
         }
 
+        private TablePredicate<T1>? addPredicate;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1> Add
+        {
+            get
+            {
+                if (addPredicate == null)
+                {
+                    addPredicate = new TablePredicate<T1>(Name + "__add", (Var<T1>)DefaultVariables[0]);
+                    Accumulates(addPredicate);
+                }
+
+                return addPredicate;
+            }
+        }
+
         internal override void AppendInputs()
         {
             if (inputs != null)
@@ -681,6 +700,27 @@ namespace TED
             inputs ??= new List<TablePredicate<T1, T2>>();
             inputs.Add(input);
             return this;
+        }
+
+        private TablePredicate<T1, T2>? addPredicate;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1, T2> Add
+        {
+            get
+            {
+                if (addPredicate == null)
+                {
+                    addPredicate = new TablePredicate<T1, T2>(Name + "__add",
+                        (Var<T1>)DefaultVariables[0],
+                        (Var<T2>)DefaultVariables[1]);
+                    Accumulates(addPredicate);
+                }
+
+                return addPredicate;
+            }
         }
 
         internal override void AppendInputs()
@@ -940,6 +980,28 @@ namespace TED
             return this;
         }
 
+        private TablePredicate<T1, T2, T3>? addPredicate;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1, T2, T3> Add
+        {
+            get
+            {
+                if (addPredicate == null)
+                {
+                    addPredicate = new TablePredicate<T1, T2, T3>(Name + "__add",
+                        (Var<T1>)DefaultVariables[0],
+                        (Var<T2>)DefaultVariables[1],
+                        (Var<T3>)DefaultVariables[2]);
+                    Accumulates(addPredicate);
+                }
+
+                return addPredicate;
+            }
+        }
+
         internal override void AppendInputs()
         {
             if (inputs != null)
@@ -1176,6 +1238,29 @@ namespace TED
             inputs ??= new List<TablePredicate<T1, T2, T3, T4>>();
             inputs.Add(input);
             return this;
+        }
+
+        private TablePredicate<T1, T2, T3, T4>? addPredicate;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4> Add
+        {
+            get
+            {
+                if (addPredicate == null)
+                {
+                    addPredicate = new TablePredicate<T1, T2, T3, T4>(Name + "__add",
+                        (Var<T1>)DefaultVariables[0],
+                        (Var<T2>)DefaultVariables[1],
+                        (Var<T3>)DefaultVariables[2],
+                        (Var<T4>)DefaultVariables[3]);
+                    Accumulates(addPredicate);
+                }
+
+                return addPredicate;
+            }
         }
 
         internal override void AppendInputs()
@@ -1425,6 +1510,30 @@ namespace TED
             inputs ??= new List<TablePredicate<T1, T2, T3, T4, T5>>();
             inputs.Add(input);
             return this;
+        }
+
+        private TablePredicate<T1, T2, T3, T4, T5>? addPredicate;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5> Add
+        {
+            get
+            {
+                if (addPredicate == null)
+                {
+                    addPredicate = new TablePredicate<T1, T2, T3, T4, T5>(Name + "__add",
+                        (Var<T1>)DefaultVariables[0],
+                        (Var<T2>)DefaultVariables[1],
+                        (Var<T3>)DefaultVariables[2],
+                        (Var<T4>)DefaultVariables[3],
+                        (Var<T5>)DefaultVariables[4]);
+                    Accumulates(addPredicate);
+                }
+
+                return addPredicate;
+            }
         }
 
         internal override void AppendInputs()
@@ -1686,6 +1795,31 @@ namespace TED
             return this;
         }
 
+        private TablePredicate<T1, T2, T3, T4, T5, T6>? addPredicate;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6> Add
+        {
+            get
+            {
+                if (addPredicate == null)
+                {
+                    addPredicate = new TablePredicate<T1, T2, T3, T4, T5, T6>(Name + "__add",
+                        (Var<T1>)DefaultVariables[0],
+                        (Var<T2>)DefaultVariables[1],
+                        (Var<T3>)DefaultVariables[2],
+                        (Var<T4>)DefaultVariables[3],
+                        (Var<T5>)DefaultVariables[4],
+                        (Var<T6>)DefaultVariables[5]);
+                    Accumulates(addPredicate);
+                }
+
+                return addPredicate;
+            }
+        }
+
         internal override void AppendInputs()
         {
             if (inputs != null)
@@ -1936,6 +2070,32 @@ namespace TED
             inputs ??= new List<TablePredicate<T1, T2, T3, T4, T5, T6, T7>>();
             inputs.Add(input);
             return this;
+        }
+
+        private TablePredicate<T1, T2, T3, T4, T5, T6, T7>? addPredicate;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7> Add
+        {
+            get
+            {
+                if (addPredicate == null)
+                {
+                    addPredicate = new TablePredicate<T1, T2, T3, T4, T5, T6, T7>(Name + "__add",
+                        (Var<T1>)DefaultVariables[0],
+                        (Var<T2>)DefaultVariables[1],
+                        (Var<T3>)DefaultVariables[2],
+                        (Var<T4>)DefaultVariables[3],
+                        (Var<T5>)DefaultVariables[4],
+                        (Var<T6>)DefaultVariables[5],
+                        (Var<T7>)DefaultVariables[6]);
+                    Accumulates(addPredicate);
+                }
+
+                return addPredicate;
+            }
         }
 
         internal override void AppendInputs() {
@@ -2193,6 +2353,33 @@ namespace TED
             inputs ??= new List<TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>>();
             inputs.Add(input);
             return this;
+        }
+
+        private TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>? addPredicate;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> Add
+        {
+            get
+            {
+                if (addPredicate == null)
+                {
+                    addPredicate = new TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>(Name + "__add",
+                        (Var<T1>)DefaultVariables[0],
+                        (Var<T2>)DefaultVariables[1],
+                        (Var<T3>)DefaultVariables[2],
+                        (Var<T4>)DefaultVariables[3],
+                        (Var<T5>)DefaultVariables[4],
+                        (Var<T6>)DefaultVariables[5],
+                        (Var<T7>)DefaultVariables[6],
+                        (Var<T8>)DefaultVariables[7]);
+                    Accumulates(addPredicate);
+                }
+
+                return addPredicate;
+            }
         }
 
         internal override void AppendInputs() {
