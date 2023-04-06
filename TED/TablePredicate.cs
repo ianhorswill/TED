@@ -293,12 +293,9 @@ namespace TED
         /// <param name="buffer">Buffer in which to write the string forms</param>
         public uint RowRangeToStrings(uint startRow, string[][] buffer) {
             uint i;
-            for (i = 0u; i < buffer.Length; i++) {
-                if (startRow + i > Length) continue;
+            for (i = 0u; i < buffer.Length && startRow + i < Length; i++) 
                 RowToStrings(startRow + i, buffer[i]);
-            }
-            return i;
-        }
+            return i; }
 
         /// <summary>
         /// Call the specified function on each row of the table, allowing it to overwrite them
