@@ -24,6 +24,11 @@ namespace TED
         public static readonly AndPrimitive And = AndPrimitive.Singleton;
 
         /// <summary>
+        /// True if any argument goals are true
+        /// </summary>
+        public static readonly OrPrimitive Or = OrPrimitive.Singleton;
+
+        /// <summary>
         /// Matches or stores the value of the functional expression to the variable.
         /// </summary>
         public static Goal Eval<T>(Var<T> v, FunctionalExpression<T> e) => EvalPrimitive<T>.Singleton[v, e];

@@ -13,13 +13,15 @@ namespace TED.Preprocessing
     /// </summary>
     public class GoalAnalyzer
     {
-        private GoalAnalyzer(Dictionary<Term, ValueCell> variableCells, HashSet<TablePredicate> dependencies)
+        private GoalAnalyzer(Dictionary<Term, ValueCell> variableCells, HashSet<Term>? boundVars, HashSet<TablePredicate> dependencies)
         {
             variableValueCells = variableCells;
+            if (boundVars != null)
+                BoundVariables.UnionWith(boundVars);
             tableDependencies = dependencies;
         }
 
-        internal GoalAnalyzer() : this(new Dictionary<Term, ValueCell>(), new HashSet<TablePredicate>())
+        internal GoalAnalyzer() : this(new Dictionary<Term, ValueCell>(), null, new HashSet<TablePredicate>())
         { }
 
         /// <summary>
@@ -27,7 +29,7 @@ namespace TED.Preprocessing
         /// Dependencies will be added, however.
         /// </summary>
         public GoalAnalyzer MakeChild()
-            => new GoalAnalyzer(new Dictionary<Term, ValueCell>(variableValueCells), tableDependencies);
+            => new GoalAnalyzer(variableValueCells, BoundVariables, tableDependencies);
 
         /// <summary>
         /// Maps Var objects, which are the abstract syntax tree representation for a TED variable,
@@ -36,6 +38,11 @@ namespace TED.Preprocessing
         /// is also a generic type, and so AnyTerm is the most immediate ancestor that's a parent to all Vars.
         /// </summary>
         private readonly Dictionary<Term, ValueCell> variableValueCells;
+
+        /// <summary>
+        /// Variables that are currently bound to values
+        /// </summary>
+        public readonly HashSet<Term> BoundVariables = new HashSet<Term>();
 
         private readonly HashSet<TablePredicate> tableDependencies;
 
@@ -66,11 +73,16 @@ namespace TED.Preprocessing
             // it's a variable
             if (!(term is Var<T> v))
                 throw new InvalidOperationException($"{term} cannot be used as an argument to a predicate");
-            if (variableValueCells.TryGetValue(v, out var cell))
-                return MatchOperation<T>.Read((ValueCell<T>)cell);
-            var vc = ValueCell<T>.MakeVariable(v.Name);
-            variableValueCells[v] = vc;
-            return MatchOperation<T>.Write(vc);
+            if (BoundVariables.Contains(v))
+                return MatchOperation<T>.Read((ValueCell<T>)variableValueCells[v]);
+            if (!variableValueCells.ContainsKey(v))
+            {
+                var vc = ValueCell<T>.MakeVariable(v.Name);
+                variableValueCells[v] = vc;
+            }
+
+            BoundVariables.Add(v);
+            return MatchOperation<T>.Write((ValueCell<T>)variableValueCells[v]);
         }
 
         /// <summary>
@@ -88,6 +100,6 @@ namespace TED.Preprocessing
         /// <summary>
         /// True if subsequent uses of this variable will be match to the value in the cell rather than store into it.
         /// </summary>
-        public bool IsInstantiated(Term v) => variableValueCells.ContainsKey(v);
+        public bool IsInstantiated(Term v) => BoundVariables.Contains(v);
     }
 }

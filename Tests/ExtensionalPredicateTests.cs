@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 using TED;
 using TED.Utilities;
 using static TED.Language;
+// ReSharper disable InconsistentNaming
 
 namespace Tests
 {
@@ -122,7 +122,7 @@ namespace Tests
             var m = (Var<MethodInfo>)"m";
             var rt = (Var<Type>)"rt";
             var Methods = Predicate("methods",
-                typeof(Term).Assembly.DefinedTypes.SelectMany(t => t.GetMethods().Select(m => (t, m, m.ReturnType))),
+                typeof(Term).Assembly.DefinedTypes.SelectMany(t2 => t2.GetMethods().Select(m2 => (t: t2, m: m2, m2.ReturnType))),
                 t, m, rt);
 
             var HasBoolMethod = Predicate("HasBoolMethods", t).If(Methods[t, m, typeof(bool)]);

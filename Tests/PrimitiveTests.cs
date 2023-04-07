@@ -140,6 +140,60 @@ namespace Tests
         }
 
         [TestMethod]
+        public void OrInstantiated()
+        {
+            var x = (Var<int>)"x";
+            var y = (Var<int>)"y";
+
+            var t = new TablePredicate<int, int>("t", x, y);
+            for (var i = 0; i < 10; i++)
+            for (var j = 0; j < 10; j++)
+                t.AddRow(i, j);
+
+            var u = new TablePredicate<int>("u", x);
+            u.AddRow(2);
+            u.AddRow(4);
+            u.AddRow(6);
+
+            var s = new TablePredicate<int>("s", x);
+
+            s[x].If(And[t[x,x], And[u[x]]]);
+
+            var v = Predicate("v", new[] { 8, 10 });
+
+            var w = Predicate("w", x).If(Or[s[x], v[x]]);
+
+            CollectionAssert.AreEqual(new[] { 2, 4, 6, 8, 10 }, w.ToArray());
+        }
+
+        [TestMethod, ExpectedException(typeof(InstantiationException))]
+        public void OrUninstantiated()
+        {
+            var x = (Var<int>)"x";
+            var y = (Var<int>)"y";
+
+            var t = new TablePredicate<int, int>("t", x, y);
+            for (var i = 0; i < 10; i++)
+            for (var j = 0; j < 10; j++)
+                t.AddRow(i, j);
+
+            var u = new TablePredicate<int>("u", x);
+            u.AddRow(2);
+            u.AddRow(4);
+            u.AddRow(6);
+
+            var s = new TablePredicate<int>("s", x);
+
+            s[x].If(And[t[x,x], And[u[x]]]);
+
+            var v = Predicate("v", new[] { 8, 10 });
+
+            var w = Predicate("w", x).If(Or[s[x], v[1]]);
+
+            CollectionAssert.AreEqual(new[] { 2, 4, 6, 8, 10 }, w.ToArray());
+        }
+
+        [TestMethod]
         public void AndFlattening()
         {
             var n = (Var<int>)"n";
