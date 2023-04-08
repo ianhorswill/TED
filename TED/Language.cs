@@ -1195,13 +1195,6 @@ namespace TED
 
         #region PrimitiveTest declaration sugar
         /// <summary>
-        /// Makes a PrimitiveTest based on an Expression of the form:
-        /// "() => MemberExpression" where MemberExpression is a C# Predicate
-        /// </summary>
-        // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest TestMember(Expression<Func<bool>> fn) =>
-            new PrimitiveTest(((MemberExpression)fn.Body).Member.Name, fn.Compile());
-        /// <summary>
         /// Makes a PrimitiveTest where the bool Func is built from a property on the given type
         /// </summary>
         // ReSharper disable once UnusedMember.Global
@@ -1229,6 +1222,11 @@ namespace TED
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static PrimitiveTest<TIn> Test<TIn>(string name, Predicate<TIn> fn) => new PrimitiveTest<TIn>(name, fn);
+         
+
+        //public static PrimitiveTest<TIn> TestMethod<TIn>(Func<TIn, bool> fn) => new PrimitiveTest<TIn>(fn.Method.Name, fn);
+        //public static PrimitiveTest<TIn> Test<TIn>(string name, Func<TIn, bool> fn) => new PrimitiveTest<TIn>(name, fn);
+
 
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
@@ -1323,28 +1321,11 @@ namespace TED
         public static Function<TIn> Method<TIn>(Func<TIn> fn) => new Function<TIn>(fn.Method.Name, fn);
 
         /// <summary>
-        /// Makes a function that can be placed in functional expressions with the name of
-        /// the delegate member being passed inside the expression.
-        /// Expression should be of the form: "() => MemberExpression"
-        /// </summary>
-        // ReSharper disable once UnusedMember.Global
-        public static Function<T> Member<T>(Expression<Func<T>> fn) =>
-            new Function<T>(((MemberExpression)fn.Body).Member.Name, fn.Compile());
-        /// <summary>
         /// Makes a Function where the Func T is built from a property on the given type
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static Function<T> Member<T>(object type, string property) =>
             new Function<T>(property, BuildSafeMemberAccess<T>(type, property));
-
-        /// <summary>
-        /// Makes a function that can be placed in functional expressions with the name:
-        /// "GetMemberExpression" where MemberExpression is the name of the member in the expression
-        /// Expression should be of the form: "() => MemberExpression"
-        /// </summary>
-        // ReSharper disable once UnusedMember.Global
-        public static Function<T> GetMember<T>(Expression<Func<T>> fn) =>
-            new Function<T>($"Get{((MemberExpression)fn.Body).Member.Name}", fn.Compile());
         /// <summary>
         /// Makes a Function where the Func T is built from a property on the given type,
         /// pre-pending Get to the property for the Function name
