@@ -20,10 +20,21 @@ namespace TED.Preprocessing
     {
         /// <summary>
         /// Reduce a series of goals to a different series in canonical form.
-        /// Canonical form contains no calls to Definitions and has FunctionalExpressions only as arguments to Eval.
+        /// Canonical form contains no calls to Definitions, no calls to True or False,
+        /// and has FunctionalExpressions only as arguments to Eval.
         /// </summary>
-        public static IEnumerable<Goal> CanonicalizeGoals(IEnumerable<Goal> body)
-            => ExpandDefinitions(body.SelectMany(HoistFunctionalExpressions).ToArray()).ToArray();
+        public static IEnumerable<Goal> CanonicalizeGoals(IEnumerable<Goal> body, bool throwOnFalse = true)
+        {
+            var goals = ExpandDefinitions(body.SelectMany(HoistFunctionalExpressions).ToArray())
+                .Where(g => g.Predicate != Language.True).ToArray();
+            if (goals.All(g => g.Predicate != Language.False))
+                // Expected case
+                return goals;
+            // One of the goals or subexpressions is false, which means this can never succeed.
+            if (throwOnFalse)
+                throw new Exception($"Rule will always fail");
+            return new [] { (Goal)Language.False };
+        }
 
         /// <summary>
         /// Generate a series of Call objects for a body.

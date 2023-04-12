@@ -83,5 +83,13 @@ namespace Tests
             Next[n+1].If(Number[n]);
             CollectionAssert.AreEqual(new [] { 2, 3, 4, 5, 6 }, Next.ToArray());
         }
+
+        [TestMethod, ExpectedException(typeof(Exception))]
+        public void UnsatisfiableRule()
+        {
+            var n = (Var<int>)"n";
+            var p = Predicate("P", n);
+            p.If(Or[False]);
+        }
     }
 }

@@ -21,9 +21,23 @@ namespace TED.Primitives
         /// <summary>
         /// True when all the subgoals are true
         /// </summary>
-        public Interpreter.Goal this[params Interpreter.Goal[] subgoals] => new Goal(Flatten(subgoals).ToArray());
+        public Interpreter.Goal this[params Interpreter.Goal[] subgoals]
+        {
+            get
+            {
+                var goals = Flatten(subgoals).ToArray();
+                if (goals.Any(g => g.Predicate == Language.True))
+                    return Language.True;
+                return goals.Length switch
+                {
+                    0 => Language.False,
+                    1 => goals[0],
+                    _ => new Goal(goals)
+                };
+            }
+        }
 
-        private static IEnumerable<Interpreter.Goal> Flatten(Interpreter.Goal[] subgoals) => subgoals.SelectMany(FlattenOne);
+        private static IEnumerable<Interpreter.Goal> Flatten(Interpreter.Goal[] subgoals) => subgoals.Where(g => g.Predicate != Language.False).SelectMany(FlattenOne);
 
         private static Interpreter.Goal UnwrapGoalConstant(Constant<Interpreter.Goal> c) => c.Value;
         private static IEnumerable<Interpreter.Goal> FlattenOne(Interpreter.Goal g)

@@ -29,6 +29,16 @@ namespace TED
         public static readonly OrPrimitive Or = OrPrimitive.Singleton;
 
         /// <summary>
+        /// Predicate that always fails
+        /// </summary>
+        public static readonly PrimitiveTest False = new PrimitiveTest("False", () => false);
+
+        /// <summary>
+        /// Predicate that always succeeds
+        /// </summary>
+        public static readonly PrimitiveTest True = new PrimitiveTest("True", () => true);
+
+        /// <summary>
         /// Matches or stores the value of the functional expression to the variable.
         /// </summary>
         public static Goal Eval<T>(Var<T> v, FunctionalExpression<T> e) => EvalPrimitive<T>.Singleton[v, e];
