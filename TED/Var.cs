@@ -33,7 +33,10 @@ namespace TED
 
         /// <inheritdoc />
         public string VariableName => Name;
-        
+
+        /// <inheritdoc />
+        public Goal EquateTo(Term t) => this == (Term<T>)t;
+
         /// <summary>
         /// Make a TED variable of the specified type and name
         /// </summary>

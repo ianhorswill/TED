@@ -18,18 +18,26 @@ namespace TED
         /// <summary>
         /// Sequence of goals into which this definition should be expanded
         /// </summary>
-        public Goal[]? Body;
+        internal Goal[]? Body;
+
+        /// <summary>
+        /// Rules defining the Definition if it's defined by separate rules
+        /// </summary>
+        internal List<Rule>? Rules;
 
         /// <inheritdoc />
         protected Definition(string name) : base(name)
         {
         }
 
+        internal static IEnumerable<Goal> SubstituteBody(IEnumerable<Goal> body, Substitution s) =>
+            body.Select(g => g.RenameArguments(s).FoldConstant());
+
         /// <summary>
         /// Goal representing a call to a definition
         /// This will get expanded in-line by the calling rule at preprocessing time
         /// </summary>
-        internal abstract class DefinitionGoal : Goal
+        public abstract class DefinitionGoal : Goal
         {
             /// <summary>
             /// The definition being called
@@ -51,7 +59,7 @@ namespace TED
             /// Make a substitution that will substitute the formal arguments of the definition
             /// with the actual arguments passed in this goal
             /// </summary>
-            public abstract Substitution MakeSubstitution();
+            internal abstract Substitution MakeSubstitution();
 
             /// <summary>
             /// Generate a copy of the goals of the substitution with the actual arguments
@@ -61,15 +69,82 @@ namespace TED
             /// <exception cref="Exception">If not body has yet been specified for the definition</exception>
             public IEnumerable<Goal> Expand()
             {
+                if (Definition.Rules != null)
+                    return new[] { Language.Or[Definition.Rules.Select(r => Language.And[r.Expand(this)]).ToArray()] };
                 if (Definition.Body == null)
                     throw new Exception($"No body defined for definition {Definition.Name}");
                 var s = MakeSubstitution();
-                return Definition.Body.Select(g => g.RenameArguments(s));
+                return SubstituteBody(Definition.Body, s);
             }
 
             internal override Call MakeCall(GoalAnalyzer ga)
             {
                 throw new InvalidOperationException("Definitions are not directly callable");
+            }
+
+            /// <summary>
+            /// Add a new to the definition
+            /// </summary>
+            /// <param name="body"></param>
+            public void If(params Goal[] body) => Definition.AddRule(this, CanonicalizeGoals(body).ToArray());
+
+            /// <summary>
+            /// Add a rule to the definition with no subgoals
+            /// </summary>
+            public void Fact() => If();
+        }
+
+        private void AddRule(DefinitionGoal head, Goal[] body)
+        {
+            if (Rules == null)
+            {
+                if (Body != null)
+                    throw new InvalidOperationException(
+                        $"You cannot add a rule to definition {Name} using If() because you've already added a definition for it using Is().");
+                Rules = new List<Rule>();
+            }
+            Rules.Add(new Rule(head, body));
+        }
+
+        internal class Rule
+        {
+            public readonly Term[] FormalArguments;
+            public Goal[] Body;
+
+            public Rule(DefinitionGoal head, Goal[] body)
+            {
+                FormalArguments = head.Arguments;
+                Body = body;
+            }
+
+            public Goal[] Expand(DefinitionGoal g)
+            {
+                var actualArguments = g.Arguments;
+                var s = new Substitution(true);
+                var equalities = new List<Goal>();
+                for (var i = 0; i < actualArguments.Length; i++)
+                {
+                    var formal = FormalArguments[i];
+                    var actual = actualArguments[i];
+
+                    if (formal is IVariable)
+                        // We can't type it because we know it's Term<T> but we don't know what T is
+                        // but we know it passed the C# compiler's type checking, so the two must have the same T
+                        s.ReplaceWithUntyped(formal, actual);
+                    else if (actual is IVariable v)
+                    {
+                        // Formal is a variable, actual is a constant
+                        equalities.Add(v.EquateTo(formal));
+                    }
+                    else
+                    {
+                        // formal and actual are both constants
+                        if (!((IConstant)formal).IsSameConstant(actual))
+                            return new Goal[] { Language.False };
+                    }
+                }
+
+                return equalities.Concat(SubstituteBody(Body, s)).ToArray();
             }
         }
     }
@@ -97,7 +172,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public Interpreter.Goal this[Term<T1> a1] => new Goal(this, a1);
+        public Goal this[Term<T1> a1] => new Goal(this, a1);
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -113,10 +188,12 @@ namespace TED
             return this;
         }
 
-        private sealed class Goal : DefinitionGoal
+        /// <inheritdoc />
+        public sealed class Goal : DefinitionGoal
         {
             private readonly Term<T1> arg1;
 
+            /// <inheritdoc />
             public Goal(Definition<T1> definition, Term<T1> arg1) : base(definition, new Term[] { arg1 })
             {
                 this.arg1 = arg1;
@@ -125,7 +202,7 @@ namespace TED
             internal override Interpreter.Goal RenameArguments(Substitution s) =>
                 new Goal((Definition<T1>)Definition, s.Substitute(arg1));
 
-            public override Substitution MakeSubstitution()
+            internal override Substitution MakeSubstitution()
             {
                 var s = new Substitution(true);
                 var d = (Definition<T1>)Definition;
@@ -164,7 +241,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public Interpreter.Goal this[Term<T1> a1, Term<T2> a2] => new Goal(this, a1, a2);
+        public Goal this[Term<T1> a1, Term<T2> a2] => new Goal(this, a1, a2);
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -183,7 +260,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        private class Goal : DefinitionGoal
+        public class Goal : DefinitionGoal
         {
             /// <summary>
             /// First argument
@@ -194,6 +271,7 @@ namespace TED
             /// </summary>
             private readonly Term<T2> arg2;
 
+            /// <inheritdoc />
             public Goal(Definition<T1, T2> definition, Term<T1> arg1, Term<T2> arg2) : base(definition,
                 new Term[] { arg1, arg2 })
             {
@@ -204,7 +282,7 @@ namespace TED
             internal override Interpreter.Goal RenameArguments(Substitution s) => new Goal((Definition<T1, T2>)Definition,
                 s.Substitute(arg1), s.Substitute(arg2));
 
-            public override Substitution MakeSubstitution()
+            internal override Substitution MakeSubstitution()
             {
                 var s = new Substitution(true);
                 var d = (Definition<T1, T2>)Definition;
@@ -252,7 +330,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public Interpreter.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3] => new Goal(this, a1, a2, a3);
+        public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3] => new Goal(this, a1, a2, a3);
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -268,7 +346,7 @@ namespace TED
             return this;
         }
 
-        private class Goal : DefinitionGoal
+        public class Goal : DefinitionGoal
         {
             /// <summary>
             /// First argument
@@ -283,6 +361,7 @@ namespace TED
             /// </summary>
             private readonly Term<T3> arg3;
 
+            /// <inheritdoc />
             public Goal(Definition<T1, T2, T3> definition, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3) : base(
                 definition, new Term[] { arg1, arg2, arg3 })
             {
@@ -294,7 +373,7 @@ namespace TED
             internal override Interpreter.Goal RenameArguments(Substitution s) => new Goal((Definition<T1, T2, T3>)Definition,
                 s.Substitute(arg1), s.Substitute(arg2), s.Substitute(arg3));
 
-            public override Substitution MakeSubstitution()
+            internal override Substitution MakeSubstitution()
             {
                 var s = new Substitution(true);
                 var d = (Definition<T1,T2,T3>)Definition;
@@ -348,7 +427,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public Interpreter.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4] => new Goal(this, a1, a2, a3, a4);
+        public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4] => new Goal(this, a1, a2, a3, a4);
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -364,7 +443,7 @@ namespace TED
             return this;
         }
 
-        private class Goal : DefinitionGoal
+        public class Goal : DefinitionGoal
         {
             /// <summary>
             /// First argument
@@ -383,6 +462,7 @@ namespace TED
             /// </summary>
             private readonly Term<T4> arg4;
 
+            /// <inheritdoc />
             public Goal(Definition<T1, T2, T3, T4> definition, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3,
                 Term<T4> arg4) : base(
                 definition, new Term[] { arg1, arg2, arg3, arg4 })
@@ -397,7 +477,7 @@ namespace TED
                 => new Goal((Definition<T1, T2, T3, T4>)Definition,
                     s.Substitute(arg1), s.Substitute(arg2), s.Substitute(arg3), s.Substitute(arg4));
 
-            public override Substitution MakeSubstitution()
+            internal override Substitution MakeSubstitution()
             {
                 var s = new Substitution(true);
                 var d = (Definition<T1,T2,T3,T4>)Definition;
@@ -458,7 +538,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public Interpreter.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5] 
+        public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5] 
             => new Goal(this, a1, a2, a3, a4, a5);
 
         /// <summary>
@@ -475,7 +555,7 @@ namespace TED
             return this;
         }
 
-        private class Goal : DefinitionGoal
+        public class Goal : DefinitionGoal
         {
             /// <summary>
             /// First argument
@@ -498,6 +578,7 @@ namespace TED
             /// </summary>
             private readonly Term<T5> arg5;
 
+            /// <inheritdoc />
             public Goal(Definition<T1,T2,T3,T4,T5> definition, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3,
                 Term<T4> arg4, Term<T5> arg5) : base(
                 definition, new Term[] { arg1, arg2, arg3, arg4, arg5 })
@@ -513,7 +594,7 @@ namespace TED
                 => new Goal((Definition<T1,T2,T3,T4,T5>)Definition,
                     s.Substitute(arg1), s.Substitute(arg2), s.Substitute(arg3), s.Substitute(arg4), s.Substitute(arg5));
 
-            public override Substitution MakeSubstitution()
+            internal override Substitution MakeSubstitution()
             {
                 var s = new Substitution(true);
                 var d = (Definition<T1,T2,T3,T4,T5>)Definition;
@@ -574,7 +655,7 @@ namespace TED
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
-        public Interpreter.Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5, Term<T6> a6] 
+        public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5, Term<T6> a6] 
             => new Goal(this, a1, a2, a3, a4, a5, a6);
 
         /// <summary>
@@ -591,7 +672,7 @@ namespace TED
             return this;
         }
 
-        private class Goal : DefinitionGoal
+        public class Goal : DefinitionGoal
         {
             /// <summary>
             /// First argument
@@ -618,6 +699,7 @@ namespace TED
             /// </summary>
             private readonly Term<T6> arg6;
 
+            /// <inheritdoc />
             public Goal(Definition<T1,T2,T3,T4,T5,T6> definition, Term<T1> arg1, Term<T2> arg2, Term<T3> arg3,
                 Term<T4> arg4, Term<T5> arg5, Term<T6> arg6) : base(
                 definition, new Term[] { arg1, arg2, arg3, arg4, arg5, arg6 })
@@ -634,7 +716,7 @@ namespace TED
                 => new Goal((Definition<T1,T2,T3,T4,T5,T6>)Definition,
                     s.Substitute(arg1), s.Substitute(arg2), s.Substitute(arg3), s.Substitute(arg4), s.Substitute(arg5), s.Substitute(arg6));
 
-            public override Substitution MakeSubstitution()
+            internal override Substitution MakeSubstitution()
             {
                 var s = new Substitution(true);
                 var d = (Definition<T1,T2,T3,T4,T5,T6>)Definition;

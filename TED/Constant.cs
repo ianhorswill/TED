@@ -8,12 +8,15 @@ namespace TED
     /// <summary>
     /// Terms that represent constants of type T
     /// </summary>
-    public sealed class Constant<T> : Term<T>
+    public sealed class Constant<T> : Term<T>, IConstant
     {
         /// <summary>
         /// The actual constant
         /// </summary>
         public readonly T Value;
+
+        /// <inheritdoc />
+        public object? ValueUntyped => Value;
         
         /// <summary>
         /// Make a Constant object to wrap the specified constant
@@ -45,5 +48,11 @@ namespace TED
             if (this is Constant<Goal> subgoal)
                 return (Term<T>)(object)(new Constant<Goal>(subgoal.Value.RenameArguments(s)));
             return this;
+        }
+
+        /// <inheritdoc />
+        public bool IsSameConstant(Term t)
+        {
+            return t is Constant<T> c && Equals(Value, c.Value);
         }
     }}

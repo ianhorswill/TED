@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TED.Interpreter;
 using TED.Preprocessing;
 
@@ -18,6 +19,7 @@ namespace TED.Primitives
 
         public EvalPrimitive() : base("Eval")
         {
+            ConstantFolder = (Func<T,T,bool>)Comparer<T>.Default.Equals;
         }
 
         public override Call MakeCall(Goal g, GoalAnalyzer tc) =>

@@ -82,5 +82,31 @@ namespace Tests
             Assert.AreEqual("k", ((Var<int>)newGoal.Arguments[1]).Name);
             Assert.AreNotEqual(newGoal.Arguments[0], newGoal.Arguments[1]);
         }
+
+        [TestMethod]
+        public void RuleTest()
+        {
+            void TestExpansion(Definition.DefinitionGoal g, string expected)
+            {
+                var expansion = g.Expand().ToArray();
+                Assert.AreEqual(1, expansion.Length);
+                Assert.AreEqual(expected, expansion[0].ToString());
+            }
+
+            var s = (Var<string>)"s";
+            var n = (Var<int>)"n";
+
+            var D = Definition("D", s, n);
+            D["foo", n].Fact();
+            D[s, 10].If();
+
+            TestExpansion(D[s, n], "Or[Eval[s, \"foo\"], Eval[n, 10]]");
+            TestExpansion(D["bar", n], "Eval[n, 10]");
+
+            var E = Definition("E", n);
+            E[n].If(D["bar", n]);
+            TestExpansion(E[n], "Eval[n, 10]");
+            TestExpansion(E[1], "False[]");
+        }
     }
 }

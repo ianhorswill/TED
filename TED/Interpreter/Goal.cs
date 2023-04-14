@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 using TED.Preprocessing;
 
 namespace TED.Interpreter
@@ -31,6 +32,11 @@ namespace TED.Interpreter
         protected Goal(Term[] arguments) => Arguments = arguments;
 
         /// <summary>
+        /// True if all arguments are constants.
+        /// </summary>
+        public bool IsConstant => Arguments.All(a => a is IConstant);
+
+        /// <summary>
         /// Apply a substitution to the arguments of this goal
         /// </summary>
         /// <param name="s">Substitution to apply</param>
@@ -60,6 +66,19 @@ namespace TED.Interpreter
         /// <param name="rhs">Right-hand side goal to and</param>
         /// <returns></returns>
         public static Goal operator &(Goal lhs, Goal rhs) => Language.And[lhs, rhs];
+
+        /// <summary>
+        /// Convert a boolean to either Language.True, which is a predicate that always succeeds, or Language.False,
+        /// which always fails.
+        /// </summary>
+        public static explicit operator Goal(bool b) => b ? (Goal)Language.True : (Goal)Language.False;
+
+        /// <summary>
+        /// If this is a goal all of whose arguments are constants, and if the predicate is evaluable
+        /// at preprocessing time, then replace it with Language.True or Language.False.
+        /// </summary>
+        /// <returns></returns>
+        internal virtual Goal FoldConstant() => this;
 
         #region Printing
         /// <summary>

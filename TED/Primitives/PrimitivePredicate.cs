@@ -6,13 +6,13 @@ namespace TED.Primitives
     /// <summary>
     /// A primitive predicate (one computed by code rather than matching to a table) with no arguments
     /// </summary>
-    public abstract class PrimitivePredicate : Predicate
+    public abstract class PrimitivePredicate : PrimitivePredicateBase
     {
         /// <summary>
         /// Make a primitive predicate with the specified name
         /// </summary>
         protected PrimitivePredicate(string name) : base(name) { }
-
+        
         /// <summary>
         /// Return a goal representing a call to this primitive.
         /// </summary>
@@ -53,6 +53,8 @@ namespace TED.Primitives
             /// <param name="ga">Goal analyzer for the rule this goal appears in.  Used to do mode analysis of the variables in the call.</param>
             /// <returns>Instance of the custom call class for this particular primitive</returns>
             internal override Call MakeCall(GoalAnalyzer ga) => Primitive.MakeCall(this, ga);
+
+            internal override Interpreter.Goal FoldConstant() => Primitive.FoldConstant(this);
         }
     }
 
@@ -60,7 +62,7 @@ namespace TED.Primitives
     /// A primitive predicate (one computed by code rather than matching to a table) with one argument
     /// </summary>
     /// <typeparam name="T1">Type of the predicate's argument</typeparam>
-    public abstract class PrimitivePredicate<T1> : Predicate
+    public abstract class PrimitivePredicate<T1> : PrimitivePredicateBase
     {
         /// <inheritdoc />
         protected PrimitivePredicate(string name) : base(name)
@@ -112,6 +114,8 @@ namespace TED.Primitives
             /// <param name="ga">Goal analyzer for the rule this goal appears in.  Used to do mode analysis of the variables in the call.</param>
             /// <returns>Instance of the custom call class for this particular primitive</returns>
             internal override Call MakeCall(GoalAnalyzer ga) => Primitive.MakeCall(this, ga);
+
+            internal override Interpreter.Goal FoldConstant() => Primitive.FoldConstant(this);
         }
     }
 
@@ -120,7 +124,7 @@ namespace TED.Primitives
     /// </summary>
     /// <typeparam name="T1">Type of the predicate's first argument</typeparam>
     /// <typeparam name="T2">Type of the predicate's second argument</typeparam>
-    public abstract class PrimitivePredicate<T1, T2> : Predicate
+    public abstract class PrimitivePredicate<T1, T2> : PrimitivePredicateBase
     {
         /// <inheritdoc />
         protected PrimitivePredicate(string name) : base(name)
@@ -177,6 +181,8 @@ namespace TED.Primitives
             /// <param name="ga">Goal analyzer for the rule this goal appears in.  Used to do mode analysis of the variables in the call.</param>
             /// <returns>Instance of the custom call class for this particular primitive</returns>
             internal override Call MakeCall(GoalAnalyzer ga) => Primitive.MakeCall(this, ga);
+            
+            internal override Interpreter.Goal FoldConstant() => Primitive.FoldConstant(this);
         }
     }
 
@@ -186,7 +192,7 @@ namespace TED.Primitives
     /// <typeparam name="T1">Type of the predicate's first argument</typeparam>
     /// <typeparam name="T2">Type of the predicate's second argument</typeparam>
     /// <typeparam name="T3">Type if the predicate's third argument</typeparam>
-    public abstract class PrimitivePredicate<T1, T2, T3> : Predicate
+    public abstract class PrimitivePredicate<T1, T2, T3> : PrimitivePredicateBase
     {
         /// <inheritdoc />
         protected PrimitivePredicate(string name) : base(name)
@@ -249,6 +255,8 @@ namespace TED.Primitives
             /// <param name="ga">Goal analyzer for the rule this goal appears in.  Used to do mode analysis of the variables in the call.</param>
             /// <returns>Instance of the custom call class for this particular primitive</returns>
             internal override Call MakeCall(GoalAnalyzer ga) => Primitive.MakeCall(this, ga);
+
+            internal override Interpreter.Goal FoldConstant() => Primitive.FoldConstant(this);
         }
     }
 
@@ -259,7 +267,7 @@ namespace TED.Primitives
     /// <typeparam name="T2">Type of the predicate's second argument</typeparam>
     /// <typeparam name="T3">Type of the predicate's third argument</typeparam>
     /// <typeparam name="T4">Type of the predicate's fourth argument</typeparam>
-    public abstract class PrimitivePredicate<T1, T2, T3, T4> : Predicate
+    public abstract class PrimitivePredicate<T1, T2, T3, T4> : PrimitivePredicateBase
     {
         /// <inheritdoc />
         protected PrimitivePredicate(string name) : base(name)
@@ -327,6 +335,8 @@ namespace TED.Primitives
             /// <param name="ga">Goal analyzer for the rule this goal appears in.  Used to do mode analysis of the variables in the call.</param>
             /// <returns>Instance of the custom call class for this particular primitive</returns>
             internal override Call MakeCall(GoalAnalyzer ga) => Primitive.MakeCall(this, ga);
+            
+            internal override Interpreter.Goal FoldConstant() => Primitive.FoldConstant(this);
         }
     }
 
@@ -338,7 +348,7 @@ namespace TED.Primitives
     /// <typeparam name="T3">Type of the predicate's third argument</typeparam>
     /// <typeparam name="T4">Type of the predicate's fourth argument</typeparam>
     /// <typeparam name="T5">Type of the predicate's fifth argument</typeparam>
-    public abstract class PrimitivePredicate<T1, T2, T3, T4, T5> : Predicate
+    public abstract class PrimitivePredicate<T1, T2, T3, T4, T5> : PrimitivePredicateBase
     {
         /// <inheritdoc />
         protected PrimitivePredicate(string name) : base(name)
@@ -411,6 +421,8 @@ namespace TED.Primitives
             /// <param name="ga">Goal analyzer for the rule this goal appears in.  Used to do mode analysis of the variables in the call.</param>
             /// <returns>Instance of the custom call class for this particular primitive</returns>
             internal override Call MakeCall(GoalAnalyzer ga) => Primitive.MakeCall(this, ga);
+            
+            internal override Interpreter.Goal FoldConstant() => Primitive.FoldConstant(this);
         }
     }
 
@@ -423,7 +435,7 @@ namespace TED.Primitives
     /// <typeparam name="T4">Type of the predicate's fourth argument</typeparam>
     /// <typeparam name="T5">Type of the predicate's fifth argument</typeparam>
     /// <typeparam name="T6">Type of the predicate's sixth argument</typeparam>
-    public abstract class PrimitivePredicate<T1, T2, T3, T4, T5, T6> : Predicate
+    public abstract class PrimitivePredicate<T1, T2, T3, T4, T5, T6> : PrimitivePredicateBase
     {
         /// <inheritdoc />
         protected PrimitivePredicate(string name) : base(name)
@@ -501,6 +513,8 @@ namespace TED.Primitives
             /// <param name="ga">Goal analyzer for the rule this goal appears in.  Used to do mode analysis of the variables in the call.</param>
             /// <returns>Instance of the custom call class for this particular primitive</returns>
             internal override Call MakeCall(GoalAnalyzer ga) => Primitive.MakeCall(this, ga);
+            
+            internal override Interpreter.Goal FoldConstant() => Primitive.FoldConstant(this);
         }
     }
 
@@ -514,7 +528,7 @@ namespace TED.Primitives
     /// <typeparam name="T5">Type of the predicate's fifth argument</typeparam>
     /// <typeparam name="T6">Type of the predicate's sixth argument</typeparam>
     /// <typeparam name="T7">Type of the predicate's seventh argument</typeparam>
-    public abstract class PrimitivePredicate<T1, T2, T3, T4, T5, T6, T7> : Predicate
+    public abstract class PrimitivePredicate<T1, T2, T3, T4, T5, T6, T7> : PrimitivePredicateBase
     {
         /// <inheritdoc />
         protected PrimitivePredicate(string name) : base(name)
@@ -597,6 +611,8 @@ namespace TED.Primitives
             /// <param name="ga">Goal analyzer for the rule this goal appears in.  Used to do mode analysis of the variables in the call.</param>
             /// <returns>Instance of the custom call class for this particular primitive</returns>
             internal override Call MakeCall(GoalAnalyzer ga) => Primitive.MakeCall(this, ga);
+            
+            internal override Interpreter.Goal FoldConstant() => Primitive.FoldConstant(this);
         }
     }
 
@@ -611,7 +627,7 @@ namespace TED.Primitives
     /// <typeparam name="T6">Type of the predicate's sixth argument</typeparam>
     /// <typeparam name="T7">Type of the predicate's seventh argument</typeparam>
     /// <typeparam name="T8">Type of the predicate's eighth argument</typeparam>
-    public abstract class PrimitivePredicate<T1, T2, T3, T4, T5, T6, T7, T8> : Predicate
+    public abstract class PrimitivePredicate<T1, T2, T3, T4, T5, T6, T7, T8> : PrimitivePredicateBase
     {
         /// <inheritdoc />
         protected PrimitivePredicate(string name) : base(name)
@@ -699,6 +715,8 @@ namespace TED.Primitives
             /// <param name="ga">Goal analyzer for the rule this goal appears in.  Used to do mode analysis of the variables in the call.</param>
             /// <returns>Instance of the custom call class for this particular primitive</returns>
             internal override Call MakeCall(GoalAnalyzer ga) => Primitive.MakeCall(this, ga);
+            
+            internal override Interpreter.Goal FoldConstant() => Primitive.FoldConstant(this);
         }
     }
 }

@@ -21,6 +21,7 @@ namespace TED.Primitives
         public PrimitiveTest(string name, Func<bool> implementation) : base(name)
         {
             Implementation = implementation;
+            ConstantFolder = Implementation;
         }
 
         /// <inheritdoc />
@@ -61,6 +62,7 @@ namespace TED.Primitives
         public PrimitiveTest(string name, Predicate<T1> implementation) : base(name)
         {
             Implementation = implementation;
+            ConstantFolder = Implementation;
         }
 
         /// <inheritdoc />
@@ -119,6 +121,7 @@ namespace TED.Primitives
         public PrimitiveTest(string name, Func<T1, T2, bool> implementation) : base(name)
         {
             Implementation = implementation;
+            ConstantFolder = Implementation;
         }
 
         /// <inheritdoc />
@@ -184,6 +187,7 @@ namespace TED.Primitives
         public PrimitiveTest(string name, Func<T1, T2, T3, bool> implementation) : base(name)
         {
             Implementation = implementation;
+            ConstantFolder = Implementation;
         }
 
         /// <inheritdoc />
@@ -255,6 +259,7 @@ namespace TED.Primitives
         public PrimitiveTest(string name, Func<T1, T2, T3, T4, bool> implementation) : base(name)
         {
             Implementation = implementation;
+            ConstantFolder = Implementation;
         }
 
         /// <inheritdoc />
@@ -332,6 +337,7 @@ namespace TED.Primitives
         public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, bool> implementation) : base(name)
         {
             Implementation = implementation;
+            ConstantFolder = Implementation;
         }
 
         /// <inheritdoc />
@@ -415,6 +421,7 @@ namespace TED.Primitives
         public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, T6, bool> implementation) : base(name)
         {
             Implementation = implementation;
+            ConstantFolder = Implementation;
         }
 
         /// <inheritdoc />
@@ -504,6 +511,7 @@ namespace TED.Primitives
         public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, T6, T7, bool> implementation) : base(name)
         {
             Implementation = implementation;
+            ConstantFolder = Implementation;
         }
 
         /// <inheritdoc />
@@ -599,6 +607,7 @@ namespace TED.Primitives
         public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, bool> implementation) : base(name)
         {
             Implementation = implementation;
+            ConstantFolder = Implementation;
         }
 
         /// <inheritdoc />

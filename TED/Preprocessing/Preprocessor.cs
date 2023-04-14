@@ -25,7 +25,7 @@ namespace TED.Preprocessing
         /// </summary>
         public static IEnumerable<Goal> CanonicalizeGoals(IEnumerable<Goal> body, bool throwOnFalse = true)
         {
-            var goals = ExpandDefinitions(body.SelectMany(HoistFunctionalExpressions).ToArray())
+            var goals = ExpandDefinitions(body.SelectMany(HoistFunctionalExpressions).Select(g => g.FoldConstant()).ToArray())
                 .Where(g => g.Predicate != Language.True).ToArray();
             if (goals.All(g => g.Predicate != Language.False))
                 // Expected case

@@ -29,6 +29,8 @@ namespace TED.Preprocessing
 
         public void ReplaceWith<T>(Var<T> old, Term<T> newV) => Substitutions[old] = newV;
 
+        public void ReplaceWithUntyped(Term oldV, Term newV) => Substitutions[oldV] = newV; 
+
         public Term<T> Substitute<T>(Term<T> old)
         {
             return old.ApplySubstitution(this);
