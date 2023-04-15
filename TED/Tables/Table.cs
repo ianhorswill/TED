@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace TED.Tables
 {
@@ -14,8 +15,24 @@ namespace TED.Tables
     {
         /// <summary>
         /// Row index to return when not no matching row is found
+        /// Also used to mark the end of a linked list of rows
         /// </summary>
         public const uint NoRow = uint.MaxValue;
+
+        /// <summary>
+        /// Used to mark linked lists for hash buckets that are allocated but have empty lists
+        /// This happens when something is added to an index but then all rows with that value are removed.
+        /// </summary>
+        public const uint DeletedRow = NoRow - 1;
+
+        /// <summary>
+        /// True when the row number is neither NoRow (end of a linked list of rows)
+        /// nor DeletedRow (marks a hash bucket that's allocated but has an empty list in it).
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ValidRow(uint row) => row < DeletedRow;
 
         /// <summary>
         /// Number of rows in the table, regardless of the size of the underlying array.

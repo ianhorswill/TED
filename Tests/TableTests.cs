@@ -144,6 +144,54 @@ namespace Tests
         }
 
         [TestMethod]
+        public void IndexDeletionTest()
+        {
+
+            var t = new Table<int>();
+            var index = new GeneralIndex<int, int>(null!, t, 0, (in int n)=>n);
+            t.AddIndex(index);
+            index.EnableMutation();
+
+            IEnumerable<uint> RowsWithValue(int v)
+            {
+                for (var row = index.FirstRowWithValue(v); Table.ValidRow(row); row = index.NextRowWithValue(row))
+                    yield return row;
+            }
+
+            for (var i = 0; i < 10; i++)
+                t.Add(0);
+
+            var rows = RowsWithValue(0).ToArray();
+            CollectionAssert.AreEqual(new uint[] { 9,8,7,6,5,4,3,2,1,0 }, rows);
+
+            // Test removing the first element
+            index.Remove(9);
+            rows = RowsWithValue(0).ToArray();
+            CollectionAssert.AreEqual(new uint[] { 8,7,6,5,4,3,2,1,0 }, rows);
+
+            // Test removing the last element
+            index.Remove(0);
+            rows = RowsWithValue(0).ToArray();
+            CollectionAssert.AreEqual(new uint[] { 8,7,6,5,4,3,2,1 }, rows);
+
+            // Test removing a middle element
+            index.Remove(5);
+            rows = RowsWithValue(0).ToArray();
+            CollectionAssert.AreEqual(new uint[] { 8,7,6,4,3,2,1 }, rows);
+
+            // Test removing all elements
+            foreach (var row in rows) index.Remove(row);
+            Assert.AreEqual(0, RowsWithValue(0).Count());
+
+            // Test adding rows back in
+            for (var i = 0u; i < 10u; i++)
+                index.Add(i);
+
+            rows = RowsWithValue(0).ToArray();
+            CollectionAssert.AreEqual(new uint[] { 9,8,7,6,5,4,3,2,1,0 }, rows);
+        }
+
+        [TestMethod]
         public void UserKeyIndexTest()
         {
             var n = (Var<int>)"n";

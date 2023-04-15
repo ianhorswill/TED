@@ -47,6 +47,12 @@ namespace TED.Tables
         private uint[] nextRow;
 
         /// <summary>
+        /// Previous row in a doubly-linked list of rows in a given bucket
+        /// This is used if Remove() or changing values of the column is to be supported
+        /// </summary>
+        private uint[]? previousRow;
+
+        /// <summary>
         /// The length of the buckets array is always a power of 2.  Mask is the length-1, so we can easily
         /// project a hash value into a bucket number by and'ing the hash value with the mask.
         /// </summary>
@@ -83,6 +89,14 @@ namespace TED.Tables
             Reindex();
         }
 
+        public void EnableMutation()
+        {
+            if (previousRow != null)
+                return;
+            previousRow = new uint[nextRow.Length];
+            Reindex();
+        }
+
         /// <summary>
         /// Map a column value to an initial hash bucket.
         /// </summary>
@@ -99,7 +113,12 @@ namespace TED.Tables
         {
             for (var b = HashInternal(value, mask); buckets[b].firstRow != Table.NoRow; b = b + 1 & mask)
                 if (Comparer.Equals(buckets[b].columnValue, value))
-                    return buckets[b].firstRow;
+                {
+                    var first = buckets[b].firstRow;
+                    if (first == Table.DeletedRow)
+                        return Table.NoRow;
+                    return first;
+                }
             return Table.NoRow;
         }
 
@@ -126,9 +145,51 @@ namespace TED.Tables
             for (b = HashInternal(value, mask); buckets[b].firstRow != Table.NoRow && !Comparer.Equals(value, buckets[b].columnValue); b = b + 1 & mask)
             { }
 
+            var oldFirstRow = buckets[b].firstRow;
+            if (oldFirstRow == Table.DeletedRow) oldFirstRow = Table.NoRow;
             // Insert row at the beginning of the list for this value;
-            nextRow[row] = buckets[b].firstRow;
+            nextRow[row] = oldFirstRow;
             buckets[b] = (value, row);
+
+            // Update back-pointers, if this table supports removal
+            if (previousRow != null)
+            {
+                previousRow[row] = Table.NoRow;
+                if (oldFirstRow != Table.NoRow)
+                    previousRow[oldFirstRow] = row;
+            }
+        }
+
+        internal void Remove(uint row)
+        {
+            var previous = previousRow[row];
+            var next = nextRow[row];
+            if (previous != Table.NoRow)
+            {
+                // It's not the head of the list, so just splice it out of the list.
+                nextRow[previous] = next;
+                if (next != Table.NoRow)
+                    previousRow[next] = previous;
+                return;
+            }
+
+            // It must be the first element of the list
+            uint b;
+            var value = projection(table.Data[row]);
+            // Find the bucket that has this value
+            for (b = HashInternal(value, mask); !Comparer.Equals(value, buckets[b].columnValue); b = b + 1 & mask)
+            { }
+
+            if (next == Table.NoRow)
+            {
+                // It was the only row in the list
+                buckets[b].firstRow = Table.DeletedRow;
+            }
+            else
+            {
+                buckets[b].firstRow = next;
+                previousRow[next] = Table.NoRow;
+            }
         }
 
         /// <summary>
@@ -142,6 +203,8 @@ namespace TED.Tables
             mask = (uint)(buckets.Length - 1);
             nextRow = new uint[nextRow.Length * 2];
             Array.Fill(nextRow, Table.NoRow);
+            if (previousRow != null)
+                previousRow = new uint[nextRow.Length];
             Reindex();
         }
 
