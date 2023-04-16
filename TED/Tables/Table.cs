@@ -11,8 +11,20 @@ namespace TED.Tables
     /// Tables are essentially a custom version of the List class that is optimized for this application.
     /// Tables are *not* TablePredicates, but each TablePredicate has a Table in it to hold its data.
     /// </summary>
-    internal abstract class Table
+    public abstract class Table
     {
+        /// <summary>
+        /// Returns the key value given the row
+        /// </summary>
+        public delegate TColumn Projection<TRow, out TColumn>(in TRow row);
+
+        /// <summary>
+        /// Modifies the value of a column in a row.
+        /// </summary>
+        /// <param name="row">The row to modify (in place)</param>
+        /// <param name="newValue">New value for the column</param>
+        public delegate void Mutator<TRow, TColumn>(ref TRow row, in TColumn newValue);
+
         /// <summary>
         /// Row index to return when not no matching row is found
         /// Also used to mark the end of a linked list of rows

@@ -192,6 +192,50 @@ namespace Tests
         }
 
         [TestMethod]
+        public void MutatorUnindexed()
+        {
+            var s = (Var<string>)"s";
+            var n = (Var<int>)"n";
+
+            var T = Predicate("T", s.Key, n);
+            T.AddRow("foo", 1);
+            T.AddRow("bar", 2);
+            var a = T.Accessor(s, n);
+            Assert.AreEqual(1, a["foo"]);
+            Assert.AreEqual(2, a["bar"]);
+            a["foo"] = 3;
+            Assert.AreEqual(3, a["foo"]);
+        }
+
+        [TestMethod]
+        public void MutatorIndexed()
+        {
+            var s = (Var<string>)"s";
+            var n = (Var<int>)"n";
+
+            var T = Predicate("T", s.Key, n.Indexed);
+            var index = (GeneralIndex<(string,int), int>)T.IndexFor(1, false)!;
+
+            IEnumerable<uint> RowsWithValue(int v)
+            {
+                for (var row = index.FirstRowWithValue(v); Table.ValidRow(row); row = index.NextRowWithValue(row))
+                    yield return row;
+            }
+            T.AddRow("foo", 1);
+            T.AddRow("bar", 2);
+            var a = T.Accessor(s, n);
+            Assert.AreEqual(1, a["foo"]);
+            Assert.AreEqual(2, a["bar"]);
+            a["foo"] = 3;
+            Assert.AreEqual(3, a["foo"]);
+            CollectionAssert.AreEqual(new uint[] {0}, RowsWithValue(3).ToArray());
+
+            a["foo"] = 2;
+            CollectionAssert.AreEqual(new uint[] {0, 1}, RowsWithValue(2).ToArray());
+            Assert.AreEqual(0, RowsWithValue(3).Count());
+        }
+
+        [TestMethod]
         public void UserKeyIndexTest()
         {
             var n = (Var<int>)"n";

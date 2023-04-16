@@ -49,7 +49,7 @@
         /// Make an index, either keyed or not keyed, depending on the isKey argument
         /// </summary>
         internal static TableIndex MakeIndex<TRow, TColumn>(TablePredicate p, Table<TRow> t, int columnIndex,
-            TableIndex<TRow, TColumn>.Projection projection, bool isKey)
+            Table.Projection<TRow, TColumn> projection, bool isKey)
             => isKey
                 ? (TableIndex)new KeyIndex<TRow, TColumn>(p, t, columnIndex, projection)
                 : new GeneralIndex<TRow, TColumn>(p, t, columnIndex, projection);
@@ -62,13 +62,8 @@
     /// <typeparam name="TColumn">Type of the column being indexed</typeparam>
     public abstract class TableIndex<TRow, TColumn> : TableIndex
     {
-        /// <summary>
-        /// Returns the key value given the row
-        /// </summary>
-        public delegate TColumn Projection(in TRow row);
-
         /// <inheritdoc />
-        protected TableIndex(int columnNumber, Projection projection) : base(columnNumber)
+        protected TableIndex(int columnNumber, Table.Projection<TRow,TColumn> projection) : base(columnNumber)
         {
             this.projection = projection;
         }
@@ -77,7 +72,7 @@
         /// Function to extract the column value from a given row
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        protected readonly Projection projection;
+        protected readonly Table.Projection<TRow,TColumn> projection;
     }
 
 }

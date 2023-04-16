@@ -341,6 +341,22 @@ namespace TED
                 return result;
             throw new ArgumentException($"Argument {position} to {Name} should be of type {typeof(T).Name}");
         }
+
+        /// <summary>
+        /// Return a function that returns the value of the specified column given a row.
+        /// </summary>
+        public virtual Delegate Projection(int columnNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Return a function that modifies the value of the specified column given a row.
+        /// </summary>
+        public virtual Delegate Mutator(int columnNumber)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>
@@ -766,6 +782,41 @@ namespace TED
         {
             return GetEnumerator();
         }
+
+        #region Projection and mutation
+        /// <inheritdoc />
+        public override Delegate Projection(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Projection<(T1,T2), T1>)((in (T1,T2) row) => row.Item1),
+                1 => (Table.Projection<(T1,T2), T2>)((in (T1,T2) row) => row.Item2),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+
+        /// <inheritdoc />
+        public override Delegate Mutator(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Mutator<(T1,T2), T1>)((ref (T1,T2) row, in T1 value) => row.Item1 = value),
+                1 => (Table.Mutator<(T1,T2), T2>)((ref (T1,T2) row, in T2 value) => row.Item2 = value),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+        #endregion
+
+        public ColumnAccessor<(T1, T2), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+        {
+            var keyIndex = KeyIndex(key);
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            var columnIndex = IndexFor(columnNumber, false);
+            return new ColumnAccessor<(T1, T2), TColumn, TKey>(_table, keyIndex,
+                (Table.Projection<(T1, T2), TColumn>)Projection(columnNumber),
+                (GeneralIndex<(T1,T2),TColumn>)columnIndex!,
+                (Table.Mutator<(T1, T2), TColumn>)Mutator(columnNumber));
+        }
     }
 
     /// <summary>
@@ -1015,6 +1066,32 @@ namespace TED
         {
             return GetEnumerator();
         }
+
+        #region Projection and mutation
+        /// <inheritdoc />
+        public override Delegate Projection(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Projection<(T1,T2,T3), T1>)((in (T1,T2,T3) row) => row.Item1),
+                1 => (Table.Projection<(T1,T2,T3), T2>)((in (T1,T2,T3) row) => row.Item2),
+                2 => (Table.Projection<(T1,T2,T3), T3>)((in (T1,T2,T3) row) => row.Item3),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+
+        /// <inheritdoc />
+        public override Delegate Mutator(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Mutator<(T1,T2,T3), T1>)((ref (T1,T2,T3) row, in T1 value) => row.Item1 = value),
+                1 => (Table.Mutator<(T1,T2,T3), T2>)((ref (T1,T2,T3) row, in T2 value) => row.Item2 = value),
+                2 => (Table.Mutator<(T1,T2,T3), T3>)((ref (T1,T2,T3) row, in T3 value) => row.Item3 = value),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+        #endregion
     }
 
     /// <summary>
@@ -1276,6 +1353,34 @@ namespace TED
         {
             return GetEnumerator();
         }
+
+        #region Projections and mutators
+        /// <inheritdoc />
+        public override Delegate Projection(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Projection<(T1,T2,T3,T4), T1>)((in (T1,T2,T3,T4) row) => row.Item1),
+                1 => (Table.Projection<(T1,T2,T3,T4), T2>)((in (T1,T2,T3,T4) row) => row.Item2),
+                2 => (Table.Projection<(T1,T2,T3,T4), T3>)((in (T1,T2,T3,T4) row) => row.Item3),
+                3 => (Table.Projection<(T1,T2,T3,T4), T4>)((in (T1,T2,T3,T4) row) => row.Item4),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+
+        /// <inheritdoc />
+        public override Delegate Mutator(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Mutator<(T1,T2,T3,T4), T1>)((ref (T1,T2,T3,T4) row, in T1 value) => row.Item1 = value),
+                1 => (Table.Mutator<(T1,T2,T3,T4), T2>)((ref (T1,T2,T3,T4) row, in T2 value) => row.Item2 = value),
+                2 => (Table.Mutator<(T1,T2,T3,T4), T3>)((ref (T1,T2,T3,T4) row, in T3 value) => row.Item3 = value),
+                3 => (Table.Mutator<(T1,T2,T3,T4), T4>)((ref (T1,T2,T3,T4) row, in T4 value) => row.Item4 = value),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+        #endregion
     }
 
     /// <summary>
@@ -1549,6 +1654,37 @@ namespace TED
         {
             return GetEnumerator();
         }
+
+        #region Projections and mutators
+        /// <inheritdoc />
+        public override Delegate Projection(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Projection<(T1,T2,T3,T4,T5), T1>)((in (T1,T2,T3,T4,T5) row) => row.Item1),
+                1 => (Table.Projection<(T1,T2,T3,T4,T5), T2>)((in (T1,T2,T3,T4,T5) row) => row.Item2),
+                2 => (Table.Projection<(T1,T2,T3,T4,T5), T3>)((in (T1,T2,T3,T4,T5) row) => row.Item3),
+                3 => (Table.Projection<(T1,T2,T3,T4,T5), T4>)((in (T1,T2,T3,T4,T5) row) => row.Item4),
+                4 => (Table.Projection<(T1,T2,T3,T4,T5), T5>)((in (T1,T2,T3,T4,T5) row) => row.Item5),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+
+        /// <inheritdoc />
+        public override Delegate Mutator(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Mutator<(T1,T2,T3,T4,T5), T1>)((ref (T1,T2,T3,T4,T5) row, in T1 value) => row.Item1 = value),
+                1 => (Table.Mutator<(T1,T2,T3,T4,T5), T2>)((ref (T1,T2,T3,T4,T5) row, in T2 value) => row.Item2 = value),
+                2 => (Table.Mutator<(T1,T2,T3,T4,T5), T3>)((ref (T1,T2,T3,T4,T5) row, in T3 value) => row.Item3 = value),
+                3 => (Table.Mutator<(T1,T2,T3,T4,T5), T4>)((ref (T1,T2,T3,T4,T5) row, in T4 value) => row.Item4 = value),
+                4 => (Table.Mutator<(T1,T2,T3,T4,T5), T5>)((ref (T1,T2,T3,T4,T5) row, in T5 value) => row.Item5 = value),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+        #endregion
+
     }
 
     /// <summary>
@@ -1832,6 +1968,38 @@ namespace TED
         {
             return GetEnumerator();
         }
+
+        #region Projections and mutators
+        /// <inheritdoc />
+        public override Delegate Projection(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T1>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item1),
+                1 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T2>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item2),
+                2 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T3>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item3),
+                3 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T4>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item4),
+                4 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T5>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item5),
+                5 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T6>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item6),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+
+        /// <inheritdoc />
+        public override Delegate Mutator(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T1>)((ref (T1,T2,T3,T4,T5,T6) row, in T1 value) => row.Item1 = value),
+                1 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T2>)((ref (T1,T2,T3,T4,T5,T6) row, in T2 value) => row.Item2 = value),
+                2 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T3>)((ref (T1,T2,T3,T4,T5,T6) row, in T3 value) => row.Item3 = value),
+                3 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T4>)((ref (T1,T2,T3,T4,T5,T6) row, in T4 value) => row.Item4 = value),
+                4 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T5>)((ref (T1,T2,T3,T4,T5,T6) row, in T5 value) => row.Item5 = value),
+                5 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T6>)((ref (T1,T2,T3,T4,T5,T6) row, in T6 value) => row.Item6 = value),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+        #endregion
     }
 
 
@@ -2108,6 +2276,40 @@ namespace TED
         IEnumerator IEnumerable.GetEnumerator() {
             return GetEnumerator();
         }
+
+        #region Projections and mutators
+        /// <inheritdoc />
+        public override Delegate Projection(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T1>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item1),
+                1 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T2>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item2),
+                2 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T3>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item3),
+                3 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T4>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item4),
+                4 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T5>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item5),
+                5 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T6>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item6),
+                6 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T7>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item7),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+
+        /// <inheritdoc />
+        public override Delegate Mutator(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T1>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T1 value) => row.Item1 = value),
+                1 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T2>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T2 value) => row.Item2 = value),
+                2 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T3>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T3 value) => row.Item3 = value),
+                3 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T4>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T4 value) => row.Item4 = value),
+                4 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T5>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T5 value) => row.Item5 = value),
+                5 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T6>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T6 value) => row.Item6 = value),
+                6 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T7>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T7 value) => row.Item7 = value),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+        #endregion
     }
 
     /// <summary>
@@ -2392,5 +2594,41 @@ namespace TED
         IEnumerator IEnumerable.GetEnumerator() {
             return GetEnumerator();
         }
+
+        #region Projections and mutators
+        /// <inheritdoc />
+        public override Delegate Projection(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T1>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item1),
+                1 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T2>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item2),
+                2 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T3>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item3),
+                3 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T4>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item4),
+                4 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T5>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item5),
+                5 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T6>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item6),
+                6 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T7>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item7),
+                7 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T8>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item8),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+
+        /// <inheritdoc />
+        public override Delegate Mutator(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T1>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T1 value) => row.Item1 = value),
+                1 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T2>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T2 value) => row.Item2 = value),
+                2 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T3>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T3 value) => row.Item3 = value),
+                3 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T4>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T4 value) => row.Item4 = value),
+                4 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T5>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T5 value) => row.Item5 = value),
+                5 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T6>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T6 value) => row.Item6 = value),
+                6 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T7>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T7 value) => row.Item7 = value),
+                7 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T8>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T8 value) => row.Item8 = value),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+        #endregion
     }
 }
