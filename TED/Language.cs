@@ -1276,7 +1276,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn, TOut> Method<TIn, TOut>(Func<TIn, TOut> fn) => new Function<TIn, TOut>(fn.Method.Name, fn);
+        public static Function<TIn, TOut> Method<TIn, TOut>(Func<TIn, TOut> fn) => new Function<TIn, TOut>(fn);
 
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1289,7 +1289,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TOut> Method<TIn1, TIn2, TOut>(Func<TIn1, TIn2, TOut> fn) => new Function<TIn1, TIn2, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TOut> Method<TIn1, TIn2, TOut>(Func<TIn1, TIn2, TOut> fn) => new Function<TIn1, TIn2, TOut>(fn);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1302,7 +1302,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TOut> Method<TIn1, TIn2, TIn3, TOut>(Func<TIn1, TIn2, TIn3, TOut> fn) => new Function<TIn1, TIn2, TIn3, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TIn3, TOut> Method<TIn1, TIn2, TIn3, TOut>(Func<TIn1, TIn2, TIn3, TOut> fn) => new Function<TIn1, TIn2, TIn3, TOut>(fn);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1315,7 +1315,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Method<TIn1, TIn2, TIn3, TIn4, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Method<TIn1, TIn2, TIn3, TIn4, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(fn);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1328,7 +1328,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(fn);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1341,7 +1341,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(fn);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1354,7 +1354,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(fn);
         
         #endregion
 
