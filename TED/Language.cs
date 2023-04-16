@@ -119,69 +119,131 @@ namespace TED
         /// <summary>
         /// Find the solution to goal with maximal value of objective
         /// </summary>
-        /// <typeparam name="T">Type of the arg variable</typeparam>
+        /// <typeparam name="TArg">Type of the arg variable</typeparam>
+        /// <typeparam name="TUtility">Type of the utility variable</typeparam>
         /// <param name="arg">Variable from goal to report the value of for the maximal solution</param>
         /// <param name="objective">Variable to maximize across solutions to goal</param>
         /// <param name="goal">Goal to find the maximal solution of</param>
-        public static Goal Maximal<T>(Var<T> arg, Var<float> objective, Goal goal) =>
-            MaximalPrimitive<T>.Maximal[arg, objective, goal];
+        public static Goal Maximal<TArg, TUtility>(Var<TArg> arg, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
+            MaximalPrimitive<TArg, TUtility>.Maximal[arg, objective, goal];
+        
+        public static Goal Maximal<TArg>(Var<TArg> arg, Var<float> objective, Goal goal) => Maximal<TArg, float>(arg, objective, goal);
+        public static Goal Maximal<TArg>(Var<TArg> arg, Var<long> objective, Goal goal) => Maximal<TArg, long>(arg, objective, goal);
+        public static Goal Maximal<TArg>(Var<TArg> arg, Var<uint> objective, Goal goal) => Maximal<TArg, uint>(arg, objective, goal);
+        public static Goal Maximal<TArg>(Var<TArg> arg, Var<int> objective, Goal goal) => Maximal<TArg, int>(arg, objective, goal);
+        public static Goal Maximal<TArg>(Var<TArg> arg, Var<ushort> objective, Goal goal) => Maximal<TArg, ushort>(arg, objective, goal);
+        public static Goal Maximal<TArg>(Var<TArg> arg, Var<short> objective, Goal goal) => Maximal<TArg, short>(arg, objective, goal);
+        public static Goal Maximal<TArg>(Var<TArg> arg, Var<byte> objective, Goal goal) => Maximal<TArg, byte>(arg, objective, goal);
+        public static Goal Maximal<TArg>(Var<TArg> arg, Var<sbyte> objective, Goal goal) => Maximal<TArg, sbyte>(arg, objective, goal);
 
         /// <summary>
         /// Find the solution to goal with minimal value of objective
         /// </summary>
-        /// <typeparam name="T">Type of the arg variable</typeparam>
+        /// <typeparam name="TArg">Type of the arg variable</typeparam>
+        /// <typeparam name="TUtility">Type of the utility variable</typeparam>
         /// <param name="arg">Variable from goal to report the value of for the minimal solution</param>
         /// <param name="objective">Variable to minimize across solutions to goal</param>
         /// <param name="goal">Goal to find the minimal solution of</param>
-        public static Goal Minimal<T>(Var<T> arg, Var<float> objective, Goal goal) =>
-            MaximalPrimitive<T>.Minimal[arg, objective, goal];
-        
+        public static Goal Minimal<TArg, TUtility>(Var<TArg> arg, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
+            MaximalPrimitive<TArg, TUtility>.Minimal[arg, objective, goal];
+
+        public static Goal Minimal<TArg>(Var<TArg> arg, Var<float> objective, Goal goal) => Minimal<TArg, float>(arg, objective, goal);
+        public static Goal Minimal<TArg>(Var<TArg> arg, Var<long> objective, Goal goal) => Minimal<TArg, long>(arg, objective, goal);
+        public static Goal Minimal<TArg>(Var<TArg> arg, Var<uint> objective, Goal goal) => Minimal<TArg, uint>(arg, objective, goal);
+        public static Goal Minimal<TArg>(Var<TArg> arg, Var<int> objective, Goal goal) => Minimal<TArg, int>(arg, objective, goal);
+        public static Goal Minimal<TArg>(Var<TArg> arg, Var<ushort> objective, Goal goal) => Minimal<TArg, ushort>(arg, objective, goal);
+        public static Goal Minimal<TArg>(Var<TArg> arg, Var<short> objective, Goal goal) => Minimal<TArg, short>(arg, objective, goal);
+        public static Goal Minimal<TArg>(Var<TArg> arg, Var<byte> objective, Goal goal) => Minimal<TArg, byte>(arg, objective, goal);
+        public static Goal Minimal<TArg>(Var<TArg> arg, Var<sbyte> objective, Goal goal) => Minimal<TArg, sbyte>(arg, objective, goal);
+
         /// <summary>
         /// Find the solution to goal with maximal value of objective
         /// </summary>
-        /// <typeparam name="T1">Type of the first variable to report back</typeparam>
-        /// <typeparam name="T2">Type of the second variable to report back</typeparam>
+        /// <typeparam name="TArg1">Type of the first variable to report back</typeparam>
+        /// <typeparam name="TArg2">Type of the second variable to report back</typeparam>
+        /// <typeparam name="TUtility">Type of the utility variable</typeparam>
         /// <param name="args">Variables from Goal to report the values of for the maximal solution</param>
         /// <param name="objective">Variable to maximize across solutions to goal</param>
         /// <param name="goal">Goal to find the maximal solution of</param>
-        public static Goal Maximal<T1, T2>((Var<T1>, Var<T2>)args, Var<float> objective, Goal goal) =>
-            MaximalPrimitive<T1, T2>.Maximal[args.Item1, args.Item2, objective, goal];
+        public static Goal Maximal<TArg1, TArg2, TUtility>((Var<TArg1>, Var<TArg2>)args, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
+            MaximalPrimitive<TArg1, TArg2, TUtility>.Maximal[args.Item1, args.Item2, objective, goal];
+
+        public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<float> objective, Goal goal) =>  Maximal<TArg1, TArg2, float>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<long> objective, Goal goal) =>  Maximal<TArg1, TArg2, long>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<uint> objective, Goal goal) => Maximal<TArg1, TArg2, uint>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<int> objective, Goal goal) => Maximal<TArg1, TArg2, int>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<ushort> objective, Goal goal) => Maximal<TArg1, TArg2, ushort>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<short> objective, Goal goal) => Maximal<TArg1, TArg2, short>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<byte> objective, Goal goal) => Maximal<TArg1, TArg2, byte>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<sbyte> objective, Goal goal) => Maximal<TArg1, TArg2, sbyte>(args, objective, goal);
 
         /// <summary>
         /// Find the solution to goal with minimal value of objective
         /// </summary>
-        /// <typeparam name="T1">Type of the first variable to report back</typeparam>
-        /// <typeparam name="T2">Type of the second variable to report back</typeparam>
+        /// <typeparam name="TArg1">Type of the first variable to report back</typeparam>
+        /// <typeparam name="TArg2">Type of the second variable to report back</typeparam>
+        /// <typeparam name="TUtility">Type of the utility variable</typeparam>
         /// <param name="args">Variables from Goal to report the values of for the minimal solution</param>
         /// <param name="objective">Variable to minimize across solutions to goal</param>
         /// <param name="goal">Goal to find the minimal solution of</param>
-        public static Goal Minimal<T1, T2>((Var<T1>, Var<T2>)args, Var<float> objective, Goal goal) =>
-            MaximalPrimitive<T1, T2>.Minimal[args.Item1, args.Item2, objective, goal];
+        public static Goal Minimal<TArg1, TArg2, TUtility>((Var<TArg1>, Var<TArg2>)args, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
+            MaximalPrimitive<TArg1, TArg2, TUtility>.Minimal[args.Item1, args.Item2, objective, goal];
+
+        public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<float> objective, Goal goal) => Minimal<TArg1, TArg2, float>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<long> objective, Goal goal) => Minimal<TArg1, TArg2, long>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<uint> objective, Goal goal) => Minimal<TArg1, TArg2, uint>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<int> objective, Goal goal) => Minimal<TArg1, TArg2, int>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<ushort> objective, Goal goal) => Minimal<TArg1, TArg2, ushort>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<short> objective, Goal goal) => Minimal<TArg1, TArg2, short>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<byte> objective, Goal goal) => Minimal<TArg1, TArg2, byte>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<sbyte> objective, Goal goal) => Minimal<TArg1, TArg2, sbyte>(args, objective, goal);
+
 
         /// <summary>
         /// Find the solution to goal with maximal value of objective
         /// </summary>
-        /// <typeparam name="T1">Type of the first variable to report back</typeparam>
-        /// <typeparam name="T2">Type of the second variable to report back</typeparam>
-        /// <typeparam name="T3">Type of the third variable to report back</typeparam>
+        /// <typeparam name="TArg1">Type of the first variable to report back</typeparam>
+        /// <typeparam name="TArg2">Type of the second variable to report back</typeparam>
+        /// <typeparam name="TArg3">Type of the third variable to report back</typeparam>
+        /// <typeparam name="TUtility">Type of the utility variable</typeparam>
         /// <param name="args">Variables from Goal to report the values of for the minimal solution</param>
         /// <param name="objective">Variable to maximize across solutions to goal</param>
         /// <param name="goal">Goal to find the maximal solution of</param>
-        public static Goal Maximal<T1, T2, T3>((Var<T1>, Var<T2>, Var<T3>)args, Var<float> objective, Goal goal) =>
-            MaximalPrimitive<T1, T2, T3>.Maximal[args.Item1, args.Item2, args.Item3, objective, goal];
+        public static Goal Maximal<TArg1, TArg2, TArg3, TUtility>((Var<TArg1>, Var<TArg2>, Var<TArg3>)args, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
+            MaximalPrimitive<TArg1, TArg2, TArg3, TUtility>.Maximal[args.Item1, args.Item2, args.Item3, objective, goal];
+
+        public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<float> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, float>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<long> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, long>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<uint> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, uint>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<int> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, int>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<ushort> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, ushort>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<short> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, short>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<byte> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, byte>(args, objective, goal);
+        public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<sbyte> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, sbyte>(args, objective, goal);
 
         /// <summary>
         /// Find the solution to goal with minimal value of objective
         /// </summary>
-        /// <typeparam name="T1">Type of the first variable to report back</typeparam>
-        /// <typeparam name="T2">Type of the second variable to report back</typeparam>
-        /// <typeparam name="T3">Type of the third variable to report back</typeparam>
+        /// <typeparam name="TArg1">Type of the first variable to report back</typeparam>
+        /// <typeparam name="TArg2">Type of the second variable to report back</typeparam>
+        /// <typeparam name="TArg3">Type of the third variable to report back</typeparam>
+        /// <typeparam name="TUtility">Type of the utility variable</typeparam>
         /// <param name="args">Variables from Goal to report the values of for the minimal solution</param>
         /// <param name="objective">Variable to minimize across solutions to goal</param>
         /// <param name="goal">Goal to find the minimal solution of</param>
         // ReSharper disable once UnusedMember.Global
-        public static Goal Minimal<T1, T2, T3>((Var<T1>, Var<T2>, Var<T3>)args, Var<float> objective, Goal goal) =>
-            MaximalPrimitive<T1, T2, T3>.Minimal[args.Item1, args.Item2, args.Item3, objective, goal];
+        public static Goal Minimal<TArg1, TArg2, TArg3, TUtility>((Var<TArg1>, Var<TArg2>, Var<TArg3>)args, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
+            MaximalPrimitive<TArg1, TArg2, TArg3, TUtility>.Minimal[args.Item1, args.Item2, args.Item3, objective, goal];
+
+        public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<float> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, float>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<long> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, long>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<uint> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, uint>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<int> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, int>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<ushort> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, ushort>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<short> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, short>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<byte> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, byte>(args, objective, goal);
+        public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<sbyte> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, sbyte>(args, objective, goal);
+
         #endregion
 
         #region Math functions

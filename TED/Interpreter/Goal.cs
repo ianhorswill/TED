@@ -67,6 +67,7 @@ namespace TED.Interpreter
         /// <returns></returns>
         public static Goal operator &(Goal lhs, Goal rhs) => Language.And[lhs, rhs];
 
+        /// <summary>
         /// True if either the left-hand side or right-hand side goals are true.
         /// Sugar for a call to Language.Or.
         /// </summary>
