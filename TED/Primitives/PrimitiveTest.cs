@@ -24,6 +24,9 @@ namespace TED.Primitives
             ConstantFolder = Implementation;
         }
 
+        public PrimitiveTest(Func<bool> implementation) : this(implementation.Method.Name, implementation) { }
+
+
         /// <inheritdoc />
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc) => new Call(this);
 
@@ -64,6 +67,9 @@ namespace TED.Primitives
             Implementation = implementation;
             ConstantFolder = Implementation;
         }
+
+        public PrimitiveTest(Predicate<T1> implementation) : this(implementation.Method.Name, implementation) {}
+
 
         /// <inheritdoc />
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
@@ -123,6 +129,9 @@ namespace TED.Primitives
             Implementation = implementation;
             ConstantFolder = Implementation;
         }
+
+        public PrimitiveTest(Func<T1, T2, bool> implementation) : this(implementation.Method.Name, implementation) { }
+
 
         /// <inheritdoc />
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
@@ -189,6 +198,9 @@ namespace TED.Primitives
             Implementation = implementation;
             ConstantFolder = Implementation;
         }
+
+        public PrimitiveTest(Func<T1, T2, T3, bool> implementation) : this(implementation.Method.Name, implementation) { }
+
 
         /// <inheritdoc />
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
@@ -261,6 +273,9 @@ namespace TED.Primitives
             Implementation = implementation;
             ConstantFolder = Implementation;
         }
+
+        public PrimitiveTest(Func<T1, T2, T3, T4, bool> implementation) : this(implementation.Method.Name, implementation) { }
+
 
         /// <inheritdoc />
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
@@ -339,6 +354,9 @@ namespace TED.Primitives
             Implementation = implementation;
             ConstantFolder = Implementation;
         }
+
+        public PrimitiveTest(Func<T1, T2, T3, T4, T5, bool> implementation) : this(implementation.Method.Name, implementation) { }
+
 
         /// <inheritdoc />
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
@@ -423,6 +441,8 @@ namespace TED.Primitives
             Implementation = implementation;
             ConstantFolder = Implementation;
         }
+
+        public PrimitiveTest(Func<T1, T2, T3, T4, T5, T6, bool> implementation) : this(implementation.Method.Name, implementation) { }
 
         /// <inheritdoc />
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
@@ -513,6 +533,9 @@ namespace TED.Primitives
             Implementation = implementation;
             ConstantFolder = Implementation;
         }
+
+        public PrimitiveTest(Func<T1, T2, T3, T4, T5, T6, T7, bool> implementation) : this(implementation.Method.Name, implementation) { }
+
 
         /// <inheritdoc />
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)

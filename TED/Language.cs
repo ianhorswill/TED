@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using TED.Interpreter;
 using TED.Primitives;
 using Random = TED.Utilities.Random;
@@ -126,15 +127,41 @@ namespace TED
         /// <param name="goal">Goal to find the maximal solution of</param>
         public static Goal Maximal<TArg, TUtility>(Var<TArg> arg, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
             MaximalPrimitive<TArg, TUtility>.Maximal[arg, objective, goal];
-        
+
+        #region Single arg Maximal wrappers for numerical utilities
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg>(Var<TArg> arg, Var<float> objective, Goal goal) => Maximal<TArg, float>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg>(Var<TArg> arg, Var<long> objective, Goal goal) => Maximal<TArg, long>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg>(Var<TArg> arg, Var<uint> objective, Goal goal) => Maximal<TArg, uint>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg>(Var<TArg> arg, Var<int> objective, Goal goal) => Maximal<TArg, int>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg>(Var<TArg> arg, Var<ushort> objective, Goal goal) => Maximal<TArg, ushort>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg>(Var<TArg> arg, Var<short> objective, Goal goal) => Maximal<TArg, short>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg>(Var<TArg> arg, Var<byte> objective, Goal goal) => Maximal<TArg, byte>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg>(Var<TArg> arg, Var<sbyte> objective, Goal goal) => Maximal<TArg, sbyte>(arg, objective, goal);
+        #endregion
 
         /// <summary>
         /// Find the solution to goal with minimal value of objective
@@ -147,14 +174,40 @@ namespace TED
         public static Goal Minimal<TArg, TUtility>(Var<TArg> arg, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
             MaximalPrimitive<TArg, TUtility>.Minimal[arg, objective, goal];
 
+        #region Single arg Minimal wrappers for numerical utilities
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg>(Var<TArg> arg, Var<float> objective, Goal goal) => Minimal<TArg, float>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg>(Var<TArg> arg, Var<long> objective, Goal goal) => Minimal<TArg, long>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg>(Var<TArg> arg, Var<uint> objective, Goal goal) => Minimal<TArg, uint>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg>(Var<TArg> arg, Var<int> objective, Goal goal) => Minimal<TArg, int>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg>(Var<TArg> arg, Var<ushort> objective, Goal goal) => Minimal<TArg, ushort>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg>(Var<TArg> arg, Var<short> objective, Goal goal) => Minimal<TArg, short>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg>(Var<TArg> arg, Var<byte> objective, Goal goal) => Minimal<TArg, byte>(arg, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg>(Var<TArg> arg, Var<sbyte> objective, Goal goal) => Minimal<TArg, sbyte>(arg, objective, goal);
+        #endregion
 
         /// <summary>
         /// Find the solution to goal with maximal value of objective
@@ -168,14 +221,40 @@ namespace TED
         public static Goal Maximal<TArg1, TArg2, TUtility>((Var<TArg1>, Var<TArg2>)args, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
             MaximalPrimitive<TArg1, TArg2, TUtility>.Maximal[args.Item1, args.Item2, objective, goal];
 
-        public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<float> objective, Goal goal) =>  Maximal<TArg1, TArg2, float>(args, objective, goal);
+        #region Two arg Maximal wrappers for numerical utilities
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
+        public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<float> objective, Goal goal) => Maximal<TArg1, TArg2, float>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<long> objective, Goal goal) =>  Maximal<TArg1, TArg2, long>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<uint> objective, Goal goal) => Maximal<TArg1, TArg2, uint>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<int> objective, Goal goal) => Maximal<TArg1, TArg2, int>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<ushort> objective, Goal goal) => Maximal<TArg1, TArg2, ushort>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<short> objective, Goal goal) => Maximal<TArg1, TArg2, short>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<byte> objective, Goal goal) => Maximal<TArg1, TArg2, byte>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<sbyte> objective, Goal goal) => Maximal<TArg1, TArg2, sbyte>(args, objective, goal);
+        #endregion
 
         /// <summary>
         /// Find the solution to goal with minimal value of objective
@@ -189,15 +268,40 @@ namespace TED
         public static Goal Minimal<TArg1, TArg2, TUtility>((Var<TArg1>, Var<TArg2>)args, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
             MaximalPrimitive<TArg1, TArg2, TUtility>.Minimal[args.Item1, args.Item2, objective, goal];
 
+        #region Two arg Minimal wrappers for numerical utilities
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<float> objective, Goal goal) => Minimal<TArg1, TArg2, float>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<long> objective, Goal goal) => Minimal<TArg1, TArg2, long>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<uint> objective, Goal goal) => Minimal<TArg1, TArg2, uint>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<int> objective, Goal goal) => Minimal<TArg1, TArg2, int>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<ushort> objective, Goal goal) => Minimal<TArg1, TArg2, ushort>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<short> objective, Goal goal) => Minimal<TArg1, TArg2, short>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<byte> objective, Goal goal) => Minimal<TArg1, TArg2, byte>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2>((Var<TArg1>, Var<TArg2>) args, Var<sbyte> objective, Goal goal) => Minimal<TArg1, TArg2, sbyte>(args, objective, goal);
-
+        #endregion
 
         /// <summary>
         /// Find the solution to goal with maximal value of objective
@@ -212,14 +316,40 @@ namespace TED
         public static Goal Maximal<TArg1, TArg2, TArg3, TUtility>((Var<TArg1>, Var<TArg2>, Var<TArg3>)args, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
             MaximalPrimitive<TArg1, TArg2, TArg3, TUtility>.Maximal[args.Item1, args.Item2, args.Item3, objective, goal];
 
+        #region Three arg Maximal wrappers for numerical utilities
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<float> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, float>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<long> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, long>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<uint> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, uint>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<int> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, int>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<ushort> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, ushort>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<short> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, short>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<byte> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, byte>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with maximal value of objective
+        /// </summary>
         public static Goal Maximal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<sbyte> objective, Goal goal) => Maximal<TArg1, TArg2, TArg3, sbyte>(args, objective, goal);
+        #endregion
 
         /// <summary>
         /// Find the solution to goal with minimal value of objective
@@ -235,14 +365,40 @@ namespace TED
         public static Goal Minimal<TArg1, TArg2, TArg3, TUtility>((Var<TArg1>, Var<TArg2>, Var<TArg3>)args, Var<TUtility> objective, Goal goal) where TUtility : IComparable<TUtility> =>
             MaximalPrimitive<TArg1, TArg2, TArg3, TUtility>.Minimal[args.Item1, args.Item2, args.Item3, objective, goal];
 
+        #region Three arg Minimal wrappers for numerical utilities
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<float> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, float>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<long> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, long>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<uint> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, uint>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<int> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, int>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<ushort> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, ushort>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<short> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, short>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<byte> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, byte>(args, objective, goal);
+        /// <summary>
+        /// Find the solution to goal with minimal value of objective
+        /// </summary>
         public static Goal Minimal<TArg1, TArg2, TArg3>((Var<TArg1>, Var<TArg2>, Var<TArg3>) args, Var<sbyte> objective, Goal goal) => Minimal<TArg1, TArg2, TArg3, sbyte>(args, objective, goal);
+        #endregion
 
         #endregion
 
@@ -1030,6 +1186,56 @@ namespace TED
             => new Definition<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
         #endregion
 
+        #region PrimitiveTest declaration sugar
+        /// <summary>
+        /// Makes a PrimitiveTest based on an Expression of the form:
+        /// "() => MemberExpression" where MemberExpression is a C# Predicate
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest TestMember(Expression<Func<bool>> fn) =>
+            new PrimitiveTest(((MemberExpression)fn.Body).Member.Name, fn.Compile());
+        /// <summary>
+        /// Makes a PrimitiveTest with the same name as the System.Predicate being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn> TestMethod<TIn>(Predicate<TIn> fn) => new PrimitiveTest<TIn>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2> TestMethod<TIn1, TIn2>(Func<TIn1, TIn2, bool> fn) => new PrimitiveTest<TIn1, TIn2>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3> TestMethod<TIn1, TIn2, TIn3>(Func<TIn1, TIn2, TIn3, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4> TestMethod<TIn1, TIn2, TIn3, TIn4>(Func<TIn1, TIn2, TIn3, TIn4, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(fn.Method.Name, fn);
+        #endregion
+
         #region Function declaration sugar
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1039,11 +1245,39 @@ namespace TED
         // ReSharper disable once UnusedMember.Global
         public static Function<T> Function<T>(string name, Func<T> fn) => new Function<T>(name, fn);
         /// <summary>
+        /// Makes a Function with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<TIn> Method<TIn>(Func<TIn> fn) => new Function<TIn>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a function that can be placed in functional expressions with the name of
+        /// the delegate member being passed inside the expression.
+        /// Expression should be of the form: "() => MemberExpression"
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<T> Member<T>(Expression<Func<T>> fn) =>
+            new Function<T>(((MemberExpression)fn.Body).Member.Name, fn.Compile());
+        /// <summary>
+        /// Makes a function that can be placed in functional expressions with the name:
+        /// "GetMemberExpression" where MemberExpression is the name of the member in the expression
+        /// Expression should be of the form: "() => MemberExpression"
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<T> GetMember<T>(Expression<Func<T>> fn) =>
+            new Function<T>($"Get{((MemberExpression)fn.Body).Member.Name}", fn.Compile());
+
+        /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         public static Function<TIn, TOut> Function<TIn, TOut>(string name, Func<TIn, TOut> fn) => new Function<TIn, TOut>(name, fn);
+        /// <summary>
+        /// Makes a Function with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<TIn, TOut> Method<TIn, TOut>(Func<TIn, TOut> fn) => new Function<TIn, TOut>(fn.Method.Name, fn);
+
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
@@ -1052,12 +1286,24 @@ namespace TED
         // ReSharper disable once UnusedMember.Global
         public static Function<TIn1, TIn2, TOut> Function<TIn1, TIn2, TOut>(string name, Func<TIn1, TIn2, TOut> fn) => new Function<TIn1, TIn2, TOut>(name, fn);
         /// <summary>
+        /// Makes a Function with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<TIn1, TIn2, TOut> Method<TIn1, TIn2, TOut>(Func<TIn1, TIn2, TOut> fn) => new Function<TIn1, TIn2, TOut>(fn.Method.Name, fn);
+        
+        /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         // ReSharper disable once UnusedMember.Global
         public static Function<TIn1, TIn2, TIn3, TOut> Function<TIn1, TIn2, TIn3, TOut>(string name, Func<TIn1, TIn2, TIn3, TOut> fn) => new Function<TIn1, TIn2, TIn3, TOut>(name, fn);
+        /// <summary>
+        /// Makes a Function with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<TIn1, TIn2, TIn3, TOut> Method<TIn1, TIn2, TIn3, TOut>(Func<TIn1, TIn2, TIn3, TOut> fn) => new Function<TIn1, TIn2, TIn3, TOut>(fn.Method.Name, fn);
+        
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
@@ -1066,12 +1312,24 @@ namespace TED
         // ReSharper disable once UnusedMember.Global
         public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Function<TIn1, TIn2, TIn3, TIn4, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(name, fn);
         /// <summary>
+        /// Makes a Function with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Method<TIn1, TIn2, TIn3, TIn4, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(fn.Method.Name, fn);
+        
+        /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         // ReSharper disable once UnusedMember.Global
         public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(name, fn);
+        /// <summary>
+        /// Makes a Function with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(fn.Method.Name, fn);
+        
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
@@ -1080,12 +1338,24 @@ namespace TED
         // ReSharper disable once UnusedMember.Global
         public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(name, fn);
         /// <summary>
+        /// Makes a Function with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(fn.Method.Name, fn);
+        
+        /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
         // ReSharper disable once UnusedMember.Global
         public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(name, fn);
+        /// <summary>
+        /// Makes a Function with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(fn.Method.Name, fn);
+        
         #endregion
 
     }

@@ -47,6 +47,9 @@ namespace TED
             Implementation = implementation;
         }
 
+        public Function(Func<TOut> implementation) : this(implementation.Method.Name, implementation) { }
+
+
         /// <summary>
         /// Make a call to this parameterless function
         /// </summary>
@@ -70,6 +73,8 @@ namespace TED
             Implementation = implementation;
         }
 
+        public Function(Func<TIn, TOut> implementation) : this(implementation.Method.Name, implementation) { }
+
         /// <summary>
         /// Make a call to the function
         /// </summary>
@@ -92,6 +97,8 @@ namespace TED
             Implementation = implementation;
         }
 
+        public Function(Func<TIn1, TIn2, TOut> implementation) : this(implementation.Method.Name, implementation) { }
+
         /// <summary>
         /// Make a call to the function
         /// </summary>
@@ -111,6 +118,8 @@ namespace TED
         public Function(string name, Func<TIn1, TIn2, TIn3, TOut> implementation) : base(name) {
             Implementation = implementation;
         }
+
+        public Function(Func<TIn1, TIn2, TIn3, TOut> implementation) : this(implementation.Method.Name, implementation) { }
 
         /// <summary>
         /// Make a call to the function
@@ -133,6 +142,8 @@ namespace TED
             Implementation = implementation;
         }
 
+        public Function(Func<TIn1, TIn2, TIn3, TIn4, TOut> implementation) : this(implementation.Method.Name, implementation) { }
+
         /// <summary>
         /// Make a call to the function
         /// </summary>
@@ -153,6 +164,8 @@ namespace TED
         public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> implementation) : base(name) {
             Implementation = implementation;
         }
+
+        public Function(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> implementation) : this(implementation.Method.Name, implementation) { }
 
         /// <summary>
         /// Make a call to the function
@@ -175,6 +188,8 @@ namespace TED
             Implementation = implementation;
         }
 
+        public Function(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> implementation) : this(implementation.Method.Name, implementation) { }
+
         /// <summary>
         /// Make a call to the function
         /// </summary>
@@ -195,6 +210,8 @@ namespace TED
         public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> implementation) : base(name) {
             Implementation = implementation;
         }
+
+        public Function(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> implementation) : this(implementation.Method.Name, implementation) { }
 
         /// <summary>
         /// Make a call to the function
