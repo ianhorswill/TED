@@ -47,7 +47,7 @@ namespace TED
         /// <summary>
         /// Prob(p) succeeds with a probability of p (p in the range [0,1])
         /// </summary>
-        public static readonly PrimitiveTest<float> Prob = new PrimitiveTest<float>("Prob", Random.Roll);
+        public static readonly PrimitiveTest<float> Prob = new PrimitiveTest<float>("Prob", Random.Roll, false);
 
         /// <summary>
         /// Breakpoint execution of a rule
