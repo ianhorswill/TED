@@ -357,6 +357,18 @@ namespace TED
         {
             throw new NotImplementedException();
         }
+
+        internal ColumnAccessor<TRow, TColumn, TKey> Accessor<TRow, TColumn, TKey>(Table<TRow> table, Var<TKey> key, Var<TColumn> column)
+        {
+            var keyIndex = IndexFor(ColumnPositionOfDefaultVariable(key), true);
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            var columnIndex = IndexFor(columnNumber, false);
+            return new ColumnAccessor<TRow, TColumn, TKey>(table,
+                (KeyIndex<TRow,TKey>)keyIndex!,
+                (Table.Projection<TRow, TColumn>)Projection(columnNumber),
+                (GeneralIndex<TRow,TColumn>)columnIndex!,
+                (Table.Mutator<TRow, TColumn>)Mutator(columnNumber));
+        }
     }
 
     /// <summary>
@@ -807,16 +819,17 @@ namespace TED
         }
         #endregion
 
+        /// <summary>
+        /// Obtain an object that makes the column of the table behave like a dictionary
+        /// Given the key for a row, you can get or set the value of the column
+        /// </summary>
+        /// <param name="key">Column to use as the key</param>
+        /// <param name="column">Column to access</param>
+        /// <typeparam name="TColumn">Data type of the column</typeparam>
+        /// <typeparam name="TKey">Data type of the key</typeparam>
+        /// <returns>The accessor that lets you read and write column data</returns>
         public ColumnAccessor<(T1, T2), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
-        {
-            var keyIndex = KeyIndex(key);
-            var columnNumber = ColumnPositionOfDefaultVariable(column);
-            var columnIndex = IndexFor(columnNumber, false);
-            return new ColumnAccessor<(T1, T2), TColumn, TKey>(_table, keyIndex,
-                (Table.Projection<(T1, T2), TColumn>)Projection(columnNumber),
-                (GeneralIndex<(T1,T2),TColumn>)columnIndex!,
-                (Table.Mutator<(T1, T2), TColumn>)Mutator(columnNumber));
-        }
+            => Accessor(_table, key, column);
     }
 
     /// <summary>
@@ -1092,6 +1105,18 @@ namespace TED
             };
         }
         #endregion
+
+        /// <summary>
+        /// Obtain an object that makes the column of the table behave like a dictionary
+        /// Given the key for a row, you can get or set the value of the column
+        /// </summary>
+        /// <param name="key">Column to use as the key</param>
+        /// <param name="column">Column to access</param>
+        /// <typeparam name="TColumn">Data type of the column</typeparam>
+        /// <typeparam name="TKey">Data type of the key</typeparam>
+        /// <returns>The accessor that lets you read and write column data</returns>
+        public ColumnAccessor<(T1,T2,T3), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+            => Accessor(_table, key, column);
     }
 
     /// <summary>
@@ -1381,6 +1406,18 @@ namespace TED
             };
         }
         #endregion
+
+        /// <summary>
+        /// Obtain an object that makes the column of the table behave like a dictionary
+        /// Given the key for a row, you can get or set the value of the column
+        /// </summary>
+        /// <param name="key">Column to use as the key</param>
+        /// <param name="column">Column to access</param>
+        /// <typeparam name="TColumn">Data type of the column</typeparam>
+        /// <typeparam name="TKey">Data type of the key</typeparam>
+        /// <returns>The accessor that lets you read and write column data</returns>
+        public ColumnAccessor<(T1,T2,T3,T4), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+            => Accessor(_table, key, column);
     }
 
     /// <summary>
@@ -1685,6 +1722,17 @@ namespace TED
         }
         #endregion
 
+        /// <summary>
+        /// Obtain an object that makes the column of the table behave like a dictionary
+        /// Given the key for a row, you can get or set the value of the column
+        /// </summary>
+        /// <param name="key">Column to use as the key</param>
+        /// <param name="column">Column to access</param>
+        /// <typeparam name="TColumn">Data type of the column</typeparam>
+        /// <typeparam name="TKey">Data type of the key</typeparam>
+        /// <returns>The accessor that lets you read and write column data</returns>
+        public ColumnAccessor<(T1,T2,T3,T4,T5), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+            => Accessor(_table, key, column);
     }
 
     /// <summary>
@@ -2000,6 +2048,18 @@ namespace TED
             };
         }
         #endregion
+
+        /// <summary>
+        /// Obtain an object that makes the column of the table behave like a dictionary
+        /// Given the key for a row, you can get or set the value of the column
+        /// </summary>
+        /// <param name="key">Column to use as the key</param>
+        /// <param name="column">Column to access</param>
+        /// <typeparam name="TColumn">Data type of the column</typeparam>
+        /// <typeparam name="TKey">Data type of the key</typeparam>
+        /// <returns>The accessor that lets you read and write column data</returns>
+        public ColumnAccessor<(T1,T2,T3,T4,T5,T6), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+            => Accessor(_table, key, column);
     }
 
 
@@ -2310,6 +2370,18 @@ namespace TED
             };
         }
         #endregion
+
+        /// <summary>
+        /// Obtain an object that makes the column of the table behave like a dictionary
+        /// Given the key for a row, you can get or set the value of the column
+        /// </summary>
+        /// <param name="key">Column to use as the key</param>
+        /// <param name="column">Column to access</param>
+        /// <typeparam name="TColumn">Data type of the column</typeparam>
+        /// <typeparam name="TKey">Data type of the key</typeparam>
+        /// <returns>The accessor that lets you read and write column data</returns>
+        public ColumnAccessor<(T1,T2,T3,T4,T5,T6,T7), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+            => Accessor(_table, key, column);
     }
 
     /// <summary>
@@ -2630,5 +2702,17 @@ namespace TED
             };
         }
         #endregion
+        
+        /// <summary>
+        /// Obtain an object that makes the column of the table behave like a dictionary
+        /// Given the key for a row, you can get or set the value of the column
+        /// </summary>
+        /// <param name="key">Column to use as the key</param>
+        /// <param name="column">Column to access</param>
+        /// <typeparam name="TColumn">Data type of the column</typeparam>
+        /// <typeparam name="TKey">Data type of the key</typeparam>
+        /// <returns>The accessor that lets you read and write column data</returns>
+        public ColumnAccessor<(T1,T2,T3,T4,T5,T6,T7,T8), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+            => Accessor(_table, key, column);
     }
 }

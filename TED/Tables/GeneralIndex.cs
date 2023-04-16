@@ -163,7 +163,7 @@ namespace TED.Tables
 
         internal void Remove(uint row)
         {
-            var previous = previousRow[row];
+            var previous = previousRow![row];
             var next = nextRow[row];
             if (previous != Table.NoRow)
             {
