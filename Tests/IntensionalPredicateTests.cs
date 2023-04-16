@@ -111,6 +111,26 @@ namespace Tests
                 Mapped.ToArray());
         }
 
+        [TestMethod]
+        public void GeneralIndexedCallTest()
+        {
+            var d = (Var<string>)"d";
+            var n = (Var<string>)"n";
+            var Day = Predicate("Day",
+                new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" }, d);
+            var NextDay = Predicate("NextDay",
+                new[]
+                {
+                    ("Monday", "Tuesday"), ("Tuesday", "Wednesday"), ("Wednesday", "Thursday"), ("Thursday", "Friday"),
+                    ("Friday", "Saturday"), ("Saturday", "Sunday"), ("Sunday", "Monday")
+                }, d.Indexed, n);
+            
+            var Mapped = Predicate("Mapped", d, n).If(Day[d], NextDay[d, n]);
+            var rule = Mapped.Rules![0];
+            Assert.IsInstanceOfType(rule.Body[1], typeof(TableCallWithGeneralIndex<string, string, string>));
+            CollectionAssert.AreEqual(NextDay.ToArray(), Mapped.ToArray());
+        }
+
         [TestMethod, ExpectedException(typeof(RuleExecutionException))]
         public void RuleExecutionExceptionTest()
         {
