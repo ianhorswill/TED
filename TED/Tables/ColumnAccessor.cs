@@ -2,6 +2,16 @@
 
 namespace TED.Tables
 {
+    public abstract class ColumnAccessor<TColumn, TKey>
+    {
+        /// <summary>
+        /// Get or set the value of the column for whatever row matches the specified key
+        /// </summary>
+        /// <param name="key">Key of the row to access</param>
+        /// <exception cref="KeyNotFoundException">If no row has that key</exception>
+        public abstract TColumn this[TKey key] { get; set; }
+    }
+
     /// <summary>
     /// Wraps a column of a table to make it look like a mutable dictionary mapping keys to column values.
     /// Updating the value will modify the underlying table row.
@@ -9,7 +19,7 @@ namespace TED.Tables
     /// <typeparam name="TRow">Type of the table rows</typeparam>
     /// <typeparam name="TColumn">Type of the column to access</typeparam>
     /// <typeparam name="TKey">Type of the key used to select a unique row</typeparam>
-    public sealed class ColumnAccessor<TRow, TColumn, TKey>
+    public sealed class ColumnAccessor<TRow, TColumn, TKey> : ColumnAccessor<TColumn, TKey>
     {
         private readonly Table<TRow> table;
         private readonly KeyIndex<TRow, TKey> keyIndex;
@@ -30,12 +40,8 @@ namespace TED.Tables
             this.mutator = mutator;
         }
 
-        /// <summary>
-        /// Get or set the value of the column for whatever row matches the specified key
-        /// </summary>
-        /// <param name="key">Key of the row to access</param>
-        /// <exception cref="KeyNotFoundException">If no row has that key</exception>
-        public TColumn this[TKey key]
+        /// <inheritdoc />
+        public override TColumn this[TKey key]
         {
             get
             {

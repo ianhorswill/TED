@@ -32,6 +32,7 @@ namespace TED
         public void Update()
         {
             RecomputeAll();
+            UpdateTableColumns();
             AppendAllInputs();
         }
 
@@ -45,6 +46,15 @@ namespace TED
                     p.MustRecompute = true;
             foreach (var p in Tables)
                 p.EnsureUpToDate();
+        }
+
+        /// <summary>
+        /// Run any column updates defined using the Set() method.
+        /// </summary>
+        public void UpdateTableColumns()
+        {
+            foreach (var p in Tables)
+                p.UpdateColumns();
         }
 
         /// <summary>

@@ -357,6 +357,20 @@ namespace TED
         {
             throw new NotImplementedException();
         }
+        
+        /// <summary>
+        /// Obtain an object that makes the column of the table behave like a dictionary
+        /// Given the key for a row, you can get or set the value of the column
+        /// </summary>
+        /// <param name="key">Column to use as the key</param>
+        /// <param name="column">Column to access</param>
+        /// <typeparam name="TColumn">Data type of the column</typeparam>
+        /// <typeparam name="TKey">Data type of the key</typeparam>
+        /// <returns>The accessor that lets you read and write column data</returns>
+        public virtual ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+        {
+            throw new NotImplementedException();
+        }
 
         internal ColumnAccessor<TRow, TColumn, TKey> Accessor<TRow, TColumn, TKey>(Table<TRow> table, Var<TKey> key, Var<TColumn> column)
         {
@@ -368,6 +382,45 @@ namespace TED
                 (Table.Projection<TRow, TColumn>)Projection(columnNumber),
                 (GeneralIndex<TRow,TColumn>)columnIndex!,
                 (Table.Mutator<TRow, TColumn>)Mutator(columnNumber));
+        }
+
+        /// <summary>
+        /// List of procedures to call when the table is updated.
+        /// </summary>
+        internal event Action? OnUpdateColumns;
+
+        private Dictionary<(IVariable, IVariable), TablePredicate>? updateTables;
+
+        /// <summary>
+        /// Return a table predicate to which rules can be added to update the specified column of this table predicate
+        /// given a key for the row to update.
+        /// </summary>
+        public TablePredicate<TKey, TColumn> Set<TKey, TColumn>(Var<TKey> key, Var<TColumn> column)
+        {
+            if (updateTables == null)
+                updateTables = new Dictionary<(IVariable, IVariable), TablePredicate>();
+            if (updateTables.TryGetValue((key, column), out var t))
+                return (TablePredicate<TKey, TColumn>)t;
+            var accessor = Accessor(key, column);
+            var updateTable = new TablePredicate<TKey, TColumn>($"{Name}_{column.Name}_update", key, column);
+            var updater = new ColumnUpdater<TColumn, TKey>(accessor, updateTable);
+            OnUpdateColumns += updater.DoUpdates;
+            updateTables[(key, column)] = updateTable;
+            return updateTable;
+        }
+
+        /// <summary>
+        /// Sets the conditions for resetting the specified column to the specified value
+        /// </summary>
+        public TableGoal Set<TKey, TColumn>(Var<TKey> key, Var<TColumn> column, TColumn value)
+            => Set(key, column)[key, value];
+
+        /// <summary>
+        /// Run any column updates for this table
+        /// </summary>
+        public void UpdateColumns()
+        {
+            OnUpdateColumns?.Invoke();
         }
     }
 
@@ -819,16 +872,8 @@ namespace TED
         }
         #endregion
 
-        /// <summary>
-        /// Obtain an object that makes the column of the table behave like a dictionary
-        /// Given the key for a row, you can get or set the value of the column
-        /// </summary>
-        /// <param name="key">Column to use as the key</param>
-        /// <param name="column">Column to access</param>
-        /// <typeparam name="TColumn">Data type of the column</typeparam>
-        /// <typeparam name="TKey">Data type of the key</typeparam>
-        /// <returns>The accessor that lets you read and write column data</returns>
-        public ColumnAccessor<(T1, T2), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
     }
 
@@ -1106,16 +1151,8 @@ namespace TED
         }
         #endregion
 
-        /// <summary>
-        /// Obtain an object that makes the column of the table behave like a dictionary
-        /// Given the key for a row, you can get or set the value of the column
-        /// </summary>
-        /// <param name="key">Column to use as the key</param>
-        /// <param name="column">Column to access</param>
-        /// <typeparam name="TColumn">Data type of the column</typeparam>
-        /// <typeparam name="TKey">Data type of the key</typeparam>
-        /// <returns>The accessor that lets you read and write column data</returns>
-        public ColumnAccessor<(T1,T2,T3), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
     }
 
@@ -1407,16 +1444,8 @@ namespace TED
         }
         #endregion
 
-        /// <summary>
-        /// Obtain an object that makes the column of the table behave like a dictionary
-        /// Given the key for a row, you can get or set the value of the column
-        /// </summary>
-        /// <param name="key">Column to use as the key</param>
-        /// <param name="column">Column to access</param>
-        /// <typeparam name="TColumn">Data type of the column</typeparam>
-        /// <typeparam name="TKey">Data type of the key</typeparam>
-        /// <returns>The accessor that lets you read and write column data</returns>
-        public ColumnAccessor<(T1,T2,T3,T4), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
     }
 
@@ -1722,16 +1751,8 @@ namespace TED
         }
         #endregion
 
-        /// <summary>
-        /// Obtain an object that makes the column of the table behave like a dictionary
-        /// Given the key for a row, you can get or set the value of the column
-        /// </summary>
-        /// <param name="key">Column to use as the key</param>
-        /// <param name="column">Column to access</param>
-        /// <typeparam name="TColumn">Data type of the column</typeparam>
-        /// <typeparam name="TKey">Data type of the key</typeparam>
-        /// <returns>The accessor that lets you read and write column data</returns>
-        public ColumnAccessor<(T1,T2,T3,T4,T5), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
     }
 
@@ -2049,16 +2070,8 @@ namespace TED
         }
         #endregion
 
-        /// <summary>
-        /// Obtain an object that makes the column of the table behave like a dictionary
-        /// Given the key for a row, you can get or set the value of the column
-        /// </summary>
-        /// <param name="key">Column to use as the key</param>
-        /// <param name="column">Column to access</param>
-        /// <typeparam name="TColumn">Data type of the column</typeparam>
-        /// <typeparam name="TKey">Data type of the key</typeparam>
-        /// <returns>The accessor that lets you read and write column data</returns>
-        public ColumnAccessor<(T1,T2,T3,T4,T5,T6), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
     }
 
@@ -2371,16 +2384,8 @@ namespace TED
         }
         #endregion
 
-        /// <summary>
-        /// Obtain an object that makes the column of the table behave like a dictionary
-        /// Given the key for a row, you can get or set the value of the column
-        /// </summary>
-        /// <param name="key">Column to use as the key</param>
-        /// <param name="column">Column to access</param>
-        /// <typeparam name="TColumn">Data type of the column</typeparam>
-        /// <typeparam name="TKey">Data type of the key</typeparam>
-        /// <returns>The accessor that lets you read and write column data</returns>
-        public ColumnAccessor<(T1,T2,T3,T4,T5,T6,T7), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
     }
 
@@ -2702,17 +2707,9 @@ namespace TED
             };
         }
         #endregion
-        
-        /// <summary>
-        /// Obtain an object that makes the column of the table behave like a dictionary
-        /// Given the key for a row, you can get or set the value of the column
-        /// </summary>
-        /// <param name="key">Column to use as the key</param>
-        /// <param name="column">Column to access</param>
-        /// <typeparam name="TColumn">Data type of the column</typeparam>
-        /// <typeparam name="TKey">Data type of the key</typeparam>
-        /// <returns>The accessor that lets you read and write column data</returns>
-        public ColumnAccessor<(T1,T2,T3,T4,T5,T6,T7,T8), TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
+
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
     }
 }

@@ -7,6 +7,12 @@ namespace TablePredicateViewer
     {
         public static Simulation Simulation = null!;
 
+        enum Status
+        {
+            Alive,
+            Dead
+        };
+
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -25,32 +31,32 @@ namespace TablePredicateViewer
             var age = (Var<int>)"age";
             var woman = (Var<string>)"woman";
             var man = (Var<string>)"man";
+            var status = (Var<Status>)"status";
 
             // ReSharper disable InconsistentNaming
 
             // Predicates loaded from disk
-            var Person = TablePredicate<string, string, int>.FromCsv("../../../Population.csv", person, sex, age);
-            Person.IndexBy(1);
+            var Person = TablePredicate<string, string, int, Status>.FromCsv("../../../Population.csv", person.Key, sex.Indexed, age, status.Indexed);
             var MaleName = TablePredicate<string>.FromCsv("../../../male_name.csv", name);
             var FemaleName = TablePredicate<string>.FromCsv("../../../female_name.csv", name);
 
             // Death
-            var Dead = Predicate("Dead", person);
-            var Alive = Definition("Alive", person).Is(Not[Dead[person]]);
+            var Dead = Definition("Dead", person).Is(Person[person, sex, age, Status.Dead]);
+            var Alive = Definition("Alive", person).Is(Person[person, sex, age, Status.Alive]);
 
-            var Died = Predicate("Died", person).If(Person, Prob[0.01f], Alive[person]);
-            Dead.Accumulates(Died);
+            //var Died = Predicate("Died", person).If(Person, Prob[0.01f], Alive[person]);
+            Person.Set(person, status, Status.Dead).If(Alive[person], Prob[0.01f]);
 
             // Birth
-            var Man = Predicate("Man", person).If(Person[person, "m", age], Alive[person], age > 18);
-            var Woman = Predicate("Woman", person).If(Person[person, "f", age], Alive[person], age > 18);
+            var Man = Predicate("Man", person).If(Person[person, "m", age, Status.Alive], age > 18);
+            var Woman = Predicate("Woman", person).If(Person[person, "f", age, Status.Alive], age > 18);
             var BirthTo = Predicate("BirthTo", woman, man, sex)
                     .If(Woman[woman], Prob[0.1f], RandomElement(Man, man), PickRandomly(sex, "f", "m"));
 
             // Naming of newborns
-            var NewBorn = Predicate("NewBorn", person, sex, age);
-            NewBorn[person, "f", 0].If(BirthTo[man, woman, "f"], RandomElement(FemaleName, person));
-            NewBorn[person, "m", 0].If(BirthTo[man, woman, "m"], RandomElement(MaleName, person));
+            var NewBorn = Predicate("NewBorn", person, sex, age, status);
+            NewBorn[person, "f", 0, Status.Alive].If(BirthTo[man, woman, "f"], RandomElement(FemaleName, person));
+            NewBorn[person, "m", 0, Status.Alive].If(BirthTo[man, woman, "m"], RandomElement(MaleName, person));
 
             // Add births to the population
             Person.Accumulates(NewBorn);
@@ -61,13 +67,13 @@ namespace TablePredicateViewer
             timer.Tick += (_, _) => { UpdateCycle(Person); };
             timer.Interval = 100;
             timer.Start();
-            PredicateViewer.ShowPredicates(Person, Dead, BirthTo, NewBorn, Woman);
+            PredicateViewer.ShowPredicates(Person, BirthTo, NewBorn, Woman);
             Application.Run(PredicateViewer.Of(Person));
         }
 
-        private static void UpdateCycle(TablePredicate<string, string, int> person)
+        private static void UpdateCycle(TablePredicate<string, string, int, Status> person)
         {
-            person.UpdateRows((ref (string name, string sex, int age) row) => row.age++);
+            person.UpdateRows((ref (string name, string sex, int age, Status status) row) => row.age++);
             Simulation.Update();
             PredicateViewer.UpdateAll();
         }
