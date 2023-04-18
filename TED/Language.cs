@@ -1186,6 +1186,13 @@ namespace TED
             => new Definition<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
         #endregion
 
+        internal static Func<T> BuildSafeMemberAccess<T>(Type type, string property) {
+            var typeProperty = type.GetProperty(property);
+            if (typeProperty is null)
+                throw new MemberAccessException($"{property} property not found for type {type}");
+            return (Func<T>)typeProperty.GetMethod.CreateDelegate(type);
+        }
+
         #region PrimitiveTest declaration sugar
         /// <summary>
         /// Makes a PrimitiveTest based on an Expression of the form:
@@ -1195,45 +1202,110 @@ namespace TED
         public static PrimitiveTest TestMember(Expression<Func<bool>> fn) =>
             new PrimitiveTest(((MemberExpression)fn.Body).Member.Name, fn.Compile());
         /// <summary>
+        /// Makes a PrimitiveTest where the bool Func is built from a property on the given type
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest TestMember(Type type, string property) => 
+            new PrimitiveTest(property, BuildSafeMemberAccess<bool>(type, property));
+
+        /// <summary>
+        /// Makes a PrimitiveTest with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest Test(Func<bool> fn) => new PrimitiveTest(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the given name
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest Test(string name, Func<bool> fn) => new PrimitiveTest(name, fn);
+
+        /// <summary>
         /// Makes a PrimitiveTest with the same name as the System.Predicate being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static PrimitiveTest<TIn> TestMethod<TIn>(Predicate<TIn> fn) => new PrimitiveTest<TIn>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the given name
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn> Test<TIn>(string name, Predicate<TIn> fn) => new PrimitiveTest<TIn>(name, fn);
+
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static PrimitiveTest<TIn1, TIn2> TestMethod<TIn1, TIn2>(Func<TIn1, TIn2, bool> fn) => new PrimitiveTest<TIn1, TIn2>(fn.Method.Name, fn);
         /// <summary>
+        /// Makes a PrimitiveTest with the given name
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2> Test<TIn1, TIn2>(string name, Func<TIn1, TIn2, bool> fn) => new PrimitiveTest<TIn1, TIn2>(name, fn);
+
+        /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static PrimitiveTest<TIn1, TIn2, TIn3> TestMethod<TIn1, TIn2, TIn3>(Func<TIn1, TIn2, TIn3, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the given name
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3> Test<TIn1, TIn2, TIn3>(string name, Func<TIn1, TIn2, TIn3, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3>(name, fn);
+
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4> TestMethod<TIn1, TIn2, TIn3, TIn4>(Func<TIn1, TIn2, TIn3, TIn4, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4>(fn.Method.Name, fn);
         /// <summary>
+        /// Makes a PrimitiveTest with the given name
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4> Test<TIn1, TIn2, TIn3, TIn4>(string name, Func<TIn1, TIn2, TIn3, TIn4, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4>(name, fn);
+
+        /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the given name
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5> Test<TIn1, TIn2, TIn3, TIn4, TIn5>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5>(name, fn);
+
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(fn.Method.Name, fn);
         /// <summary>
+        /// Makes a PrimitiveTest with the given name
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6> Test<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(name, fn);
+
+        /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(fn.Method.Name, fn);
         /// <summary>
+        /// Makes a PrimitiveTest with the given name
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7> Test<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(name, fn);
+
+        /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(fn.Method.Name, fn);
+        /// <summary>
+        /// Makes a PrimitiveTest with the given name
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8> Test<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(name, fn);
         #endregion
 
         #region Function declaration sugar
@@ -1249,6 +1321,7 @@ namespace TED
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static Function<TIn> Method<TIn>(Func<TIn> fn) => new Function<TIn>(fn.Method.Name, fn);
+
         /// <summary>
         /// Makes a function that can be placed in functional expressions with the name of
         /// the delegate member being passed inside the expression.
@@ -1258,6 +1331,13 @@ namespace TED
         public static Function<T> Member<T>(Expression<Func<T>> fn) =>
             new Function<T>(((MemberExpression)fn.Body).Member.Name, fn.Compile());
         /// <summary>
+        /// Makes a Function where the Func T is built from a property on the given type
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<T> Member<T>(Type type, string property) =>
+            new Function<T>(property, BuildSafeMemberAccess<T>(type, property));
+
+        /// <summary>
         /// Makes a function that can be placed in functional expressions with the name:
         /// "GetMemberExpression" where MemberExpression is the name of the member in the expression
         /// Expression should be of the form: "() => MemberExpression"
@@ -1265,6 +1345,13 @@ namespace TED
         // ReSharper disable once UnusedMember.Global
         public static Function<T> GetMember<T>(Expression<Func<T>> fn) =>
             new Function<T>($"Get{((MemberExpression)fn.Body).Member.Name}", fn.Compile());
+        /// <summary>
+        /// Makes a Function where the Func T is built from a property on the given type,
+        /// pre-pending Get to the property for the Function name
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<T> GetMember<T>(Type type, string property) =>
+            new Function<T>($"Get{property}", BuildSafeMemberAccess<T>(type, property));
 
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1276,7 +1363,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn, TOut> Method<TIn, TOut>(Func<TIn, TOut> fn) => new Function<TIn, TOut>(fn);
+        public static Function<TIn, TOut> Method<TIn, TOut>(Func<TIn, TOut> fn) => new Function<TIn, TOut>(fn.Method.Name, fn);
 
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1289,7 +1376,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TOut> Method<TIn1, TIn2, TOut>(Func<TIn1, TIn2, TOut> fn) => new Function<TIn1, TIn2, TOut>(fn);
+        public static Function<TIn1, TIn2, TOut> Method<TIn1, TIn2, TOut>(Func<TIn1, TIn2, TOut> fn) => new Function<TIn1, TIn2, TOut>(fn.Method.Name, fn);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1302,7 +1389,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TOut> Method<TIn1, TIn2, TIn3, TOut>(Func<TIn1, TIn2, TIn3, TOut> fn) => new Function<TIn1, TIn2, TIn3, TOut>(fn);
+        public static Function<TIn1, TIn2, TIn3, TOut> Method<TIn1, TIn2, TIn3, TOut>(Func<TIn1, TIn2, TIn3, TOut> fn) => new Function<TIn1, TIn2, TIn3, TOut>(fn.Method.Name, fn);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1315,7 +1402,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Method<TIn1, TIn2, TIn3, TIn4, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Method<TIn1, TIn2, TIn3, TIn4, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(fn.Method.Name, fn);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1328,7 +1415,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(fn.Method.Name, fn);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1341,7 +1428,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(fn.Method.Name, fn);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1354,7 +1441,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(fn.Method.Name, fn);
         
         #endregion
 

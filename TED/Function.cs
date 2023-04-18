@@ -2,14 +2,12 @@
 using System.Diagnostics;
 using TED.Interpreter;
 
-namespace TED
-{
+namespace TED {
     /// <summary>
     /// Untyped base class for objects that wrap C# functions
     /// </summary>
     [DebuggerDisplay("{Name}")]
-    public abstract class Function
-    {
+    public abstract class Function {
         /// <summary>
         /// Name, for debugging purposes
         /// </summary>
@@ -18,10 +16,7 @@ namespace TED
         /// <summary>
         /// Make a TedFunction with the specified name
         /// </summary>
-        protected Function(string name)
-        {
-            Name = name;
-        }
+        protected Function(string name) => Name = name;
 
         /// <inheritdoc />
         public override string ToString() => Name;
@@ -35,20 +30,13 @@ namespace TED
     /// <summary>
     /// A wrapper for a C# function to allow it to be called from TED expressions
     /// </summary>
-    public class Function<TOut> : Function
-    {
+    public class Function<TOut> : Function {
         internal readonly Func<TOut> Implementation;
 
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TOut> implementation) : base(name)
-        {
-            Implementation = implementation;
-        }
-
-        public Function(Func<TOut> implementation) : this(implementation.Method.Name, implementation) { }
-
+        public Function(string name, Func<TOut> implementation) : base(name) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to this parameterless function
@@ -60,20 +48,13 @@ namespace TED
     /// <summary>
     /// A wrapper for a C# function to allow it to be called from TED expressions
     /// </summary>
-    public class Function<TIn, TOut> : Function
-    {
-        
+    public class Function<TIn, TOut> : Function {
         internal readonly Func<TIn, TOut> Implementation;
 
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn, TOut> implementation) : base(name)
-        {
-            Implementation = implementation;
-        }
-
-        public Function(Func<TIn, TOut> implementation) : this(implementation.Method.Name, implementation) { }
+        public Function(string name, Func<TIn, TOut> implementation) : base(name) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to the function
@@ -84,20 +65,13 @@ namespace TED
     /// <summary>
     /// A wrapper for a C# function to allow it to be called from TED expressions
     /// </summary>
-    public class Function<TIn1, TIn2, TOut> : Function
-    {
-        
+    public class Function<TIn1, TIn2, TOut> : Function {
         internal readonly Func<TIn1, TIn2, TOut> Implementation;
 
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TOut> implementation) : base(name)
-        {
-            Implementation = implementation;
-        }
-
-        public Function(Func<TIn1, TIn2, TOut> implementation) : this(implementation.Method.Name, implementation) { }
+        public Function(string name, Func<TIn1, TIn2, TOut> implementation) : base(name) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to the function
@@ -109,17 +83,12 @@ namespace TED
     /// A wrapper for a C# function to allow it to be called from TED expressions
     /// </summary>
     public class Function<TIn1, TIn2, TIn3, TOut> : Function {
-
         internal readonly Func<TIn1, TIn2, TIn3, TOut> Implementation;
 
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TIn3, TOut> implementation) : base(name) {
-            Implementation = implementation;
-        }
-
-        public Function(Func<TIn1, TIn2, TIn3, TOut> implementation) : this(implementation.Method.Name, implementation) { }
+        public Function(string name, Func<TIn1, TIn2, TIn3, TOut> implementation) : base(name) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to the function
@@ -132,17 +101,12 @@ namespace TED
     /// A wrapper for a C# function to allow it to be called from TED expressions
     /// </summary>
     public class Function<TIn1, TIn2, TIn3, TIn4, TOut> : Function {
-
         internal readonly Func<TIn1, TIn2, TIn3, TIn4, TOut> Implementation;
 
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TOut> implementation) : base(name) {
-            Implementation = implementation;
-        }
-
-        public Function(Func<TIn1, TIn2, TIn3, TIn4, TOut> implementation) : this(implementation.Method.Name, implementation) { }
+        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TOut> implementation) : base(name) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to the function
@@ -155,17 +119,12 @@ namespace TED
     /// A wrapper for a C# function to allow it to be called from TED expressions
     /// </summary>
     public class Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> : Function {
-
         internal readonly Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Implementation;
 
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> implementation) : base(name) {
-            Implementation = implementation;
-        }
-
-        public Function(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> implementation) : this(implementation.Method.Name, implementation) { }
+        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> implementation) : base(name) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to the function
@@ -178,18 +137,13 @@ namespace TED
     /// A wrapper for a C# function to allow it to be called from TED expressions
     /// </summary>
     public class Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> : Function {
-
         internal readonly Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Implementation;
 
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> implementation) : base(name) {
-            Implementation = implementation;
-        }
-
-        public Function(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> implementation) : this(implementation.Method.Name, implementation) { }
-
+        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> implementation) : base(name) => Implementation = implementation;
+        
         /// <summary>
         /// Make a call to the function
         /// </summary>
@@ -201,18 +155,13 @@ namespace TED
     /// A wrapper for a C# function to allow it to be called from TED expressions
     /// </summary>
     public class Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> : Function {
-
         internal readonly Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Implementation;
 
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> implementation) : base(name) {
-            Implementation = implementation;
-        }
-
-        public Function(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> implementation) : this(implementation.Method.Name, implementation) { }
-
+        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> implementation) : base(name) => Implementation = implementation;
+        
         /// <summary>
         /// Make a call to the function
         /// </summary>
