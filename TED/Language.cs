@@ -1186,11 +1186,11 @@ namespace TED
             => new Definition<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
         #endregion
 
-        internal static Func<T> BuildSafeMemberAccess<T>(Type type, string property) {
-            var typeProperty = type.GetProperty(property);
+        internal static Func<T> BuildSafeMemberAccess<T>(object target, string property) {
+            var typeProperty = target.GetType().GetProperty(property);
             if (typeProperty is null)
-                throw new MemberAccessException($"{property} property not found for type {type}");
-            return (Func<T>)typeProperty.GetMethod.CreateDelegate(type);
+                throw new MemberAccessException($"{property} property not found for type {target.GetType()}");
+            return (Func<T>)Delegate.CreateDelegate(typeof(Func<T>), target, typeProperty.GetMethod);
         }
 
         #region PrimitiveTest declaration sugar
@@ -1205,7 +1205,7 @@ namespace TED
         /// Makes a PrimitiveTest where the bool Func is built from a property on the given type
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest TestMember(Type type, string property) => 
+        public static PrimitiveTest TestMember(object type, string property) => 
             new PrimitiveTest(property, BuildSafeMemberAccess<bool>(type, property));
 
         /// <summary>
@@ -1334,7 +1334,7 @@ namespace TED
         /// Makes a Function where the Func T is built from a property on the given type
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<T> Member<T>(Type type, string property) =>
+        public static Function<T> Member<T>(object type, string property) =>
             new Function<T>(property, BuildSafeMemberAccess<T>(type, property));
 
         /// <summary>
@@ -1350,7 +1350,7 @@ namespace TED
         /// pre-pending Get to the property for the Function name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<T> GetMember<T>(Type type, string property) =>
+        public static Function<T> GetMember<T>(object type, string property) =>
             new Function<T>($"Get{property}", BuildSafeMemberAccess<T>(type, property));
 
         /// <summary>
