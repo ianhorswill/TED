@@ -42,7 +42,7 @@ namespace TED.Primitives {
     /// </summary>
     /// <typeparam name="T1">Type of the argument to the predicate</typeparam>
     public class PrimitiveTest<T1> : PrimitivePredicate<T1> {
-        internal readonly Predicate<T1> Implementation;
+        internal readonly Func<T1, bool> Implementation;
 
         /// <summary>
         /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.
@@ -52,7 +52,7 @@ namespace TED.Primitives {
         /// This will be called with the values of the arguments.
         /// If it returns true, the call to the test succeeds, otherwise, it fails and the system backtracks</param>
         /// <param name="isFunctional">This predicate has no side-effects and so can be safely constant-folded.</param>
-        public PrimitiveTest(string name, Predicate<T1> implementation, bool isFunctional = true) : base(name) {
+        public PrimitiveTest(string name, Func<T1, bool> implementation, bool isFunctional = true) : base(name) {
             Implementation = implementation;
             if (isFunctional)
                 ConstantFolder = Implementation;

@@ -1216,12 +1216,12 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the System.Predicate being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn> TestMethod<TIn>(Predicate<TIn> fn) => new PrimitiveTest<TIn>(fn.Method.Name, fn);
+        public static PrimitiveTest<TIn> TestMethod<TIn>(Func<TIn, bool> fn) => new PrimitiveTest<TIn>(fn.Method.Name, fn);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn> Test<TIn>(string name, Predicate<TIn> fn) => new PrimitiveTest<TIn>(name, fn);
+        public static PrimitiveTest<TIn> Test<TIn>(string name, Func<TIn, bool> fn) => new PrimitiveTest<TIn>(name, fn);
          
 
         //public static PrimitiveTest<TIn> TestMethod<TIn>(Func<TIn, bool> fn) => new PrimitiveTest<TIn>(fn.Method.Name, fn);
