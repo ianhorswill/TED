@@ -227,5 +227,14 @@ namespace TED.Tables
             for (var i = 0u; i < table.Length; i++)
                 Add(i);
         }
+
+        public IEnumerable<TRow> RowsMatching(TColumn value)
+        {
+            for (var rowNumber = FirstRowWithValue(value);
+                 rowNumber != Table.NoRow;
+                 rowNumber = NextRowWithValue(rowNumber))
+                yield return table[rowNumber];
+
+        }
     }
 }

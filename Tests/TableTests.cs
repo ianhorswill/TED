@@ -144,6 +144,21 @@ namespace Tests
         }
 
         [TestMethod]
+        public void RowsMatchingTest()
+        {
+            var i = (Var<int>)"i";
+            var parity = (Var<int>)"parity";
+            var t = Predicate("t", i, parity.Indexed);
+            for (var j = 0; j < 10; j++)
+                t.AddRow(j, j%2);
+            var index = (GeneralIndex<(int,int), int>)t.IndexFor(parity, false)!;
+            var rows = index.RowsMatching(0).Select(r => r.Item1).ToArray();
+            CollectionAssert.AreEqual(new[] { 8,6,4,2,0 }, rows);
+            CollectionAssert.AreEqual(new[] { 9,7,5,3,1 }, index.RowsMatching(1).Select(r => r.Item1).ToArray());
+            CollectionAssert.AreEqual(Array.Empty<int>(), index.RowsMatching(2).Select(r => r.Item1).ToArray());
+        }
+
+        [TestMethod]
         public void IndexDeletionTest()
         {
 
@@ -241,6 +256,7 @@ namespace Tests
             var n = (Var<int>)"n";
             var m = (Var<int>)"m";
             var nums = new[] { 1, 2, 3, 4, 5, 6 };
+            // ReSharper disable once InconsistentNaming
             var Table = Predicate("Table", nums.Select(i => (i, i+1)), n.Key, m);
             var nKey = Table.KeyIndex(n);
             foreach (var i in nums)

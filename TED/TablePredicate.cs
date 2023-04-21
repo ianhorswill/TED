@@ -135,7 +135,7 @@ namespace TED
         /// <summary>
         /// Add a key index
         /// </summary>
-        public void IndexByKey(Term column) => AddIndex(column, true);
+        public void IndexByKey(IVariable column) => AddIndex(column, true);
 
         /// <summary>
         /// Add an index; the column isn't a key, i.e. rows aren't assumed to have unique values for this column
@@ -146,9 +146,9 @@ namespace TED
         /// Add an index; the column isn't a key, i.e. rows aren't assumed to have unique values for this column
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public void IndexBy(Term column) => AddIndex(column, false);
+        public void IndexBy(IVariable column) => AddIndex(column, false);
 
-        private void AddIndex(Term t, bool keyIndex)
+        private void AddIndex(IVariable t, bool keyIndex)
         {
             var index = ColumnPositionOfDefaultVariable(t);
             AddIndex(index, keyIndex);
@@ -157,7 +157,7 @@ namespace TED
         /// <summary>
         /// Find the column/argument position of an argument, given the variable used to declare it.
         /// </summary>
-        protected int ColumnPositionOfDefaultVariable(Term t)
+        protected int ColumnPositionOfDefaultVariable(IVariable t)
         {
             if (DefaultVariables == null)
                 throw new InvalidOperationException(
@@ -179,8 +179,17 @@ namespace TED
         /// <param name="columnIndex">Column to find the index for</param>
         /// <param name="key">Whether to look for a key or non-key</param>
         /// <returns>The index or null if there is not index of that type for that column</returns>
-        internal TableIndex? IndexFor(int columnIndex, bool key) 
+        public TableIndex? IndexFor(int columnIndex, bool key) 
             => TableUntyped.Indices.FirstOrDefault(i => i.ColumnNumber == columnIndex && key == i.IsKey);
+
+        /// <summary>
+        /// Return the index of the specified type for the specified column
+        /// </summary>
+        /// <param name="column">Column to find the index for</param>
+        /// <param name="key">Whether to look for a key or non-key</param>
+        /// <returns>The index or null if there is not index of that type for that column</returns>
+        public TableIndex? IndexFor(IVariable column, bool key) 
+            => IndexFor(ColumnPositionOfDefaultVariable(column), key);
 
         /// <summary>
         /// All indices for the table
