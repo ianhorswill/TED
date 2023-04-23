@@ -33,6 +33,14 @@ namespace TED
         internal static IEnumerable<Goal> SubstituteBody(IEnumerable<Goal> body, Substitution s) =>
             body.Select(g => g.RenameArguments(s).FoldConstant());
 
+
+        internal Goal DefaultGoal;
+
+        /// <summary>
+        /// A call to this definition using it's "default" arguments
+        /// </summary>
+        public static implicit operator Goal(Definition p) => p.DefaultGoal;
+
         /// <summary>
         /// Goal representing a call to a definition
         /// This will get expanded in-line by the calling rule at preprocessing time
@@ -174,6 +182,8 @@ namespace TED
         /// </summary>
         public Goal this[Term<T1> a1] => new Goal(this, a1);
 
+        internal new Goal DefaultGoal => this[Arg1];
+
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
         /// </summary>
@@ -242,6 +252,8 @@ namespace TED
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
         public Goal this[Term<T1> a1, Term<T2> a2] => new Goal(this, a1, a2);
+
+        internal new Goal DefaultGoal => this[Arg1, Arg2];
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -331,6 +343,8 @@ namespace TED
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3] => new Goal(this, a1, a2, a3);
+
+        internal new Goal DefaultGoal => this[Arg1, Arg2, Arg3];
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -428,6 +442,8 @@ namespace TED
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
         /// </summary>
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4] => new Goal(this, a1, a2, a3, a4);
+
+        internal new Goal DefaultGoal => this[Arg1, Arg2, Arg3, Arg4];
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -540,6 +556,8 @@ namespace TED
         /// </summary>
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5] 
             => new Goal(this, a1, a2, a3, a4, a5);
+
+        internal new Goal DefaultGoal => this[Arg1, Arg2, Arg3, Arg4, Arg5];
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
@@ -657,6 +675,8 @@ namespace TED
         /// </summary>
         public Goal this[Term<T1> a1, Term<T2> a2, Term<T3> a3, Term<T4> a4, Term<T5> a5, Term<T6> a6] 
             => new Goal(this, a1, a2, a3, a4, a5, a6);
+
+        internal new Goal DefaultGoal => this[Arg1, Arg2, Arg3, Arg4, Arg5, Arg6];
 
         /// <summary>
         /// Specify the sequence of goals into which calls to this definition should be transformed.
