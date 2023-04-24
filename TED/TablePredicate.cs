@@ -318,6 +318,11 @@ namespace TED
         internal abstract void AppendInputs();
 
         /// <summary>
+        /// Table predicates that this table predicate accumulates, if any.
+        /// </summary>
+        public abstract IEnumerable<TablePredicate> Inputs { get; }
+
+        /// <summary>
         /// If you put a predicate in a rule body without arguments, it defaults to the rule's "default" arguments.
         /// </summary>
         public static implicit operator Goal(TablePredicate p) => p.DefaultGoal;
@@ -399,6 +404,8 @@ namespace TED
         internal event Action? OnUpdateColumns;
 
         private Dictionary<(IVariable, IVariable), TablePredicate>? updateTables;
+
+        public IEnumerable<TablePredicate> UpdateTables => (updateTables == null)?Array.Empty<TablePredicate>():updateTables.Select(p => p.Value);
 
         /// <summary>
         /// Return a table predicate to which rules can be added to update the specified column of this table predicate
@@ -573,6 +580,9 @@ namespace TED
         }
 
         private List<TablePredicate<T1>>? inputs;
+
+        /// <inheritdoc />
+        public override IEnumerable<TablePredicate> Inputs => (inputs != null)?(IEnumerable<TablePredicate>)inputs:Array.Empty<TablePredicate>();
 
         /// <summary>
         /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
@@ -779,6 +789,9 @@ namespace TED
         }
         
         private List<TablePredicate<T1, T2>>? inputs;
+
+        /// <inheritdoc />
+        public override IEnumerable<TablePredicate> Inputs => (inputs != null)?(IEnumerable<TablePredicate>)inputs:Array.Empty<TablePredicate>();
 
         /// <summary>
         /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
@@ -1086,6 +1099,9 @@ namespace TED
 
         private List<TablePredicate<T1, T2, T3>>? inputs;
 
+        /// <inheritdoc />
+        public override IEnumerable<TablePredicate> Inputs => (inputs != null)?(IEnumerable<TablePredicate>)inputs:Array.Empty<TablePredicate>();
+
         /// <summary>
         /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
         /// </summary>
@@ -1375,6 +1391,9 @@ namespace TED
         }
 
         private List<TablePredicate<T1, T2, T3, T4>>? inputs;
+
+        /// <inheritdoc />
+        public override IEnumerable<TablePredicate> Inputs => (inputs != null)?(IEnumerable<TablePredicate>)inputs:Array.Empty<TablePredicate>();
 
         /// <summary>
         /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
@@ -1679,6 +1698,9 @@ namespace TED
         }
 
         private List<TablePredicate<T1, T2, T3, T4, T5>>? inputs;
+
+        /// <inheritdoc />
+        public override IEnumerable<TablePredicate> Inputs => (inputs != null)?(IEnumerable<TablePredicate>)inputs:Array.Empty<TablePredicate>();
 
         /// <summary>
         /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
@@ -1997,6 +2019,9 @@ namespace TED
 
         private List<TablePredicate<T1, T2, T3, T4, T5, T6>>? inputs;
 
+        /// <inheritdoc />
+        public override IEnumerable<TablePredicate> Inputs => (inputs != null)?(IEnumerable<TablePredicate>)inputs:Array.Empty<TablePredicate>();
+
         /// <summary>
         /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
         /// </summary>
@@ -2310,6 +2335,10 @@ namespace TED
         }
 
         private List<TablePredicate<T1, T2, T3, T4, T5, T6, T7>>? inputs;
+
+        /// <inheritdoc />
+        public override IEnumerable<TablePredicate> Inputs => (inputs != null)?(IEnumerable<TablePredicate>)inputs:Array.Empty<TablePredicate>();
+
 
         /// <summary>
         /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.
@@ -2631,6 +2660,9 @@ namespace TED
         }
 
         private List<TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>>? inputs;
+
+        /// <inheritdoc />
+        public override IEnumerable<TablePredicate> Inputs => (inputs != null)?(IEnumerable<TablePredicate>)inputs:Array.Empty<TablePredicate>();
 
         /// <summary>
         /// Declare that on each simulation tick, the contents of the specified tables should be appended to this table.

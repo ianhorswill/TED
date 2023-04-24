@@ -18,6 +18,7 @@ namespace TED.Primitives
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
         {
             var predicate = ((Constant<TablePredicate<T>>)g.Arg1).Value;
+            tc.AddDependency(predicate);
             return new Call(predicate, tc.Emit(g.Arg2));
         }
 

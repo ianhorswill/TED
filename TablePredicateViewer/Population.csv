@@ -1,5 +1,5 @@
-﻿Person,Sex,Age,Status
-Fred,m,10,alive
-Jenny,f,12,alive
-Tamika,f,11,alive
-Elroy,m,9,alive
+﻿Person,Sex,Age,Mother,Father,Status
+Fred,m,10,God,God,alive
+Jenny,f,12,God,God,alive
+Tamika,f,11,God,God,alive
+Elroy,m,9,God,God,alive
