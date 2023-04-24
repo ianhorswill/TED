@@ -416,6 +416,8 @@ namespace TED
                 return (TablePredicate<TKey, TColumn>)t;
             var accessor = Accessor(key, column);
             var updateTable = new TablePredicate<TKey, TColumn>($"{Name}_{column.Name}_update", key, column);
+            updateTable.Property[UpdaterFor] = this;
+            updateTable.Property[VisualizerName] = $"set {column.Name}";
             var updater = new ColumnUpdater<TColumn, TKey>(accessor, updateTable);
             OnUpdateColumns += updater.DoUpdates;
             updateTables[(key, column)] = updateTable;

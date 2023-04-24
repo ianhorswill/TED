@@ -16,23 +16,52 @@ namespace TED.Utilities
         /// <param name="path"></param>
         public static void MakeGraph(Program p, string path)
         {
-
             var g = new GraphViz<TablePredicate>
             {
-                NodeLabel = t => t.Name,
+                NodeLabel = PredicateLabel,
                 DefaultNodeAttributes = TableAttributes,
+                DefaultEdgeAttributes = EdgeAttributes,
                 GlobalNodeAttributes =
                 {
                     ["style"] = "filled"
                 }
             };
 
-            var baseTables = g.MakeCluster("base tables");
+
+            GraphViz<TablePredicate>.Cluster? baseTables = null; // g.MakeCluster("base tables");
             //baseTables.Attributes["label"] = "Base Tables";
-            g.NodeCluster = t => t.IsExtensional ? baseTables : null;
+
+            var baseTableClusters = new Dictionary<TablePredicate, GraphViz<TablePredicate>.Cluster>();
+
+            GraphViz<TablePredicate>.Cluster ClusterOfBaseTable(TablePredicate p)
+            {
+                if (baseTableClusters.TryGetValue(p, out var c))
+                    return c;
+                c = g.MakeCluster(p.Name, baseTables);
+                baseTableClusters[p] = c;
+                return c;
+            }
+
+            foreach (var t in p.Tables)
+                if (t.Property.TryGetValue(TablePredicate.UpdaterFor, out var baseTable))
+                    ClusterOfBaseTable((TablePredicate)baseTable);
+
+            g.NodeCluster = 
+                t => t.IsExtensional ? 
+                    (baseTableClusters.ContainsKey(t)?ClusterOfBaseTable(t):baseTables) 
+                    : t.Property.TryGetValue(TablePredicate.UpdaterFor, out var baseTable)?
+                        (ClusterOfBaseTable((TablePredicate)baseTable))
+                        :null;
 
             g.AddReachableFrom(p.Tables, Dependencies);
             g.WriteGraph(path);
+        }
+        
+        private static string PredicateLabel(TablePredicate p)
+        {
+            if (p.Property.TryGetValue(TablePredicate.VisualizerName, out var s))
+                return (string)s;
+            return p.Name;
         }
 
         private static readonly Dictionary<string, object> InputEdgeAttributes = new Dictionary<string, object>()
@@ -59,13 +88,19 @@ namespace TED.Utilities
 
         private static IEnumerable<KeyValuePair<string, object>> TableAttributes(TablePredicate p)
         {
-            if (p.IsIntensional)
-                return Array.Empty<KeyValuePair<string, object>>();
-            return new[]
-            {
-                new KeyValuePair<string, object>("style", "filled"),
-                new KeyValuePair<string, object>("fillcolor", "greenyellow")
-            };
+            var attributes = new Dictionary<string, object>();
+            if (p.IsExtensional)
+                attributes["fillcolor"] = "greenyellow";
+
+            return attributes;
+        }
+
+        private static Dictionary<string, object> EdgeAttributes(GraphViz<TablePredicate>.Edge e)
+        {
+            var attributes = new Dictionary<string, object>();
+            if (e.EndNode.Property.ContainsKey(TablePredicate.UpdaterFor))
+                attributes["constraint"] = "false";
+            return attributes;
         }
     }
 }

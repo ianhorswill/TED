@@ -30,6 +30,11 @@ namespace TED
         public IEnumerable<TablePredicate> Tables => tables.Select(pair => pair.Value);
 
         /// <summary>
+        /// Base tables in the program
+        /// </summary>
+        public IEnumerable<TablePredicate> BaseTables => Tables.Where(t => t.IsExtensional);
+
+        /// <summary>
         /// Name of the program, for debugging
         /// </summary>
         public readonly string Name;

@@ -176,9 +176,6 @@ namespace TED.Utilities
                 foreach (var p in DefaultNodeAttributes(n))
                     NodeAttributes[n][p.Key] = p.Value;
             IdOf[n] = NodeId(n);
-            var c = NodeCluster?.Invoke(n);
-            if (c != null)
-                c.Nodes.Add(n);
         }
         
         /// <summary>
@@ -240,6 +237,7 @@ namespace TED.Utilities
         /// <param name="o">Stream to write to</param>
         public void WriteGraph(TextWriter o)
         {
+            FinalizeGraph();
             var writtenNodes = new HashSet<T>();
             void WriteCluster(Cluster c)
             {
@@ -287,6 +285,20 @@ namespace TED.Utilities
                     WriteNode(v, o);
             foreach (var e in edges) WriteEdge(e, o);
             o.WriteLine("}");
+        }
+
+        private bool finalized;
+        private void FinalizeGraph()
+        {
+            if (finalized)
+                return;
+            foreach (var n in nodes)
+            {
+                var c = NodeCluster?.Invoke(n);
+                c?.Nodes.Add(n);
+            }
+
+            finalized = true;
         }
 
         /// <summary>
