@@ -241,13 +241,11 @@ namespace TED
         /// </summary>
         internal void EnsureUpToDate()
         {
-            if (MustRecompute)
-            {
-                Clear();
-                foreach (var r in Rules!)
-                    r.AddAllSolutions();
-                MustRecompute = false;
-            }
+            if (!MustRecompute) return;
+            Clear();
+            foreach (var r in Rules!)
+                r.AddAllSolutions();
+            MustRecompute = false;
         }
 
         /// <summary>
@@ -413,8 +411,7 @@ namespace TED
         /// </summary>
         public TablePredicate<TKey, TColumn> Set<TKey, TColumn>(Var<TKey> key, Var<TColumn> column)
         {
-            if (updateTables == null)
-                updateTables = new Dictionary<(IVariable, IVariable), TablePredicate>();
+            updateTables ??= new Dictionary<(IVariable, IVariable), TablePredicate>();
             if (updateTables.TryGetValue((key, column), out var t))
                 return (TablePredicate<TKey, TColumn>)t;
             var accessor = Accessor(key, column);
@@ -617,8 +614,8 @@ namespace TED
 
         internal override void AppendInputs()
         {
-            if (inputs != null)
-                foreach (var input in inputs) Append(input);
+            if (inputs == null) return;
+            foreach (var input in inputs) Append(input);
         }
 
         /// <inheritdoc />
