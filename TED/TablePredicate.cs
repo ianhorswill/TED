@@ -435,6 +435,32 @@ namespace TED
         {
             OnUpdateColumns?.Invoke();
         }
+
+        #region Meta-data
+        /// <summary>
+        /// Property list for meta-data.
+        /// For Boolean data, Feature[] is preferred.
+        /// </summary>
+        public Dictionary<string, object> Property = new Dictionary<string, object>();
+
+        /// <summary>
+        /// Boolean meta-data about the table.
+        /// For non-Boolean data, use Property[]
+        /// </summary>
+        public HashSet<string> Feature = new HashSet<string>();
+
+        /// <summary>
+        /// Name of the metadata property indicating that this table predicate is an internal table
+        /// make for updating another table using Input or Set().
+        /// </summary>
+        public const string UpdaterFor = "UpdaterFor";
+
+        /// <summary>
+        /// Name of the metadata property specifying a preferred name to include in a dataflow visualization
+        /// </summary>
+        public const string VisualizerName = "VisualizerName";
+
+        #endregion
     }
 
     /// <summary>
@@ -606,6 +632,8 @@ namespace TED
                 {
                     addPredicate = new TablePredicate<T1>(Name + "__add", (Var<T1>)DefaultVariables[0]);
                     Accumulates(addPredicate);
+                    addPredicate.Property[UpdaterFor] = this;
+                    addPredicate.Property[VisualizerName] = "Input";
                 }
 
                 return addPredicate;
@@ -817,6 +845,8 @@ namespace TED
                         (Var<T1>)DefaultVariables[0],
                         (Var<T2>)DefaultVariables[1]);
                     Accumulates(addPredicate);
+                    addPredicate.Property[UpdaterFor] = this;
+                    addPredicate.Property[VisualizerName] = "Input";
                 }
 
                 return addPredicate;
@@ -1127,6 +1157,8 @@ namespace TED
                         (Var<T2>)DefaultVariables[1],
                         (Var<T3>)DefaultVariables[2]);
                     Accumulates(addPredicate);
+                    addPredicate.Property[UpdaterFor] = this;
+                    addPredicate.Property[VisualizerName] = "Input";
                 }
 
                 return addPredicate;
@@ -1421,6 +1453,8 @@ namespace TED
                         (Var<T3>)DefaultVariables[2],
                         (Var<T4>)DefaultVariables[3]);
                     Accumulates(addPredicate);
+                    addPredicate.Property[UpdaterFor] = this;
+                    addPredicate.Property[VisualizerName] = "Input";
                 }
 
                 return addPredicate;
@@ -1729,6 +1763,8 @@ namespace TED
                         (Var<T4>)DefaultVariables[3],
                         (Var<T5>)DefaultVariables[4]);
                     Accumulates(addPredicate);
+                    addPredicate.Property[UpdaterFor] = this;
+                    addPredicate.Property[VisualizerName] = "Input";
                 }
 
                 return addPredicate;
@@ -2050,6 +2086,8 @@ namespace TED
                         (Var<T5>)DefaultVariables[4],
                         (Var<T6>)DefaultVariables[5]);
                     Accumulates(addPredicate);
+                    addPredicate.Property[UpdaterFor] = this;
+                    addPredicate.Property[VisualizerName] = "Input";
                 }
 
                 return addPredicate;
@@ -2368,6 +2406,8 @@ namespace TED
                         (Var<T6>)DefaultVariables[5],
                         (Var<T7>)DefaultVariables[6]);
                     Accumulates(addPredicate);
+                    addPredicate.Property[UpdaterFor] = this;
+                    addPredicate.Property[VisualizerName] = "Input";
                 }
 
                 return addPredicate;
@@ -2693,6 +2733,8 @@ namespace TED
                         (Var<T7>)DefaultVariables[6],
                         (Var<T8>)DefaultVariables[7]);
                     Accumulates(addPredicate);
+                    addPredicate.Property[UpdaterFor] = this;
+                    addPredicate.Property[VisualizerName] = "Input";
                 }
 
                 return addPredicate;
