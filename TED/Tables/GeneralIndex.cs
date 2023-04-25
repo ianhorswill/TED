@@ -11,7 +11,7 @@ namespace TED.Tables
     /// </summary>
     /// <typeparam name="TRow">Type of the table rows.  This will be a tuple type unless it's a single-column table</typeparam>
     /// <typeparam name="TColumn">Type of the column we're indexing by</typeparam>
-    internal sealed class GeneralIndex<TRow, TColumn> : TableIndex<TRow, TColumn>
+    public sealed class GeneralIndex<TRow, TColumn> : TableIndex<TRow, TColumn>
     {
         //
         // Indices are implemented as direct-addressed hash tables in hopes of maximizing cache locality.
