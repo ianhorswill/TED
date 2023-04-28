@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 
 namespace TED.Utilities
@@ -140,6 +141,8 @@ namespace TED.Utilities
         /// </summary>
         private readonly HashSet<T> nodes = new HashSet<T>();
 
+        public readonly Dictionary<T, int> NodeIndex = new Dictionary<T, int>();
+
         /// <summary>
         /// The set of all nodes in the graph
         /// </summary>
@@ -170,6 +173,7 @@ namespace TED.Utilities
         {
             if (nodes.Contains(n))
                 return;
+            NodeIndex[n] = nodes.Count;
             nodes.Add(n);
             NodeAttributes[n] = new Dictionary<string, object>();
             if (DefaultNodeAttributes != null)
@@ -237,7 +241,7 @@ namespace TED.Utilities
         /// <param name="o">Stream to write to</param>
         public void WriteGraph(TextWriter o)
         {
-            FinalizeGraph();
+            FinalizeGraphClusters();
             var writtenNodes = new HashSet<T>();
             void WriteCluster(Cluster c)
             {
@@ -288,7 +292,7 @@ namespace TED.Utilities
         }
 
         private bool finalized;
-        private void FinalizeGraph()
+        private void FinalizeGraphClusters()
         {
             if (finalized)
                 return;
@@ -526,6 +530,70 @@ namespace TED.Utilities
             if (parent == null)
                 topLevelClusters.Add(c);
             return c;
+        }
+        #endregion
+
+        #region Layout
+
+        // ReSharper disable once InconsistentNaming
+        private float[,]? _nodeDistances;
+        float[,] NodeDistances 
+        {
+            get
+            {
+                if (_nodeDistances == null)
+                {
+                    FinalizeGraphClusters();
+                    var count = nodes.Count;
+
+                    var distances = new float[count, count];
+                    for (var i = 0; i < count; i++)
+                    for (var j = 0; j < count; j++)
+                        distances[i, j] = float.PositiveInfinity;
+                    foreach (var edge in edges)
+                    {
+                        var s = NodeIndex[edge.StartNode];
+                        var e = NodeIndex[edge.EndNode];
+                        distances[e, s] = distances[e, s] = 1;
+                    }
+
+                    for (var i = 0; i < count; i++)
+                    for (var j = 0; j < count; j++)
+                    for (var k = 0; k < count; k++)
+                        distances[i, j] = Math.Min(distances[i, j], distances[i, k] + distances[k, j]);
+                    _nodeDistances = distances;
+                }
+                return _nodeDistances;
+            }
+        }
+
+        // ReSharper disable once InconsistentNaming
+        private float _diameter = -1;
+
+        /// <summary>
+        /// Distance between the two most distant nodes that are still connected.
+        /// </summary>
+        public float Diameter
+        {
+            get
+            {
+                if (_diameter < 0)
+                {
+                    var dist = NodeDistances;
+                    var count = nodes.Count;
+                    float diameter = dist[0, 0];
+                    for (var i = 0; i < count; i++)
+                    for (var j = 0; j < count; j++)
+                    {
+                        var d = dist[i, j];
+                        if (!float.IsPositiveInfinity(d) && d > diameter)
+                            diameter = d;
+                    }
+                    _diameter = diameter;
+                }
+
+                return _diameter;
+            }
         }
         #endregion
     }

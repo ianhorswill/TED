@@ -635,7 +635,7 @@ namespace TED
                     addPredicate = new TablePredicate<T1>(Name + "__add", (Var<T1>)DefaultVariables[0]);
                     Accumulates(addPredicate);
                     addPredicate.Property[UpdaterFor] = this;
-                    addPredicate.Property[VisualizerName] = "Input";
+                    addPredicate.Property[VisualizerName] = "Add";
                 }
 
                 return addPredicate;
