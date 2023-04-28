@@ -1,6 +1,7 @@
 ﻿using TED;
 using TED.Interpreter;
 using static TED.Language;
+using InvalidProgramException = TED.InvalidProgramException;
 
 namespace Tests
 {
@@ -140,6 +141,18 @@ namespace Tests
             var Number = Predicate("Number", new [] { 1, 2, 3, 0, 4, 5, 6 }, x);
             var Reciprocal = Predicate("Reciprocal", y).If(Number[x], y == 100 / x);
             Console.WriteLine(Reciprocal.ToArray());
+        }
+
+        [TestMethod, ExpectedException(typeof(InvalidProgramException))]
+        public void RecursionDetectionTest()
+        {
+            var p = new Program(nameof(RecursionDetectionTest));
+            var n = (Var<int>)"n";
+            p.BeginPredicates();
+            var P = Predicate("P", n);
+            var Q = Predicate("Q", n).If(P[n]);
+            P[n].If(Q[n]);
+            p.EndPredicates();
         }
     }
 }

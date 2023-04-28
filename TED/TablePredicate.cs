@@ -81,6 +81,11 @@ namespace TED
         /// </summary>
         public Program? Program;
 
+        /// <summary>
+        /// True if this is a table in a simulation that needs to be updated dynamically
+        /// </summary>
+        public bool IsDynamic { get; internal set; }
+
         internal abstract Table TableUntyped { get; }
 
         /// <summary>
@@ -275,6 +280,25 @@ namespace TED
         internal void AddRule(params Goal[] body) => DefaultGoal.If(body);
 
         /// <summary>
+        /// All TablePredicates that are used in rules for this TablePredicate, if any.
+        /// </summary>
+        public IEnumerable<TablePredicate> RuleDependencies
+            => (Rules==null)?Array.Empty<TablePredicate>()
+                : Rules.SelectMany(r => r.Dependencies).Distinct();
+
+        /// <summary>
+        /// The tables that are used to update base tables, through .Accumulates(), .Add, or .Set()
+        /// </summary>
+        public IEnumerable<TablePredicate> ImperativeDependencies
+            => Inputs.Concat(ColumnUpdateTables);
+
+        /// <summary>
+        /// Tables that use this table as input
+        /// This is computed by Program.FindDependents().
+        /// </summary>
+        public readonly List<TablePredicate> Dependents = new List<TablePredicate>();
+
+        /// <summary>
         /// Null-tolerant version of ToString.
         /// </summary>
         protected string Stringify<T>(in T value) => value == null ? "null" : value.ToString();
@@ -403,7 +427,10 @@ namespace TED
 
         private Dictionary<(IVariable, IVariable), TablePredicate>? updateTables;
 
-        public IEnumerable<TablePredicate> UpdateTables => (updateTables == null)?Array.Empty<TablePredicate>():updateTables.Select(p => p.Value);
+        /// <summary>
+        /// Tables that drive updates of columns of this table
+        /// </summary>
+        public IEnumerable<TablePredicate> ColumnUpdateTables => (updateTables == null)?Array.Empty<TablePredicate>():updateTables.Select(p => p.Value);
 
         /// <summary>
         /// Return a table predicate to which rules can be added to update the specified column of this table predicate

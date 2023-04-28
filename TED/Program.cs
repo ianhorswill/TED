@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -70,12 +71,35 @@ namespace TED
         /// Start defining predicates for the program.  All predicates created between calling and calling End() will be added
         /// to the program.
         /// </summary>
-        public void BeginPredicates() => LoadingPrograms.Push(this);
+        public virtual void BeginPredicates() => LoadingPrograms.Push(this);
 
         /// <summary>
         /// Stop adding new predicates to this Program.
         /// </summary>
-        public void EndPredicates() => LoadingPrograms.Pop();
+        public virtual void EndPredicates()
+        {
+            LoadingPrograms.Pop();
+            FindDependents();
+            CheckForCycles();
+        }
+
+        private void CheckForCycles()
+        {
+            var s = new Stack<TablePredicate>();
+
+            void Visit(TablePredicate p)
+            {
+                if (s.Contains(p))
+                    throw new InvalidProgramException($"The rules defining {p.Name} are recursive.");
+                s.Push(p);
+                foreach (var d in p.RuleDependencies)
+                    Visit(d);
+                s.Pop();
+            }
+
+            foreach (var t in Tables)
+                Visit(t);
+        }
 
         /// <summary>
         /// The predicate with the specified name
@@ -114,6 +138,18 @@ namespace TED
         {
             Debug.Assert(tables[table.Name] == table, "Attempting to remove table from program but program has a different table listed under that name.");
             tables.Remove(table.Name);
+        }
+
+        /// <summary>
+        /// Build dependent lists for all tables in the program.
+        /// </summary>
+        public void FindDependents()
+        {
+            foreach (var t in Tables)
+                t.Dependents.Clear();
+            foreach (var t in Tables)
+            foreach (var d in t.RuleDependencies.Concat(t.ImperativeDependencies))
+                d.Dependents.Add(t);
         }
     }
 }

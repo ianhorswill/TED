@@ -82,7 +82,7 @@ namespace TED.Utilities
                     .SelectMany(r => r.Dependencies)
                     .Select(dep => new GraphViz<TablePredicate>.Edge(dep, p));
             var inputs = p.Inputs.Select(i => new GraphViz<TablePredicate>.Edge(i, p, true, null, InputEdgeAttributes)).ToArray();
-            var setters = p.UpdateTables.Select(s => new GraphViz<TablePredicate>.Edge(s, p, true, null, SetEdgeAttributes)).ToArray();
+            var setters = p.ColumnUpdateTables.Select(s => new GraphViz<TablePredicate>.Edge(s, p, true, null, SetEdgeAttributes)).ToArray();
             return dependencies.Concat(inputs).Concat(setters);
         }
 
