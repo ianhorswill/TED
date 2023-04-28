@@ -40,12 +40,32 @@ namespace TED.Preprocessing
         /// Generate a series of Call objects for a body.
         /// </summary>
         public static Call[] GenerateCalls(GoalAnalyzer ga, params Goal[] body)
-            => CanonicalizeGoals(body).Select(s => s.MakeCall(ga)).ToArray();
+        {
+            // Track dependencies on higher-order arguments
+            foreach (var g in body)
+                foreach (var a in g.Arguments)
+                    if (a is IConstant c)
+                    {
+                        switch (c.ValueUntyped)
+                        {
+                            case Goal gArg:
+                                if (gArg.Predicate is TablePredicate p)
+                                    ga.AddDependency(p);
+                                break;
+
+                            case TablePredicate p2:
+                                ga.AddDependency(p2);
+                                break;
+                        }
+                    }
+
+            return CanonicalizeGoals(body).Select(s => s.MakeCall(ga)).ToArray();
+        }
 
         public static (T, Call[]) GenerateCalls<T>(GoalAnalyzer ga, T head, Goal[] body) where T : TableGoal
         {
             var (_, hoistedHead, hoistedEvals) = HoistedVersion(head);
-            var calls = CanonicalizeGoals(body.Concat(hoistedEvals)).Select(s => s.MakeCall(ga)).ToArray();
+            var calls = GenerateCalls(ga, CanonicalizeGoals(body.Concat(hoistedEvals)).ToArray());
             return ((T)hoistedHead, calls);
         }
 
