@@ -32,6 +32,13 @@ namespace TED.Interpreter
         public abstract void If(params Goal[] subgoals);
 
         /// <summary>
+        /// Synonym for If().  This reads better on Table.Initially.Where(...) declarations
+        /// than .If(...)
+        /// </summary>
+        /// <param name="subgoals"></param>
+        public void Where(params Goal[] subgoals) => If(subgoals);
+
+        /// <summary>
         /// Add a "fact" (rule with no subgoals) to the predicate
         /// IMPORTANT: this is different from adding the data directly using AddRow!
         /// A TablePredicate can either either rules (including facts) or you can add data manually

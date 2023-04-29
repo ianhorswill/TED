@@ -33,12 +33,12 @@ namespace TED.Utilities
 
             var baseTableClusters = new Dictionary<TablePredicate, GraphViz<TablePredicate>.Cluster>();
 
-            GraphViz<TablePredicate>.Cluster ClusterOfBaseTable(TablePredicate p)
+            GraphViz<TablePredicate>.Cluster ClusterOfBaseTable(TablePredicate p2)
             {
-                if (baseTableClusters.TryGetValue(p, out var c))
+                if (baseTableClusters.TryGetValue(p2, out var c))
                     return c;
-                c = g.MakeCluster(p.Name, baseTables);
-                baseTableClusters[p] = c;
+                c = g.MakeCluster(p2.Name, baseTables);
+                baseTableClusters[p2] = c;
                 return c;
             }
 
@@ -64,6 +64,11 @@ namespace TED.Utilities
             return p.Name;
         }
 
+        private static readonly Dictionary<string, object> InitialValueEdgeAttributes = new Dictionary<string, object>()
+        {
+            { "color", "blue" }
+        };
+
         private static readonly Dictionary<string, object> InputEdgeAttributes = new Dictionary<string, object>()
         {
             { "color", "green" }
@@ -81,7 +86,12 @@ namespace TED.Utilities
                 : p.Rules
                     .SelectMany(r => r.Dependencies)
                     .Select(dep => new GraphViz<TablePredicate>.Edge(dep, p));
-            var inputs = p.Inputs.Select(i => new GraphViz<TablePredicate>.Edge(i, p, true, null, InputEdgeAttributes)).ToArray();
+            var inputs = p.Inputs.Select(i => new GraphViz<TablePredicate>.Edge(i, p, true, null, InputEdgeAttributes));
+            if (p.InitialValueTable != null)
+            {
+                inputs = inputs.Append(
+                    new GraphViz<TablePredicate>.Edge(p.InitialValueTable, p, true, null, InitialValueEdgeAttributes));
+            }
             var setters = p.ColumnUpdateTables.Select(s => new GraphViz<TablePredicate>.Edge(s, p, true, null, SetEdgeAttributes)).ToArray();
             return dependencies.Concat(inputs).Concat(setters);
         }

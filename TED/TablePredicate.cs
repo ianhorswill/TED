@@ -231,6 +231,8 @@ namespace TED
         // ReSharper disable once UnusedMember.Global
         public bool IsExtensional => Rules == null;
 
+        internal abstract void AddInitialData();
+
         /// <summary>
         /// Remove all data from the predicate's table
         /// </summary>
@@ -348,6 +350,12 @@ namespace TED
         /// Table predicates that this table predicate accumulates, if any.
         /// </summary>
         public abstract IEnumerable<TablePredicate> Inputs { get; }
+
+        /// <summary>
+        /// The table that provides initial values to this table, if any.
+        /// This is untyped, so you probably want to be using Initially instead.
+        /// </summary>
+        public abstract TablePredicate? InitialValueTable { get; }
 
         /// <summary>
         /// If you put a predicate in a rule body without arguments, it defaults to the rule's "default" arguments.
@@ -529,6 +537,13 @@ namespace TED
         }
 
         /// <summary>
+        /// Add a rule to the predicate, using its default arguments as the head
+        /// </summary>
+        /// <param name="body">Antecedents for the rule</param>
+        /// <returns>The original predicate (so these can be chained)</returns>
+        public TablePredicate<T1> Where(params Goal[] body) => If(body);
+
+        /// <summary>
         /// Make a new table predicate with the specified name
         /// </summary>
         /// <param name="name">Name of the predicate</param>
@@ -672,6 +687,35 @@ namespace TED
 
                 return addPredicate;
             }
+        }
+
+        private TablePredicate<T1>? initialValueTable;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1> Initially
+        {
+            get
+            {
+                if (initialValueTable == null)
+                {
+                    initialValueTable = new TablePredicate<T1>(Name + "__initially", (Var<T1>)DefaultVariables[0]);
+                    initialValueTable.Property[UpdaterFor] = this;
+                    initialValueTable.Property[VisualizerName] = "Initially";
+                }
+
+                return initialValueTable;
+            }
+        }
+
+        /// <inheritdoc />
+        public override TablePredicate? InitialValueTable => initialValueTable;
+
+        internal override void AddInitialData()
+        {
+            if (initialValueTable != null)
+                Append(initialValueTable);
         }
 
         internal override void AppendInputs()
@@ -846,6 +890,13 @@ namespace TED
             AddRule(body);
             return this;
         }
+
+        /// <summary>
+        /// Add a rule to the predicate, using its default arguments as the head
+        /// </summary>
+        /// <param name="body">Antecedents for the rule</param>
+        /// <returns>The original predicate (so these can be chained)</returns>
+        public TablePredicate<T1,T2> Where(params Goal[] body) => If(body);
         
         private List<TablePredicate<T1, T2>>? inputs;
 
@@ -885,6 +936,36 @@ namespace TED
 
                 return addPredicate;
             }
+        }
+
+        private TablePredicate<T1,T2>? initialValueTable;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1,T2> Initially
+        {
+            get
+            {
+                if (initialValueTable == null)
+                {
+                    initialValueTable = new TablePredicate<T1,T2>(Name + "__initially",
+                        (Var<T1>)DefaultVariables[0], (Var<T2>)DefaultVariables[1]);
+                    initialValueTable.Property[UpdaterFor] = this;
+                    initialValueTable.Property[VisualizerName] = "Initially";
+                }
+
+                return initialValueTable;
+            }
+        }
+        
+        /// <inheritdoc />
+        public override TablePredicate? InitialValueTable => initialValueTable;
+
+        internal override void AddInitialData()
+        {
+            if (initialValueTable != null)
+                Append(initialValueTable);
         }
 
         internal override void AppendInputs()
@@ -1158,6 +1239,13 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Add a rule to the predicate, using its default arguments as the head
+        /// </summary>
+        /// <param name="body">Antecedents for the rule</param>
+        /// <returns>The original predicate (so these can be chained)</returns>
+        public TablePredicate<T1,T2,T3> Where(params Goal[] body) => If(body);
+
         private List<TablePredicate<T1, T2, T3>>? inputs;
 
         /// <inheritdoc />
@@ -1197,6 +1285,36 @@ namespace TED
 
                 return addPredicate;
             }
+        }
+
+        private TablePredicate<T1,T2,T3>? initialValueTable;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1,T2,T3> Initially
+        {
+            get
+            {
+                if (initialValueTable == null)
+                {
+                    initialValueTable = new TablePredicate<T1,T2,T3>(Name + "__initially", 
+                        (Var<T1>)DefaultVariables[0], (Var<T2>)DefaultVariables[1], (Var<T3>)DefaultVariables[2]);
+                    initialValueTable.Property[UpdaterFor] = this;
+                    initialValueTable.Property[VisualizerName] = "Initially";
+                }
+
+                return initialValueTable;
+            }
+        }
+        
+        /// <inheritdoc />
+        public override TablePredicate? InitialValueTable => initialValueTable;
+        
+        internal override void AddInitialData()
+        {
+            if (initialValueTable != null)
+                Append(initialValueTable);
         }
 
         internal override void AppendInputs()
@@ -1453,6 +1571,14 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Add a rule to the predicate, using its default arguments as the head
+        /// </summary>
+        /// <param name="body">Antecedents for the rule</param>
+        /// <returns>The original predicate (so these can be chained)</returns>
+        public TablePredicate<T1,T2,T3,T4> Where(params Goal[] body) => If(body);
+
+
         private List<TablePredicate<T1, T2, T3, T4>>? inputs;
 
         /// <inheritdoc />
@@ -1493,6 +1619,36 @@ namespace TED
 
                 return addPredicate;
             }
+        }
+
+        private TablePredicate<T1,T2,T3,T4>? initialValueTable;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1,T2,T3,T4> Initially
+        {
+            get
+            {
+                if (initialValueTable == null)
+                {
+                    initialValueTable = new TablePredicate<T1,T2,T3,T4>(Name + "__initially", 
+                        (Var<T1>)DefaultVariables[0], (Var<T2>)DefaultVariables[1], (Var<T3>)DefaultVariables[2], (Var<T4>)DefaultVariables[3]);
+                    initialValueTable.Property[UpdaterFor] = this;
+                    initialValueTable.Property[VisualizerName] = "Initially";
+                }
+
+                return initialValueTable;
+            }
+        }
+        
+        /// <inheritdoc />
+        public override TablePredicate? InitialValueTable => initialValueTable;
+
+        internal override void AddInitialData()
+        {
+            if (initialValueTable != null)
+                Append(initialValueTable);
         }
 
         internal override void AppendInputs()
@@ -1762,6 +1918,14 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Add a rule to the predicate, using its default arguments as the head
+        /// </summary>
+        /// <param name="body">Antecedents for the rule</param>
+        /// <returns>The original predicate (so these can be chained)</returns>
+        public TablePredicate<T1,T2,T3,T4,T5> Where(params Goal[] body) => If(body);
+
+
         private List<TablePredicate<T1, T2, T3, T4, T5>>? inputs;
 
         /// <inheritdoc />
@@ -1803,6 +1967,37 @@ namespace TED
 
                 return addPredicate;
             }
+        }
+
+        private TablePredicate<T1,T2,T3,T4,T5>? initialValueTable;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1,T2,T3,T4,T5> Initially
+        {
+            get
+            {
+                if (initialValueTable == null)
+                {
+                    initialValueTable = new TablePredicate<T1,T2,T3,T4,T5>(Name + "__initially", 
+                        (Var<T1>)DefaultVariables[0], (Var<T2>)DefaultVariables[1], (Var<T3>)DefaultVariables[2], 
+                        (Var<T4>)DefaultVariables[3], (Var<T5>)DefaultVariables[4]);
+                    initialValueTable.Property[UpdaterFor] = this;
+                    initialValueTable.Property[VisualizerName] = "Initially";
+                }
+
+                return initialValueTable;
+            }
+        }
+        
+        /// <inheritdoc />
+        public override TablePredicate? InitialValueTable => initialValueTable;
+
+        internal override void AddInitialData()
+        {
+            if (initialValueTable != null)
+                Append(initialValueTable);
         }
 
         internal override void AppendInputs()
@@ -2084,6 +2279,13 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Add a rule to the predicate, using its default arguments as the head
+        /// </summary>
+        /// <param name="body">Antecedents for the rule</param>
+        /// <returns>The original predicate (so these can be chained)</returns>
+        public TablePredicate<T1,T2,T3,T4,T5,T6> Where(params Goal[] body) => If(body);
+        
         private List<TablePredicate<T1, T2, T3, T4, T5, T6>>? inputs;
 
         /// <inheritdoc />
@@ -2126,6 +2328,37 @@ namespace TED
 
                 return addPredicate;
             }
+        }
+
+        private TablePredicate<T1,T2,T3,T4,T5,T6>? initialValueTable;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1,T2,T3,T4,T5,T6> Initially
+        {
+            get
+            {
+                if (initialValueTable == null)
+                {
+                    initialValueTable = new TablePredicate<T1,T2,T3,T4,T5,T6>(Name + "__initially", 
+                        (Var<T1>)DefaultVariables[0], (Var<T2>)DefaultVariables[1], (Var<T3>)DefaultVariables[2], 
+                        (Var<T4>)DefaultVariables[3], (Var<T5>)DefaultVariables[4], (Var<T6>)DefaultVariables[5]);
+                    initialValueTable.Property[UpdaterFor] = this;
+                    initialValueTable.Property[VisualizerName] = "Initially";
+                }
+
+                return initialValueTable;
+            }
+        }
+        
+        /// <inheritdoc />
+        public override TablePredicate? InitialValueTable => initialValueTable;
+
+        internal override void AddInitialData()
+        {
+            if (initialValueTable != null)
+                Append(initialValueTable);
         }
 
         internal override void AppendInputs()
@@ -2403,6 +2636,13 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Add a rule to the predicate, using its default arguments as the head
+        /// </summary>
+        /// <param name="body">Antecedents for the rule</param>
+        /// <returns>The original predicate (so these can be chained)</returns>
+        public TablePredicate<T1,T2,T3,T4,T5,T6,T7> Where(params Goal[] body) => If(body);
+
         private List<TablePredicate<T1, T2, T3, T4, T5, T6, T7>>? inputs;
 
         /// <inheritdoc />
@@ -2446,6 +2686,38 @@ namespace TED
 
                 return addPredicate;
             }
+        }
+
+        private TablePredicate<T1,T2,T3,T4,T5,T6,T7>? initialValueTable;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1,T2,T3,T4,T5,T6,T7> Initially
+        {
+            get
+            {
+                if (initialValueTable == null)
+                {
+                    initialValueTable = new TablePredicate<T1,T2,T3,T4,T5,T6,T7>(Name + "__initially", 
+                        (Var<T1>)DefaultVariables[0], (Var<T2>)DefaultVariables[1], (Var<T3>)DefaultVariables[2], 
+                        (Var<T4>)DefaultVariables[3], (Var<T5>)DefaultVariables[4], (Var<T6>)DefaultVariables[5], 
+                        (Var<T7>)DefaultVariables[6]);
+                    initialValueTable.Property[UpdaterFor] = this;
+                    initialValueTable.Property[VisualizerName] = "Initially";
+                }
+
+                return initialValueTable;
+            }
+        }
+        
+        /// <inheritdoc />
+        public override TablePredicate? InitialValueTable => initialValueTable;
+
+        internal override void AddInitialData()
+        {
+            if (initialValueTable != null)
+                Append(initialValueTable);
         }
 
         internal override void AppendInputs() {
@@ -2730,6 +3002,13 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Add a rule to the predicate, using its default arguments as the head
+        /// </summary>
+        /// <param name="body">Antecedents for the rule</param>
+        /// <returns>The original predicate (so these can be chained)</returns>
+        public TablePredicate<T1,T2,T3,T4,T5,T6,T7,T8> Where(params Goal[] body) => If(body);
+
         private List<TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>>? inputs;
 
         /// <inheritdoc />
@@ -2773,6 +3052,38 @@ namespace TED
 
                 return addPredicate;
             }
+        }
+
+        private TablePredicate<T1,T2,T3,T4,T5,T6,T7,T8>? initialValueTable;
+
+        /// <summary>
+        /// A predicate that is automatically appended to this predicate on every update.
+        /// </summary>
+        public TablePredicate<T1,T2,T3,T4,T5,T6,T7,T8> Initially
+        {
+            get
+            {
+                if (initialValueTable == null)
+                {
+                    initialValueTable = new TablePredicate<T1,T2,T3,T4,T5,T6,T7,T8>(Name + "__initially", 
+                        (Var<T1>)DefaultVariables[0], (Var<T2>)DefaultVariables[1], (Var<T3>)DefaultVariables[2], 
+                        (Var<T4>)DefaultVariables[3], (Var<T5>)DefaultVariables[4], (Var<T6>)DefaultVariables[5], 
+                        (Var<T7>)DefaultVariables[6], (Var<T8>)DefaultVariables[7]);
+                    initialValueTable.Property[UpdaterFor] = this;
+                    initialValueTable.Property[VisualizerName] = "Initially";
+                }
+
+                return initialValueTable;
+            }
+        }
+        
+        /// <inheritdoc />
+        public override TablePredicate? InitialValueTable => initialValueTable;
+
+        internal override void AddInitialData()
+        {
+            if (initialValueTable != null)
+                Append(initialValueTable);
         }
 
         internal override void AppendInputs() {

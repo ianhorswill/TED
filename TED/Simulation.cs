@@ -16,6 +16,7 @@ namespace TED
         public Simulation(string name) : base(name)
         { }
 
+        /// <inheritdoc />
         public override void EndPredicates()
         {
             base.EndPredicates();
@@ -28,9 +29,10 @@ namespace TED
         {
             foreach (var t in Tables)
                 if (t.IsStatic)
-                {
                     t.EnsureUpToDate();
-                }
+
+            foreach (var t in Tables)
+                t.AddInitialData();
         }
 
         private void CheckTableDefinitions()
@@ -45,7 +47,10 @@ namespace TED
                 }
         }
 
-        public TablePredicate[] DynamicTables;
+        /// <summary>
+        /// The tables in the simulation that vary from tick to tick
+        /// </summary>
+        public TablePredicate[] DynamicTables = Array.Empty<TablePredicate>();
 
         private void FindDynamicPredicates()
         {
