@@ -91,6 +91,8 @@ namespace TED.Utilities
             var attributes = new Dictionary<string, object>();
             if (p.IsExtensional)
                 attributes["fillcolor"] = "greenyellow";
+            if (p.IsStatic)
+                attributes["shape"] = "diamond";
 
             return attributes;
         }

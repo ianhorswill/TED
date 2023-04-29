@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace TED
@@ -15,7 +16,59 @@ namespace TED
         public Simulation(string name) : base(name)
         { }
 
-        #if PROFILER
+        public override void EndPredicates()
+        {
+            base.EndPredicates();
+            CheckTableDefinitions();
+            FindDynamicPredicates();
+            InitializeTables();
+        }
+
+        private void InitializeTables()
+        {
+            foreach (var t in Tables)
+                if (t.IsStatic)
+                {
+                    t.EnsureUpToDate();
+                }
+        }
+
+        private void CheckTableDefinitions()
+        {
+            foreach (var t in Tables)
+                if (t.IsIntensional)
+                {
+                    if (t.Inputs.Any())
+                        throw new InvalidProgramException($"Predicate {t.Name} has both rules and inputs.");
+                    if (t.ColumnUpdateTables.Any())
+                        throw new InvalidOperationException($"Table {t.Name} has both rules and Set() rules.");
+                }
+        }
+
+        public TablePredicate[] DynamicTables;
+
+        private void FindDynamicPredicates()
+        {
+            foreach (var t in Tables)
+                t.IsDynamic = false;
+
+            void MarkDynamic(TablePredicate p)
+            {
+                if (p.IsDynamic)
+                    return;
+                p.IsDynamic = true;
+                foreach (var d in p.Dependents)
+                    MarkDynamic(d);
+            }
+
+            foreach (var t in Tables)
+                foreach (var d in t.ImperativeDependencies)
+                    MarkDynamic(d);
+
+            DynamicTables = Tables.Where(t => t.IsDynamic).ToArray();
+        }
+
+#if PROFILER
         /// <summary>
         /// Average combined execution time for all the rules in the simulation
         /// </summary>
@@ -32,7 +85,7 @@ namespace TED
         public void Update()
         {
             RecomputeAll();
-            UpdateTableColumns();
+            UpdateDynamicBaseTables();
             AppendAllInputs();
         }
 
@@ -41,7 +94,7 @@ namespace TED
         /// </summary>
         public void RecomputeAll()
         {
-            foreach (var p in Tables)
+            foreach (var p in DynamicTables)
                 if (p.IsIntensional)
                     p.MustRecompute = true;
             foreach (var p in Tables)
@@ -51,10 +104,11 @@ namespace TED
         /// <summary>
         /// Run any column updates defined using the Set() method.
         /// </summary>
-        public void UpdateTableColumns()
+        public void UpdateDynamicBaseTables()
         {
-            foreach (var p in Tables)
-                p.UpdateColumns();
+            foreach (var p in DynamicTables)
+                if (p.IsExtensional)
+                    p.UpdateColumns();
         }
 
         /// <summary>
@@ -62,8 +116,9 @@ namespace TED
         /// </summary>
         public void AppendAllInputs()
         {
-            foreach (var p in Tables)
-                p.AppendInputs();
+            foreach (var p in DynamicTables)
+                if (p.IsExtensional)
+                    p.AppendInputs();
         }
     }
 }

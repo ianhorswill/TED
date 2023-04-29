@@ -86,6 +86,11 @@ namespace TED
         /// </summary>
         public bool IsDynamic { get; internal set; }
 
+        /// <summary>
+        /// True if this table doesn't change during a simulation.
+        /// </summary>
+        public bool IsStatic => !IsDynamic;
+
         internal abstract Table TableUntyped { get; }
 
         /// <summary>
