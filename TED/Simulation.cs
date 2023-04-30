@@ -20,8 +20,8 @@ namespace TED
         public override void EndPredicates()
         {
             base.EndPredicates();
-            CheckTableDefinitions();
             FindDynamicPredicates();
+            CheckTableDefinitions();
             InitializeTables();
         }
 
@@ -43,7 +43,13 @@ namespace TED
                     if (t.Inputs.Any())
                         throw new InvalidProgramException($"Predicate {t.Name} has both rules and inputs.");
                     if (t.ColumnUpdateTables.Any())
-                        throw new InvalidOperationException($"Table {t.Name} has both rules and Set() rules.");
+                        throw new InvalidProgramException($"Table {t.Name} has both rules and Set() rules.");
+                    if (t.InitialValueTable != null)
+                        foreach (var d in t.InitialValueTable.RuleDependencies)
+                            if (d.IsDynamic)
+                                throw new InvalidProgramException(
+                                    $"The Initially rules for {t.Name} depend on {d.Name}, which is a dynamic table.");
+
                 }
         }
 
