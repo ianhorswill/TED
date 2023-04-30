@@ -931,7 +931,7 @@ namespace TED
                         (Var<T2>)DefaultVariables[1]);
                     Accumulates(addPredicate);
                     addPredicate.Property[UpdaterFor] = this;
-                    addPredicate.Property[VisualizerName] = "Input";
+                    addPredicate.Property[VisualizerName] = "Add";
                 }
 
                 return addPredicate;
@@ -1280,7 +1280,7 @@ namespace TED
                         (Var<T3>)DefaultVariables[2]);
                     Accumulates(addPredicate);
                     addPredicate.Property[UpdaterFor] = this;
-                    addPredicate.Property[VisualizerName] = "Input";
+                    addPredicate.Property[VisualizerName] = "Add";
                 }
 
                 return addPredicate;
@@ -1614,7 +1614,7 @@ namespace TED
                         (Var<T4>)DefaultVariables[3]);
                     Accumulates(addPredicate);
                     addPredicate.Property[UpdaterFor] = this;
-                    addPredicate.Property[VisualizerName] = "Input";
+                    addPredicate.Property[VisualizerName] = "Add";
                 }
 
                 return addPredicate;
@@ -1962,7 +1962,7 @@ namespace TED
                         (Var<T5>)DefaultVariables[4]);
                     Accumulates(addPredicate);
                     addPredicate.Property[UpdaterFor] = this;
-                    addPredicate.Property[VisualizerName] = "Input";
+                    addPredicate.Property[VisualizerName] = "Add";
                 }
 
                 return addPredicate;
@@ -2323,7 +2323,7 @@ namespace TED
                         (Var<T6>)DefaultVariables[5]);
                     Accumulates(addPredicate);
                     addPredicate.Property[UpdaterFor] = this;
-                    addPredicate.Property[VisualizerName] = "Input";
+                    addPredicate.Property[VisualizerName] = "Add";
                 }
 
                 return addPredicate;
@@ -2681,7 +2681,7 @@ namespace TED
                         (Var<T7>)DefaultVariables[6]);
                     Accumulates(addPredicate);
                     addPredicate.Property[UpdaterFor] = this;
-                    addPredicate.Property[VisualizerName] = "Input";
+                    addPredicate.Property[VisualizerName] = "Add";
                 }
 
                 return addPredicate;
@@ -3047,7 +3047,7 @@ namespace TED
                         (Var<T8>)DefaultVariables[7]);
                     Accumulates(addPredicate);
                     addPredicate.Property[UpdaterFor] = this;
-                    addPredicate.Property[VisualizerName] = "Input";
+                    addPredicate.Property[VisualizerName] = "Add";
                 }
 
                 return addPredicate;

@@ -54,12 +54,11 @@ namespace TED
         /// This drops the caller into the underlying C# debugger
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly PrimitiveTest<object> BreakPoint = new PrimitiveTest<object>(nameof(BreakPoint),
-            arg =>
-            {
+        public static Goal BreakPoint<T>(Term<T> arg) => new PrimitiveTest<T>(nameof(BreakPoint),
+            argValue => {
                 Debugger.Break();
                 return true;
-            });
+            })[arg];
 
         /// <summary>
         /// Matches output against a random element of the table.
