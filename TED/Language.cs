@@ -553,6 +553,21 @@ namespace TED
 
         #region Predicate declaration sugar
         /// <summary>
+        /// Make a function that returns predicate.Length
+        /// </summary>
+        /// <param name="name">Name of the Function, for debugging purposes</param>
+        /// <param name="predicate">Table to get the Length of</param>
+        /// <returns></returns>
+        public static Function<uint> Length(string name, TablePredicate predicate) => Function(name, () => predicate.Length);
+        /// <summary>
+        /// Make a function that returns predicate.Length as an int
+        /// </summary>
+        /// <param name="name">Name of the Function, for debugging purposes</param>
+        /// <param name="predicate">Table to get the Length of</param>
+        /// <returns></returns>
+        public static Function<int> IntLength(string name, TablePredicate predicate) => Function(name, () => (int)predicate.Length);
+
+        /// <summary>
         /// Make a new table predicate
         /// </summary>
         /// <typeparam name="T1">Type of the first argument to the predicate</typeparam>
