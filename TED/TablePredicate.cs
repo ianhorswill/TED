@@ -478,6 +478,9 @@ namespace TED
             OnUpdateColumns?.Invoke();
         }
 
+        /// <inheritdoc />
+        public override string ToString() => Name;
+
         #region Meta-data
         /// <summary>
         /// Property list for meta-data.
