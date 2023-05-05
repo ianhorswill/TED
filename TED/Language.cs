@@ -546,6 +546,8 @@ namespace TED
 
         #endregion
 
+        public static Placeholder __ => Placeholder.Singleton;
+
         /// <summary>
         /// Coerces a C# constant to a Constant Term for times when C#'s type inference isn't smart enough to figure it out.
         /// </summary>
