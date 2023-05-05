@@ -467,7 +467,7 @@ namespace TED
         /// <summary>
         /// Sets the conditions for resetting the specified column to the specified value
         /// </summary>
-        public TableGoal Set<TKey, TColumn>(Var<TKey> key, Var<TColumn> column, TColumn value)
+        public TableGoal Set<TKey, TColumn>(Var<TKey> key, Var<TColumn> column, Term<TColumn> value)
             => Set(key, column)[key, value];
 
         /// <summary>
