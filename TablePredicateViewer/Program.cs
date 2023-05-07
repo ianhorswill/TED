@@ -30,6 +30,7 @@ namespace TablePredicateViewer
             var name = (Var<string>)"name";
             var sex = (Var<string>)"sex";
             var age = (Var<int>)"age";
+            var older = (Var<int>)"older";
             var woman = (Var<string>)"woman";
             var man = (Var<string>)"man";
             var mother = (Var<string>)"mother";
@@ -40,32 +41,33 @@ namespace TablePredicateViewer
 
             // Predicates loaded from disk
             var PrimordialPerson = TablePredicate<string, string, int>
-                .FromCsv("../../../Population.csv", person.Key, sex.Indexed, age);
+                .FromCsv("../../../PrimordialPerson.csv", person, sex, age);
             var Person = Predicate("Person", person.Key, sex.Indexed, age, mother, father, status.Indexed);
             Person.Initially[person, sex, age, "God", "God", Status.Alive].Where(PrimordialPerson[person, sex, age]);
-            var MaleName = TablePredicate<string>.FromCsv("../../../male_name.csv", name);
-            var FemaleName = TablePredicate<string>.FromCsv("../../../female_name.csv", name);
+            var MaleName = TablePredicate<string>.FromCsv("../../../MaleName.csv", name);
+            var FemaleName = TablePredicate<string>.FromCsv("../../../FemaleName.csv", name);
 
             // Death
-            var Dead = Definition("Dead", person).Is(Person[person, sex, age, mother, father, Status.Dead]);
-            var Alive = Definition("Alive", person).Is(Person[person, sex, age, mother, father, Status.Alive]);
+            var Dead = Definition("Dead", person).Is(Person[person, __, __, __, __, Status.Dead]);
+            var Alive = Definition("Alive", person).Is(Person[person, __, __, __, __, Status.Alive]);
 
             //var Died = Predicate("Died", person).If(Person, Prob[0.01f], Alive[person]);
+            Person.Set(person, age, age+1).If(Person[person, __, age, __, __, Status.Alive]);
             Person.Set(person, status, Status.Dead).If(Alive[person], Prob[0.01f]);
 
             // Birth
-            var Man = Predicate("Man", person).If(Person[person, "m", age, mother, father, Status.Alive], age > 18);
-            var Woman = Predicate("Woman", person).If(Person[person, "f", age, mother, father, Status.Alive], age > 18);
+            var Man = Predicate("Man", person).If(Person[person, "m", age, __, __, Status.Alive], age > 18);
+            var Woman = Predicate("Woman", person).If(Person[person, "f", age, __, __, Status.Alive], age > 18);
             var BirthTo = Predicate("BirthTo", woman, man, sex)
                     .If(Woman[woman], Prob[0.1f], RandomElement(Man, man), PickRandomly(sex, "f", "m"));
 
-            // Naming of newborns
-            var NewBorn = Predicate("NewBorn", person, sex, age, mother, father, status);
-            NewBorn[person, "f", 0, woman, man, Status.Alive].If(BirthTo[man, woman, "f"], RandomElement(FemaleName, person));
-            NewBorn[person, "m", 0, woman, man, Status.Alive].If(BirthTo[man, woman, "m"], RandomElement(MaleName, person));
+            Person.Add[person, "f", 0, woman, man, Status.Alive]
+                .If(BirthTo[man, woman, "f"], RandomElement(FemaleName, person));
+            Person.Add[person, "m", 0, woman, man, Status.Alive]
+                .If(BirthTo[man, woman, "m"], RandomElement(MaleName, person));
 
             // Add births to the population
-            Person.Accumulates(NewBorn);
+
             // ReSharper restore InconsistentNaming
             Simulation.EndPredicates();
 
@@ -99,14 +101,13 @@ namespace TablePredicateViewer
             timer.Interval = 100;
             timer.Start();
 
-            PredicateViewer.ShowPredicates(Person, BirthTo, NewBorn, Woman);
+            PredicateViewer.ShowPredicates(Person, BirthTo, Woman);
             TED.Utilities.DataflowVisualizer.MakeGraph(Simulation, "Dataflow.dot");
             Application.Run(PredicateViewer.Of(Person));
         }
 
         private static void UpdateCycle(TablePredicate<string, string, int, string, string, Status> person)
         {
-            person.UpdateRows((ref (string name, string sex, int age, string mother, string father, Status status) row) => row.age++);
             Simulation.Update();
             PredicateViewer.UpdateAll();
         }

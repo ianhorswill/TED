@@ -75,6 +75,8 @@ namespace TED
         /// <param name="func"></param>
         public static implicit operator Term<T>(Function<T> func) => func.Call();
 
+        public static implicit operator Term<T>(Placeholder _) => new Var<T>($"_{typeof(T).Name}");
+
         internal abstract Func<T> MakeEvaluator(GoalAnalyzer ga);
 
         internal abstract Term<T> ApplySubstitution(Substitution s);
