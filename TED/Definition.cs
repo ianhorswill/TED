@@ -91,7 +91,7 @@ namespace TED
             }
 
             /// <summary>
-            /// Add a new to the definition
+            /// Add a new goal to the definition rules
             /// </summary>
             /// <param name="body"></param>
             public void If(params Goal[] body) => Definition.AddRule(this, CanonicalizeGoals(body).ToArray());
@@ -198,8 +198,14 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Default argument If
+        /// </summary>
+        /// <param name="body"></param>
+        public void If(params Interpreter.Goal[] body) => this[Arg1].If(body);
+
         /// <inheritdoc />
-        public sealed class Goal : DefinitionGoal
+    public sealed class Goal : DefinitionGoal
         {
             private readonly Term<T1> arg1;
 
@@ -268,6 +274,13 @@ namespace TED
             Body = CanonicalizeGoals(body).ToArray();
             return this;
         }
+
+
+        /// <summary>
+        /// Default argument If
+        /// </summary>
+        /// <param name="body"></param>
+        public void If(params Interpreter.Goal[] body) => this[Arg1, Arg2].If(body);
 
         /// <summary>
         /// Make a call to the predicate.  Since this is a definition, it will be inlined in the rule it's contained in.
@@ -360,6 +373,13 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Default argument If
+        /// </summary>
+        /// <param name="body"></param>
+        public void If(params Interpreter.Goal[] body) => this[Arg1, Arg2, Arg3].If(body);
+
+        /// <inheritdoc />
         public class Goal : DefinitionGoal
         {
             /// <summary>
@@ -459,6 +479,13 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Default argument If
+        /// </summary>
+        /// <param name="body"></param>
+        public void If(params Interpreter.Goal[] body) => this[Arg1, Arg2, Arg3, Arg4].If(body);
+        
+        /// <inheritdoc />
         public class Goal : DefinitionGoal
         {
             /// <summary>
@@ -573,6 +600,13 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Default argument If
+        /// </summary>
+        /// <param name="body"></param>
+        public void If(params Interpreter.Goal[] body) => this[Arg1, Arg2, Arg3, Arg4, Arg5].If(body);
+
+        /// <inheritdoc />
         public class Goal : DefinitionGoal
         {
             /// <summary>
@@ -692,6 +726,13 @@ namespace TED
             return this;
         }
 
+        /// <summary>
+        /// Default argument If
+        /// </summary>
+        /// <param name="body"></param>
+        public void If(params Interpreter.Goal[] body) => this[Arg1, Arg2, Arg3, Arg4, Arg5, Arg6].If(body);
+
+        /// <inheritdoc />
         public class Goal : DefinitionGoal
         {
             /// <summary>
