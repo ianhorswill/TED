@@ -68,39 +68,62 @@ namespace TED.Utilities
             AddOperatorImplementation(typeof(int), "op_UnaryNegation", (Func<int, int>)IntUnaryNegation);
 
             // Float type
+            AddOperatorImplementation(typeof(float), "op_LessThan", (Func<float, float, bool>)FloatLessThan);
+            AddOperatorImplementation(typeof(float), "op_LessThanOrEqual", (Func<float, float, bool>)FloatLessThanEqual);
+            AddOperatorImplementation(typeof(float), "op_GreaterThan", (Func<float, float, bool>)FloatGreaterThan);
+            AddOperatorImplementation(typeof(float), "op_GreaterThanOrEqual", (Func<float, float, bool>)FloatGreaterThanEqual);
+            // float equality is a bit trickier, usually using some delta...
+
             AddOperatorImplementation(typeof(float), "op_Addition", (Func<float, float, float>)FloatAddition);
             AddOperatorImplementation(typeof(float), "op_Subtraction", (Func<float, float, float>)FloatSubtraction);
             AddOperatorImplementation(typeof(float), "op_Multiply", (Func<float, float, float>)FloatMultiply);
             AddOperatorImplementation(typeof(float), "op_Division", (Func<float, float, float>)FloatDivision);
             AddOperatorImplementation(typeof(float), "op_Modulus", (Func<float, float, float>)FloatModulus);
             AddOperatorImplementation(typeof(float), "op_UnaryNegation", (Func<float, float>)FloatUnaryNegation);
+
+            // Sbyte type
+            AddOperatorImplementation(typeof(sbyte), "op_LessThan", (Func<sbyte, sbyte, bool>)SbyteLessThan);
+            AddOperatorImplementation(typeof(sbyte), "op_LessThanOrEqual", (Func<sbyte, sbyte, bool>)SbyteLessThanEqual);
+            AddOperatorImplementation(typeof(sbyte), "op_GreaterThan", (Func<sbyte, sbyte, bool>)SbyteGreaterThan);
+            AddOperatorImplementation(typeof(sbyte), "op_GreaterThanOrEqual", (Func<sbyte, sbyte, bool>)SbyteGreaterThanEqual);
+            AddOperatorImplementation(typeof(sbyte), "op_Equality", (Func<sbyte, sbyte, bool>)SbyteEquality);
+            AddOperatorImplementation(typeof(sbyte), "op_Inequality", (Func<sbyte, sbyte, bool>)SbyteInequality);
         }
 
-        static bool IntLessThan(int a, int b) => a < b;
-        static bool IntLessThanEqual(int a, int b) => a <= b;
-        static bool IntGreaterThan(int a, int b) => a > b;
-        static bool IntGreaterThanEqual(int a, int b) => a >= b;
-        static bool IntEquality(int a, int b) => a == b;
-        static bool IntInequality(int a, int b) => a != b;
+        // Ints
+        private static bool IntLessThan(int a, int b) => a < b;
+        private static bool IntLessThanEqual(int a, int b) => a <= b;
+        private static bool IntGreaterThan(int a, int b) => a > b;
+        private static bool IntGreaterThanEqual(int a, int b) => a >= b;
+        private static bool IntEquality(int a, int b) => a == b;
+        private static bool IntInequality(int a, int b) => a != b;
 
-
-
-        static int IntAddition(int a, int b) => a + b;
-        static int IntSubtraction(int a, int b) => a - b;
-        static int IntMultiply(int a, int b) => a * b;
-        static int IntDivision(int a, int b) => a / b;
-        static int IntModulus(int a, int b) => a % b;
-
-        static int IntUnaryNegation(int a) => -a;
+        private static int IntAddition(int a, int b) => a + b;
+        private static int IntSubtraction(int a, int b) => a - b;
+        private static int IntMultiply(int a, int b) => a * b;
+        private static int IntDivision(int a, int b) => a / b;
+        private static int IntModulus(int a, int b) => a % b;
+        private static int IntUnaryNegation(int a) => -a;
 
         // Floats
+        private static bool FloatLessThan(float a, float b) => a < b;
+        private static bool FloatLessThanEqual(float a, float b) => a <= b;
+        private static bool FloatGreaterThan(float a, float b) => a > b;
+        private static bool FloatGreaterThanEqual(float a, float b) => a >= b;
 
-        static float FloatAddition(float a, float b) => a + b;
-        static float FloatSubtraction(float a, float b) => a - b;
-        static float FloatMultiply(float a, float b) => a * b;
-        static float FloatDivision(float a, float b) => a / b;
-        static float FloatModulus(float a, float b) => a % b;
+        private static float FloatAddition(float a, float b) => a + b;
+        private static float FloatSubtraction(float a, float b) => a - b;
+        private static float FloatMultiply(float a, float b) => a * b;
+        private static float FloatDivision(float a, float b) => a / b;
+        private static float FloatModulus(float a, float b) => a % b;
+        private static float FloatUnaryNegation(float a) => -a;
 
-        static float FloatUnaryNegation(float a) => -a;
+        // Sbytes
+        private static bool SbyteLessThan(sbyte a, sbyte b) => a < b;
+        private static bool SbyteLessThanEqual(sbyte a, sbyte b) => a <= b;
+        private static bool SbyteGreaterThan(sbyte a, sbyte b) => a > b;
+        private static bool SbyteGreaterThanEqual(sbyte a, sbyte b) => a >= b;
+        private static bool SbyteEquality(sbyte a, sbyte b) => a == b;
+        private static bool SbyteInequality(sbyte a, sbyte b) => a != b;
     }
 }

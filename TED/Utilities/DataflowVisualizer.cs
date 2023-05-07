@@ -99,10 +99,18 @@ namespace TED.Utilities
         private static IEnumerable<KeyValuePair<string, object>> TableAttributes(TablePredicate p)
         {
             var attributes = new Dictionary<string, object>();
-            if (p.IsExtensional)
-                attributes["fillcolor"] = "greenyellow";
-            if (p.IsStatic)
+            
+            if (p.IsStatic) {
+                // static EBD == true static table (equivalent to Datalog EBD)
+                if (p.IsExtensional) attributes["fillcolor"] = "gold";
+                // static IBD == initially tables (and other static tables that are constructed via rules)
+                if (p.IsIntensional) attributes["fillcolor"] = "deepskyblue";
                 attributes["shape"] = "diamond";
+            } else if (p.IsExtensional)
+                // dynamic EBD == base tables (our custom EBD tables - allows init, accum, & set)
+                attributes["fillcolor"] = "limegreen";
+            // dynamic IDB == true dynamic table (equivalent to Datalog IBD),
+            //      these tables are fully recomputed each tick
 
             return attributes;
         }

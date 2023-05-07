@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using TED.Interpreter;
 using TED.Primitives;
@@ -74,6 +76,9 @@ namespace TED
         /// <param name="collection">Collection to check</param>
         public static Goal In<T>(Term<T> element, Term<ICollection<T>> collection) =>
             InPrimitive<T>.Singleton[element, collection];
+
+        //public static Goal In<T>(Term<T> element, TablePredicate<T> table) =>
+        //    In(element, table.ToList());
 
         /// <summary>
         /// Matches output against a randomly chosen element of choices using a uniform distribution.
@@ -1200,12 +1205,11 @@ namespace TED
             => new Definition<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
         #endregion
 
-        internal static Func<T> BuildSafeMemberAccess<T>(object target, string property) {
-            var typeProperty = target.GetType().GetProperty(property);
-            if (typeProperty is null)
-                throw new MemberAccessException($"{property} property not found for type {target.GetType()}");
-            return (Func<T>)Delegate.CreateDelegate(typeof(Func<T>), target, typeProperty.GetMethod);
-        }
+        internal static Func<T> BuildSafeMemberAccess<T>(object target, string property) => 
+            (Func<T>)Delegate.CreateDelegate(typeof(Func<T>), target, 
+                (target.GetType().GetProperty(property) ?? throw new MemberAccessException(
+                    $"{property} property not found for type {target.GetType()}")
+                ).GetMethod);
 
         #region PrimitiveTest declaration sugar
         /// <summary>
