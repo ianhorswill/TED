@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Xml.Linq;
 using TED.Interpreter;
 using TED.Primitives;
 using Random = TED.Utilities.Random;
@@ -551,6 +552,9 @@ namespace TED
 
         #endregion
 
+        /// <summary>
+        /// No name variable placeholder
+        /// </summary>
         public static Placeholder __ => Placeholder.Singleton;
 
         /// <summary>
@@ -1328,19 +1332,6 @@ namespace TED
 
         #region Function declaration sugar
         /// <summary>
-        /// Makes a function that can be placed in functional expressions
-        /// </summary>
-        /// <param name="name">Name, for debugging purposes</param>
-        /// <param name="fn">C# code implementing the function</param>
-        // ReSharper disable once UnusedMember.Global
-        public static Function<T> Function<T>(string name, Func<T> fn) => new Function<T>(name, fn);
-        /// <summary>
-        /// Makes a Function with the same name as the Func being passed in
-        /// </summary>
-        // ReSharper disable once UnusedMember.Global
-        public static Function<TIn> Method<TIn>(Func<TIn> fn) => new Function<TIn>(fn.Method.Name, fn);
-
-        /// <summary>
         /// Makes a Function where the Func T is built from a property on the given type
         /// </summary>
         // ReSharper disable once UnusedMember.Global
@@ -1353,6 +1344,19 @@ namespace TED
         // ReSharper disable once UnusedMember.Global
         public static Function<T> GetMember<T>(object type, string property) =>
             new Function<T>($"Get{property}", BuildSafeMemberAccess<T>(type, property));
+
+        /// <summary>
+        /// Makes a function that can be placed in functional expressions
+        /// </summary>
+        /// <param name="name">Name, for debugging purposes</param>
+        /// <param name="fn">C# code implementing the function</param>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<T> Function<T>(string name, Func<T> fn) => new Function<T>(name, fn);
+        /// <summary>
+        /// Makes a Function with the same name as the Func being passed in
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<TIn> Method<TIn>(Func<TIn> fn) => new Function<TIn>(fn.Method.Name, fn);
 
         /// <summary>
         /// Makes a function that can be placed in functional expressions
@@ -1443,7 +1447,428 @@ namespace TED
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(fn.Method.Name, fn);
-        
+
+        #endregion
+
+        #region Tuple Functions and Definitions
+        // ReSharper disable UnusedMember.Global
+
+        /// <summary>
+        /// Assigns the input variable to the result of calling func with input
+        /// </summary>
+        public static Goal AssignToVar<T1, T2>(Var<T2> var, Function<T1, T2> func, Term<T1> input) => var == func[input];
+
+        /// <summary>
+        /// Create a definition that assigns the variable var to the output of func with input as input
+        /// </summary>
+        public static Definition<T1, T2> AssignToVar<T1, T2>(Var<T2> var, Function<T1, T2> func, Var<T1> input, string name) => 
+            Definition(name, input, var).Is(AssignToVar(var, func, input));
+
+        private static string RowName(Predicate predicate) => $"{predicate.Name}Row";
+        private static string GetVar<T>(Var<T> var) => $"Get{var.Name}";
+        private static string VarFrom<T>(Var<T> var, Predicate predicate) => $"{GetVar(var)}From{predicate.Name}";
+
+        #region RowVariable
+        /// <summary>
+        /// Create a Var of type ValueTuple with the same types as those in the TablePredicate, using name
+        /// or predicate.Name + Row of name is left null
+        /// </summary>
+        public static Var<(T1, T2)> RowVariable<T1, T2>(TablePredicate<T1, T2> predicate, string? name = null) => 
+            new Var<(T1, T2)>(name ?? RowName(predicate));
+        /// <inheritdoc cref="RowVariable{T1,T2}"/>
+        public static Var<(T1, T2, T3)> RowVariable<T1, T2, T3>(
+            TablePredicate<T1, T2, T3> predicate, string? name = null) => 
+            new Var<(T1, T2, T3)>(name ?? RowName(predicate));
+        /// <inheritdoc cref="RowVariable{T1,T2}"/>
+        public static Var<(T1, T2, T3, T4)> RowVariable<T1, T2, T3, T4>(
+            TablePredicate<T1, T2, T3, T4> predicate, string? name = null) => 
+            new Var<(T1, T2, T3, T4)>(name ?? RowName(predicate));
+        /// <inheritdoc cref="RowVariable{T1,T2}"/>
+        public static Var<(T1, T2, T3, T4, T5)> RowVariable<T1, T2, T3, T4, T5>(
+            TablePredicate<T1, T2, T3, T4, T5> predicate, string? name = null) => 
+            new Var<(T1, T2, T3, T4, T5)>(name ?? RowName(predicate));
+        /// <inheritdoc cref="RowVariable{T1,T2}"/>
+        public static Var<(T1, T2, T3, T4, T5, T6)> RowVariable<T1, T2, T3, T4, T5, T6>(
+            TablePredicate<T1, T2, T3, T4, T5, T6> predicate, string? name = null) => 
+            new Var<(T1, T2, T3, T4, T5, T6)>(name ?? RowName(predicate));
+        /// <inheritdoc cref="RowVariable{T1,T2}"/>
+        public static Var<(T1, T2, T3, T4, T5, T6, T7)> RowVariable<T1, T2, T3, T4, T5, T6, T7>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, string? name = null) => 
+            new Var<(T1, T2, T3, T4, T5, T6, T7)>(name ?? RowName(predicate));
+        /// <inheritdoc cref="RowVariable{T1,T2}"/>
+        public static Var<(T1, T2, T3, T4, T5, T6, T7, T8)> RowVariable<T1, T2, T3, T4, T5, T6, T7, T8>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, string? name = null) => 
+            new Var<(T1, T2, T3, T4, T5, T6, T7, T8)>(name ?? RowName(predicate));
+        #endregion
+
+        #region Item1
+        // ***************************************** 2 column tables ****************************************
+        /// <summary>
+        /// Makes a function that gets `.Item#` from the passed in ValueTuple (where the tuple is the same
+        /// type as a row in predicate). Can be given better name than Item#
+        /// </summary>
+        public static Function<(T1, T2), T1> Item1<T1, T2>(TablePredicate<T1, T2> predicate, string name = "Item1") =>
+            Function<(T1, T2), T1>(name, row => row.Item1);
+        /// <summary>
+        /// Makes a Definition that assigns the value of the .Item# Function called on a row from the predicate to
+        /// the variable var. Uses default names for the Function, Row Variable, and Definition.
+        /// </summary>
+        public static Definition<(T1, T2), T1> Item1<T1, T2>(Var<T1> var, TablePredicate<T1, T2> predicate) =>
+            AssignToVar(var, Item1(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 3 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3), T1> Item1<T1, T2, T3>(
+            TablePredicate<T1, T2, T3> predicate, string name = "Item1") => 
+            Function<(T1, T2, T3), T1>(name, row => row.Item1);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3), T1> Item1<T1, T2, T3>(
+            Var<T1> var, TablePredicate<T1, T2, T3> predicate) =>
+            AssignToVar(var, Item1(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 4 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4), T1> Item1<T1, T2, T3, T4>(
+            TablePredicate<T1, T2, T3, T4> predicate, string name = "Item1") => 
+            Function<(T1, T2, T3, T4), T1>(name, row => row.Item1);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4), T1> Item1<T1, T2, T3, T4>(
+            Var<T1> var, TablePredicate<T1, T2, T3, T4> predicate) =>
+            AssignToVar(var, Item1(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 5 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5), T1> Item1<T1, T2, T3, T4, T5>(
+            TablePredicate<T1, T2, T3, T4, T5> predicate, string name = "Item1") => 
+            Function<(T1, T2, T3, T4, T5), T1>(name, row => row.Item1);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5), T1> Item1<T1, T2, T3, T4, T5>(
+            Var<T1> var, TablePredicate<T1, T2, T3, T4, T5> predicate) =>
+            AssignToVar(var, Item1(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 6 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6), T1> Item1<T1, T2, T3, T4, T5, T6>(
+            TablePredicate<T1, T2, T3, T4, T5, T6> predicate, string name = "Item1") => 
+            Function<(T1, T2, T3, T4, T5, T6), T1>(name, row => row.Item1);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6), T1> Item1<T1, T2, T3, T4, T5, T6>(
+            Var<T1> var, TablePredicate<T1, T2, T3, T4, T5, T6> predicate) =>
+            AssignToVar(var, Item1(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 7 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7), T1> Item1<T1, T2, T3, T4, T5, T6, T7>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, string name = "Item1") =>
+            Function<(T1, T2, T3, T4, T5, T6, T7), T1>(name, row => row.Item1);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7), T1> Item1<T1, T2, T3, T4, T5, T6, T7>(
+            Var<T1> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate) =>
+            AssignToVar(var, Item1(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 8 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7, T8), T1> Item1<T1, T2, T3, T4, T5, T6, T7, T8>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, string name = "Item1") =>
+            Function<(T1, T2, T3, T4, T5, T6, T7, T8), T1>(name, row => row.Item1);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7, T8), T1> Item1<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Var<T1> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate) =>
+            AssignToVar(var, Item1(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+        #endregion
+
+        #region Item2
+        // ***************************************** 2 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2), T2> Item2<T1, T2>(TablePredicate<T1, T2> predicate, string name = "Item2") => 
+            Function<(T1, T2), T2>(name, row => row.Item2);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2), T2> Item2<T1, T2>(Var<T2> var, TablePredicate<T1, T2> predicate) =>
+            AssignToVar(var, Item2(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 3 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3), T2> Item2<T1, T2, T3>(
+            TablePredicate<T1, T2, T3> predicate, string name = "Item2") => 
+            Function<(T1, T2, T3), T2>(name, row => row.Item2);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3), T2> Item2<T1, T2, T3>(
+            Var<T2> var, TablePredicate<T1, T2, T3> predicate) =>
+            AssignToVar(var, Item2(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 4 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4), T2> Item2<T1, T2, T3, T4>(
+            TablePredicate<T1, T2, T3, T4> predicate, string name = "Item2") => 
+            Function<(T1, T2, T3, T4), T2>(name, row => row.Item2);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4), T2> Item2<T1, T2, T3, T4>(
+            Var<T2> var, TablePredicate<T1, T2, T3, T4> predicate) =>
+            AssignToVar(var, Item2(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 5 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5), T2> Item2<T1, T2, T3, T4, T5>(
+            TablePredicate<T1, T2, T3, T4, T5> predicate, string name = "Item2") => 
+            Function<(T1, T2, T3, T4, T5), T2>(name, row => row.Item2);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5), T2> Item2<T1, T2, T3, T4, T5>(
+            Var<T2> var, TablePredicate<T1, T2, T3, T4, T5> predicate) =>
+            AssignToVar(var, Item2(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 6 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6), T2> Item2<T1, T2, T3, T4, T5, T6>(
+            TablePredicate<T1, T2, T3, T4, T5, T6> predicate, string name = "Item2") => 
+            Function<(T1, T2, T3, T4, T5, T6), T2>(name, row => row.Item2);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6), T2> Item2<T1, T2, T3, T4, T5, T6>(
+            Var<T2> var, TablePredicate<T1, T2, T3, T4, T5, T6> predicate) =>
+            AssignToVar(var, Item2(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 7 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7), T2> Item2<T1, T2, T3, T4, T5, T6, T7>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, string name = "Item2") => 
+            Function<(T1, T2, T3, T4, T5, T6, T7), T2>(name, row => row.Item2);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7), T2> Item2<T1, T2, T3, T4, T5, T6, T7>(
+            Var<T2> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate) =>
+            AssignToVar(var, Item2(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 8 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7, T8), T2> Item2<T1, T2, T3, T4, T5, T6, T7, T8>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, string name = "Item2") => 
+            Function<(T1, T2, T3, T4, T5, T6, T7, T8), T2>(name, row => row.Item2);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7, T8), T2> Item2<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Var<T2> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate) =>
+            AssignToVar(var, Item2(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+        #endregion
+
+        #region Item3
+        // ***************************************** 3 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3), T3> Item3<T1, T2, T3>(
+            TablePredicate<T1, T2, T3> predicate, string name = "Item3") =>
+            Function<(T1, T2, T3), T3>(name, row => row.Item3);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3), T3> Item3<T1, T2, T3>(Var<T3> var, TablePredicate<T1, T2, T3> predicate) =>
+            AssignToVar(var, Item3(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 4 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4), T3> Item3<T1, T2, T3, T4>(
+            TablePredicate<T1, T2, T3, T4> predicate, string name = "Item3") =>
+            Function<(T1, T2, T3, T4), T3>(name, row => row.Item3);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4), T3> Item3<T1, T2, T3, T4>(
+            Var<T3> var, TablePredicate<T1, T2, T3, T4> predicate) =>
+            AssignToVar(var, Item3(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 5 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5), T3> Item3<T1, T2, T3, T4, T5>(
+            TablePredicate<T1, T2, T3, T4, T5> predicate, string name = "Item3") =>
+            Function<(T1, T2, T3, T4, T5), T3>(name, row => row.Item3);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5), T3> Item3<T1, T2, T3, T4, T5>(
+            Var<T3> var, TablePredicate<T1, T2, T3, T4, T5> predicate) =>
+            AssignToVar(var, Item3(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 6 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6), T3> Item3<T1, T2, T3, T4, T5, T6>(
+            TablePredicate<T1, T2, T3, T4, T5, T6> predicate, string name = "Item3") =>
+            Function<(T1, T2, T3, T4, T5, T6), T3>(name, row => row.Item3);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6), T3> Item3<T1, T2, T3, T4, T5, T6>(
+            Var<T3> var, TablePredicate<T1, T2, T3, T4, T5, T6> predicate) =>
+            AssignToVar(var, Item3(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 7 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7), T3> Item3<T1, T2, T3, T4, T5, T6, T7>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, string name = "Item3") =>
+            Function<(T1, T2, T3, T4, T5, T6, T7), T3>(name, row => row.Item3);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7), T3> Item3<T1, T2, T3, T4, T5, T6, T7>(
+            Var<T3> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate) =>
+            AssignToVar(var, Item3(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 8 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7, T8), T3> Item3<T1, T2, T3, T4, T5, T6, T7, T8>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, string name = "Item3") =>
+            Function<(T1, T2, T3, T4, T5, T6, T7, T8), T3>(name, row => row.Item3);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7, T8), T3> Item3<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Var<T3> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate) =>
+            AssignToVar(var, Item3(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+        #endregion
+
+        #region Item4
+        // ***************************************** 4 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4), T4> Item4<T1, T2, T3, T4>(
+            TablePredicate<T1, T2, T3, T4> predicate, string name = "Item4") => 
+            Function<(T1, T2, T3, T4), T4>(name, row => row.Item4);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4), T4> Item4<T1, T2, T3, T4>(
+            Var<T4> var, TablePredicate<T1, T2, T3, T4> predicate) =>
+            AssignToVar(var, Item4(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 5 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5), T4> Item4<T1, T2, T3, T4, T5>(
+            TablePredicate<T1, T2, T3, T4, T5> predicate, string name = "Item4") => 
+            Function<(T1, T2, T3, T4, T5), T4>(name, row => row.Item4);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5), T4> Item4<T1, T2, T3, T4, T5>(
+            Var<T4> var, TablePredicate<T1, T2, T3, T4, T5> predicate) =>
+            AssignToVar(var, Item4(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 6 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6), T4> Item4<T1, T2, T3, T4, T5, T6>(
+            TablePredicate<T1, T2, T3, T4, T5, T6> predicate, string name = "Item4") => 
+            Function<(T1, T2, T3, T4, T5, T6), T4>(name, row => row.Item4);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6), T4> Item4<T1, T2, T3, T4, T5, T6>(
+            Var<T4> var, TablePredicate<T1, T2, T3, T4, T5, T6> predicate) =>
+            AssignToVar(var, Item4(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 7 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7), T4> Item4<T1, T2, T3, T4, T5, T6, T7>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, string name = "Item4") => 
+            Function<(T1, T2, T3, T4, T5, T6, T7), T4>(name, row => row.Item4);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7), T4> Item4<T1, T2, T3, T4, T5, T6, T7>(
+            Var<T4> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate) =>
+            AssignToVar(var, Item4(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 8 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7, T8), T4> Item4<T1, T2, T3, T4, T5, T6, T7, T8>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, string name = "Item4") => 
+            Function<(T1, T2, T3, T4, T5, T6, T7, T8), T4>(name, row => row.Item4);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7, T8), T4> Item4<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Var<T4> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate) =>
+            AssignToVar(var, Item4(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+        #endregion
+
+        #region Item5
+        // ***************************************** 5 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5), T5> Item5<T1, T2, T3, T4, T5>(
+            TablePredicate<T1, T2, T3, T4, T5> predicate, string name = "Item5") =>
+            Function<(T1, T2, T3, T4, T5), T5>(name, row => row.Item5);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5), T5> Item5<T1, T2, T3, T4, T5>(
+            Var<T5> var, TablePredicate<T1, T2, T3, T4, T5> predicate) =>
+            AssignToVar(var, Item5(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 6 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6), T5> Item5<T1, T2, T3, T4, T5, T6>(
+            TablePredicate<T1, T2, T3, T4, T5, T6> predicate, string name = "Item5") =>
+            Function<(T1, T2, T3, T4, T5, T6), T5>(name, row => row.Item5);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6), T5> Item5<T1, T2, T3, T4, T5, T6>(
+            Var<T5> var, TablePredicate<T1, T2, T3, T4, T5, T6> predicate) =>
+            AssignToVar(var, Item5(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 7 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7), T5> Item5<T1, T2, T3, T4, T5, T6, T7>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, string name = "Item5") =>
+            Function<(T1, T2, T3, T4, T5, T6, T7), T5>(name, row => row.Item5);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7), T5> Item5<T1, T2, T3, T4, T5, T6, T7>(
+            Var<T5> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate) =>
+            AssignToVar(var, Item5(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 8 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7, T8), T5> Item5<T1, T2, T3, T4, T5, T6, T7, T8>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, string name = "Item5") => 
+            Function<(T1, T2, T3, T4, T5, T6, T7, T8), T5>(name, row => row.Item5);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7, T8), T5> Item5<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Var<T5> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate) =>
+            AssignToVar(var, Item5(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+        #endregion
+
+        #region Item6
+        // ***************************************** 6 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6), T6> Item6<T1, T2, T3, T4, T5, T6>(
+            TablePredicate<T1, T2, T3, T4, T5, T6> predicate, string name = "Item6") =>
+            Function<(T1, T2, T3, T4, T5, T6), T6>(name, row => row.Item6);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6), T6> Item6<T1, T2, T3, T4, T5, T6>(
+            Var<T6> var, TablePredicate<T1, T2, T3, T4, T5, T6> predicate) =>
+            AssignToVar(var, Item6(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 7 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7), T6> Item6<T1, T2, T3, T4, T5, T6, T7>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, string name = "Item6") =>
+            Function<(T1, T2, T3, T4, T5, T6, T7), T6>(name, row => row.Item6);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7), T6> Item6<T1, T2, T3, T4, T5, T6, T7>(
+            Var<T6> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate) =>
+            AssignToVar(var, Item6(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 8 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7, T8), T6> Item6<T1, T2, T3, T4, T5, T6, T7, T8>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, string name = "Item6") =>
+            Function<(T1, T2, T3, T4, T5, T6, T7, T8), T6>(name, row => row.Item6);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7, T8), T6> Item6<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Var<T6> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate) =>
+            AssignToVar(var, Item6(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+        #endregion
+
+        #region Item7
+        // ***************************************** 7 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7), T7> Item7<T1, T2, T3, T4, T5, T6, T7>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, string name = "Item7") =>
+            Function<(T1, T2, T3, T4, T5, T6, T7), T7>(name, row => row.Item7);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7), T7> Item7<T1, T2, T3, T4, T5, T6, T7>(
+            Var<T7> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate) =>
+            AssignToVar(var, Item7(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+
+        // ***************************************** 8 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7, T8), T7> Item7<T1, T2, T3, T4, T5, T6, T7, T8>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, string name = "Item7") =>
+            Function<(T1, T2, T3, T4, T5, T6, T7, T8), T7>(name, row => row.Item7);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7, T8), T7> Item7<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Var<T7> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate) =>
+            AssignToVar(var, Item7(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+        #endregion
+
+        #region Item8
+        // ***************************************** 8 column tables ****************************************
+        /// <inheritdoc cref="Item1{T1,T2}(TablePredicate{T1,T2}, string)"/>
+        public static Function<(T1, T2, T3, T4, T5, T6, T7, T8), T8> Item8<T1, T2, T3, T4, T5, T6, T7, T8>(
+            TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, string name = "Item8") =>
+            Function<(T1, T2, T3, T4, T5, T6, T7, T8), T8>(name, row => row.Item8);
+        /// <inheritdoc cref="Item1{T1,T2}(Var{T1}, TablePredicate{T1,T2})"/>
+        public static Definition<(T1, T2, T3, T4, T5, T6, T7, T8), T8> Item8<T1, T2, T3, T4, T5, T6, T7, T8>(
+            Var<T8> var, TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate) =>
+            AssignToVar(var, Item8(predicate, GetVar(var)), RowVariable(predicate), VarFrom(var, predicate));
+        #endregion
+
+        // ReSharper restore UnusedMember.Global
         #endregion
 
     }
