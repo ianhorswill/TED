@@ -84,7 +84,7 @@ namespace TED
         /// Average combined execution time for all the rules in the simulation
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public float RuleExecutionTime => Tables.Select(t => t.RuleExecutionTime).Sum();
+        public float RuleExecutionTime => DynamicTables.Select(t => t.RuleExecutionTime).Sum();
         #endif
 
         /// <inheritdoc />
