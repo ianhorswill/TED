@@ -1337,6 +1337,13 @@ namespace TED
         // ReSharper disable once UnusedMember.Global
         public static Function<T> Member<T>(object type, string property) =>
             new Function<T>(property, BuildSafeMemberAccess<T>(type, property));
+        /// <summary>
+        /// Makes a Function where the Func T is built from a property on the given type and the name
+        /// of the function is of the form: prependProperty
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Function<T> Member<T>(object type, string property, string prepend) =>
+            new Function<T>($"{prepend}{property}", BuildSafeMemberAccess<T>(type, property));
 
         /// <summary>
         /// Makes a function that can be placed in functional expressions
