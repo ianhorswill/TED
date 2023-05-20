@@ -78,9 +78,6 @@ namespace TED
         public static Goal In<T>(Term<T> element, Term<ICollection<T>> collection) =>
             InPrimitive<T>.Singleton[element, collection];
 
-        //public static Goal In<T>(Term<T> element, TablePredicate<T> table) =>
-        //    In(element, table.ToList());
-
         /// <summary>
         /// Matches output against a randomly chosen element of choices using a uniform distribution.
         /// </summary>
