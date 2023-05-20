@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System;
+using System.Diagnostics;
 
 namespace TED.Interpreter
 {
@@ -43,10 +44,21 @@ namespace TED.Interpreter
         private int executionCount;
 
         /// <summary>
+        /// Total execution time spent in this rule.
+        /// </summary>
+        public float TotalExecutionTime => executionTimer.ElapsedMilliseconds;
+
+        /// <summary>
+        /// Execution time for the most recent execution of this rule.
+        /// </summary>
+        public float InstantaneousExecutionTime;
+
+        /// <summary>
         /// Average number of milliseconds required to run this rule
         /// </summary>
-        public float AverageExecutionTime =>
-            executionCount == 0 ? 0 : (float)executionTimer.ElapsedMilliseconds / executionCount;
+        public float AverageExecutionTime;
+
+        public const float ExecutionTimeAveragingTimeConstant = 0.1f;
 #endif
 
 #pragma warning disable CS1591
@@ -72,6 +84,7 @@ namespace TED.Interpreter
         internal void AddAllSolutions()
         {
 #if PROFILER
+            var ticksBefore = executionTimer.ElapsedTicks;
             executionTimer.Start();
             executionCount++;
 #endif
@@ -115,6 +128,10 @@ namespace TED.Interpreter
 
 #if PROFILER
             executionTimer.Stop();
+            var ticksThisTime = executionTimer.ElapsedTicks - ticksBefore;
+            InstantaneousExecutionTime = ticksThisTime * (1f / TimeSpan.TicksPerMillisecond);
+            AverageExecutionTime = ExecutionTimeAveragingTimeConstant * InstantaneousExecutionTime +
+                                   (1f - ExecutionTimeAveragingTimeConstant) * AverageExecutionTime;
 #endif
         }
 
