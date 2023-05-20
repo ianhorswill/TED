@@ -61,7 +61,7 @@ namespace TED
         private void FindDynamicPredicates()
         {
             foreach (var t in Tables)
-                t.IsDynamic = false;
+                t.IsDynamic = t.MustBeDynamic;
 
             void MarkDynamic(TablePredicate p)
             {

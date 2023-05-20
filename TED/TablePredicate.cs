@@ -87,6 +87,15 @@ namespace TED
         public bool IsDynamic { get; internal set; }
 
         /// <summary>
+        /// True if we need the predicate to be dynamic
+        /// </summary>
+        protected internal bool MustBeDynamic;
+        /// <summary>
+        /// Forces a table to be treated as dynamic
+        /// </summary>
+        public void ForceDynamic() => MustBeDynamic = true;
+
+        /// <summary>
         /// True if this table doesn't change during a simulation.
         /// </summary>
         public bool IsStatic => !IsDynamic;
