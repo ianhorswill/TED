@@ -69,6 +69,42 @@ namespace TED
         public static Goal RandomElement<T>(TablePredicate<T> predicate, Term<T> output) =>
             RandomElementPrimitive<T>.Singleton[predicate, output];
 
+        /// <inheritdoc cref="RandomElement{T}"/>
+        // ReSharper disable once UnusedMember.Global
+        public static Goal RandomElement<T1, T2>(TablePredicate<T1, T2> predicate, Term<(T1, T2)> output) =>
+            RandomElementPrimitive<T1, T2>.Singleton[predicate, output];
+
+        /// <inheritdoc cref="RandomElement{T}"/>
+        // ReSharper disable once UnusedMember.Global
+        public static Goal RandomElement<T1, T2, T3>(TablePredicate<T1, T2, T3> predicate, Term<(T1, T2, T3)> output) =>
+            RandomElementPrimitive<T1, T2, T3>.Singleton[predicate, output];
+
+        /// <inheritdoc cref="RandomElement{T}"/>
+        // ReSharper disable once UnusedMember.Global
+        public static Goal RandomElement<T1, T2, T3, T4>(TablePredicate<T1, T2, T3, T4> predicate, Term<(T1, T2, T3, T4)> output) =>
+            RandomElementPrimitive<T1, T2, T3, T4>.Singleton[predicate, output];
+
+        /// <inheritdoc cref="RandomElement{T}"/>
+        // ReSharper disable once UnusedMember.Global
+        public static Goal RandomElement<T1, T2, T3, T4, T5>(TablePredicate<T1, T2, T3, T4, T5> predicate, Term<(T1, T2, T3, T4, T5)> output) =>
+            RandomElementPrimitive<T1, T2, T3, T4, T5>.Singleton[predicate, output];
+
+        /// <inheritdoc cref="RandomElement{T}"/>
+        // ReSharper disable once UnusedMember.Global
+        public static Goal RandomElement<T1, T2, T3, T4, T5, T6>(TablePredicate<T1, T2, T3, T4, T5, T6> predicate, Term<(T1, T2, T3, T4, T5, T6)> output) =>
+            RandomElementPrimitive<T1, T2, T3, T4, T5, T6>.Singleton[predicate, output];
+
+        /// <inheritdoc cref="RandomElement{T}"/>
+        // ReSharper disable once UnusedMember.Global
+        public static Goal RandomElement<T1, T2, T3, T4, T5, T6, T7>(TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, Term<(T1, T2, T3, T4, T5, T6, T7)> output) =>
+            RandomElementPrimitive<T1, T2, T3, T4, T5, T6, T7>.Singleton[predicate, output];
+
+        /// <inheritdoc cref="RandomElement{T}"/>
+        // ReSharper disable once UnusedMember.Global
+        public static Goal RandomElement<T1, T2, T3, T4, T5, T6, T7, T8>(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, Term<(T1, T2, T3, T4, T5, T6, T7, T8)> output) =>
+            RandomElementPrimitive<T1, T2, T3, T4, T5, T6, T7, T8>.Singleton[predicate, output];
+
+
         /// <summary>
         /// True when element is an element of the collection
         /// </summary>
