@@ -68,7 +68,8 @@ namespace TED.Tables
         /// The TablePredicate to which the Table belongs.
         /// </summary>
         // ReSharper disable once NotAccessedField.Local
-        private readonly TablePredicate predicate;
+        // ReSharper disable once InconsistentNaming
+        internal readonly TablePredicate predicate;
 
         /// <summary>
         /// Equality predicate for TColumn.

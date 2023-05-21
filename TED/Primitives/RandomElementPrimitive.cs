@@ -1,36 +1,70 @@
-﻿using TED.Interpreter;
+﻿using System.Linq;
+using TED.Interpreter;
 using TED.Preprocessing;
+using TED.Tables;
 using TED.Utilities;
 
-namespace TED.Primitives
-{
+namespace TED.Primitives {
     /// <summary>
     /// Implementation of the RandomElement primitive
     /// </summary>
     /// <typeparam name="T">Type of list element we're selecting from</typeparam>
-    internal sealed class RandomElementPrimitive<T> : PrimitivePredicate<TablePredicate<T>, T>
-    {
+    internal sealed class RandomElementPrimitive<T> : PrimitivePredicate<TablePredicate<T>, T> {
         public static RandomElementPrimitive<T> Singleton = new RandomElementPrimitive<T>();
-        public RandomElementPrimitive() : base("RandomElement")
-        {
-        }
+        public RandomElementPrimitive() : base("RandomElement") { }
 
-        public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
-        {
+        public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc) {
             var predicate = ((Constant<TablePredicate<T>>)g.Arg1).Value;
-            return new Call(predicate, tc.Emit(g.Arg2));
-        }
+            return new Call(predicate, tc.Emit(g.Arg2)); }
 
-        private class Call : Interpreter.Call
-        {
+        private class Call : Interpreter.Call {
             private readonly TablePredicate<T> predicate;
             private readonly MatchOperation<T> outputArg;
 
             public override IPattern ArgumentPattern => new Pattern<T>(outputArg);
 
-            public Call(TablePredicate<T> predicate, MatchOperation<T> outputArg) : base(predicate)
-            {
+            public Call(TablePredicate<T> predicate, MatchOperation<T> outputArg) : base(predicate) {
                 this.predicate = predicate;
+                this.outputArg = outputArg; }
+
+            private bool finished;
+
+            public override void Reset() => finished = false;
+
+            public override bool NextSolution() {
+                var len = predicate.Length;
+                if (finished || len == 0) return false;
+                finished = true;
+                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                return true; }
+        }
+    }
+
+    /// <summary>
+    /// Implementation of the RandomIndexedElement primitive
+    /// </summary>
+    /// <typeparam name="TRow">Type of the row</typeparam>
+    /// <typeparam name="T">Type of the column we are indexing from</typeparam>
+    internal sealed class RandomIndexedElementPrimitive<TRow, T> : PrimitivePredicate<GeneralIndex<TRow, T>, T, TRow> {
+        public static RandomIndexedElementPrimitive<TRow, T> Singleton = new RandomIndexedElementPrimitive<TRow, T>();
+        public RandomIndexedElementPrimitive() : base("RandomElement") { }
+
+        public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc) {
+            var predicate = ((Constant<GeneralIndex<TRow, T>>)g.Arg1).Value;
+            return new Call(predicate, g.Arg2, tc.Emit(g.Arg3));
+        }
+
+        private class Call : Interpreter.Call {
+            private readonly GeneralIndex<TRow, T> generalIndex;
+            private readonly Term<T> rowMatching;
+            private readonly MatchOperation<TRow> outputArg;
+
+            public override IPattern ArgumentPattern => new Pattern<TRow>(outputArg);
+
+            public Call(GeneralIndex<TRow, T> generalIndex, Term<T> rowMatching, 
+                MatchOperation<TRow> outputArg) : base(generalIndex.predicate) {
+                this.generalIndex = generalIndex;
+                this.rowMatching = rowMatching;
                 this.outputArg = outputArg;
             }
 
@@ -38,12 +72,12 @@ namespace TED.Primitives
 
             public override void Reset() => finished = false;
 
-            public override bool NextSolution()
-            {
-                var len = predicate.Length;
+            public override bool NextSolution() {
+                var genList = generalIndex.RowsMatching(((Constant<T>)rowMatching).Value).ToList();
+                var len = genList.Count;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                outputArg.Match(genList[Random.InRangeExclusive(0, len)]);
                 return true;
             }
         }
@@ -60,7 +94,8 @@ namespace TED.Primitives
 
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc) {
             var predicate = ((Constant<TablePredicate<T1, T2>>)g.Arg1).Value;
-            return new Call(predicate, tc.Emit(g.Arg2)); }
+            return new Call(predicate, tc.Emit(g.Arg2));
+        }
 
         private class Call : Interpreter.Call {
             private readonly TablePredicate<T1, T2> predicate;
@@ -70,7 +105,8 @@ namespace TED.Primitives
 
             public Call(TablePredicate<T1, T2> predicate, MatchOperation<(T1, T2)> outputArg) : base(predicate) {
                 this.predicate = predicate;
-                this.outputArg = outputArg; }
+                this.outputArg = outputArg;
+            }
 
             private bool finished;
 

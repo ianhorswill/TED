@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Xml.Linq;
 using TED.Interpreter;
 using TED.Primitives;
+using TED.Tables;
 using Random = TED.Utilities.Random;
 
 namespace TED
@@ -64,10 +65,17 @@ namespace TED
             })[arg];
 
         /// <summary>
-        /// Matches output against a random element of the table.
+        /// Matches output against a random row of the table.
         /// </summary>
         public static Goal RandomElement<T>(TablePredicate<T> predicate, Term<T> output) =>
             RandomElementPrimitive<T>.Singleton[predicate, output];
+
+        /// <summary>
+        /// Matches output against a random row from GeneralIndex where rowMatching has rows
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public static Goal RandomIndexedElement<TRow, T>(GeneralIndex<TRow, T> generalIndex, Term<T> rowMatching, Term<TRow> output) =>
+            RandomIndexedElementPrimitive<TRow, T>.Singleton[generalIndex, rowMatching, output];
 
         /// <inheritdoc cref="RandomElement{T}"/>
         // ReSharper disable once UnusedMember.Global
@@ -103,7 +111,6 @@ namespace TED
         // ReSharper disable once UnusedMember.Global
         public static Goal RandomElement<T1, T2, T3, T4, T5, T6, T7, T8>(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, Term<(T1, T2, T3, T4, T5, T6, T7, T8)> output) =>
             RandomElementPrimitive<T1, T2, T3, T4, T5, T6, T7, T8>.Singleton[predicate, output];
-
 
         /// <summary>
         /// True when element is an element of the collection
