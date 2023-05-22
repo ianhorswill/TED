@@ -112,12 +112,12 @@ namespace TED
         public static Goal RandomIndexedElement<TRow, T>(GeneralIndex<TRow, T> generalIndex, Term<T> rowMatching, Term<TRow> output) =>
             RandomIndexedElementPrimitive<TRow, T>.Singleton[generalIndex, rowMatching, output];
 
-        /// <inheritdoc cref="RandomIndexedElement{TRow,T}(TED.Tables.GeneralIndex{TRow,T},TED.Term{T},TED.Term{TRow})"/>
+        /// <inheritdoc cref="RandomIndexedElement{TRow,T}(GeneralIndex{TRow,T},Term{T},Term{TRow})"/>
         // ReSharper disable once UnusedMember.Global
         public static Goal RandomIndexedElement<TRow, T>(TableIndex tableIndex, Term<T> rowMatching, Term<TRow> output) =>
             RandomIndexedElementPrimitive<TRow, T>.Singleton[(GeneralIndex<TRow, T>)tableIndex, rowMatching, output];
 
-        /// <inheritdoc cref="RandomIndexedElement{TRow,T}(TED.Tables.GeneralIndex{TRow,T},TED.Term{T},TED.Term{TRow})"/>
+        /// <inheritdoc cref="RandomIndexedElement{TRow,T}(GeneralIndex{TRow,T},Term{T},Term{TRow})"/>
         // ReSharper disable once UnusedMember.Global
         public static Goal RandomIndexedElement<TRow, T>(TablePredicate table, Var<T> rowMatching, Term<TRow> output) =>
             RandomIndexedElement(table.IndexFor(rowMatching, false)!, rowMatching, output);
