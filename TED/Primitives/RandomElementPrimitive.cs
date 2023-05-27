@@ -15,6 +15,12 @@ namespace TED.Primitives
         {
         }
 
+        
+        /// <summary>
+        /// Randomization does not behave like a pure predicate
+        /// </summary>
+        public override bool IsPure => false;
+
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
         {
             var predicate = ((Constant<TablePredicate<T>>)g.Arg1).Value;
@@ -23,14 +29,14 @@ namespace TED.Primitives
 
         private class Call : Interpreter.Call
         {
-            private readonly TablePredicate<T> predicate;
+            private readonly TablePredicate<T> table;
             private readonly MatchOperation<T> outputArg;
 
             public override IPattern ArgumentPattern => new Pattern<T>(outputArg);
 
-            public Call(TablePredicate<T> predicate, MatchOperation<T> outputArg) : base(predicate)
+            public Call(TablePredicate<T> table, MatchOperation<T> outputArg) : base(Singleton)
             {
-                this.predicate = predicate;
+                this.table = table;
                 this.outputArg = outputArg;
             }
 
@@ -40,10 +46,10 @@ namespace TED.Primitives
 
             public override bool NextSolution()
             {
-                var len = predicate.Length;
+                var len = table.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                outputArg.Match(table.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
                 return true;
             }
         }

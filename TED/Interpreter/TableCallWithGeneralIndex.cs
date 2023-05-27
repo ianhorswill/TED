@@ -43,10 +43,10 @@ namespace TED.Interpreter
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Tables.Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != Table.NoRow;
+            return Row != Tables.Table.NoRow;
         }
     }
 
@@ -72,10 +72,10 @@ namespace TED.Interpreter
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Tables.Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != Table.NoRow;
+            return Row != Tables.Table.NoRow;
         }
     }
 
@@ -101,10 +101,10 @@ namespace TED.Interpreter
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Tables.Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != Table.NoRow;
+            return Row != Tables.Table.NoRow;
         }
     }
 
@@ -130,10 +130,10 @@ namespace TED.Interpreter
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Tables.Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != Table.NoRow;
+            return Row != Tables.Table.NoRow;
         }
     }
 
@@ -159,10 +159,10 @@ namespace TED.Interpreter
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Tables.Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != Table.NoRow;
+            return Row != Tables.Table.NoRow;
         }
     }
 
@@ -188,10 +188,10 @@ namespace TED.Interpreter
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Tables.Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != Table.NoRow;
+            return Row != Tables.Table.NoRow;
         }
     }
 
@@ -217,10 +217,10 @@ namespace TED.Interpreter
             Row = Primed ? index.FirstRowWithValue(in keyCell.Value) : index.NextRowWithValue(Row);
             Primed = false;
 
-            while (Row != Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
+            while (Row != Tables.Table.NoRow && !pattern.Match(in predicate._table.PositionReference(Row)))
                 Row = index.NextRowWithValue(Row);
 
-            return Row != Table.NoRow;
+            return Row != Tables.Table.NoRow;
         }
     }
 }

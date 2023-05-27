@@ -25,5 +25,11 @@ namespace TED
         {
             Name = name;
         }
+
+        /// <summary>
+        /// True if the predicate is a table predicate or is a primitive that acts as a pure function,
+        /// i.e. it always has the same result for the same inputs and has no side-effects.
+        /// </summary>
+        public virtual bool IsPure => true;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace TED.Interpreter
 {
@@ -38,6 +39,11 @@ namespace TED.Interpreter
         /// Cells holding the values of the variables in the rule.
         /// </summary>
         public readonly ValueCell[] ValueCells;
+
+        /// <summary>
+        /// True if the rule only calls pure predicates.
+        /// </summary>
+        public bool IsPure => Body.All(c => c.IsPure);
 
 #if PROFILER
         private readonly System.Diagnostics.Stopwatch executionTimer = new System.Diagnostics.Stopwatch();

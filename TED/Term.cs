@@ -53,6 +53,11 @@ namespace TED
                 throw new MissingMethodException($"There is no {operation} overload defined for type {e.TypeName}");
             }
         }
+
+        /// <summary>
+        /// True if evaluating this has no side effects; the only terms that are not pure are calls to impure functions.
+        /// </summary>
+        public virtual bool IsPure => true;
     }
 
     /// <summary>

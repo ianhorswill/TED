@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Xml.Linq;
 using TED.Interpreter;
 using TED.Primitives;
 using Random = TED.Utilities.Random;
@@ -1368,118 +1364,126 @@ namespace TED
         /// Makes a Function where the Func T is built from a property on the given type
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<T> Member<T>(object type, string property) =>
+        public static Function<T> Member<T>(object type, string property, bool isPure = true) =>
             new Function<T>(property, BuildSafeMemberAccess<T>(type, property));
         /// <summary>
         /// Makes a Function where the Func T is built from a property on the given type and the name
         /// of the function is of the form: prependProperty
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<T> Member<T>(object type, string property, string prepend) =>
-            new Function<T>($"{prepend}{property}", BuildSafeMemberAccess<T>(type, property));
+        public static Function<T> Member<T>(object type, string property, string prepend, bool isPure = true) =>
+            new Function<T>($"{prepend}{property}", BuildSafeMemberAccess<T>(type, property), isPure);
 
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
+        /// <param name="isPure">True (default) if this function has no state or side effects</param>
         // ReSharper disable once UnusedMember.Global
-        public static Function<T> Function<T>(string name, Func<T> fn) => new Function<T>(name, fn);
+        public static Function<T> Function<T>(string name, Func<T> fn, bool isPure = true) => new Function<T>(name, fn, isPure);
         /// <summary>
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn> Method<TIn>(Func<TIn> fn) => new Function<TIn>(fn.Method.Name, fn);
+        public static Function<TIn> Method<TIn>(Func<TIn> fn, bool isPure = true) => new Function<TIn>(fn.Method.Name, fn, isPure);
 
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
-        public static Function<TIn, TOut> Function<TIn, TOut>(string name, Func<TIn, TOut> fn) => new Function<TIn, TOut>(name, fn);
+        /// <param name="isPure">True (default) if this function has no state or side effects</param>
+        public static Function<TIn, TOut> Function<TIn, TOut>(string name, Func<TIn, TOut> fn, bool isPure = true) => new Function<TIn, TOut>(name, fn, isPure);
         /// <summary>
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn, TOut> Method<TIn, TOut>(Func<TIn, TOut> fn) => new Function<TIn, TOut>(fn.Method.Name, fn);
+        public static Function<TIn, TOut> Method<TIn, TOut>(Func<TIn, TOut> fn, bool isPure = true) => new Function<TIn, TOut>(fn.Method.Name, fn, isPure);
 
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
+        /// <param name="isPure">True (default) if this function has no state or side effects</param>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TOut> Function<TIn1, TIn2, TOut>(string name, Func<TIn1, TIn2, TOut> fn) => new Function<TIn1, TIn2, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TOut> Function<TIn1, TIn2, TOut>(string name, Func<TIn1, TIn2, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TOut>(name, fn, isPure);
         /// <summary>
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TOut> Method<TIn1, TIn2, TOut>(Func<TIn1, TIn2, TOut> fn) => new Function<TIn1, TIn2, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TOut> Method<TIn1, TIn2, TOut>(Func<TIn1, TIn2, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TOut>(fn.Method.Name, fn, isPure);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
+        /// <param name="isPure">True (default) if this function has no state or side effects</param>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TOut> Function<TIn1, TIn2, TIn3, TOut>(string name, Func<TIn1, TIn2, TIn3, TOut> fn) => new Function<TIn1, TIn2, TIn3, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TIn3, TOut> Function<TIn1, TIn2, TIn3, TOut>(string name, Func<TIn1, TIn2, TIn3, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TIn3, TOut>(name, fn, isPure);
         /// <summary>
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TOut> Method<TIn1, TIn2, TIn3, TOut>(Func<TIn1, TIn2, TIn3, TOut> fn) => new Function<TIn1, TIn2, TIn3, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TIn3, TOut> Method<TIn1, TIn2, TIn3, TOut>(Func<TIn1, TIn2, TIn3, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TIn3, TOut>(fn.Method.Name, fn, isPure);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
+        /// <param name="isPure">True (default) if this function has no state or side effects</param>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Function<TIn1, TIn2, TIn3, TIn4, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Function<TIn1, TIn2, TIn3, TIn4, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(name, fn, isPure);
         /// <summary>
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Method<TIn1, TIn2, TIn3, TIn4, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TOut> Method<TIn1, TIn2, TIn3, TIn4, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TIn3, TIn4, TOut>(fn.Method.Name, fn, isPure);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
+        /// <param name="isPure">True (default) if this function has no state or side effects</param>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(name, fn, isPure);
         /// <summary>
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(fn.Method.Name, fn, isPure);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
+        /// <param name="isPure">True (default) if this function has no state or side effects</param>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(name, fn, isPure);
         /// <summary>
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(fn.Method.Name, fn, isPure);
         
         /// <summary>
         /// Makes a function that can be placed in functional expressions
         /// </summary>
         /// <param name="name">Name, for debugging purposes</param>
         /// <param name="fn">C# code implementing the function</param>
+        /// <param name="isPure">True (default) if this function has no state or side effects</param>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(name, fn, isPure);
         /// <summary>
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(fn.Method.Name, fn);
+        public static Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Method<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> fn, bool isPure = true) => new Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(fn.Method.Name, fn, isPure);
 
         #endregion
 

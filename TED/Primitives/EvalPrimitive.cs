@@ -23,20 +23,24 @@ namespace TED.Primitives
         }
 
         public override Call MakeCall(Goal g, GoalAnalyzer tc) =>
-            new EvalCall(this, tc.Emit(g.Arg1), g.Arg2.MakeEvaluator(tc), g);
+            new EvalCall(this, tc.Emit(g.Arg1), g.Arg2.MakeEvaluator(tc), g, g.Arg2.IsPure);
 
         private class EvalCall : Call
         {
             private readonly MatchOperation<T> matcher;
             private readonly Func<T> expressionEvaluator;
             private readonly Goal originalGoal;
+            private bool isPure;
             private bool restarted;
 
-            public EvalCall(Predicate p, MatchOperation<T> matcher, Func<T> expressionEvaluator, Goal originalGoal) : base(p)
+            public override bool IsPure => isPure;
+
+            public EvalCall(Predicate p, MatchOperation<T> matcher, Func<T> expressionEvaluator, Goal originalGoal, bool pure) : base(p)
             {
                 this.matcher = matcher;
                 this.expressionEvaluator = expressionEvaluator;
                 this.originalGoal = originalGoal;
+                isPure = pure;
             }
 
 
