@@ -336,47 +336,4 @@ namespace TED.Primitives {
             }
         }
     }
-
-    /// <summary>
-    /// Implementation of the RandomIndexedElement primitive
-    /// </summary>
-    /// <typeparam name="TRow">Type of the row</typeparam>
-    /// <typeparam name="T">Type of the column we are indexing from</typeparam>
-    internal sealed class RandomIndexedElementPrimitive<TRow, T> : PrimitivePredicate<GeneralIndex<TRow, T>, T, TRow> {
-        public static RandomIndexedElementPrimitive<TRow, T> Singleton = new RandomIndexedElementPrimitive<TRow, T>();
-        public RandomIndexedElementPrimitive() : base("RandomElement") { }
-
-        public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc) {
-            var predicate = ((Constant<GeneralIndex<TRow, T>>)g.Arg1).Value;
-            return new Call(predicate, g.Arg2, tc.Emit(g.Arg3));
-        }
-
-        private class Call : Interpreter.Call {
-            private readonly GeneralIndex<TRow, T> generalIndex;
-            private readonly Term<T> rowMatching;
-            private readonly MatchOperation<TRow> outputArg;
-
-            public override IPattern ArgumentPattern => new Pattern<TRow>(outputArg);
-
-            public Call(GeneralIndex<TRow, T> generalIndex, Term<T> rowMatching,
-                MatchOperation<TRow> outputArg) : base(generalIndex.predicate) {
-                this.generalIndex = generalIndex;
-                this.rowMatching = rowMatching;
-                this.outputArg = outputArg;
-            }
-
-            private bool finished;
-
-            public override void Reset() => finished = false;
-
-            public override bool NextSolution() {
-                var genList = generalIndex.RowsMatching(((Constant<T>)rowMatching).Value).ToList();
-                var len = genList.Count;
-                if (finished || len == 0) return false;
-                finished = true;
-                outputArg.Match(genList[Random.InRangeExclusive(0, len)]);
-                return true;
-            }
-        }
-    }
 }

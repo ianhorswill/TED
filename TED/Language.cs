@@ -106,23 +106,6 @@ namespace TED
             RandomElementPrimitive<T1, T2, T3, T4, T5, T6, T7, T8>.Singleton[predicate, output];
 
         /// <summary>
-        /// Matches output against a random row from GeneralIndex where rowMatching has rows
-        /// </summary>
-        // ReSharper disable once UnusedMember.Global
-        public static Goal RandomIndexedElement<TRow, T>(GeneralIndex<TRow, T> generalIndex, Term<T> rowMatching, Term<TRow> output) =>
-            RandomIndexedElementPrimitive<TRow, T>.Singleton[generalIndex, rowMatching, output];
-
-        /// <inheritdoc cref="RandomIndexedElement{TRow,T}(GeneralIndex{TRow,T},Term{T},Term{TRow})"/>
-        // ReSharper disable once UnusedMember.Global
-        public static Goal RandomIndexedElement<TRow, T>(TableIndex tableIndex, Term<T> rowMatching, Term<TRow> output) =>
-            RandomIndexedElementPrimitive<TRow, T>.Singleton[(GeneralIndex<TRow, T>)tableIndex, rowMatching, output];
-
-        /// <inheritdoc cref="RandomIndexedElement{TRow,T}(GeneralIndex{TRow,T},Term{T},Term{TRow})"/>
-        // ReSharper disable once UnusedMember.Global
-        public static Goal RandomIndexedElement<TRow, T>(TablePredicate table, Var<T> rowMatching, Term<TRow> output) =>
-            RandomIndexedElement(table.IndexFor(rowMatching, false)!, rowMatching, output);
-
-        /// <summary>
         /// True when element is an element of the collection
         /// </summary>
         /// <typeparam name="T">element/collection type</typeparam>
@@ -1406,7 +1389,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TIn> Method<TIn>(Func<TIn> fn) => new Function<TIn>(fn.Method.Name, fn);
+        public static Function<TOut> Method<TOut>(Func<TOut> fn) => new Function<TOut>(fn.Method.Name, fn);
 
         /// <summary>
         /// Makes a function that can be placed in functional expressions
