@@ -77,7 +77,7 @@ namespace TED.Tables
 
             public TColumn Current => buckets[bucket].key;
 
-            object IEnumerator.Current => Current;
+            object IEnumerator.Current => Current!;
 
             public void Dispose()
             { }
