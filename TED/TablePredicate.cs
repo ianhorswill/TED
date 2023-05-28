@@ -58,7 +58,7 @@ namespace TED
         /// <summary>
         /// Make a new predicate
         /// </summary>
-        protected TablePredicate(string name, Action? updateProc, params IColumnSpec[] columns) : base(name)
+        protected TablePredicate(string name, Action<Table>? updateProc, params IColumnSpec[] columns) : base(name)
         {
             Program.MaybeAddPredicate(this);
             DefaultVariables = columns.Select(spec => spec.UntypedVariable).ToArray();
@@ -77,6 +77,8 @@ namespace TED
 
             this.updateProc = updateProc;
             UpdateMode = updateProc == null?UpdateMode.BaseTable:UpdateMode.Operator;
+            if (UpdateMode != UpdateMode.BaseTable)
+                MustRecompute = true;
         }
 
         /// <summary>
@@ -225,7 +227,12 @@ namespace TED
         /// </summary>
         public List<Rule>? Rules;
 
-        private readonly Action? updateProc;
+        private readonly Action<Table>? updateProc;
+
+        /// <summary>
+        /// For tables that are the results of operators.  The tables the operator takes as inputs.
+        /// </summary>
+        public IEnumerable<TablePredicate> OperatorDependencies = Array.Empty<TablePredicate>();
 
 #if PROFILER
         /// <summary>
@@ -282,7 +289,9 @@ namespace TED
                     break;
 
                 case UpdateMode.Operator:
-                    updateProc!();
+                    foreach (var t in OperatorDependencies)
+                        t.EnsureUpToDate();
+                    updateProc!(TableUntyped);
                     break;
             }
 
@@ -594,7 +603,7 @@ namespace TED
         /// <param name="name">Name of the predicate</param>
         /// <param name="updateProc">Procedure to call to update the contents of the table.  This should only be used for tables that are the results of operators</param>
         /// <param name="arg1">Default variable for the first argument</param>
-        public TablePredicate(string name, Action updateProc, IColumnSpec<T1> arg1) : base(name, updateProc, arg1)
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1) : base(name, updateProc, arg1)
         {
         }
 
@@ -829,7 +838,7 @@ namespace TED
         /// <param name="arg1">Default variable for the first argument</param>
         /// <param name="arg2">Default variable for the second argument</param>
 
-        public TablePredicate(string name, Action updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) : base(name, updateProc, arg1, arg2)
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) : base(name, updateProc, arg1, arg2)
         {
         }
 
@@ -1174,6 +1183,7 @@ namespace TED
         /// <param name="name">Name of the predicate</param>
         /// <param name="arg1">Default variable for the first argument</param>
         /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
 
         public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) 
             : base(name, null, arg1, arg2, arg3)
@@ -1188,7 +1198,7 @@ namespace TED
         /// <param name="arg2">Default variable for the second argument</param>
         /// <param name="arg3">Default variable for the third argument</param>
 
-        public TablePredicate(string name, Action updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3)
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3)
             : base(name, updateProc, arg1, arg2, arg3)
         {
         }
@@ -1532,7 +1542,7 @@ namespace TED
         /// <param name="arg3">Default variable for the third argument</param>
         /// <param name="arg4">Default variable for the fourth argument</param>
 
-        public TablePredicate(string name, Action updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4)
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4)
             : base(name, updateProc, arg1, arg2, arg3, arg4)
         {
         }
@@ -1890,7 +1900,7 @@ namespace TED
         /// <param name="arg3">Default variable for the third argument</param>
         /// <param name="arg4">Default variable for the fourth argument</param>
         /// <param name="arg5">Default variable for the fifth argument</param>
-        public TablePredicate(string name, Action updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5)
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5)
             : base(name, updateProc, arg1, arg2, arg3, arg4, arg5)
         {
         }
@@ -2264,7 +2274,7 @@ namespace TED
         /// <param name="arg4">Default variable for the fourth argument</param>
         /// <param name="arg5">Default variable for the fifth argument</param>
         /// <param name="arg6">Default variable for the sixth argument</param>
-        public TablePredicate(string name, Action updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6)
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6)
             : base(name, updateProc, arg1, arg2, arg3, arg4, arg5, arg6)
         {
         }
@@ -2645,7 +2655,7 @@ namespace TED
         /// <param name="arg5">Default variable for the fifth argument</param>
         /// <param name="arg6">Default variable for the sixth argument</param>
         /// <param name="arg7">Default variable for the seventh argument</param>
-        public TablePredicate(string name, Action updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7)
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7)
             : base(name, updateProc, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
         {
         }
@@ -3026,7 +3036,7 @@ namespace TED
         /// <param name="arg6">Default variable for the sixth argument</param>
         /// <param name="arg7">Default variable for the seventh argument</param>
         /// <param name="arg8">Default variable for the eight argument</param>
-        public TablePredicate(string name, Action updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8)
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8)
             : base(name, updateProc, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
         {
         }

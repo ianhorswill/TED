@@ -173,9 +173,9 @@ namespace Tests
                 for (var j = 0; j<i; j++)
                     t.Add((i+5));
             }
-            foreach (var (k, i) in index.RowsByKey)
+            foreach (var (k, i) in index.CountsByKey)
                 Assert.AreEqual(k, i+5);
-            Assert.AreEqual(99, index.RowsByKey.Count());
+            Assert.AreEqual(99, index.CountsByKey.Count());
         }
 
         [TestMethod]
