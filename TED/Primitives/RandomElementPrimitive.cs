@@ -13,30 +13,42 @@ namespace TED.Primitives {
         public static RandomElementPrimitive<T> Singleton = new RandomElementPrimitive<T>();
         public RandomElementPrimitive() : base("RandomElement") { }
 
-        public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc) {
+        
+        /// <summary>
+        /// Randomization does not behave like a pure predicate
+        /// </summary>
+        public override bool IsPure => false;
+
+        public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
+        {
             var predicate = ((Constant<TablePredicate<T>>)g.Arg1).Value;
             return new Call(predicate, tc.Emit(g.Arg2)); }
 
-        private class Call : Interpreter.Call {
-            private readonly TablePredicate<T> predicate;
+        private class Call : Interpreter.Call
+        {
+            private readonly TablePredicate<T> table;
             private readonly MatchOperation<T> outputArg;
 
             public override IPattern ArgumentPattern => new Pattern<T>(outputArg);
 
-            public Call(TablePredicate<T> predicate, MatchOperation<T> outputArg) : base(predicate) {
-                this.predicate = predicate;
-                this.outputArg = outputArg; }
+            public Call(TablePredicate<T> table, MatchOperation<T> outputArg) : base(Singleton)
+            {
+                this.table = table;
+                this.outputArg = outputArg;
+            }
 
             private bool finished;
 
             public override void Reset() => finished = false;
 
-            public override bool NextSolution() {
-                var len = predicate.Length;
+            public override bool NextSolution()
+            {
+                var len = table.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
-                return true; }
+                outputArg.Match(table.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                return true;
+            }
         }
     }
 

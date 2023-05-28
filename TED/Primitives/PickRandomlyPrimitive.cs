@@ -7,6 +7,12 @@ namespace TED.Primitives
     internal sealed class PickRandomlyPrimitive<T> : PrimitivePredicate<T, T[]>
     {
         public static PickRandomlyPrimitive<T> Singleton = new PickRandomlyPrimitive<T>();
+
+        /// <summary>
+        /// Randomization does not behave like a pure predicate
+        /// </summary>
+        public override bool IsPure => false;
+        
         public PickRandomlyPrimitive() : base("PickRandomly")
         {
         }

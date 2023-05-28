@@ -8,6 +8,19 @@ namespace TED.Primitives {
     /// </summary>
     public class PrimitiveTest : PrimitivePredicate {
         internal readonly Func<bool> Implementation;
+        private bool _isPure = true;
+
+        /// <summary>
+        /// Mark this test as being impure
+        /// </summary>
+        public PrimitiveTest Impure()
+        {
+            _isPure = false;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override bool IsPure => _isPure;
 
         /// <summary>
         /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.
@@ -43,7 +56,20 @@ namespace TED.Primitives {
     /// <typeparam name="T1">Type of the argument to the predicate</typeparam>
     public class PrimitiveTest<T1> : PrimitivePredicate<T1> {
         internal readonly Func<T1, bool> Implementation;
+        private bool _isPure = true;
 
+        /// <summary>
+        /// Mark this test as being impure
+        /// </summary>
+        public PrimitiveTest<T1> Impure()
+        {
+            _isPure = false;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override bool IsPure => _isPure;
+        
         /// <summary>
         /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.
         /// </summary>
@@ -95,6 +121,19 @@ namespace TED.Primitives {
     /// <typeparam name="T2">Type of the second argument to the predicate</typeparam>
     public class PrimitiveTest<T1, T2> : PrimitivePredicate<T1, T2> {
         internal readonly Func<T1, T2, bool> Implementation;
+        private bool _isPure = true;
+
+        /// <summary>
+        /// Mark this test as being impure
+        /// </summary>
+        public PrimitiveTest<T1,T2> Impure()
+        {
+            _isPure = false;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override bool IsPure => _isPure;
 
         /// <summary>
         /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.
@@ -154,6 +193,19 @@ namespace TED.Primitives {
     /// <typeparam name="T3">Type of the third argument to the predicate</typeparam>
     public class PrimitiveTest<T1, T2, T3> : PrimitivePredicate<T1, T2, T3> {
         internal readonly Func<T1, T2, T3, bool> Implementation;
+        private bool _isPure = true;
+
+        /// <summary>
+        /// Mark this test as being impure
+        /// </summary>
+        public PrimitiveTest<T1,T2,T3> Impure()
+        {
+            _isPure = false;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override bool IsPure => _isPure;
 
         /// <summary>
         /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.
@@ -219,6 +271,19 @@ namespace TED.Primitives {
     /// <typeparam name="T4">Type of the fourth argument to the predicate</typeparam>
     public class PrimitiveTest<T1, T2, T3, T4> : PrimitivePredicate<T1, T2, T3, T4> {
         internal readonly Func<T1, T2, T3, T4, bool> Implementation;
+        private bool _isPure = true;
+
+        /// <summary>
+        /// Mark this test as being impure
+        /// </summary>
+        public PrimitiveTest<T1,T2,T3,T4> Impure()
+        {
+            _isPure = false;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override bool IsPure => _isPure;
 
         /// <summary>
         /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.
@@ -290,6 +355,19 @@ namespace TED.Primitives {
     /// <typeparam name="T5">Type of the fifth argument to the predicate</typeparam>
     public class PrimitiveTest<T1, T2, T3, T4, T5> : PrimitivePredicate<T1, T2, T3, T4, T5> {
         internal readonly Func<T1, T2, T3, T4, T5, bool> Implementation;
+        private bool _isPure = true;
+
+        /// <summary>
+        /// Mark this test as being impure
+        /// </summary>
+        public PrimitiveTest<T1,T2,T3,T4,T5> Impure()
+        {
+            _isPure = false;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override bool IsPure => _isPure;
 
         /// <summary>
         /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.
@@ -367,6 +445,19 @@ namespace TED.Primitives {
     /// <typeparam name="T6">Type of the sixth argument to the predicate</typeparam>
     public class PrimitiveTest<T1, T2, T3, T4, T5, T6> : PrimitivePredicate<T1, T2, T3, T4, T5, T6> {
         internal readonly Func<T1, T2, T3, T4, T5, T6, bool> Implementation;
+        private bool _isPure = true;
+
+        /// <summary>
+        /// Mark this test as being impure
+        /// </summary>
+        public PrimitiveTest<T1,T2,T3,T4,T5,T6> Impure()
+        {
+            _isPure = false;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override bool IsPure => _isPure;
 
         /// <summary>
         /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.
@@ -450,6 +541,19 @@ namespace TED.Primitives {
     /// <typeparam name="T7">Type of the seventh argument to the predicate</typeparam>
     public class PrimitiveTest<T1, T2, T3, T4, T5, T6, T7> : PrimitivePredicate<T1, T2, T3, T4, T5, T6, T7> {
         internal readonly Func<T1, T2, T3, T4, T5, T6, T7, bool> Implementation;
+        private bool _isPure = true;
+
+        /// <summary>
+        /// Mark this test as being impure
+        /// </summary>
+        public PrimitiveTest<T1,T2,T3,T4,T5,T6,T7> Impure()
+        {
+            _isPure = false;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override bool IsPure => _isPure;
 
         /// <summary>
         /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.
@@ -539,6 +643,19 @@ namespace TED.Primitives {
     /// <typeparam name="T8">Type of the eighth argument to the predicate</typeparam>
     public class PrimitiveTest<T1, T2, T3, T4, T5, T6, T7, T8> : PrimitivePredicate<T1, T2, T3, T4, T5, T6, T7, T8> {
         internal readonly Func<T1, T2, T3, T4, T5, T6, T7, T8, bool> Implementation;
+        private bool _isPure = true;
+
+        /// <summary>
+        /// Mark this test as being impure
+        /// </summary>
+        public PrimitiveTest<T1,T2,T3,T4,T5,T6,T7,T8> Impure()
+        {
+            _isPure = false;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override bool IsPure => _isPure;
 
         /// <summary>
         /// Make a primitive test, i.e. a predicate that can only be called on instantiated arguments.

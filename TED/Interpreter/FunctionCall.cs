@@ -22,6 +22,9 @@ namespace TED.Interpreter
             Function = function;
         }
 
+        /// <inheritdoc />
+        public override bool IsPure => Function.IsPure;
+
         internal override Func<TOut> MakeEvaluator(GoalAnalyzer _) => Function.Implementation;
 
         /// <inheritdoc />
@@ -41,6 +44,10 @@ namespace TED.Interpreter
         /// The function to be called
         /// </summary>
         public readonly Function<TIn1, TOut> Function;
+
+        /// <inheritdoc />
+        public override bool IsPure => Function.IsPure;
+
         /// <summary>
         /// The argument to the function
         /// </summary>
@@ -80,6 +87,10 @@ namespace TED.Interpreter
         /// The function to be called
         /// </summary>
         public readonly Function<TIn1, TIn2, TOut> Function;
+
+        /// <inheritdoc />
+        public override bool IsPure => Function.IsPure;
+
         /// <summary>
         /// The first argument
         /// </summary>
@@ -126,6 +137,10 @@ namespace TED.Interpreter
         /// The function to be called
         /// </summary>
         public readonly Function<TIn1, TIn2, TIn3, TOut> Function;
+
+        /// <inheritdoc />
+        public override bool IsPure => Function.IsPure;
+
         /// <summary>
         /// The first argument
         /// </summary>
@@ -180,6 +195,10 @@ namespace TED.Interpreter
         /// The function to be called
         /// </summary>
         public readonly Function<TIn1, TIn2, TIn3, TIn4, TOut> Function;
+
+        /// <inheritdoc />
+        public override bool IsPure => Function.IsPure;
+
         /// <summary>
         /// The first argument
         /// </summary>
@@ -241,6 +260,10 @@ namespace TED.Interpreter
         /// The function to be called
         /// </summary>
         public readonly Function<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> Function;
+
+        /// <inheritdoc />
+        public override bool IsPure => Function.IsPure;
+
         /// <summary>
         /// The first argument
         /// </summary>
@@ -309,6 +332,10 @@ namespace TED.Interpreter
         /// The function to be called
         /// </summary>
         public readonly Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> Function;
+
+        /// <inheritdoc />
+        public override bool IsPure => Function.IsPure;
+
         /// <summary>
         /// The first argument
         /// </summary>
@@ -384,6 +411,10 @@ namespace TED.Interpreter
         /// The function to be called
         /// </summary>
         public readonly Function<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> Function;
+
+        /// <inheritdoc />
+        public override bool IsPure => Function.IsPure;
+
         /// <summary>
         /// The first argument
         /// </summary>

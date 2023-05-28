@@ -14,15 +14,20 @@ namespace TED.Interpreter
         /// <summary>
         /// The predicate being called
         /// </summary>
-        public readonly Predicate Predicate;
+        public readonly Predicate Table;
+
+        /// <summary>
+        /// True if the call always produces the same results for the same input tables, and has no side effects of its own.
+        /// </summary>
+        public virtual bool IsPure => Table.IsPure;
 
         /// <summary>
         /// Make an object to interpret a particular goal in a particular rule.
         /// </summary>
-        /// <param name="predicate"></param>
-        protected Call(Predicate predicate)
+        /// <param name="table"></param>
+        protected Call(Predicate table)
         {
-            Predicate = predicate;
+            Table = table;
         }
 
         /// <summary>
@@ -42,7 +47,7 @@ namespace TED.Interpreter
         public abstract bool NextSolution();
 
         /// <inheritdoc />
-        public override string ToString() => $"{Predicate.Name}{ArgumentPattern}";
+        public override string ToString() => $"{Table.Name}{ArgumentPattern}";
 
         private string DebugString => ToString();
     }

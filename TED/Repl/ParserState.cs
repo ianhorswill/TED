@@ -82,7 +82,7 @@ namespace TED.Repl
         {
             if (RemainingChars < 1)
                 return false;
-            int i;
+
             if (!matchingChars.Contains(Text[Position]))
                     return false;
             return k(JumpTo(Position + 1));

@@ -13,10 +13,16 @@ namespace TED {
         /// </summary>
         public readonly string Name;
 
+        private readonly bool isPure;
+
         /// <summary>
         /// Make a TedFunction with the specified name
         /// </summary>
-        protected Function(string name) => Name = name;
+        protected Function(string name, bool isPure)
+        {
+            Name = name;
+            this.isPure = isPure;
+        }
 
         /// <inheritdoc />
         public override string ToString() => Name;
@@ -25,6 +31,11 @@ namespace TED {
         /// True if calls to this function should be printed as an operator rather than in F(args) format.
         /// </summary>
         public virtual bool RenderAsOperator => false;
+
+        /// <summary>
+        /// True if the function always returns the same value for the same inputs, and has no side-effects.
+        /// </summary>
+        public virtual bool IsPure => isPure;
     }
 
     /// <summary>
@@ -36,7 +47,7 @@ namespace TED {
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TOut> implementation) : base(name) => Implementation = implementation;
+        public Function(string name, Func<TOut> implementation, bool isPure = true) : base(name, isPure) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to this parameterless function
@@ -54,7 +65,7 @@ namespace TED {
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn, TOut> implementation) : base(name) => Implementation = implementation;
+        public Function(string name, Func<TIn, TOut> implementation, bool isPure = true) : base(name, isPure) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to the function
@@ -71,7 +82,7 @@ namespace TED {
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TOut> implementation) : base(name) => Implementation = implementation;
+        public Function(string name, Func<TIn1, TIn2, TOut> implementation, bool isPure = true) : base(name, isPure) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to the function
@@ -88,7 +99,7 @@ namespace TED {
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TIn3, TOut> implementation) : base(name) => Implementation = implementation;
+        public Function(string name, Func<TIn1, TIn2, TIn3, TOut> implementation, bool isPure = true) : base(name, isPure) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to the function
@@ -106,7 +117,7 @@ namespace TED {
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TOut> implementation) : base(name) => Implementation = implementation;
+        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TOut> implementation, bool isPure = true) : base(name, isPure) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to the function
@@ -124,7 +135,7 @@ namespace TED {
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> implementation) : base(name) => Implementation = implementation;
+        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> implementation, bool isPure = true) : base(name, isPure) => Implementation = implementation;
 
         /// <summary>
         /// Make a call to the function
@@ -142,7 +153,7 @@ namespace TED {
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> implementation) : base(name) => Implementation = implementation;
+        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> implementation, bool isPure = true) : base(name, isPure) => Implementation = implementation;
         
         /// <summary>
         /// Make a call to the function
@@ -160,7 +171,7 @@ namespace TED {
         /// <summary>
         /// Make a new TedFunction to wrap the specified C# function
         /// </summary>
-        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> implementation) : base(name) => Implementation = implementation;
+        public Function(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> implementation, bool isPure = true) : base(name, isPure) => Implementation = implementation;
         
         /// <summary>
         /// Make a call to the function

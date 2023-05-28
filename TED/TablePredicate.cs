@@ -91,6 +91,11 @@ namespace TED
         /// </summary>
         public bool IsStatic => !IsDynamic;
 
+        /// <summary>
+        /// True if this table is only used for initialization of some other table
+        /// </summary>
+        public bool InitializationOnly;
+
         internal abstract Table TableUntyped { get; }
 
         /// <summary>
@@ -230,6 +235,9 @@ namespace TED
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public bool IsExtensional => Rules == null;
+
+        /// <inheritdoc />
+        public override bool IsPure => Rules == null || Rules.All(r => r.IsPure);
 
         internal abstract void AddInitialData();
 

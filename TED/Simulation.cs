@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -20,6 +21,7 @@ namespace TED
         public override void EndPredicates()
         {
             base.EndPredicates();
+            FindInitializationOnlyPredicates();
             FindDynamicPredicates();
             CheckTableDefinitions();
             InitializeTables();
@@ -61,7 +63,7 @@ namespace TED
         private void FindDynamicPredicates()
         {
             foreach (var t in Tables)
-                t.IsDynamic = false;
+                t.IsDynamic = t is { IsIntensional: true, IsPure: false, InitializationOnly: false };
 
             void MarkDynamic(TablePredicate p)
             {
@@ -73,10 +75,47 @@ namespace TED
             }
 
             foreach (var t in Tables)
-                foreach (var d in t.ImperativeDependencies)
-                    MarkDynamic(d);
+            {
+                if (t.ImperativeDependencies.Any())
+                {
+                    MarkDynamic(t);
+                    foreach (var d in t.ImperativeDependencies)
+                        MarkDynamic(d);
+                }
+
+            }
 
             DynamicTables = Tables.Where(t => t.IsDynamic).ToArray();
+        }
+
+        private void FindInitializationOnlyPredicates()
+        {
+            // Find the .Initially tables and make sure they're only used for initialization.
+            foreach (var t in Tables)
+            {
+                var i = t.InitialValueTable;
+                if (i is { Dependents: { Count: 0 } }) 
+                    i.InitializationOnly = true;
+            }
+
+            // Queue of tables newly discovered to be initialization only
+            var q = new Queue<TablePredicate>();
+            foreach (var t in Tables)
+                if (t.InitializationOnly)
+                    q.Enqueue(t);
+            while (q.Count > 0)
+            {
+                var i = q.Dequeue();
+                foreach (var t in i.RuleDependencies)
+                    if (!t.InitializationOnly
+                        && t.Dependents.Count > 0 
+                        && t.Dependents.All(d => d.InitializationOnly))
+                    {
+                        // We just discovered t is also initialization-only
+                        t.InitializationOnly = true;
+                        q.Enqueue(t);
+                    }
+            }
         }
 
 #if PROFILER

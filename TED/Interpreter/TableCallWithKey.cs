@@ -24,7 +24,7 @@ namespace TED.Interpreter
             if (!Primed) return false;
             Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Tables.Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 
@@ -50,7 +50,7 @@ namespace TED.Interpreter
             if (!Primed) return false;
             Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Tables.Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 
@@ -76,7 +76,7 @@ namespace TED.Interpreter
             if (!Primed) return false;
             Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Tables.Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 
@@ -102,7 +102,7 @@ namespace TED.Interpreter
             if (!Primed) return false;
             Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Tables.Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 
@@ -128,7 +128,7 @@ namespace TED.Interpreter
             if (!Primed) return false;
             Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Tables.Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 
@@ -154,7 +154,7 @@ namespace TED.Interpreter
             if (!Primed) return false;
             Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Tables.Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 
@@ -180,7 +180,7 @@ namespace TED.Interpreter
             if (!Primed) return false;
             Primed = false;
             var row = index.RowWithKey(in keyCell.Value);
-            return row != Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
+            return row != Tables.Table.NoRow && pattern.Match(in predicate._table.PositionReference(row));
         }
     }
 }
