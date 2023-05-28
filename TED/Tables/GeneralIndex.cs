@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -30,12 +32,116 @@ namespace TED.Tables
         // - nextRow.Length == table.data.length
         //
 
+        public IEnumerable<TColumn> Keys => new KeyEnumeration(this);
+
+        public struct KeyEnumeration : IEnumerable<TColumn>
+        {
+            private readonly GeneralIndex<TRow, TColumn> index;
+
+            public KeyEnumeration(GeneralIndex<TRow, TColumn> index)
+            {
+                this.index = index;
+            }
+
+            public IEnumerator<TColumn> GetEnumerator()
+            {
+                return new KeyEnumerator(index);
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+        public struct KeyEnumerator : IEnumerator<TColumn>
+        {
+            private int bucket;
+            private readonly (TColumn key, uint firstRow, int)[] buckets;
+
+            public KeyEnumerator(GeneralIndex<TRow,TColumn> index)
+            {
+                this.buckets = index.buckets;
+                bucket = -1;
+            }
+
+            public bool MoveNext()
+            {
+                while (++bucket < buckets.Length && !Table.ValidRow(buckets[bucket].firstRow)) { }
+                return bucket < buckets.Length;
+            }
+
+            public void Reset()
+            {
+                bucket = -1;
+            }
+
+            public TColumn Current => buckets[bucket].key;
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
+            { }
+        }
+
+        public IEnumerable<(TColumn, int)> RowsByKey => new KeyCountEnumeration(this);
+
+        public struct KeyCountEnumeration : IEnumerable<(TColumn,int)>
+        {
+            private readonly GeneralIndex<TRow, TColumn> index;
+
+            public KeyCountEnumeration(GeneralIndex<TRow, TColumn> index)
+            {
+                this.index = index;
+            }
+
+            public IEnumerator<(TColumn,int)> GetEnumerator()
+            {
+                return new KeyCountEnumerator(index);
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+        public struct KeyCountEnumerator : IEnumerator<(TColumn,int)>
+        {
+            private int bucket;
+            private readonly (TColumn key, uint firstRow, int count)[] buckets;
+
+            public KeyCountEnumerator(GeneralIndex<TRow,TColumn> index)
+            {
+                this.buckets = index.buckets;
+                bucket = -1;
+            }
+
+            public bool MoveNext()
+            {
+                while (++bucket < buckets.Length && !Table.ValidRow(buckets[bucket].firstRow)) { }
+                return bucket < buckets.Length;
+            }
+
+            public void Reset()
+            {
+                bucket = -1;
+            }
+
+            public (TColumn ,int) Current => (buckets[bucket].key, buckets[bucket].count);
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
+            { }
+        }
+
         /// <summary>
         /// Buckets for the hash table.  These contain a column value and the index of the first row in the
         /// linked list of rows having that column value.  The row after it is stored in nextRow[firstRow].
         /// Empty buckets have firstRow == AnyTable.NoRow.
         /// </summary>
-        private (TColumn columnValue, uint firstRow)[] buckets;
+        private (TColumn columnValue, uint firstRow, int count)[] buckets;
+
+        private readonly bool enumeratedTypeColumn;
 
         /// <summary>
         /// Next cells in the linked lists.
@@ -79,13 +185,21 @@ namespace TED.Tables
         {
             predicate = p;
             table = t;
+            var columnType = typeof(TColumn);
+            enumeratedTypeColumn = columnType.IsEnum;
             var capacity = t.Data.Length * 2;
-            buckets = new (TColumn columnValue, uint firstRow)[capacity];
-            Array.Fill(buckets!, (default(TColumn), Table.NoRow));
+            buckets = new (TColumn columnValue, uint firstRow, int count)[enumeratedTypeColumn?Enum.GetValues(columnType).Cast<int>().Max()+1:capacity];
+            Array.Fill(buckets!, (default(TColumn), Table.NoRow, 0));
             nextRow = new uint[t.Data.Length];
             Array.Fill(nextRow, Table.NoRow);
-            mask = (uint)(capacity - 1);
-            Debug.Assert((mask & capacity) == 0, "Capacity must be a power of 2");
+            if (enumeratedTypeColumn)
+                mask = uint.MaxValue;
+            else
+            {
+                mask = (uint)(capacity - 1);
+                Debug.Assert((mask & capacity) == 0, "Capacity must be a power of 2");
+            }
+
             Reindex();
         }
 
@@ -147,10 +261,19 @@ namespace TED.Tables
             { }
 
             var oldFirstRow = buckets[b].firstRow;
-            if (oldFirstRow == Table.DeletedRow) oldFirstRow = Table.NoRow;
+            if (oldFirstRow == Table.DeletedRow) 
+                oldFirstRow = Table.NoRow;
+            if (oldFirstRow == Table.NoRow)
+            {
+                buckets[b].columnValue = value;
+                buckets[b].count = 0;
+            }
+
             // Insert row at the beginning of the list for this value;
+            buckets[b].firstRow = row;
+            buckets[b].count++;
             nextRow[row] = oldFirstRow;
-            buckets[b] = (value, row);
+
 
             // Update back-pointers, if this table supports removal
             if (previousRow != null)
@@ -199,9 +322,12 @@ namespace TED.Tables
         /// </summary>
         internal override void Expand()
         {
-            buckets = new (TColumn columnValue, uint firstRow)[buckets.Length * 2];
-            Array.Fill(buckets!, (default(TColumn), Table.NoRow));
-            mask = (uint)(buckets.Length - 1);
+            if (!enumeratedTypeColumn)
+            {
+                buckets = new (TColumn columnValue, uint firstRow, int count)[buckets.Length * 2];
+                mask = (uint)(buckets.Length - 1);
+            }
+            Array.Fill(buckets!, (default(TColumn), Table.NoRow,0));
             nextRow = new uint[nextRow.Length * 2];
             Array.Fill(nextRow, Table.NoRow);
             if (previousRow != null)
@@ -214,7 +340,7 @@ namespace TED.Tables
         /// </summary>
         internal override void Clear()
         {
-            Array.Fill(buckets!, (default(TColumn), Table.NoRow));
+            Array.Fill(buckets!, (default(TColumn), Table.NoRow, 0));
         }
 
         /// <summary>

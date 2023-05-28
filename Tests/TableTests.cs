@@ -143,6 +143,41 @@ namespace Tests
             }
         }
 
+        enum DayOfWeek
+        {
+            Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+        };
+
+        [TestMethod]
+        public void GeneralIndexEnumeratedType()
+        {
+            var t = new Table<(int, DayOfWeek)>();
+            var index = new GeneralIndex<(int, DayOfWeek), DayOfWeek>(null!, t, 0, (in (int, DayOfWeek) r)=>r.Item2);
+            t.AddIndex(index);
+            for (var i = 0; i < 1025; i++)
+            {
+                for (DayOfWeek d = DayOfWeek.Monday;d <= DayOfWeek.Sunday; d++)
+                     t.Add((i,d));
+            }
+            Assert.AreEqual(7, index.Keys.Count());
+        }
+
+        [TestMethod]
+        public void KeyCounts()
+        {
+            var t = new Table<int>();
+            var index = new GeneralIndex<int, int>(null!, t, 0, (in int n)=>n);
+            t.AddIndex(index);
+            for (var i = 0; i < 100; i++)
+            {
+                for (var j = 0; j<i; j++)
+                    t.Add((i+5));
+            }
+            foreach (var (k, i) in index.RowsByKey)
+                Assert.AreEqual(k, i+5);
+            Assert.AreEqual(99, index.RowsByKey.Count());
+        }
+
         [TestMethod]
         public void RowsMatchingTest()
         {
