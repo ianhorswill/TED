@@ -1386,7 +1386,7 @@ namespace TED
         /// Makes a Function with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static Function<TOut> Method<TOut>(Func<TOut> fn, bool isPure = true) => new Function<TIn>(fn.Method.Name, fn, isPure);
+        public static Function<TOut> Method<TOut>(Func<TOut> fn, bool isPure = true) => new Function<TOut>(fn.Method.Name, fn, isPure);
 
         /// <summary>
         /// Makes a function that can be placed in functional expressions
