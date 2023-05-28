@@ -30,18 +30,31 @@ namespace Tests
         {
             var f = (Var<string>)"f";
             var m = (Var<string>)"m";
-            var candidates = Predicate("candidates", f.Indexed, m);
+            var desire = (Var<float>)"desire";
+            var candidates = Predicate("candidates", f.Indexed, m, desire);
             candidates.Unique = true;
-            var assignments = AssignRandomly("assignments", candidates);
-            candidates.AddRow("jenny", "bill");
-            candidates.AddRow("jenny", "george");
-            candidates.AddRow("jenny", "chris");
-            candidates.AddRow("sally", "bill");
-            candidates.AddRow("sally", "george");
-            candidates.AddRow("sally", "pat");
+            var assignments = AssignGreedily("assignments", candidates);
+            candidates.AddRow("jenny", "bill", 1);
+            candidates.AddRow("jenny", "george",2);
+            candidates.AddRow("jenny", "chris",0);
+            candidates.AddRow("sally", "bill",2);
+            candidates.AddRow("sally", "george",3);
+            candidates.AddRow("sally", "pat",2);
+            var a = assignments.ToArray();
             Assert.AreEqual(2, assignments.Count());
-            foreach (var assignment in assignments)
-                Assert.IsTrue(candidates.Table.ContainsRowUsingRowSet(assignment));
+            foreach (var (fa,ma) in assignments)
+                switch (fa)
+                {
+                    case "jenny":
+                        Assert.AreEqual("bill", ma);
+                        break;
+                    case "sally":
+                        Assert.AreEqual("george", ma);
+                        break;
+                    default:
+                        Assert.Fail($"Unknown assignee {fa}");
+                        break;
+                }
         }
     }
 }
