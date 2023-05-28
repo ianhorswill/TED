@@ -1244,7 +1244,7 @@ namespace TED
             => new Definition<T1,T2,T3,T4,T5,T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
         #endregion
 
-        internal static Func<T> BuildSafeMemberAccess<T>(object target, string property) => 
+        private static Func<T> BuildSafeMemberAccess<T>(object target, string property) => 
             (Func<T>)Delegate.CreateDelegate(typeof(Func<T>), target, 
                 (target.GetType().GetProperty(property) ?? throw new MemberAccessException(
                     $"{property} property not found for type {target.GetType()}")
