@@ -70,7 +70,7 @@ namespace Tests
         {
             var s = new Simulation(nameof(ImpurePredicate));
             var n = (Var<int>)"n";
-            var T = Test<int>("T",_ => true).Impure();
+            var T = Test<int>("T",_ => true, false);
             s.BeginPredicates();
             var BaseTableStatic = Predicate("BaseTableStatic", n);
             BaseTableStatic.Initially[n].If(n == 1);
