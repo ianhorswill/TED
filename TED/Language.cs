@@ -2024,6 +2024,101 @@ namespace TED
             };
         }
 
+        /// <summary>
+        /// Generate a random subset of the candidate pairs such that each item from the first column
+        /// appears exactly once.  Does not guarantee that the same item from the second column won't be
+        /// assigned to two different items from the first column.
+        /// </summary>
+        /// <param name="name">Name for the table of assignments.</param>
+        /// <param name="candidates">Table of candidate pairs.  Must be indexed.</param>
+        /// <param name="capacities">Number of T1's that can be assigned to a given T2</param>
+        /// <typeparam name="T1">Type of the first column of the table</typeparam>
+        /// <typeparam name="T2">Type of the second column of the table</typeparam>
+        /// <returns>Table of assignments</returns>
+        public static TablePredicate<T1, T2> AssignGreedily<T1, T2>(string name,
+            TablePredicate<T1, T2,float> candidates,
+            TablePredicate<T2,int> capacities)
+        {
+            var scratch = Array.Empty<(T1, T2, float)>();
+            var t1Set = new HashSet<T1>();
+            var t2Capacity = new Dictionary<T2,int>();
+            return new TablePredicate<T1, T2>(
+                name,
+                (tab) =>
+                {
+                    var table = (Table<(T1,T2)>)tab;
+                    if (scratch.Length < candidates.Length)
+                        scratch = new (T1, T2, float)[candidates.Table.Data.Length];
+                    Array.Copy(candidates.Table.Data, scratch, candidates.Length);
+                    Array.Sort<(T1,T2,float)>(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
+                    t1Set.Clear();
+                    t2Capacity.Clear();
+                    var capacityData = capacities.Table.Data;
+                    for (var i = 0; i < capacities.Length; i++)
+                    {
+                        var (k, cap) = capacityData[i];
+                        t2Capacity[k] = cap;
+                    }
+                    for (var i = 0; i < candidates.Length; i++)
+                    {
+                        var (i1, i2, _) = scratch[i];
+                        var cap = t2Capacity[i2];
+                        if (cap>0 && !t1Set.Contains(i1))
+                        {
+                            t1Set.Add(i1);
+                            t2Capacity[i2] = cap-1;
+                            table.Add((i1, i2));
+                        }
+                    }
+                },
+                (Var<T1>)candidates.DefaultVariables[0],
+                (Var<T2>)candidates.DefaultVariables[1])
+            {
+                OperatorDependencies = new[] { candidates }
+            };
+        }
+
+        /// <summary>
+        /// Generate a random subset of the candidate pairs such that each item from the first column
+        /// appears exactly once.  Does not guarantee that the same item from the second column won't be
+        /// assigned to two different items from the first column.
+        /// </summary>
+        /// <param name="name">Name for the table of assignments.</param>
+        /// <param name="candidates">Table of candidate pairs.  Must be indexed.</param>
+        /// <typeparam name="T1">Type of the first column of the table</typeparam>
+        /// <returns>Table of assignments</returns>
+        public static TablePredicate<T1, T1> MatchGreedily<T1>(string name, TablePredicate<T1, T1,float> candidates)
+        {
+            var scratch = Array.Empty<(T1, T1, float)>();
+            var t1Set = new HashSet<T1>();
+            return new TablePredicate<T1, T1>(
+                name,
+                (tab) =>
+                {
+                    var table = (Table<(T1,T1)>)tab;
+                    if (scratch.Length < candidates.Length)
+                        scratch = new (T1, T1, float)[candidates.Table.Data.Length];
+                    Array.Copy(candidates.Table.Data, scratch, candidates.Length);
+                    Array.Sort<(T1,T1,float)>(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T1>.Singleton);
+                    t1Set.Clear();
+                    for (var i = 0; i < candidates.Length; i++)
+                    {
+                        var (i1, i2, _) = scratch[i];
+                        if (!t1Set.Contains(i1) && !t1Set.Contains(i2))
+                        {
+                            t1Set.Add(i1);
+                            t1Set.Add(i2);
+                            table.Add((i1, i2));
+                        }
+                    }
+                },
+                (Var<T1>)candidates.DefaultVariables[0],
+                (Var<T1>)candidates.DefaultVariables[1])
+            {
+                OperatorDependencies = new[] { candidates }
+            };
+        }
+
         private class CandidateComparer<T1, T2> : IComparer<(T1, T2, float)>
         {
             public static CandidateComparer<T1,T2> Singleton = new CandidateComparer<T1,T2>();
