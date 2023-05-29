@@ -1908,5 +1908,130 @@ namespace TED
         // ReSharper restore UnusedMember.Global
         #endregion
 
+        #region Table operators
+
+        /// <summary>
+        /// Make a pivot table containing the number of rows for each value of column
+        /// </summary>
+        /// <param name="name">Name to give to the table</param>
+        /// <param name="t">TablePredicate to construct the pivot table for</param>
+        /// <param name="column">Column to find counts of</param>
+        /// <param name="count">Name to give to the count column in the output</param>
+        /// <typeparam name="TColumn"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static TablePredicate<TColumn, int> CountsBy<TColumn>(string name, TablePredicate t, Var<TColumn> column, Var<int> count)
+        {
+            var tableIndex = t.IndexFor(column, false);
+            if (tableIndex == null)
+                throw new InvalidOperationException($"Table {t.Name} must have an index for column {column.Name}");
+            var i = (IGeneralIndex<TColumn>)tableIndex;
+            return new TablePredicate<TColumn, int>(
+                name,
+                (tab) =>
+                {
+                    var table = (Table<(TColumn,int)>)tab;
+                    foreach (var keyAndCount in i.CountsByKey)
+                        table.Add(keyAndCount);
+                },
+                column, count)
+            {
+                OperatorDependencies = new[] { t }
+            };
+        }
+
+        /// <summary>
+        /// Generate a random subset of the candidate pairs such that each item from the first column
+        /// appears exactly once.  Does not guarantee that the same item from the second column won't be
+        /// assigned to two different items from the first column.
+        /// </summary>
+        /// <param name="name">Name for the table of assignments.</param>
+        /// <param name="candidates">Table of candidate pairs.  Must be indexed.</param>
+        /// <typeparam name="T1">Type of the first column of the table</typeparam>
+        /// <typeparam name="T2">Type of the second column of the table</typeparam>
+        /// <returns>Table of random assignments</returns>
+        /// <exception cref="InvalidOperationException">If candidates table is not indexed.</exception>
+        public static TablePredicate<T1, T2> AssignRandomly<T1, T2>(string name, TablePredicate<T1, T2> candidates)
+        {
+            var candidateIndex = candidates.IndexFor(0, false);
+            if (candidateIndex == null)
+                throw new InvalidOperationException($"Table {candidates.Name} must have an index for its first column");
+            var cIndex = (GeneralIndex<(T1,T2), T1>)candidateIndex;
+            var rng = new System.Random();
+            return new TablePredicate<T1, T2>(
+                name,
+                (tab) =>
+                {
+                    var table = (Table<(T1,T2)>)tab;
+                    foreach (var (k, firstRow, count) in cIndex.KeyInfo)
+                    {
+                        var row = firstRow;
+                        var r = rng.Next() % count;
+                        for (var i = 0; i < r; i++)
+                            row = cIndex.NextRowWithValue(row);
+                        table.Add((k,candidates.Table.PositionReference(row).Item2));
+                    }
+                },
+                (Var<T1>)candidates.DefaultVariables[0],
+                (Var<T2>)candidates.DefaultVariables[1])
+            {
+                OperatorDependencies = new[] { candidates }
+            };
+        }
+
+        /// <summary>
+        /// Generate a random subset of the candidate pairs such that each item from the first column
+        /// appears exactly once.  Does not guarantee that the same item from the second column won't be
+        /// assigned to two different items from the first column.
+        /// </summary>
+        /// <param name="name">Name for the table of assignments.</param>
+        /// <param name="candidates">Table of candidate pairs.  Must be indexed.</param>
+        /// <typeparam name="T1">Type of the first column of the table</typeparam>
+        /// <typeparam name="T2">Type of the second column of the table</typeparam>
+        /// <returns>Table of assignments</returns>
+        public static TablePredicate<T1, T2> AssignGreedily<T1, T2>(string name, TablePredicate<T1, T2,float> candidates)
+        {
+            var scratch = Array.Empty<(T1, T2, float)>();
+            var t1Set = new HashSet<T1>();
+            var t2Set = new HashSet<T2>();
+            return new TablePredicate<T1, T2>(
+                name,
+                (tab) =>
+                {
+                    var table = (Table<(T1,T2)>)tab;
+                    if (scratch.Length < candidates.Length)
+                        scratch = new (T1, T2, float)[candidates.Table.Data.Length];
+                    Array.Copy(candidates.Table.Data, scratch, candidates.Length);
+                    Array.Sort<(T1,T2,float)>(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
+                    t1Set.Clear();
+                    t2Set.Clear();
+                    for (var i = 0; i < candidates.Length; i++)
+                    {
+                        var (i1, i2, _) = scratch[i];
+                        if (!t1Set.Contains(i1) && !t2Set.Contains(i2))
+                        {
+                            t1Set.Add(i1);
+                            t2Set.Add(i2);
+                            table.Add((i1, i2));
+                        }
+                    }
+                },
+                (Var<T1>)candidates.DefaultVariables[0],
+                (Var<T2>)candidates.DefaultVariables[1])
+            {
+                OperatorDependencies = new[] { candidates }
+            };
+        }
+
+        private class CandidateComparer<T1, T2> : IComparer<(T1, T2, float)>
+        {
+            public static CandidateComparer<T1,T2> Singleton = new CandidateComparer<T1,T2>();
+
+            public int Compare((T1, T2, float) x, (T1, T2, float) y)
+            {
+                return -x.Item3.CompareTo(y.Item3);
+            }
+        }
+        #endregion
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using TED.Interpreter;
 using TED.Preprocessing;
 
@@ -30,9 +29,11 @@ namespace TED.Primitives
             private readonly MatchOperation<T> matcher;
             private readonly Func<T> expressionEvaluator;
             private readonly Goal originalGoal;
-            private bool isPure;
+            private readonly bool isPure;
             private bool restarted;
 
+            /// <inheritdoc />
+            // ReSharper disable once ConvertToAutoProperty
             public override bool IsPure => isPure;
 
             public EvalCall(Predicate p, MatchOperation<T> matcher, Func<T> expressionEvaluator, Goal originalGoal, bool pure) : base(p)

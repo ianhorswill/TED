@@ -58,7 +58,7 @@ namespace TED
         /// <summary>
         /// Make a new predicate
         /// </summary>
-        protected TablePredicate(string name, params IColumnSpec[] columns) : base(name)
+        protected TablePredicate(string name, Action<Table>? updateProc, params IColumnSpec[] columns) : base(name)
         {
             Program.MaybeAddPredicate(this);
             DefaultVariables = columns.Select(spec => spec.UntypedVariable).ToArray();
@@ -74,6 +74,11 @@ namespace TED
                         IndexBy(i);
                         break;
                 }
+
+            this.updateProc = updateProc;
+            UpdateMode = updateProc == null?UpdateMode.BaseTable:UpdateMode.Operator;
+            if (UpdateMode != UpdateMode.BaseTable)
+                MustRecompute = true;
         }
 
         /// <summary>
@@ -213,11 +218,23 @@ namespace TED
         public IEnumerable<TableIndex> Indices => TableUntyped.Indices;
 
         /// <summary>
+        /// How this table should be updated, if at all
+        /// </summary>
+        public UpdateMode UpdateMode { get; private set; }
+
+        /// <summary>
         /// Rules that can be used to prove goals involving this predicate
         /// </summary>
         public List<Rule>? Rules;
 
-        #if PROFILER
+        private readonly Action<Table>? updateProc;
+
+        /// <summary>
+        /// For tables that are the results of operators.  The tables the operator takes as inputs.
+        /// </summary>
+        public IEnumerable<TablePredicate> OperatorDependencies = Array.Empty<TablePredicate>();
+
+#if PROFILER
         /// <summary>
         /// Combined average execution time of all the rules for this predicate.
         /// </summary>
@@ -227,14 +244,15 @@ namespace TED
         /// <summary>
         /// A TablePredicate is "intensional" if it's defined by rules.  Otherwise it's "extensional"
         /// </summary>
-        public bool IsIntensional => Rules != null;
+        public bool IsIntensional => UpdateMode != UpdateMode.BaseTable;
 
         /// <summary>
         /// A predicate is "extensional" if it is defined by directly specifying its extension (the set of it instances/rows)
         /// using AddRow.  If it's defined by rules, it's "intensional".
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public bool IsExtensional => Rules == null;
+        public bool IsExtensional => UpdateMode == UpdateMode.BaseTable;
+
 
         /// <inheritdoc />
         public override bool IsPure => Rules == null || Rules.All(r => r.IsPure);
@@ -263,8 +281,20 @@ namespace TED
         {
             if (!MustRecompute) return;
             Clear();
-            foreach (var r in Rules!)
-                r.AddAllSolutions();
+            switch (UpdateMode)
+            {
+                case UpdateMode.Rules:
+                    foreach (var r in Rules!)
+                        r.AddAllSolutions();
+                    break;
+
+                case UpdateMode.Operator:
+                    foreach (var t in OperatorDependencies)
+                        t.EnsureUpToDate();
+                    updateProc!(TableUntyped);
+                    break;
+            }
+
             MustRecompute = false;
         }
 
@@ -282,6 +312,10 @@ namespace TED
         /// </summary>
         internal void AddRule(Rule r)
         {
+            if (UpdateMode == UpdateMode.Operator)
+                throw new InvalidOperationException(
+                    $"You cannot add a rule to {Name} because it is the result of an operator");
+            UpdateMode = UpdateMode.Rules;
             if (!r.Head.IsInstantiated)
                 throw new InstantiationException("Rules in table predicates must have fully instantiated heads");
             Rules ??= new List<Rule>();
@@ -559,7 +593,17 @@ namespace TED
         /// </summary>
         /// <param name="name">Name of the predicate</param>
         /// <param name="arg1">Default variable for the first argument</param>
-        public TablePredicate(string name, IColumnSpec<T1> arg1) : base(name, arg1)
+        public TablePredicate(string name, IColumnSpec<T1> arg1) : base(name, null, arg1)
+        {
+        }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="updateProc">Procedure to call to update the contents of the table.  This should only be used for tables that are the results of operators</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1) : base(name, updateProc, arg1)
         {
         }
 
@@ -783,8 +827,20 @@ namespace TED
         /// <param name="name">Name of the predicate</param>
         /// <param name="arg1">Default variable for the first argument</param>
         /// <param name="arg2">Default variable for the second argument</param>
-        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) : base(name, arg1, arg2)
+        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) : base(name, null, arg1, arg2)
         { }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="updateProc">Procedure to call to update the contents of the table.  This should only be used for tables that are the results of operators</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) : base(name, updateProc, arg1, arg2)
+        {
+        }
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2)> _table = new Table<(T1, T2)>();
@@ -1128,8 +1184,24 @@ namespace TED
         /// <param name="arg1">Default variable for the first argument</param>
         /// <param name="arg2">Default variable for the second argument</param>
         /// <param name="arg3">Default variable for the third argument</param>
-        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) : base(name, arg1, arg2, arg3)
+
+        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) 
+            : base(name, null, arg1, arg2, arg3)
         { }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="updateProc">Procedure to call to update the contents of the table.  This should only be used for tables that are the results of operators</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3)
+            : base(name, updateProc, arg1, arg2, arg3)
+        {
+        }
         
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3)> _table = new Table<(T1, T2, T3)>();
@@ -1456,8 +1528,24 @@ namespace TED
         /// <param name="arg2">Default variable for the second argument</param>
         /// <param name="arg3">Default variable for the third argument</param>
         /// <param name="arg4">Default variable for the fourth argument</param>
-        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4) : base(name, arg1, arg2, arg3, arg4)
+        public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4)
+            : base(name, null, arg1, arg2, arg3, arg4)
         { }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="updateProc">Procedure to call to update the contents of the table.  This should only be used for tables that are the results of operators</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        /// <param name="arg4">Default variable for the fourth argument</param>
+
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4)
+            : base(name, updateProc, arg1, arg2, arg3, arg4)
+        {
+        }
         
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3, T4)> _table = new Table<(T1, T2, T3, T4)>();
@@ -1799,8 +1887,23 @@ namespace TED
         /// <param name="arg4">Default variable for the fourth argument</param>
         /// <param name="arg5">Default variable for the fifth argument</param>
         public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5) 
-            : base(name, arg1, arg2, arg3, arg4, arg5)
+            : base(name, null, arg1, arg2, arg3, arg4, arg5)
         { }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="updateProc">Procedure to call to update the contents of the table.  This should only be used for tables that are the results of operators</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        /// <param name="arg4">Default variable for the fourth argument</param>
+        /// <param name="arg5">Default variable for the fifth argument</param>
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5)
+            : base(name, updateProc, arg1, arg2, arg3, arg4, arg5)
+        {
+        }
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3, T4, T5)> _table = new Table<(T1, T2, T3, T4, T5)>();
@@ -2157,8 +2260,24 @@ namespace TED
         /// <param name="arg5">Default variable for the fifth argument</param>
         /// <param name="arg6">Default variable for the sixth argument</param>
         public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6) 
-            : base(name, arg1, arg2, arg3, arg4, arg5, arg6)
+            : base(name, null, arg1, arg2, arg3, arg4, arg5, arg6)
         { }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="updateProc">Procedure to call to update the contents of the table.  This should only be used for tables that are the results of operators</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        /// <param name="arg4">Default variable for the fourth argument</param>
+        /// <param name="arg5">Default variable for the fifth argument</param>
+        /// <param name="arg6">Default variable for the sixth argument</param>
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6)
+            : base(name, updateProc, arg1, arg2, arg3, arg4, arg5, arg6)
+        {
+        }
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3, T4, T5, T6)> _table = new Table<(T1, T2, T3, T4, T5, T6)>();
@@ -2522,7 +2641,24 @@ namespace TED
         /// <param name="arg6">Default variable for the sixth argument</param>
         /// <param name="arg7">Default variable for the seventh argument</param>
         public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7)
-            : base(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7) { }
+            : base(name, null, arg1, arg2, arg3, arg4, arg5, arg6, arg7) { }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="updateProc">Procedure to call to update the contents of the table.  This should only be used for tables that are the results of operators</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        /// <param name="arg4">Default variable for the fourth argument</param>
+        /// <param name="arg5">Default variable for the fifth argument</param>
+        /// <param name="arg6">Default variable for the sixth argument</param>
+        /// <param name="arg7">Default variable for the seventh argument</param>
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7)
+            : base(name, updateProc, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+        {
+        }
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1, T2, T3, T4, T5, T6, T7)> _table = new Table<(T1, T2, T3, T4, T5, T6, T7)>();
@@ -2885,7 +3021,26 @@ namespace TED
         /// <param name="arg7">Default variable for the seventh argument</param>
         /// <param name="arg8">Default variable for the eighth argument</param>
         public TablePredicate(string name, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8)
-            : base(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) { }
+            : base(name, null, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) { }
+
+        /// <summary>
+        /// Make a new table predicate with the specified name
+        /// </summary>
+        /// <param name="name">Name of the predicate</param>
+        /// <param name="updateProc">Procedure to call to update the contents of the table.  This should only be used for tables that are the results of operators</param>
+        /// <param name="arg1">Default variable for the first argument</param>
+        /// <param name="arg2">Default variable for the second argument</param>
+        /// <param name="arg3">Default variable for the third argument</param>
+        /// <param name="arg4">Default variable for the fourth argument</param>
+        /// <param name="arg5">Default variable for the fifth argument</param>
+        /// <param name="arg6">Default variable for the sixth argument</param>
+        /// <param name="arg7">Default variable for the seventh argument</param>
+        /// <param name="arg8">Default variable for the eight argument</param>
+        public TablePredicate(string name, Action<Table> updateProc, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8)
+            : base(name, updateProc, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+        {
+        }
+
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1, T2, T3, T4, T5, T6, T7, T8)> _table = new Table<(T1, T2, T3, T4, T5, T6, T7, T8)>();

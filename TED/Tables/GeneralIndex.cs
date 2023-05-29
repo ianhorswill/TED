@@ -13,7 +13,7 @@ namespace TED.Tables
     /// </summary>
     /// <typeparam name="TRow">Type of the table rows.  This will be a tuple type unless it's a single-column table</typeparam>
     /// <typeparam name="TColumn">Type of the column we're indexing by</typeparam>
-    public sealed class GeneralIndex<TRow, TColumn> : TableIndex<TRow, TColumn>
+    public sealed class GeneralIndex<TRow, TColumn> : TableIndex<TRow, TColumn>, IGeneralIndex<TColumn>
     {
         //
         // Indices are implemented as direct-addressed hash tables in hopes of maximizing cache locality.
@@ -77,13 +77,13 @@ namespace TED.Tables
 
             public TColumn Current => buckets[bucket].key;
 
-            object IEnumerator.Current => Current;
+            object IEnumerator.Current => Current!;
 
             public void Dispose()
             { }
         }
 
-        public IEnumerable<(TColumn, int)> RowsByKey => new KeyCountEnumeration(this);
+        public IEnumerable<(TColumn, int)> CountsByKey => new KeyCountEnumeration(this);
 
         public struct KeyCountEnumeration : IEnumerable<(TColumn,int)>
         {
@@ -127,6 +127,57 @@ namespace TED.Tables
             }
 
             public (TColumn ,int) Current => (buckets[bucket].key, buckets[bucket].count);
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
+            { }
+        }
+
+        public IEnumerable<(TColumn key, uint firstRow, int count)> KeyInfo => new KeyInfoEnumeration(this);
+
+        public struct KeyInfoEnumeration : IEnumerable<(TColumn,uint,int)>
+        {
+            private readonly GeneralIndex<TRow, TColumn> index;
+
+            public KeyInfoEnumeration(GeneralIndex<TRow, TColumn> index)
+            {
+                this.index = index;
+            }
+
+            public IEnumerator<(TColumn, uint, int)> GetEnumerator()
+            {
+                return new KeyInfoEnumerator(index);
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+        public struct KeyInfoEnumerator : IEnumerator<(TColumn,uint, int)>
+        {
+            private int bucket;
+            private readonly (TColumn key, uint firstRow, int count)[] buckets;
+
+            public KeyInfoEnumerator(GeneralIndex<TRow,TColumn> index)
+            {
+                this.buckets = index.buckets;
+                bucket = -1;
+            }
+
+            public bool MoveNext()
+            {
+                while (++bucket < buckets.Length && !Table.ValidRow(buckets[bucket].firstRow)) { }
+                return bucket < buckets.Length;
+            }
+
+            public void Reset()
+            {
+                bucket = -1;
+            }
+
+            public (TColumn, uint, int) Current => buckets[bucket];
 
             object IEnumerator.Current => Current;
 
@@ -361,7 +412,12 @@ namespace TED.Tables
                  rowNumber != Table.NoRow;
                  rowNumber = NextRowWithValue(rowNumber))
                 yield return table[rowNumber];
-
         }
+    }
+
+    public interface IGeneralIndex<TColumn>
+    {
+        public IEnumerable<TColumn> Keys { get; }
+        public IEnumerable<(TColumn, int)> CountsByKey { get; }
     }
 }
