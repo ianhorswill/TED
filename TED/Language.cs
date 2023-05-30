@@ -1258,12 +1258,12 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest Test(Func<bool> fn) => new PrimitiveTest(fn.Method.Name, fn);
+        public static PrimitiveTest Test(Func<bool> fn, bool isPure = true) => new PrimitiveTest(fn.Method.Name, fn, isPure);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest Test(string name, Func<bool> fn) => new PrimitiveTest(name, fn);
+        public static PrimitiveTest Test(string name, Func<bool> fn, bool isPure = true) => new PrimitiveTest(name, fn, isPure);
 
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the System.Predicate being passed in
@@ -1274,7 +1274,7 @@ namespace TED
         /// Makes a PrimitiveTest with the given name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn> Test<TIn>(string name, Func<TIn, bool> fn) => new PrimitiveTest<TIn>(name, fn);
+        public static PrimitiveTest<TIn> Test<TIn>(string name, Func<TIn, bool> fn, bool isPure = true) => new PrimitiveTest<TIn>(name, fn, isPure);
          
 
         //public static PrimitiveTest<TIn> TestMethod<TIn>(Func<TIn, bool> fn) => new PrimitiveTest<TIn>(fn.Method.Name, fn);
@@ -1290,7 +1290,8 @@ namespace TED
         /// Makes a PrimitiveTest with the given name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2> Test<TIn1, TIn2>(string name, Func<TIn1, TIn2, bool> fn) => new PrimitiveTest<TIn1, TIn2>(name, fn);
+        public static PrimitiveTest<TIn1, TIn2> Test<TIn1, TIn2>(string name, Func<TIn1, TIn2, bool> fn, bool isPure = true)
+            => new PrimitiveTest<TIn1, TIn2>(name, fn, isPure);
 
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
@@ -1301,7 +1302,8 @@ namespace TED
         /// Makes a PrimitiveTest with the given name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3> Test<TIn1, TIn2, TIn3>(string name, Func<TIn1, TIn2, TIn3, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3>(name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3> Test<TIn1, TIn2, TIn3>(string name, Func<TIn1, TIn2, TIn3, bool> fn, bool isPure = true)
+            => new PrimitiveTest<TIn1, TIn2, TIn3>(name, fn, isPure);
 
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
@@ -1312,7 +1314,8 @@ namespace TED
         /// Makes a PrimitiveTest with the given name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4> Test<TIn1, TIn2, TIn3, TIn4>(string name, Func<TIn1, TIn2, TIn3, TIn4, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4>(name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4> Test<TIn1, TIn2, TIn3, TIn4>(string name, Func<TIn1, TIn2, TIn3, TIn4, bool> fn, bool isPure = true)
+            => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4>(name, fn, isPure);
 
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
@@ -1323,7 +1326,8 @@ namespace TED
         /// Makes a PrimitiveTest with the given name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5> Test<TIn1, TIn2, TIn3, TIn4, TIn5>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5>(name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5> Test<TIn1, TIn2, TIn3, TIn4, TIn5>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, bool> fn, bool isPure = true)
+            => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5>(name, fn, isPure);
 
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
@@ -1334,7 +1338,8 @@ namespace TED
         /// Makes a PrimitiveTest with the given name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6> Test<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6> Test<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, bool> fn, bool isPure = true)
+            => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(name, fn, isPure);
 
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
@@ -1345,7 +1350,8 @@ namespace TED
         /// Makes a PrimitiveTest with the given name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7> Test<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7> Test<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, bool> fn, bool isPure = true)
+            => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(name, fn, isPure);
 
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
@@ -1356,7 +1362,8 @@ namespace TED
         /// Makes a PrimitiveTest with the given name
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8> Test<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8> Test<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(string name, Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, bool> fn, bool isPure = true)
+            => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(name, fn, isPure);
         #endregion
 
         #region Function declaration sugar
@@ -2002,7 +2009,7 @@ namespace TED
                     if (scratch.Length < candidates.Length)
                         scratch = new (T1, T2, float)[candidates.Table.Data.Length];
                     Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                    Array.Sort<(T1,T2,float)>(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
+                    Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
                     t1Set.Clear();
                     t2Set.Clear();
                     for (var i = 0; i < candidates.Length; i++)
@@ -2049,7 +2056,7 @@ namespace TED
                     if (scratch.Length < candidates.Length)
                         scratch = new (T1, T2, float)[candidates.Table.Data.Length];
                     Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                    Array.Sort<(T1,T2,float)>(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
+                    Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
                     t1Set.Clear();
                     t2Capacity.Clear();
                     var capacityData = capacities.Table.Data;
@@ -2073,7 +2080,7 @@ namespace TED
                 (Var<T1>)candidates.DefaultVariables[0],
                 (Var<T2>)candidates.DefaultVariables[1])
             {
-                OperatorDependencies = new[] { candidates }
+                OperatorDependencies = new[] { candidates, capacities }
             };
         }
 
@@ -2098,7 +2105,7 @@ namespace TED
                     if (scratch.Length < candidates.Length)
                         scratch = new (T1, T1, float)[candidates.Table.Data.Length];
                     Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                    Array.Sort<(T1,T1,float)>(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T1>.Singleton);
+                    Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T1>.Singleton);
                     t1Set.Clear();
                     for (var i = 0; i < candidates.Length; i++)
                     {
