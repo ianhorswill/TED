@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using TED.Interpreter;
+﻿using TED.Interpreter;
 using TED.Preprocessing;
-using TED.Tables;
 using TED.Utilities;
 
 namespace TED.Primitives {
