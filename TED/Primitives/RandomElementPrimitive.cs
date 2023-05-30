@@ -2,14 +2,18 @@
 using TED.Preprocessing;
 using TED.Utilities;
 
-namespace TED.Primitives {
+namespace TED.Primitives 
+{
     /// <summary>
     /// Implementation of the RandomElement primitive
     /// </summary>
     /// <typeparam name="T">Type of list element we're selecting from</typeparam>
-    internal sealed class RandomElementPrimitive<T> : PrimitivePredicate<TablePredicate<T>, T> {
+    internal sealed class RandomElementPrimitive<T> : PrimitivePredicate<TablePredicate<T>, T> 
+    {
         public static RandomElementPrimitive<T> Singleton = new RandomElementPrimitive<T>();
-        public RandomElementPrimitive() : base("RandomElement") { }
+        public RandomElementPrimitive() : base("RandomElement")
+        {
+        }
 
         
         /// <summary>
@@ -62,8 +66,7 @@ namespace TED.Primitives {
 
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc) {
             var predicate = ((Constant<TablePredicate<T1, T2>>)g.Arg1).Value;
-            return new Call(predicate, tc.Emit(g.Arg2));
-        }
+            return new Call(predicate, tc.Emit(g.Arg2)); }
 
         private class Call : Interpreter.Call {
             private readonly TablePredicate<T1, T2> predicate;
@@ -73,8 +76,7 @@ namespace TED.Primitives {
 
             public Call(TablePredicate<T1, T2> predicate, MatchOperation<(T1, T2)> outputArg) : base(predicate) {
                 this.predicate = predicate;
-                this.outputArg = outputArg;
-            }
+                this.outputArg = outputArg; }
 
             private bool finished;
 
