@@ -1251,8 +1251,8 @@ namespace TED
         /// Makes a PrimitiveTest where the bool Func is built from a property on the given type
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest TestMember(object type, string property) => 
-            new PrimitiveTest(property, BuildSafeMemberAccess<bool>(type, property));
+        public static PrimitiveTest TestMember(object type, string property, bool isPure = true) => 
+            new PrimitiveTest(property, BuildSafeMemberAccess<bool>(type, property), isPure);
 
         /// <summary>
         /// Makes a PrimitiveTest with the same name as the Func being passed in
