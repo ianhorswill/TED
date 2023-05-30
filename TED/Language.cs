@@ -1269,7 +1269,7 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the System.Predicate being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn> TestMethod<TIn>(Func<TIn, bool> fn) => new PrimitiveTest<TIn>(fn.Method.Name, fn);
+        public static PrimitiveTest<TIn> TestMethod<TIn>(Func<TIn, bool> fn, bool isPure = true) => new PrimitiveTest<TIn>(fn.Method.Name, fn, isPure);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
@@ -1285,7 +1285,7 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2> TestMethod<TIn1, TIn2>(Func<TIn1, TIn2, bool> fn) => new PrimitiveTest<TIn1, TIn2>(fn.Method.Name, fn);
+        public static PrimitiveTest<TIn1, TIn2> TestMethod<TIn1, TIn2>(Func<TIn1, TIn2, bool> fn, bool isPure = true) => new PrimitiveTest<TIn1, TIn2>(fn.Method.Name, fn, isPure);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
@@ -1297,7 +1297,7 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3> TestMethod<TIn1, TIn2, TIn3>(Func<TIn1, TIn2, TIn3, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3>(fn.Method.Name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3> TestMethod<TIn1, TIn2, TIn3>(Func<TIn1, TIn2, TIn3, bool> fn, bool isPure = true) => new PrimitiveTest<TIn1, TIn2, TIn3>(fn.Method.Name, fn, isPure);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
@@ -1309,7 +1309,7 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4> TestMethod<TIn1, TIn2, TIn3, TIn4>(Func<TIn1, TIn2, TIn3, TIn4, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4>(fn.Method.Name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4> TestMethod<TIn1, TIn2, TIn3, TIn4>(Func<TIn1, TIn2, TIn3, TIn4, bool> fn, bool isPure = true) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4>(fn.Method.Name, fn, isPure);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
@@ -1321,7 +1321,7 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5>(fn.Method.Name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, bool> fn, bool isPure = true) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5>(fn.Method.Name, fn, isPure);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
@@ -1333,7 +1333,7 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(fn.Method.Name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, bool> fn, bool isPure = true) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6>(fn.Method.Name, fn, isPure);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
@@ -1345,7 +1345,7 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(fn.Method.Name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, bool> fn, bool isPure = true) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7>(fn.Method.Name, fn, isPure);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
@@ -1357,7 +1357,7 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, bool> fn) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(fn.Method.Name, fn);
+        public static PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8> TestMethod<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(Func<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, bool> fn, bool isPure = true) => new PrimitiveTest<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8>(fn.Method.Name, fn, isPure);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
