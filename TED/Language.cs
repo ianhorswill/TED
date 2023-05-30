@@ -15,6 +15,11 @@ namespace TED
     {
         #region Primitives
         /// <summary>
+        /// True if argument is true, but blocks backtracking.
+        /// </summary>
+        public static readonly OncePrimitive Once = OncePrimitive.Singleton;
+
+        /// <summary>
         /// True if its argument is false
         /// </summary>
         public static readonly NotPrimitive Not = NotPrimitive.Singleton;

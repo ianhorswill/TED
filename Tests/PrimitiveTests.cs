@@ -113,6 +113,15 @@ namespace Tests
         }
 
         [TestMethod]
+        public void OnceTest()
+        {
+            var p = Predicate("p", new[] { 1, 2, 3 });
+            var x = (Var<int>)"x";
+            var q = Predicate("q", x).If(Once[p[x]]);
+            CollectionAssert.AreEqual(new[] {1 }, q.ToArray());
+        }
+
+        [TestMethod]
         public void AndTest()
         {
             var x = (Var<int>)"x";
