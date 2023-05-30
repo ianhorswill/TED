@@ -2080,7 +2080,7 @@ namespace TED
                 (Var<T1>)candidates.DefaultVariables[0],
                 (Var<T2>)candidates.DefaultVariables[1])
             {
-                OperatorDependencies = new[] { candidates, capacities }
+                OperatorDependencies = new TablePredicate[] { candidates, capacities }
             };
         }
 
