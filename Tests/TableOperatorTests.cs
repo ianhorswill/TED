@@ -168,5 +168,27 @@ namespace Tests
                         break;
                 }
         }
+
+        [TestMethod]
+        public void TransitiveClosure()
+        {
+            var sub = (Var<string>)"sub";
+            var parent = (Var<string>)"parent";
+            var subtypes = Predicate("subtypes", new (string,string)[]
+            {
+                ("cat", "mammal"),
+                ("dog", "mammal"),
+                ("mammal", "animal"),
+                ("bird","animal")
+            }, sub.Indexed, parent);
+
+            var isa = Closure("isa", subtypes, false);
+            Assert.AreEqual(6u, isa.Length);
+            foreach (var pair in subtypes)
+                Assert.IsTrue(isa.Table.ContainsRowUsingRowSet(pair));
+
+            Assert.IsTrue(isa.Table.ContainsRowUsingRowSet(("cat", "animal")));
+            Assert.IsTrue(isa.Table.ContainsRowUsingRowSet(("dog", "animal")));
+        }
     }
 }

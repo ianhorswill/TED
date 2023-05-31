@@ -2139,6 +2139,68 @@ namespace TED
                 return -x.Item3.CompareTo(y.Item3);
             }
         }
+
+        /// <summary>
+        /// Returns the a new table predicate holding the transitive closure of the input.
+        /// This is equivalent to reachability in a graph.  Note that this is not the symmetric transitive
+        /// closure; the output is directional.
+        /// WARNING: the size of the output is O(n^2).
+        /// </summary>
+        /// <param name="name">Name to give to the output table</param>
+        /// <param name="predicate">Relation to take the closure of</param>
+        /// <param name="reflexive">Whether the closure should be reflexive, i.e. whether closure(t,t) should be true when t is in the original predicate</param>
+        /// <typeparam name="T">Type of the arguments to the predicate</typeparam>
+        /// <returns>New predicate that is the closure</returns>
+        /// <exception cref="InvalidOperationException">If input predicate is not indexed on the first argument</exception>
+        public static TablePredicate<T, T> Closure<T>(string name, TablePredicate<T, T> predicate, bool reflexive)
+        {
+            return new TablePredicate<T, T>(name, outTable =>
+                {
+                    var o = (Table<(T, T)>)outTable;
+                    var i = predicate.Table;
+                    var tableIndex = predicate.IndexFor(0, false);
+                    if (tableIndex == null)
+                        throw new InvalidOperationException(
+                            $"Cannot take the transitive closure of {predicate.Name} because it is not indexed on its first argument.");
+                    var index = (GeneralIndex<(T,T),T>)tableIndex;
+                    foreach (var from in index.Keys)
+                    {
+                        if (reflexive)
+                            MarkSelf(from);
+                        Walk(from, from);
+                    }
+
+                    void Walk(T source,T current)
+                    {
+                        if (reflexive)
+                        {
+                            MarkSelf(current);
+                        }
+
+                        for (var link = index.FirstRowWithValue(current);
+                             link != Table.NoRow;
+                             link = index.NextRowWithValue(link))
+                        {
+                            var dest = i.Data[link].Item2;
+                            if (!o.ContainsRowUsingRowSet((source, dest)))
+                            {
+                                o.Add((source,dest));
+                                Walk(source, dest);
+                            }
+                        }
+                    }
+
+                    void MarkSelf(T value)
+                    {
+                        o.Add((value,value));  // Don't need to check for redundancy because output table is set for unique rows
+                    }
+                },
+                (Var<T>)predicate.DefaultVariables[0],
+                (Var<T>)predicate.DefaultVariables[0])
+            {
+                Unique = true
+            };
+        }
         #endregion
     }
 }
