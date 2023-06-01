@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Xml.Schema;
 using TED.Interpreter;
 using TED.Primitives;
 using TED.Tables;
@@ -2198,8 +2199,110 @@ namespace TED
                 (Var<T>)predicate.DefaultVariables[0],
                 (Var<T>)predicate.DefaultVariables[0])
             {
-                Unique = true
+                Unique = true,
+                OperatorDependencies = new[] { predicate }
             };
+        }
+
+        public static TablePredicate<T, T> EquivalenceClass<T>(string name, TablePredicate<T, T> equivalences, Var<T> element, Var<T> representative)
+        {
+            var representatives = new RepInfo<T>[32];
+            var position = new Dictionary<T, int>();
+            var itemCount = 0;
+
+            int PositionOf(T value)
+            {
+                if (!position.TryGetValue(value, out var pos))
+                {
+                    pos = itemCount++;
+                    if (itemCount == representatives.Length)
+                    {
+                        var newReps = new RepInfo<T>[representatives.Length * 2];
+                        Array.Copy(representatives, newReps, representatives.Length);
+                        representatives = newReps;
+                    }
+                    representatives[pos] = new RepInfo<T>(value, pos);
+                    position[value] = pos;
+                }
+                return pos;
+
+            }
+
+            int Find(int position)
+            {
+                if (representatives[position].Representative == position) 
+                    return position;
+                var rep = Find(representatives[position].Representative);
+                representatives[position].SetRepresentative(rep);
+                return rep;
+            }
+
+            void Union(int i, int j)
+            {
+                i = Find(i);
+                j = Find(j);
+                if (i == j)
+                    return;
+                // Make sure i has the bigger rank
+                if (representatives[i].Rank < representatives[j].Rank) 
+                    (i, j) = (j, i);
+                representatives[j].SetRepresentative(i);
+                representatives[i].MaybeIncrementRank(representatives[j].Rank);
+            }
+
+            return new TablePredicate<T, T>(name, table =>
+                {
+                    var output = (Table<(T, T)>)table;
+
+                    // Clear the union-find data
+                    position.Clear();
+                    itemCount = 0;
+
+                    var count = equivalences.Length;
+                    var equivs = equivalences.Table.Data;
+
+                    // Build the union-find data structure
+                    for (var i = 0; i < count; i++)
+                    {
+                        var equiv = equivs[i];
+                        Union(PositionOf(equiv.Item1), PositionOf(equiv.Item2));
+                    }
+
+                    // Read out the representatives
+                    for (var index = 0; index < itemCount; index++)
+                    {
+                        var itemInfo = representatives[index];
+                        output.Add(
+                            (itemInfo.Item,
+                                representatives[Find(itemInfo.Representative)].Item));
+                    }
+                },
+                element, representative)
+            {
+                OperatorDependencies = new[] { equivalences }
+            };
+        }
+
+        private struct RepInfo<T>
+        {
+            public readonly T Item;
+            public int Rank;
+            public int Representative;
+
+            public RepInfo(T item, int representative)
+            {
+                Item = item;
+                Representative = representative;
+                Rank = 1;
+            }
+
+            public void SetRepresentative(int newRep) => Representative = newRep;
+
+            public void MaybeIncrementRank(int childRank)
+            {
+                if (Rank == childRank) 
+                    Rank++;
+            }
         }
         #endregion
     }

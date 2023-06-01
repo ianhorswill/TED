@@ -190,5 +190,46 @@ namespace Tests
             Assert.IsTrue(isa.Table.ContainsRowUsingRowSet(("cat", "animal")));
             Assert.IsTrue(isa.Table.ContainsRowUsingRowSet(("dog", "animal")));
         }
+
+        [TestMethod]
+        public void Equivalence()
+        {
+            var x = (Var<string>)"x";
+            var y = (Var<string>)"y";
+            var component = (Var<string>)"component";
+            var edges = Predicate("edges", new (string, string)[]
+                {
+                    ("a", "b"),
+                    ("b", "c"),
+                    ("a", "d"),
+                    ("b", "d"),
+                    ("e", "f")
+                },
+                x, y);
+            var components = EquivalenceClass("components", edges, x,component);
+            components.IndexByKey(0);
+            var dict = components.KeyIndex(x);
+            components.EnsureUpToDate();
+
+            bool SameComponent(string a, string b) => dict[a].Item2 == dict[b].Item2;
+
+            void AssertConnected(params string[] nodes)
+            {
+                foreach (var a in nodes)
+                    foreach (var b in nodes)
+                        Assert.IsTrue(SameComponent(a, b));
+            }
+
+            void AssertDifferentComponent(string[] c1, string[] c2)
+            {
+                foreach (var a in c1)
+                    foreach (var b in c2)
+                        Assert.IsFalse(SameComponent(a,b));
+            }
+
+            AssertConnected("a", "b", "c", "d");
+            AssertConnected("e", "f");
+            AssertDifferentComponent(new [] { "a", "b", "c", "d" }, new [] { "e", "f" });
+        }
     }
 }
