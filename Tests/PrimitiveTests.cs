@@ -366,5 +366,33 @@ namespace Tests
             Assert.AreEqual(1,rows.Length);
             Assert.AreEqual(("sandra", "mitchell", "f", 44.0f), rows[0]);
         }
+
+        [TestMethod]
+        public void AssertInIn()
+        {
+            var n = (Var<int>)"n";
+            Predicate("test", n).If(n == 1, AssertIn(n, "Should be in"));
+        }
+
+        [TestMethod, ExpectedException(typeof(InstantiationException))]
+        public void AssertInOut()
+        {
+            var n = (Var<int>)"n";
+            Predicate("test", n).If(AssertIn(n, "Should be in"), n==1);
+        }
+
+        [TestMethod, ExpectedException(typeof(InstantiationException))]
+        public void AssertOuIn()
+        {
+            var n = (Var<int>)"n";
+            Predicate("test", n).If(n == 1, AssertOut(n, "Should be out"));
+        }
+
+        [TestMethod]
+        public void AssertOutOut()
+        {
+            var n = (Var<int>)"n";
+            Predicate("test", n).If(AssertOut(n, "Should be out"), n==1);
+        }
     }
 }

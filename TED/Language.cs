@@ -587,13 +587,45 @@ namespace TED
 
         #endregion
 
+        #region Preprocessor assertions
+        /// <summary>
+        /// Assert that term is an "in" parameter, i.e. it's value is known by the time we get to the AssertIn call.
+        /// If it is, this does nothing.  If not, this throws a preprocessing-time exception.
+        /// </summary>
+        /// <param name="term">Term to check the binding state of</param>
+        /// <param name="message">Message to print if the terms has the wrong bindings state</param>
+        /// <typeparam name="T">type of term</typeparam>
+        public static Goal AssertIn<T>(Term<T> term, string message) =>
+            AssertBindingStatePrimitive<T>.AssertIn[term, message];
+        
+        /// <summary>
+        /// Assert that term is an "out" parameter, i.e. it's value is not known by the time we get to the AssertIn call.
+        /// If it is, this does nothing.  If not, this throws a preprocessing-time exception.
+        /// </summary>
+        /// <param name="term">Term to check the binding state of</param>
+        /// <param name="message">Message to print if the terms has the wrong bindings state</param>
+        /// <typeparam name="T">type of term</typeparam>
+        public static Goal AssertOut<T>(Term<T> term, string message) =>
+            AssertBindingStatePrimitive<T>.AssertOut[term, message];
+        
+        /// <summary>
+        /// Assert that term is a literal constant.
+        /// If it is, this does nothing.  If not, this throws a preprocessing-time exception.
+        /// </summary>
+        /// <param name="term">Term to check the binding state of</param>
+        /// <param name="message">Message to print if the terms has the wrong bindings state</param>
+        /// <typeparam name="T">type of term</typeparam>
+        public static Goal AssertConstant<T>(Term<T> term, string message) =>
+            AssertBindingStatePrimitive<T>.AssertConstant[term, message];
+        #endregion
+
         /// <summary>
         /// No name variable placeholder
         /// </summary>
         public static Placeholder __ => Placeholder.Singleton;
 
         /// <summary>
-        /// Coerces a C# constant to a Constant Term for times when C#'s type inference isn't smart enough to figure it out.
+        /// Coerces a C# constant to a Constant Term for times when C#'s type inference isn'term smart enough to figure it out.
         /// </summary>
         public static Constant<T> Constant<T>(T value) => new Constant<T>(value);
 
@@ -1955,7 +1987,7 @@ namespace TED
 
         /// <summary>
         /// Generate a random subset of the candidate pairs such that each item from the first column
-        /// appears exactly once.  Does not guarantee that the same item from the second column won't be
+        /// appears exactly once.  Does not guarantee that the same item from the second column won'term be
         /// assigned to two different items from the first column.
         /// </summary>
         /// <param name="name">Name for the table of assignments.</param>
@@ -1994,7 +2026,7 @@ namespace TED
 
         /// <summary>
         /// Generate a random subset of the candidate pairs such that each item from the first column
-        /// appears exactly once.  Does not guarantee that the same item from the second column won't be
+        /// appears exactly once.  Does not guarantee that the same item from the second column won'term be
         /// assigned to two different items from the first column.
         /// </summary>
         /// <param name="name">Name for the table of assignments.</param>
@@ -2038,7 +2070,7 @@ namespace TED
 
         /// <summary>
         /// Generate a random subset of the candidate pairs such that each item from the first column
-        /// appears exactly once.  Does not guarantee that the same item from the second column won't be
+        /// appears exactly once.  Does not guarantee that the same item from the second column won'term be
         /// assigned to two different items from the first column.
         /// </summary>
         /// <param name="name">Name for the table of assignments.</param>
@@ -2092,7 +2124,7 @@ namespace TED
 
         /// <summary>
         /// Generate a random subset of the candidate pairs such that each item from the first column
-        /// appears exactly once.  Does not guarantee that the same item from the second column won't be
+        /// appears exactly once.  Does not guarantee that the same item from the second column won'term be
         /// assigned to two different items from the first column.
         /// </summary>
         /// <param name="name">Name for the table of assignments.</param>
@@ -2149,7 +2181,7 @@ namespace TED
         /// </summary>
         /// <param name="name">Name to give to the output table</param>
         /// <param name="predicate">Relation to take the closure of</param>
-        /// <param name="reflexive">Whether the closure should be reflexive, i.e. whether closure(t,t) should be true when t is in the original predicate</param>
+        /// <param name="reflexive">Whether the closure should be reflexive, i.e. whether closure(term,term) should be true when term is in the original predicate</param>
         /// <typeparam name="T">Type of the arguments to the predicate</typeparam>
         /// <returns>New predicate that is the closure</returns>
         /// <exception cref="InvalidOperationException">If input predicate is not indexed on the first argument</exception>
@@ -2193,7 +2225,7 @@ namespace TED
 
                     void MarkSelf(T value)
                     {
-                        o.Add((value,value));  // Don't need to check for redundancy because output table is set for unique rows
+                        o.Add((value,value));  // Don'term need to check for redundancy because output table is set for unique rows
                     }
                 },
                 (Var<T>)predicate.DefaultVariables[0],

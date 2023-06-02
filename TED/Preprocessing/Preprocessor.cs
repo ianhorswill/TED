@@ -59,7 +59,7 @@ namespace TED.Preprocessing
                         }
                     }
 
-            return CanonicalizeGoals(body).Select(s => s.MakeCall(ga)).ToArray();
+            return CanonicalizeGoals(body).Select(s => s.MakeCall(ga)).Where(c => c != null).ToArray();
         }
 
         public static (T, Call[]) GenerateCalls<T>(GoalAnalyzer ga, T head, Goal[] body) where T : TableGoal
