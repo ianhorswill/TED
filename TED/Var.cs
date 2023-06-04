@@ -12,7 +12,7 @@ namespace TED
     /// </summary>
     /// <typeparam name="T">Type of the variable's value</typeparam>
     [DebuggerDisplay("{DebugName}")]
-    public class Var<T> : Term<T>, IColumnSpec<T>, IVariable
+    public class Var<T> : Term<T>, IColumnSpec<T>, IVariable, IDefinitionArgument<T>
     {
         /// <summary>
         /// Make a new variable
@@ -81,10 +81,26 @@ namespace TED
         /// </summary>
         public IndexMode IndexMode => IndexMode.None;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="IColumnSpec" />
         public Var<T> TypedVariable => this;
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="IColumnSpec" />
         public IVariable UntypedVariable => this;
+
+        /// <inheritdoc />
+        public InstantiationConstraint? Mode => null;
+
+        /// <summary>
+        /// For use as a formal argument in a definition; this argument must be an input, i.e. a value that will be known at call time.
+        /// </summary>
+        public ModeConstrainedArgument<T> In => new ModeConstrainedArgument<T>(this, InstantiationConstraint.In);
+        /// <summary>
+        /// For use as a formal argument in a definition; this argument must be an output, i.e. a variable that will not yet have a value at call time.
+        /// </summary>
+        public ModeConstrainedArgument<T> Out => new ModeConstrainedArgument<T>(this, InstantiationConstraint.Out);
+        /// <summary>
+        /// For use as a formal argument in a definition; this argument must be a literal constant.
+        /// </summary>
+        public ModeConstrainedArgument<T> Constant => new ModeConstrainedArgument<T>(this, InstantiationConstraint.Constant);
     }
 }
