@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using TED.Interpreter;
+using TED.Primitives;
 
 namespace TED {
     /// <summary>
@@ -23,7 +25,7 @@ namespace TED {
             Name = name;
             this.isPure = isPure;
         }
-
+        
         /// <inheritdoc />
         public override string ToString() => Name;
 
@@ -50,6 +52,12 @@ namespace TED {
         public Function(string name, Func<TOut> implementation, bool isPure = true) : base(name, isPure) => Implementation = implementation;
 
         /// <summary>
+        /// True when result is the result of this function.
+        /// </summary>
+        /// <param name="result">Output of this function</param>
+        public Goal this[Term<TOut> result] => EvalPrimitive<TOut>.Singleton[result, Call()];
+
+        /// <summary>
         /// Make a call to this parameterless function
         /// </summary>
         /// <returns></returns>
@@ -71,6 +79,13 @@ namespace TED {
         /// Make a call to the function
         /// </summary>
         public FunctionCall<TIn, TOut> this[Term<TIn> arg] => new FunctionCall<TIn, TOut>(this, arg);
+
+        /// <summary>
+        /// True when result is the result of this function.
+        /// </summary>
+        /// <param name="arg1">First input to function</param>
+        /// <param name="result">Output of this function</param>
+        public Goal this[Term<TIn> arg1, Term<TOut> result] => EvalPrimitive<TOut>.Singleton[result, this[arg1]];
     }
 
     /// <summary>
@@ -88,6 +103,14 @@ namespace TED {
         /// Make a call to the function
         /// </summary>
         public FunctionCall<TIn1, TIn2, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2] => new FunctionCall<TIn1, TIn2, TOut>(this, arg1, arg2);
+
+        /// <summary>
+        /// True when result is the result of this function.
+        /// </summary>
+        /// <param name="arg1">First input to function</param>
+        /// <param name="arg2">Second input</param>
+        /// <param name="result">Output of this function</param>
+        public Goal this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TOut> result] => EvalPrimitive<TOut>.Singleton[result, this[arg1, arg2]];
     }
 
     /// <summary>
@@ -106,6 +129,15 @@ namespace TED {
         /// </summary>
         public FunctionCall<TIn1, TIn2, TIn3, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3] => 
             new FunctionCall<TIn1, TIn2, TIn3, TOut>(this, arg1, arg2, arg3);
+
+        /// <summary>
+        /// True when result is the result of this function.
+        /// </summary>
+        /// <param name="arg1">First input to function</param>
+        /// <param name="arg2">Second input</param>
+        /// <param name="arg3">Third input</param>
+        /// <param name="result">Output of this function</param>
+        public Goal this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TOut> result] => EvalPrimitive<TOut>.Singleton[result, this[arg1, arg2, arg3]];
     }
 
     /// <summary>
@@ -124,6 +156,16 @@ namespace TED {
         /// </summary>
         public FunctionCall<TIn1, TIn2, TIn3, TIn4, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4] =>
             new FunctionCall<TIn1, TIn2, TIn3, TIn4, TOut>(this, arg1, arg2, arg3, arg4);
+
+        /// <summary>
+        /// True when result is the result of this function.
+        /// </summary>
+        /// <param name="arg1">First input to function</param>
+        /// <param name="arg2">Second input</param>
+        /// <param name="arg3">Third input</param>
+        /// <param name="arg4">Fourth input</param>
+        /// <param name="result">Output of this function</param>
+        public Goal this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TOut> result] => EvalPrimitive<TOut>.Singleton[result, this[arg1, arg2, arg3, arg4]];
     }
 
     /// <summary>
@@ -142,6 +184,18 @@ namespace TED {
         /// </summary>
         public FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5] =>
             new FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TOut>(this, arg1, arg2, arg3, arg4, arg5);
+
+        /// <summary>
+        /// True when result is the result of this function.
+        /// </summary>
+        /// <param name="arg1">First input to function</param>
+        /// <param name="arg2">Second input</param>
+        /// <param name="arg3">Third input</param>
+        /// <param name="arg4">Fourth input</param>
+        /// <param name="arg5">Fifth input</param>
+        /// <param name="result">Output of this function</param>
+        public Goal this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5, Term<TOut> result]
+            => EvalPrimitive<TOut>.Singleton[result, this[arg1, arg2, arg3, arg4, arg5]];
     }
 
     /// <summary>
@@ -160,6 +214,19 @@ namespace TED {
         /// </summary>
         public FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5, Term<TIn6> arg6] =>
             new FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut>(this, arg1, arg2, arg3, arg4, arg5, arg6);
+
+        /// <summary>
+        /// True when result is the result of this function.
+        /// </summary>
+        /// <param name="arg1">First input to function</param>
+        /// <param name="arg2">Second input</param>
+        /// <param name="arg3">Third input</param>
+        /// <param name="arg4">Fourth input</param>
+        /// <param name="arg5">Fifth input</param>
+        /// <param name="arg6">Sixth input</param>
+        /// <param name="result">Output of this function</param>
+        public Goal this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5, Term<TIn6> arg6, Term<TOut> result]
+            => EvalPrimitive<TOut>.Singleton[result, this[arg1, arg2, arg3, arg4, arg5, arg6]];
     }
 
     /// <summary>
@@ -178,5 +245,19 @@ namespace TED {
         /// </summary>
         public FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut> this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5, Term<TIn6> arg6, Term<TIn7> arg7] =>
             new FunctionCall<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut>(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+
+        /// <summary>
+        /// True when result is the result of this function.
+        /// </summary>
+        /// <param name="arg1">First input to function</param>
+        /// <param name="arg2">Second input</param>
+        /// <param name="arg3">Third input</param>
+        /// <param name="arg4">Fourth input</param>
+        /// <param name="arg5">Fifth input</param>
+        /// <param name="arg6">Sixth input</param>
+        /// <param name="arg7">Seventh input</param>
+        /// <param name="result">Output of this function</param>
+        public Goal this[Term<TIn1> arg1, Term<TIn2> arg2, Term<TIn3> arg3, Term<TIn4> arg4, Term<TIn5> arg5, Term<TIn6> arg6, Term<TIn7> arg7, Term<TOut> result]
+            => EvalPrimitive<TOut>.Singleton[result, this[arg1, arg2, arg3, arg4, arg5, arg6, arg7]];
     }
 }

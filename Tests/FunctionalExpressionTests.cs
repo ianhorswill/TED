@@ -9,7 +9,7 @@ namespace Tests
     public class FunctionalExpressionTests
     {
         [TestMethod]
-        public void EvaluationTest()
+        public void Evaluation()
         {
             var Negative = Function<int,int>("Negative", n => -n);
             var e = Negative[1].MakeEvaluator(new GoalAnalyzer());
@@ -17,7 +17,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void SetTest()
+        public void Setting()
         {
             var Negative = Function<int,int>("Negative", n => -n);
             var n = (Var<int>)"n";
@@ -28,7 +28,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void EqualityTest()
+        public void Equality()
         {
             var Negative = Function<int,int>("Negative", n => -n);
             var n = (Var<int>)"n";
@@ -39,7 +39,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void IntAdditionTest()
+        public void IntAddition()
         {
             var n = (Var<int>)"n";
             var T = Predicate("t", n).If(n == 1 + 2);
@@ -49,7 +49,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void FloatAdditionTest()
+        public void FloatAddition()
         {
             var n = (Var<float>)"n";
             var T = Predicate("t", n).If(n == 1f + 2f);
@@ -77,7 +77,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void CustomClassAdditionTest()
+        public void CustomClassAddition()
         {
             var n = (Var<Vector2Int>)"n";
             var T = Predicate("t", n).If(n == Constant(Vector2Int.UnitX) + Constant(Vector2Int.UnitY));
@@ -87,7 +87,7 @@ namespace Tests
         }
 
         [TestMethod, ExpectedException(typeof(MissingMethodException))]
-        public void CustomClassMissingOperatorTest()
+        public void CustomClassMissingOperator()
         {
             var n = (Var<Vector2Int>)"n";
             var T = Predicate("t", n).If(n == Constant(Vector2Int.UnitX) * Constant(Vector2Int.UnitY));
@@ -97,7 +97,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void NegationTest()
+        public void Negation()
         {
             var n = (Var<int>)"n";
             var m = (Var<int>)"m";
@@ -147,7 +147,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void CellCountTest()
+        public void CellCount()
         {
             
             var neighborhood = new[] { new Vector2Int(0, 1), new Vector2Int(1, 1),
@@ -169,7 +169,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void CellCountTest2()
+        public void CellCount2()
         {
             
             var neighborhood = new[] { new Vector2Int(0, 1), new Vector2Int(1, 1),
@@ -188,6 +188,17 @@ namespace Tests
             var NeighborCount = Predicate("NeighborCount", cell, count);
 
             NeighborCount[cell, count].If(tileTable[cell, b], count == Count(And[In(t, neighborhood), neighbor == cell + t, tileTable[neighbor, true]]));
+        }
+
+        [TestMethod]
+        public void PredicateForm()
+        {
+            var n = (Var<int>)"n";
+            var m = (Var<int>)"m";
+            var Negative = Function<int,int>("Negative", n => -n);
+            var input = Predicate("input", new[] { 1, 2, 3, 4, 5 }, n);
+            var output = Predicate("output", n).If(input[m], Negative[m, n]);
+            CollectionAssert.AreEqual(new[] { -1,-2,-3,-4,-5 }, output.ToArray());
         }
     }
 }

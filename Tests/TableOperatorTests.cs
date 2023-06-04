@@ -1,7 +1,5 @@
 ﻿using TED;
-using TED.Interpreter;
 using static TED.Language;
-using InvalidProgramException = TED.InvalidProgramException;
 
 namespace Tests
 {
