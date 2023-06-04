@@ -147,7 +147,7 @@ namespace TED
             foreach (var t in Tables)
                 t.Dependents.Clear();
             foreach (var t in Tables)
-            foreach (var d in t.RuleDependencies.Concat(t.ImperativeDependencies))
+            foreach (var d in t.RuleDependencies.Concat(t.ImperativeDependencies).Concat(t.OperatorDependencies))
                 d.Dependents.Add(t);
         }
     }

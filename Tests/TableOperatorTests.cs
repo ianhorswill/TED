@@ -11,6 +11,8 @@ namespace Tests
         [TestMethod]
         public void CountsByTest()
         {
+            var p = new Program(nameof(CountsByTest));
+            p.BeginPredicates();
             var s = (Var<string>)"s";
             var c = (Var<int>)"c";
             var b = Predicate("b", s.Indexed, c);
@@ -18,6 +20,8 @@ namespace Tests
                 for (var i = 0; i < str.Length; i++)
                     b.AddRow(str,0);
             var counts = CountsBy("counts", b, s, c);
+            p.EndPredicates();
+            CollectionAssert.Contains(b.Dependents, counts);
             counts.EnsureUpToDate();
             var a = counts.ToArray();
             Assert.AreEqual(3, a.Length);
