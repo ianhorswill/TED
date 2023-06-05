@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using TED.Interpreter;
 using TED.Tables;
 using TED.Utilities;
@@ -233,6 +234,30 @@ namespace TED
         /// For tables that are the results of operators.  The tables the operator takes as inputs.
         /// </summary>
         public IEnumerable<TablePredicate> OperatorDependencies = Array.Empty<TablePredicate>();
+
+        private List<TablePredicate>? _updatePrerequisites;
+        /// <summary>
+        /// Set of tables that need to already be updated before this can be updated.
+        /// </summary>
+        public List<TablePredicate> UpdatePrerequisites
+        {
+            get
+            {
+                if (_updatePrerequisites == null)
+                {
+                    var dependencies = UpdateMode switch
+                    {
+                        UpdateMode.Operator => OperatorDependencies,
+                        UpdateMode.Rules => RuleDependencies,
+                        UpdateMode.BaseTable => ColumnUpdateTables.Concat(Inputs),
+                        _ => throw new NotImplementedException("Unknown update mode")
+                    };
+                    _updatePrerequisites = new List<TablePredicate>(dependencies.Where(t => t.IsDynamic && t.UpdateMode != UpdateMode.BaseTable));
+
+                };
+                return _updatePrerequisites;
+            }
+        }
 
 #if PROFILER
         /// <summary>
@@ -546,6 +571,50 @@ namespace TED
         /// Name of the metadata property specifying a preferred name to include in a dataflow visualization
         /// </summary>
         public const string VisualizerName = "VisualizerName";
+
+        #endregion
+
+        #region Async update
+        public Task UpdateTask { get; internal set; }
+        private Task[]? prerequisiteTasks;
+
+        public void UpdateAsyncDriver()
+        {
+            if (UpdatePrerequisites.Count > 0)
+            {
+                if (prerequisiteTasks == null)
+                {
+                    prerequisiteTasks = new Task[UpdatePrerequisites.Count];
+                }
+
+                int i = 0;
+                foreach (var p in UpdatePrerequisites)
+                    prerequisiteTasks[i++] = p.UpdateTask;
+                Task.WaitAll(prerequisiteTasks);
+            }
+
+            switch (UpdateMode)
+            {
+                case UpdateMode.BaseTable:
+                    UpdateColumns();
+                    AppendInputs();
+                    break;
+
+                case UpdateMode.Rules:
+                    Clear();
+                    foreach (var r in Rules!)
+                        r.AddAllSolutions();
+                    break;
+
+                case UpdateMode.Operator:
+                    Clear();
+                    updateProc!(TableUntyped);
+                    break;
+
+                default:
+                    throw new NotImplementedException($"Unknown update mode {UpdateMode}");
+            }
+        }
 
         #endregion
     }

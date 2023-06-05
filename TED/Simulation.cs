@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace TED
 {
@@ -169,6 +170,27 @@ namespace TED
             foreach (var p in DynamicTables)
                 if (p.IsExtensional)
                     p.AppendInputs();
+        }
+
+        private Task[]? UpdateTasks;
+
+        public async Task UpdateAsync()
+        {
+            if (UpdateTasks == null)
+            {
+                UpdateTasks = new Task[DynamicTables.Length];
+            }
+
+            var i = 0;
+            foreach (var t in DynamicTables)
+            {
+                var task = new Task(t.UpdateAsyncDriver);
+                t.UpdateTask = task;
+                UpdateTasks[i++] = task;
+            }
+            foreach (var t in DynamicTables)
+                t.UpdateTask.Start();
+            Task.WaitAll(UpdateTasks);
         }
     }
 }
