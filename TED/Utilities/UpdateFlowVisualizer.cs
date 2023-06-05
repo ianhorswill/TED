@@ -7,7 +7,7 @@ namespace TED.Utilities
     /// <summary>
     /// Makes GraphViz visualizations of the data flow from one TED TablePredicate to another
     /// </summary>
-    public static class DataflowVisualizer
+    public static class UpdateFlowVisualizer
     {
         /// <summary>
         /// Make a visualization of the dataflow between predicates in a Program or Simulation.
@@ -28,32 +28,7 @@ namespace TED.Utilities
             };
 
 
-            GraphViz<TablePredicate>.Cluster? baseTables = null; // g.MakeCluster("base tables");
-            //baseTables.Attributes["label"] = "Base Tables";
-
-            var baseTableClusters = new Dictionary<TablePredicate, GraphViz<TablePredicate>.Cluster>();
-
-            GraphViz<TablePredicate>.Cluster ClusterOfBaseTable(TablePredicate p2)
-            {
-                if (baseTableClusters.TryGetValue(p2, out var c))
-                    return c;
-                c = g.MakeCluster(p2.Name, baseTables);
-                baseTableClusters[p2] = c;
-                return c;
-            }
-
-            foreach (var t in p.Tables)
-                if (t.Property.TryGetValue(TablePredicate.UpdaterFor, out var baseTable))
-                    ClusterOfBaseTable((TablePredicate)baseTable);
-
-            g.NodeCluster = 
-                t => t.IsExtensional ? 
-                    (baseTableClusters.ContainsKey(t)?ClusterOfBaseTable(t):baseTables) 
-                    : t.Property.TryGetValue(TablePredicate.UpdaterFor, out var baseTable)?
-                        (ClusterOfBaseTable((TablePredicate)baseTable))
-                        :null;
-
-            g.AddReachableFrom(p.Tables, Dependencies);
+            g.AddReachableFrom(p.Tables.Where(t => t.IsDynamic), Dependencies);
             g.WriteGraph(path);
         }
         
@@ -63,11 +38,6 @@ namespace TED.Utilities
                 return (string)s;
             return p.Name;
         }
-
-        private static readonly Dictionary<string, object> InitialValueEdgeAttributes = new Dictionary<string, object>()
-        {
-            { "color", "blue" }
-        };
 
         private static readonly Dictionary<string, object> InputEdgeAttributes = new Dictionary<string, object>()
         {
@@ -81,17 +51,8 @@ namespace TED.Utilities
 
         private static IEnumerable<GraphViz<TablePredicate>.Edge> Dependencies(TablePredicate p)
         {
-            var operatorDependencies = p.OperatorDependencies ?? Array.Empty<TablePredicate>();
-            var dependencies = (p.Rules == null)
-                ? operatorDependencies
-                : p.Rules.SelectMany(r => r.Dependencies);
-            var dependencyEdges = dependencies.Select(dep => new GraphViz<TablePredicate>.Edge(dep, p));
+            var dependencyEdges = p.UpdatePrerequisites.Select(dep => new GraphViz<TablePredicate>.Edge(dep, p));
             var inputs = p.Inputs.Select(i => new GraphViz<TablePredicate>.Edge(i, p, true, null, InputEdgeAttributes));
-            if (p.InitialValueTable != null)
-            {
-                inputs = inputs.Append(
-                    new GraphViz<TablePredicate>.Edge(p.InitialValueTable, p, true, null, InitialValueEdgeAttributes));
-            }
             var setters = p.ColumnUpdateTables.Select(s => new GraphViz<TablePredicate>.Edge(s, p, true, null, SetEdgeAttributes)).ToArray();
             return dependencyEdges.Concat(inputs).Concat(setters);
         }
@@ -112,14 +73,14 @@ namespace TED.Utilities
             // dynamic IDB == true dynamic table (equivalent to Datalog IBD),
             //      these tables are fully recomputed each tick
 
+            if (p.UpdatePrerequisites.Count == 0)
+                attributes["rank"] = "min";
             return attributes;
         }
 
         private static Dictionary<string, object> EdgeAttributes(GraphViz<TablePredicate>.Edge e)
         {
             var attributes = new Dictionary<string, object>();
-            if (e.EndNode.Property.ContainsKey(TablePredicate.UpdaterFor))
-                attributes["constraint"] = "false";
             return attributes;
         }
     }

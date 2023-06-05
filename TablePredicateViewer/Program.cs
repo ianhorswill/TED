@@ -102,7 +102,8 @@ namespace TablePredicateViewer
             timer.Start();
 
             PredicateViewer.ShowPredicates(Person, BirthTo, Woman);
-            TED.Utilities.DataflowVisualizer.MakeGraph(Simulation, "Dataflow.dot");
+            DataflowVisualizer.MakeGraph(Simulation, "Dataflow.dot");
+            UpdateFlowVisualizer.MakeGraph(Simulation, "Update.dot");
             Application.Run(PredicateViewer.Of(Person));
         }
 
