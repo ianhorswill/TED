@@ -9,7 +9,7 @@ namespace Tests
         [TestMethod]
         public void CountsByTest()
         {
-            var p = new Program(nameof(CountsByTest));
+            var p = new Simulation(nameof(CountsByTest));
             p.BeginPredicates();
             var s = (Var<string>)"s";
             var c = (Var<int>)"c";
@@ -20,11 +20,50 @@ namespace Tests
             var counts = CountsBy("counts", b, s, c);
             p.EndPredicates();
             CollectionAssert.Contains(b.Dependents, counts);
-            counts.EnsureUpToDate();
+            p.Update();
             var a = counts.ToArray();
             Assert.AreEqual(3, a.Length);
             foreach (var (str, cnt) in a)
                 Assert.AreEqual(cnt, str.Length);
+        }
+
+        [TestMethod]
+        public void DynamicOperator()
+        {
+            var p = new Simulation(nameof(CountsByTest));
+            p.BeginPredicates();
+            var s = (Var<string>)"s";
+            var c = (Var<int>)"c";
+            var b = Predicate("b", s.Indexed, c);
+            foreach (var str in new [] { "x", "xx", "xxx" })
+                for (var i = 0; i < str.Length; i++)
+                    b.AddRow(str,0);
+            var counts = CountsBy("counts", b, s, c);
+            b.Add["x", 0].Fact();
+            p.EndPredicates();
+            Assert.IsTrue(counts.IsDynamic);
+        }
+
+        [TestMethod]
+        public void DynamicUpdate()
+        {
+            var p = new Simulation(nameof(CountsByTest));
+            p.BeginPredicates();
+            var s = (Var<string>)"s";
+            var c = (Var<int>)"c";
+            var b = Predicate("b", s.Indexed, c);
+            var counts = CountsBy("counts", b, s, c);
+            b.Add["x", 0].Fact();
+            p.EndPredicates();
+            Assert.IsTrue(counts.IsDynamic);
+            for (var i = 0; i < 100; i++)
+            {
+                p.Update();
+                var cnt = counts.ToArray();
+                Assert.AreEqual(Math.Min(i, 1), cnt.Length);
+                if (i>0)
+                    Assert.AreEqual(i, cnt[0].Item2);
+            }
         }
 
         [TestMethod]
