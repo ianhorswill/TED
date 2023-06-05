@@ -2047,7 +2047,8 @@ namespace TED
                     if (scratch.Length < candidates.Length)
                         scratch = new (T1, T2, float)[candidates.Table.Data.Length];
                     Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                    Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
+                    if (candidates.Length > 0)
+                        Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
                     t1Set.Clear();
                     t2Set.Clear();
                     for (var i = 0; i < candidates.Length; i++)
@@ -2094,7 +2095,8 @@ namespace TED
                     if (scratch.Length < candidates.Length)
                         scratch = new (T1, T2, float)[candidates.Table.Data.Length];
                     Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                    Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
+                    if (candidates.Length > 0)
+                        Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
                     t1Set.Clear();
                     t2Capacity.Clear();
                     var capacityData = capacities.Table.Data;
@@ -2143,7 +2145,8 @@ namespace TED
                     if (scratch.Length < candidates.Length)
                         scratch = new (T1, T1, float)[candidates.Table.Data.Length];
                     Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                    Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T1>.Singleton);
+                    if (candidates.Length > 0)
+                        Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T1>.Singleton);
                     t1Set.Clear();
                     for (var i = 0; i < candidates.Length; i++)
                     {
