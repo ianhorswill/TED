@@ -64,7 +64,11 @@ namespace TED
         private void FindDynamicPredicates()
         {
             foreach (var t in Tables)
-                t.IsDynamic = t is { IsIntensional: true, IsPure: false, InitializationOnly: false };
+            {
+                if (t.ImperativeDependencies.Any()
+                    || t is { IsIntensional: true, IsPure: false, InitializationOnly: false })
+                    MarkDynamic(t);
+            }
 
             void MarkDynamic(TablePredicate p)
             {
@@ -73,17 +77,8 @@ namespace TED
                 p.IsDynamic = true;
                 foreach (var d in p.Dependents)
                     MarkDynamic(d);
-            }
-
-            foreach (var t in Tables)
-            {
-                if (t.ImperativeDependencies.Any())
-                {
-                    MarkDynamic(t);
-                    foreach (var d in t.ImperativeDependencies)
-                        MarkDynamic(d);
-                }
-
+                foreach (var d in p.ImperativeDependencies)
+                    MarkDynamic(d);
             }
 
             DynamicTables = Tables.Where(t => t.IsDynamic).ToArray();

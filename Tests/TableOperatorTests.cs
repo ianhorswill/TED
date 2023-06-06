@@ -45,7 +45,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void DynamicUpdate()
+        public void DynamicBaseTable()
         {
             var p = new Simulation(nameof(CountsByTest));
             p.BeginPredicates();
@@ -54,6 +54,53 @@ namespace Tests
             var b = Predicate("b", s.Indexed, c);
             var counts = CountsBy("counts", b, s, c);
             b.Add["x", 0].Fact();
+            p.EndPredicates();
+            Assert.IsTrue(counts.IsDynamic);
+            for (var i = 0; i < 100; i++)
+            {
+                p.Update();
+                var cnt = counts.ToArray();
+                Assert.AreEqual(Math.Min(i, 1), cnt.Length);
+                if (i>0)
+                    Assert.AreEqual(i, cnt[0].Item2);
+            }
+        }
+
+        [TestMethod]
+        public void DynamicRuleTable()
+        {
+            var p = new Simulation(nameof(CountsByTest));
+            p.BeginPredicates();
+            var s = (Var<string>)"s";
+            var c = (Var<int>)"c";
+            var b = Predicate("b", s.Indexed, c);
+            var r = Predicate("p", s.Indexed, c).If(b);
+            var counts = CountsBy("counts", r, s, c);
+            b.Add["x", 0].Fact();
+            p.EndPredicates();
+            Assert.IsTrue(counts.IsDynamic);
+            for (var i = 0; i < 100; i++)
+            {
+                p.Update();
+                var cnt = counts.ToArray();
+                Assert.AreEqual(Math.Min(i, 1), cnt.Length);
+                if (i>0)
+                    Assert.AreEqual(i, cnt[0].Item2);
+            }
+        }
+
+        [TestMethod]
+        public void OperatorDrivingTableAddition()
+        {
+            var p = new Simulation(nameof(CountsByTest));
+            p.BeginPredicates();
+            var s = (Var<string>)"s";
+            var c = (Var<int>)"c";
+            var b = Predicate("b", s.Indexed, c);
+            var r = Predicate("p", s.Indexed, c).If(b);
+            var counts = CountsBy("counts", r, s, c);
+            b.Add["x", 0].Fact();
+            var d = Predicate("d", s.Indexed, c).Add.If(counts);
             p.EndPredicates();
             Assert.IsTrue(counts.IsDynamic);
             for (var i = 0; i < 100; i++)
