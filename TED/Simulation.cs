@@ -176,15 +176,14 @@ namespace TED
                 UpdateTasks = new Task[DynamicTables.Length];
             }
 
+            foreach (var t in DynamicTables)
+                t.ResetUpdateTask();
+
             var i = 0;
             foreach (var t in DynamicTables)
             {
-                var task = new Task(t.UpdateAsyncDriver);
-                t.UpdateTask = task;
-                UpdateTasks[i++] = task;
+                UpdateTasks[i++] = t.UpdateTask;
             }
-            foreach (var t in DynamicTables)
-                t.UpdateTask.Start();
             Task.WaitAll(UpdateTasks);
         }
     }

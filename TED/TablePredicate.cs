@@ -575,24 +575,43 @@ namespace TED
         #endregion
 
         #region Async update
-        public Task UpdateTask { get; internal set; }
+
+        private Task? _updateTask;
+
         private Task[]? prerequisiteTasks;
+
+        internal void ResetUpdateTask() => _updateTask = null;
+
+        public Task UpdateTask
+        {
+            get
+            {
+                if (_updateTask != null)
+                    return _updateTask;
+                if (UpdatePrerequisites.Count > 0)
+                {
+                    if (prerequisiteTasks == null)
+                    {
+                        prerequisiteTasks = new Task[UpdatePrerequisites.Count];
+                    }
+
+                    int i = 0;
+                    foreach (var p in UpdatePrerequisites)
+                        prerequisiteTasks[i++] = p.UpdateTask;
+                    _updateTask = Task.Factory.ContinueWhenAll(prerequisiteTasks, (_) => UpdateAsyncDriver());
+                }
+                else 
+                    _updateTask = Task.Factory.StartNew(UpdateAsyncDriver);
+
+                MustRecompute = false;
+
+                return _updateTask;
+            }
+        }
+
 
         public void UpdateAsyncDriver()
         {
-            if (UpdatePrerequisites.Count > 0)
-            {
-                if (prerequisiteTasks == null)
-                {
-                    prerequisiteTasks = new Task[UpdatePrerequisites.Count];
-                }
-
-                int i = 0;
-                foreach (var p in UpdatePrerequisites)
-                    prerequisiteTasks[i++] = p.UpdateTask;
-                Task.WaitAll(prerequisiteTasks);
-            }
-
             switch (UpdateMode)
             {
                 case UpdateMode.BaseTable:
