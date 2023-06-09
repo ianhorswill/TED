@@ -14,6 +14,14 @@ namespace TED.Tables
     public abstract class Table
     {
         /// <summary>
+        /// Name of table for debugging purposes
+        /// </summary>
+        public string Name { get; internal set; }
+
+        /// <inheritdoc />
+        public override string ToString() => $"Table<{Name}>";
+
+        /// <summary>
         /// Returns the key value given the row
         /// </summary>
         public delegate TColumn Projection<TRow, out TColumn>(in TRow row);

@@ -184,7 +184,7 @@ namespace TED
             {
                 UpdateTasks[i++] = t.UpdateTask;
             }
-            Task.WaitAll(UpdateTasks);
+            await Task.WhenAll(UpdateTasks);
         }
     }
 }

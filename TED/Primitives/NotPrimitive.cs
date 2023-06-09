@@ -27,7 +27,7 @@ namespace TED.Primitives
                     return new NotCall(Preprocessor.BodyToCallWithLocalBindings(tc, target.Value).Call);
 
                 default:
-                    throw new ArgumentException("Argument to Not or ! must be a goal expression, not a variable");
+                    throw new ArgumentException($"Argument {g.Arg1} to Not or ! must be a goal expression, not a variable");
             }
         }
 

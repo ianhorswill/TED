@@ -72,7 +72,7 @@ namespace TED.Preprocessing
                 return MatchOperation<T>.Constant(c.Value);
             // it's a variable
             if (!(term is Var<T> v))
-                throw new InvalidOperationException($"{term} cannot be used as an argument to a predicate");
+                throw new InvalidOperationException($"{term} cannot be used as an argument to a predicate because it is not a constant or a variable");
             if (BoundVariables.Contains(v))
                 return MatchOperation<T>.Read((ValueCell<T>)variableValueCells[v]);
             if (!variableValueCells.ContainsKey(v))

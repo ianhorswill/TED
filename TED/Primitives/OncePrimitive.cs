@@ -27,7 +27,7 @@ namespace TED.Primitives
                     return new OnceCall(Preprocessor.BodyToCall(tc, target.Value));
 
                 default:
-                    throw new ArgumentException("Argument to Not or ! must be a goal expression, not a variable");
+                    throw new ArgumentException($"Argument {g.Arg1} to Once must be a goal expression, not a variable");
             }
         }
 

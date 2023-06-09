@@ -15,7 +15,7 @@ namespace TED.Repl
         }
 
         public TablePredicate PredicateNamed(string name) 
-            => Repl.Program.PredicateNamed(name)??throw new Exception($"No predicate named {name}");
+            => Repl.Program.PredicateNamed(name)??throw new Exception($"There is no predicate named {name}");
         public static bool Identifier(ParserState s, Continuation<string> k) 
             => s.ReadToken(char.IsLetter, k);
         public bool Predicate(ParserState s, Continuation<TablePredicate> k)

@@ -78,7 +78,7 @@ namespace TED.Tables
             {
                 var rowWithKey = RowWithKey(in key);
                 if (rowWithKey == Table.NoRow)
-                    throw new KeyNotFoundException($"No row in table has key {key}");
+                    throw new KeyNotFoundException($"No row in table {table.Name} has key {key}");
                 return ref table.PositionReference(rowWithKey);
             }
         }

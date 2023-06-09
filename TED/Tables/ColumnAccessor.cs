@@ -47,7 +47,7 @@ namespace TED.Tables
             {
                 var row = keyIndex.RowWithKey(key);
                 if (row == Table.NoRow)
-                    throw new KeyNotFoundException($"Key value {key} not found in table");
+                    throw new KeyNotFoundException($"Key value {key} not found in table {table.Name}");
                 return projection(table.Data[row]);
             }
 
@@ -55,7 +55,7 @@ namespace TED.Tables
             {
                 var row = keyIndex.RowWithKey(key);
                 if (row == Table.NoRow)
-                    throw new KeyNotFoundException($"Key value {key} not found in table");
+                    throw new KeyNotFoundException($"Key value {key} not found in table {table.Name}");
                 if (columnIndex != null)
                     columnIndex.Remove(row);
                 mutator(ref table.Data[row], in value);

@@ -62,6 +62,7 @@ namespace TED
         protected TablePredicate(string name, Action<Table>? updateProc, params IColumnSpec[] columns) : base(name)
         {
             Program.MaybeAddPredicate(this);
+            TableUntyped.Name = name;
             DefaultVariables = columns.Select(spec => spec.UntypedVariable).ToArray();
             ColumnHeadings = DefaultVariables.Select(v => v.ToString()).ToArray();
             for (var i = 0; i < columns.Length; i++)
