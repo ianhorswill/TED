@@ -139,6 +139,13 @@ namespace TED
         }
 
         /// <summary>
+        /// Return a call to this predicate using the arguments from goal, followed by additionalArguments.
+        /// Note that goal will generally be a call to some other predicate
+        /// </summary>
+        public TableGoal AppendArgs(TableGoal goal, params Term[] additionalArguments)
+            => GetGoal(goal.Arguments.Concat(additionalArguments).ToArray());
+
+        /// <summary>
         /// Returns a goal of the predicate applied to the specified arguments
         /// </summary>
         /// <param name="args">Arguments to the predicate</param>
@@ -420,6 +427,11 @@ namespace TED
         public abstract IEnumerable<TablePredicate> Inputs { get; }
 
         /// <summary>
+        /// Untyped interface to the .Add table.
+        /// </summary>
+        public abstract TablePredicate AddUntyped { get; }
+
+        /// <summary>
         /// The table that provides initial values to this table, if any.
         /// This is untyped, so you probably want to be using Initially instead.
         /// </summary>
@@ -609,8 +621,7 @@ namespace TED
                 return _updateTask;
             }
         }
-
-
+        
         public void UpdateAsyncDriver()
         {
             switch (UpdateMode)
@@ -648,7 +659,7 @@ namespace TED
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
-        public TableGoal<T1> this[Term<T1> arg1] => new TableGoal<T1>(this, arg1);
+        public virtual TableGoal<T1> this[Term<T1> arg1] => new TableGoal<T1>(this, arg1);
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1)];
@@ -833,6 +844,9 @@ namespace TED
             }
         }
 
+        /// <inheritdoc />
+        public override TablePredicate AddUntyped => Add;
+
         private TablePredicate<T1>? initialValueTable;
 
         /// <summary>
@@ -887,7 +901,7 @@ namespace TED
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
-        public TableGoal<T1, T2> this[Term<T1> arg1, Term<T2> arg2] => new TableGoal<T1, T2>(this, arg1, arg2);
+        public virtual TableGoal<T1, T2> this[Term<T1> arg1, Term<T2> arg2] => new TableGoal<T1, T2>(this, arg1, arg2);
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2)];
@@ -1094,6 +1108,9 @@ namespace TED
             }
         }
 
+        /// <inheritdoc />
+        public override TablePredicate AddUntyped => Add;
+
         private TablePredicate<T1,T2>? initialValueTable;
 
         /// <summary>
@@ -1208,7 +1225,7 @@ namespace TED
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
-        public TableGoal<T1, T2, T3> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] => new TableGoal<T1, T2, T3>(this, arg1, arg2,arg3);
+        public virtual TableGoal<T1, T2, T3> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] => new TableGoal<T1, T2, T3>(this, arg1, arg2,arg3);
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) 
@@ -1459,6 +1476,9 @@ namespace TED
             }
         }
 
+        /// <inheritdoc />
+        public override TablePredicate AddUntyped => Add;
+
         private TablePredicate<T1,T2,T3>? initialValueTable;
 
         /// <summary>
@@ -1546,7 +1566,7 @@ namespace TED
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
-        public TableGoal<T1, T2, T3, T4> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4] 
+        public virtual TableGoal<T1, T2, T3, T4> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4] 
             => new TableGoal<T1, T2, T3, T4>(this, arg1, arg2,arg3, arg4);
 
         /// <inheritdoc />
@@ -1809,6 +1829,9 @@ namespace TED
             }
         }
 
+        /// <inheritdoc />
+        public override TablePredicate AddUntyped => Add;
+
         private TablePredicate<T1,T2,T3,T4>? initialValueTable;
 
         /// <summary>
@@ -1899,7 +1922,7 @@ namespace TED
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
-        public TableGoal<T1, T2, T3, T4, T5> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5] 
+        public virtual TableGoal<T1, T2, T3, T4, T5> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5] 
             => new TableGoal<T1, T2, T3, T4, T5>(this, arg1, arg2,arg3, arg4, arg5);
 
         /// <inheritdoc />
@@ -2172,6 +2195,9 @@ namespace TED
             }
         }
 
+        /// <inheritdoc />
+        public override TablePredicate AddUntyped => Add;
+
         private TablePredicate<T1,T2,T3,T4,T5>? initialValueTable;
 
         /// <summary>
@@ -2266,7 +2292,7 @@ namespace TED
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
-        public TableGoal<T1, T2, T3, T4, T5, T6> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6] 
+        public virtual TableGoal<T1, T2, T3, T4, T5, T6> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6] 
             => new TableGoal<T1, T2, T3, T4, T5, T6>(this, arg1, arg2,arg3, arg4, arg5, arg6);
 
         /// <inheritdoc />
@@ -2549,6 +2575,9 @@ namespace TED
             }
         }
 
+        /// <inheritdoc />
+        public override TablePredicate AddUntyped => Add;
+
         private TablePredicate<T1,T2,T3,T4,T5,T6>? initialValueTable;
 
         /// <summary>
@@ -2646,7 +2675,7 @@ namespace TED
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
-        public TableGoal<T1, T2, T3, T4, T5, T6, T7> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7]
+        public virtual TableGoal<T1, T2, T3, T4, T5, T6, T7> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7]
             => new TableGoal<T1, T2, T3, T4, T5, T6, T7>(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
         /// <inheritdoc />
@@ -2924,6 +2953,9 @@ namespace TED
             }
         }
 
+        /// <inheritdoc />
+        public override TablePredicate AddUntyped => Add;
+
         private TablePredicate<T1,T2,T3,T4,T5,T6,T7>? initialValueTable;
 
         /// <summary>
@@ -3021,7 +3053,7 @@ namespace TED
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
-        public TableGoal<T1, T2, T3, T4, T5, T6, T7, T8> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7, Term<T8> arg8]
+        public virtual TableGoal<T1, T2, T3, T4, T5, T6, T7, T8> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7, Term<T8> arg8]
             => new TableGoal<T1, T2, T3, T4, T5, T6, T7, T8>(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
         /// <inheritdoc />
@@ -3308,6 +3340,9 @@ namespace TED
                 return addPredicate;
             }
         }
+
+        /// <inheritdoc />
+        public override TablePredicate AddUntyped => Add;
 
         private TablePredicate<T1,T2,T3,T4,T5,T6,T7,T8>? initialValueTable;
 
