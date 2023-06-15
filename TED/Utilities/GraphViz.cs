@@ -262,6 +262,7 @@ namespace TED.Utilities
             }
 
             o.WriteLine("digraph {");
+            o.WriteLine("splines=true");
 
             WriteAttributeList(Attributes, "", "\n", o);
 
