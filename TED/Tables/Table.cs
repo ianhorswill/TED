@@ -16,7 +16,9 @@ namespace TED.Tables
         /// <summary>
         /// Name of table for debugging purposes
         /// </summary>
+#pragma warning disable CS8618
         public string Name { get; internal set; }
+#pragma warning restore CS8618
 
         /// <inheritdoc />
         public override string ToString() => $"Table<{Name}>";

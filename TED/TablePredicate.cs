@@ -501,6 +501,8 @@ namespace TED
             throw new NotImplementedException();
         }
 
+        public abstract Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> var);
+        
         internal ColumnAccessor<TRow, TColumn, TKey> Accessor<TRow, TColumn, TKey>(Table<TRow> table, Var<TKey> key, Var<TColumn> column)
         {
             var keyIndex = IndexFor(ColumnPositionOfDefaultVariable(key), true);
@@ -512,6 +514,21 @@ namespace TED
                 (GeneralIndex<TRow,TColumn>)columnIndex!,
                 (Table.Mutator<TRow, TColumn>)Mutator(columnNumber));
         }
+
+        /// <summary>
+        /// Returns a comparison that given the indices of two rows in the table, compares the specified column for the two rows.
+        /// </summary>
+        internal Comparison<uint> RowComparison<TRow, TColumn>(Table<TRow> table, int columnNumber)
+        {
+            if (!typeof(IComparable).IsAssignableFrom(typeof(TColumn))
+                && !typeof(IComparable<TColumn>).IsAssignableFrom(typeof(TColumn)))
+                return null;
+            var projection = (Table.Projection<TRow, TColumn>)Projection(columnNumber);
+            var comparer = System.Collections.Generic.Comparer<TColumn>.Default;
+            return (a, b) => comparer.Compare(projection(table[a]), projection(table[b]));
+        }
+
+        public abstract Comparison<uint> RowComparison(int columnNumber);
 
         /// <summary>
         /// List of procedures to call when the table is updated.
@@ -624,6 +641,10 @@ namespace TED
         
         public void UpdateAsyncDriver()
         {
+            #if PROFILER
+            UpdateTime.Start();
+            #endif
+
             switch (UpdateMode)
             {
                 case UpdateMode.BaseTable:
@@ -645,9 +666,17 @@ namespace TED
                 default:
                     throw new NotImplementedException($"Unknown update mode {UpdateMode}");
             }
+
+#if PROFILER
+            UpdateTime.Start();
+#endif
         }
 
         #endregion
+        #if PROFILER
+        internal Stopwatch UpdateTime = new Stopwatch();
+        public long TotalExecutionTime => UpdateTime.ElapsedMilliseconds;
+#endif
     }
 
     /// <summary>
@@ -888,6 +917,33 @@ namespace TED
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public override Delegate Projection(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => (Table.Projection<T1, T1>)((in T1 row) => row),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
+            };
+        }
+        public override Comparison<uint> RowComparison(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => RowComparison<T1,T1>(_table, 0),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
+
+        public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column)
+        {
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            return columnNumber switch
+            {
+                0 => (Func<uint, TColumn>)(Delegate)(Func<uint,T1>)(rowNum => _table.Data[rowNum]),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
         }
     }
 
@@ -1212,6 +1268,27 @@ namespace TED
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        public override Comparison<uint> RowComparison(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => RowComparison<(T1,T2),T1>(_table, columnNumber),
+                1 => RowComparison<(T1,T2),T2>(_table, columnNumber),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
+
+        public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column)
+        {
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            return columnNumber switch
+            {
+                0 => (Func<uint, TColumn>)(Delegate)(Func<uint,T1>)(rowNum => _table.Data[rowNum].Item1),
+                1 => (Func<uint, TColumn>)(Delegate)(Func<uint,T2>)(rowNum => _table.Data[rowNum].Item2),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
     }
 
     /// <summary>
@@ -1552,6 +1629,29 @@ namespace TED
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        public override Comparison<uint> RowComparison(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => RowComparison<(T1,T2,T3),T1>(_table, columnNumber),
+                1 => RowComparison<(T1,T2,T3),T2>(_table, columnNumber),
+                2 => RowComparison<(T1,T2,T3),T3>(_table, columnNumber),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
+        
+        public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column)
+        {
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            return columnNumber switch
+            {
+                0 => (Func<uint, TColumn>)(Delegate)(Func<uint,T1>)(rowNum => _table.Data[rowNum].Item1),
+                1 => (Func<uint, TColumn>)(Delegate)(Func<uint,T2>)(rowNum => _table.Data[rowNum].Item2),
+                2 => (Func<uint, TColumn>)(Delegate)(Func<uint,T3>)(rowNum => _table.Data[rowNum].Item3),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
     }
 
     /// <summary>
@@ -1907,6 +2007,31 @@ namespace TED
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        public override Comparison<uint> RowComparison(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => RowComparison<(T1,T2,T3,T4),T1>(_table, columnNumber),
+                1 => RowComparison<(T1,T2,T3,T4),T2>(_table, columnNumber),
+                2 => RowComparison<(T1,T2,T3,T4),T3>(_table, columnNumber),
+                3 => RowComparison<(T1,T2,T3,T4),T4>(_table, columnNumber),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
+        
+        public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column)
+        {
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            return columnNumber switch
+            {
+                0 => (Func<uint, TColumn>)(Delegate)(Func<uint,T1>)(rowNum => _table.Data[rowNum].Item1),
+                1 => (Func<uint, TColumn>)(Delegate)(Func<uint,T2>)(rowNum => _table.Data[rowNum].Item2),
+                2 => (Func<uint, TColumn>)(Delegate)(Func<uint,T3>)(rowNum => _table.Data[rowNum].Item3),
+                3 => (Func<uint, TColumn>)(Delegate)(Func<uint,T4>)(rowNum => _table.Data[rowNum].Item4),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
     }
 
     /// <summary>
@@ -2276,6 +2401,33 @@ namespace TED
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        public override Comparison<uint> RowComparison(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => RowComparison<(T1,T2,T3,T4,T5),T1>(_table, columnNumber),
+                1 => RowComparison<(T1,T2,T3,T4,T5),T2>(_table, columnNumber),
+                2 => RowComparison<(T1,T2,T3,T4,T5),T3>(_table, columnNumber),
+                3 => RowComparison<(T1,T2,T3,T4,T5),T4>(_table, columnNumber),
+                4 => RowComparison<(T1,T2,T3,T4,T5),T5>(_table, columnNumber),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
+        
+        public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column)
+        {
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            return columnNumber switch
+            {
+                0 => (Func<uint, TColumn>)(Delegate)(Func<uint,T1>)(rowNum => _table.Data[rowNum].Item1),
+                1 => (Func<uint, TColumn>)(Delegate)(Func<uint,T2>)(rowNum => _table.Data[rowNum].Item2),
+                2 => (Func<uint, TColumn>)(Delegate)(Func<uint,T3>)(rowNum => _table.Data[rowNum].Item3),
+                3 => (Func<uint, TColumn>)(Delegate)(Func<uint,T4>)(rowNum => _table.Data[rowNum].Item4),
+                4 => (Func<uint, TColumn>)(Delegate)(Func<uint,T5>)(rowNum => _table.Data[rowNum].Item5),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
     }
 
     /// <summary>
@@ -2657,6 +2809,35 @@ namespace TED
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        public override Comparison<uint> RowComparison(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => RowComparison<(T1,T2,T3,T4,T5,T6),T1>(_table, columnNumber),
+                1 => RowComparison<(T1,T2,T3,T4,T5,T6),T2>(_table, columnNumber),
+                2 => RowComparison<(T1,T2,T3,T4,T5,T6),T3>(_table, columnNumber),
+                3 => RowComparison<(T1,T2,T3,T4,T5,T6),T4>(_table, columnNumber),
+                4 => RowComparison<(T1,T2,T3,T4,T5,T6),T5>(_table, columnNumber),
+                5 => RowComparison<(T1,T2,T3,T4,T5,T6),T6>(_table, columnNumber),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
+        
+        public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column)
+        {
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            return columnNumber switch
+            {
+                0 => (Func<uint, TColumn>)(Delegate)(Func<uint,T1>)(rowNum => _table.Data[rowNum].Item1),
+                1 => (Func<uint, TColumn>)(Delegate)(Func<uint,T2>)(rowNum => _table.Data[rowNum].Item2),
+                2 => (Func<uint, TColumn>)(Delegate)(Func<uint,T3>)(rowNum => _table.Data[rowNum].Item3),
+                3 => (Func<uint, TColumn>)(Delegate)(Func<uint,T4>)(rowNum => _table.Data[rowNum].Item4),
+                4 => (Func<uint, TColumn>)(Delegate)(Func<uint,T5>)(rowNum => _table.Data[rowNum].Item5),
+                5 => (Func<uint, TColumn>)(Delegate)(Func<uint,T6>)(rowNum => _table.Data[rowNum].Item6),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
     }
 
 
@@ -3036,6 +3217,37 @@ namespace TED
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        public override Comparison<uint> RowComparison(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => RowComparison<(T1,T2,T3,T4,T5,T6,T7),T1>(_table, columnNumber),
+                1 => RowComparison<(T1,T2,T3,T4,T5,T6,T7),T2>(_table, columnNumber),
+                2 => RowComparison<(T1,T2,T3,T4,T5,T6,T7),T3>(_table, columnNumber),
+                3 => RowComparison<(T1,T2,T3,T4,T5,T6,T7),T4>(_table, columnNumber),
+                4 => RowComparison<(T1,T2,T3,T4,T5,T6,T7),T5>(_table, columnNumber),
+                5 => RowComparison<(T1,T2,T3,T4,T5,T6,T7),T6>(_table, columnNumber),
+                6 => RowComparison<(T1,T2,T3,T4,T5,T6,T7),T7>(_table, columnNumber),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
+        
+        public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column)
+        {
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            return columnNumber switch
+            {
+                0 => (Func<uint, TColumn>)(Delegate)(Func<uint,T1>)(rowNum => _table.Data[rowNum].Item1),
+                1 => (Func<uint, TColumn>)(Delegate)(Func<uint,T2>)(rowNum => _table.Data[rowNum].Item2),
+                2 => (Func<uint, TColumn>)(Delegate)(Func<uint,T3>)(rowNum => _table.Data[rowNum].Item3),
+                3 => (Func<uint, TColumn>)(Delegate)(Func<uint,T4>)(rowNum => _table.Data[rowNum].Item4),
+                4 => (Func<uint, TColumn>)(Delegate)(Func<uint,T5>)(rowNum => _table.Data[rowNum].Item5),
+                5 => (Func<uint, TColumn>)(Delegate)(Func<uint,T6>)(rowNum => _table.Data[rowNum].Item6),
+                6 => (Func<uint, TColumn>)(Delegate)(Func<uint,T7>)(rowNum => _table.Data[rowNum].Item7),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
     }
 
     /// <summary>
@@ -3426,5 +3638,38 @@ namespace TED
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        public override Comparison<uint> RowComparison(int columnNumber)
+        {
+            return columnNumber switch
+            {
+                0 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T1>(_table, columnNumber),
+                1 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T2>(_table, columnNumber),
+                2 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T3>(_table, columnNumber),
+                3 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T4>(_table, columnNumber),
+                4 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T5>(_table, columnNumber),
+                5 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T6>(_table, columnNumber),
+                6 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T7>(_table, columnNumber),
+                7 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T8>(_table, columnNumber),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
+
+        public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column)
+        {
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            return columnNumber switch
+            {
+                0 => (Func<uint, TColumn>)(Delegate)(Func<uint,T1>)(rowNum => _table.Data[rowNum].Item1),
+                1 => (Func<uint, TColumn>)(Delegate)(Func<uint,T2>)(rowNum => _table.Data[rowNum].Item2),
+                2 => (Func<uint, TColumn>)(Delegate)(Func<uint,T3>)(rowNum => _table.Data[rowNum].Item3),
+                3 => (Func<uint, TColumn>)(Delegate)(Func<uint,T4>)(rowNum => _table.Data[rowNum].Item4),
+                4 => (Func<uint, TColumn>)(Delegate)(Func<uint,T5>)(rowNum => _table.Data[rowNum].Item5),
+                5 => (Func<uint, TColumn>)(Delegate)(Func<uint,T6>)(rowNum => _table.Data[rowNum].Item6),
+                6 => (Func<uint, TColumn>)(Delegate)(Func<uint,T7>)(rowNum => _table.Data[rowNum].Item7),
+                7 => (Func<uint, TColumn>)(Delegate)(Func<uint,T8>)(rowNum => _table.Data[rowNum].Item8),
+                _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
+            };
+        }
     }
 }
