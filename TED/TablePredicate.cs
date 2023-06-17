@@ -678,6 +678,10 @@ namespace TED
         public long TotalExecutionTime => UpdateTime.ElapsedMilliseconds;
         #endif
 
+        /// <summary>
+        /// Used to add assertions to the Problems table for the current program.
+        /// Usage: predicate.Problem(message).If(conditions...)
+        /// </summary>
         public TableGoal Problem(string message)
         {
             if (Program == null)

@@ -18,6 +18,11 @@ namespace TED
         public Simulation(string name) : base(name)
         { }
 
+        /// <summary>
+        /// If true, run all the Problem rules specified by the programmer.
+        /// </summary>
+        public bool CheckForProblems;
+
         /// <inheritdoc />
         public override void EndPredicates()
         {
@@ -131,6 +136,8 @@ namespace TED
         public void Update()
         {
             RecomputeAll();
+            if (CheckForProblems)
+                Problems.ForceRecompute();
             UpdateDynamicBaseTables();
             AppendAllInputs();
         }
