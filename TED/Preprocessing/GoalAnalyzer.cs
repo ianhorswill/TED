@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TED.Interpreter;
 
 namespace TED.Preprocessing
 {
@@ -96,6 +97,8 @@ namespace TED.Preprocessing
         /// ValueCells for all the variables in the rule
         /// </summary>
         public ValueCell[] VariableValueCells() => variableValueCells.Select(p => p.Value).ToArray();
+
+        public ValueCell ValueCell(Term v) => variableValueCells[v];
 
         /// <summary>
         /// True if subsequent uses of this variable will be match to the value in the cell rather than store into it.

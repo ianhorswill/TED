@@ -394,5 +394,30 @@ namespace Tests
             var n = (Var<int>)"n";
             Predicate("test", n).If(AssertOut(n, "Should be out"), n==1);
         }
+
+        [TestMethod]
+        public void CaptureState()
+        {
+            var n = (Var<int>)"n";
+            var m = (Var<int>)"m";
+            var test = Predicate("test", n, m, TED.Primitives.CaptureDebugStatePrimitive.DebugState)
+                .If(n==1, m == n+1, TED.Primitives.CaptureDebugStatePrimitive.Singleton[TED.Primitives.CaptureDebugStatePrimitive.DebugState]);
+            Assert.AreEqual(1u, test.Length);
+            var dict = test.First().Item3;
+            Assert.AreEqual(2, dict.Count);
+            foreach (var pair in dict)
+                switch (pair.Key)
+                {
+                    case "n":
+                        Assert.AreEqual(1, pair.Value);
+                        break;
+
+                    case "m":
+                        Assert.AreEqual(2, pair.Value);
+                        break;
+
+                    default: throw new Exception($"Unexpected variable in captured state: {pair.Key}");
+                }
+        }
     }
 }
