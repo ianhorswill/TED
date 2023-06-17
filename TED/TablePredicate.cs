@@ -676,7 +676,17 @@ namespace TED
         #if PROFILER
         internal Stopwatch UpdateTime = new Stopwatch();
         public long TotalExecutionTime => UpdateTime.ElapsedMilliseconds;
-#endif
+        #endif
+
+        public TableGoal Problem(string message)
+        {
+            if (Program == null)
+                throw new InvalidOperationException(
+                    $"Cannot attach a problem rule to {Name} because it does not belong to a Program or Simulation");
+            // This is a gross kluge: the preprocessor special-cases the formal argument CaptureDebugStatePrimitive.DebugState
+            // and adds a CaptureDebugState call at the end of whatever body you specify for the If() on this goal.
+            return Program.Problems[this, message, Primitives.CaptureDebugStatePrimitive.DebugState];
+        }
     }
 
     /// <summary>

@@ -129,6 +129,8 @@ namespace TED.Interpreter
             }
             catch (Exception e)
             {
+                if (Predicate.Program != null)
+                    Predicate.Program.Exceptions.AddRow(e.GetType(), e.Message, Predicate, this);
                 throw new RuleExecutionException(this, Body[subgoal], e);
             }
 

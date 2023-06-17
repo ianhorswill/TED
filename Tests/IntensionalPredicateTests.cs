@@ -143,6 +143,48 @@ namespace Tests
             Console.WriteLine(Reciprocal.ToArray());
         }
 
+        [TestMethod]
+        public void RuleExecutionLogging()
+        {
+            var x = (Var<int>)"x";
+            var y = (Var<int>)"y";
+
+            var p = new Program("test");
+            p.BeginPredicates();
+            var Number = Predicate("Number", new [] { 1, 2, 3, 0, 4, 5, 6 }, x);
+            var Reciprocal = Predicate("Reciprocal", y).If(Number[x], y == 100 / x);
+            p.EndPredicates();
+            try
+            {
+                Console.WriteLine(Reciprocal.ToArray());
+            }
+            catch (RuleExecutionException)
+            {}
+            Assert.AreEqual(1u, p.Exceptions.Length);
+            var exceptionInfo = p.Exceptions.First();
+            Assert.AreEqual(typeof(DivideByZeroException), exceptionInfo.Item1);
+            Assert.AreEqual(Reciprocal, exceptionInfo.Item3);
+            Assert.AreEqual(Reciprocal.Rules![0], exceptionInfo.Item4);
+        }
+
+        [TestMethod]
+        public void ProblemChecking()
+        {
+            var x = (Var<int>)"x";
+            var y = (Var<int>)"y";
+
+            var p = new Program("test");
+            p.BeginPredicates();
+            var Number = Predicate("Number", new [] { 1, 2, 3, 4, 5, 6 }, x);
+            var Reciprocal = Predicate("Reciprocal", y).If(Number[x], y == 100 / x);
+            Reciprocal.Problem("Too large").If(Reciprocal[y], y>50);
+            p.EndPredicates();
+            Assert.AreEqual(1u, p.Problems.Length);
+            var problem = p.Problems.First();
+            Assert.AreEqual(Reciprocal, problem.Item1);
+            Assert.AreEqual("Too large", problem.Item2);
+        }
+
         [TestMethod, ExpectedException(typeof(InvalidProgramException))]
         public void RecursionDetectionTest()
         {

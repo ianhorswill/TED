@@ -13,6 +13,8 @@ namespace TED.Primitives
         internal static readonly Var<Dictionary<string, object?>> DebugState =
             new Var<Dictionary<string, object?>>("debugState");
 
+        internal static readonly Interpreter.Goal DefaultGoal = Singleton[DebugState];
+
         private CaptureDebugStatePrimitive(string name) : base(name)
         {
         }

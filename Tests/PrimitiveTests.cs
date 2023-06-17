@@ -401,7 +401,7 @@ namespace Tests
             var n = (Var<int>)"n";
             var m = (Var<int>)"m";
             var test = Predicate("test", n, m, TED.Primitives.CaptureDebugStatePrimitive.DebugState)
-                .If(n==1, m == n+1, TED.Primitives.CaptureDebugStatePrimitive.Singleton[TED.Primitives.CaptureDebugStatePrimitive.DebugState]);
+                .If(n==1, m == n+1);
             Assert.AreEqual(1u, test.Length);
             var dict = test.First().Item3;
             Assert.AreEqual(2, dict.Count);

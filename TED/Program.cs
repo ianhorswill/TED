@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using TED.Interpreter;
 
 namespace TED
 {
@@ -17,7 +18,10 @@ namespace TED
         /// The top of the stack is the program to which new predicates should be added.
         /// It's a stack out of paranoia that something bad will happen if multiple programs are loaded and they get mixed.
         /// </summary>
-        private static readonly Stack<Program> LoadingPrograms = new Stack<Program>();
+        private static readonly Stack<Program?> LoadingPrograms = new Stack<Program?>();
+
+        public readonly TablePredicate<Type, string, TablePredicate, Rule> Exceptions;
+        public readonly TablePredicate<TablePredicate, string, Dictionary<string, object?>> Problems;
 
         /// <summary>
         /// Predicates and their names
@@ -64,6 +68,12 @@ namespace TED
         public Program(string name)
         {
             Name = name;
+            LoadingPrograms.Push(null);
+            Exceptions = new TablePredicate<Type, string, TablePredicate, Rule>(nameof(Exceptions),
+                (Var<Type>)"type", (Var<string>)"message", (Var<TablePredicate>)"table", (Var<Rule>)"rule");
+            Problems = new TablePredicate<TablePredicate, string, Dictionary<string, object?>>(nameof(Problems),
+                (Var<TablePredicate>)"table", (Var<string>)"message", TED.Primitives.CaptureDebugStatePrimitive.DebugState);
+            LoadingPrograms.Pop();
         }
 
         /// <summary>
@@ -112,8 +122,12 @@ namespace TED
 
         internal static void MaybeAddPredicate(TablePredicate p)
         {
-            if (LoadingPrograms.Count>0)
-                LoadingPrograms.Peek().Add(p);
+            if (LoadingPrograms.Count > 0 && LoadingPrograms.Peek() != null)
+            {
+                var program = LoadingPrograms.Peek();
+                program.Add(p);
+                p.Program = program;
+            }
         }
 
         /// <summary>

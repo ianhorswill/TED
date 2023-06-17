@@ -65,6 +65,9 @@ namespace TED.Preprocessing
         public static (T, Call[]) GenerateCalls<T>(GoalAnalyzer ga, T head, Goal[] body) where T : TableGoal
         {
             var (_, hoistedHead, hoistedEvals) = HoistedVersion(head);
+            // Gross kluge
+            if (ReferenceEquals(head.Arguments[^1], CaptureDebugStatePrimitive.DebugState))
+                hoistedEvals = hoistedEvals.Append(CaptureDebugStatePrimitive.DefaultGoal);
             var calls = GenerateCalls(ga, CanonicalizeGoals(body.Concat(hoistedEvals)).ToArray());
             return ((T)hoistedHead, calls);
         }
