@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using TED.Interpreter;
+using TED.Primitives;
 
 namespace TED
 {
@@ -21,7 +22,7 @@ namespace TED
         private static readonly Stack<Program?> LoadingPrograms = new Stack<Program?>();
 
         public readonly TablePredicate<Type, string, TablePredicate, Rule> Exceptions;
-        public readonly TablePredicate<TablePredicate, string, Dictionary<string, object?>> Problems;
+        public readonly TablePredicate<TablePredicate, string, CaptureDebugStatePrimitive.CapturedState> Problems;
 
         /// <summary>
         /// Predicates and their names
@@ -71,7 +72,7 @@ namespace TED
             LoadingPrograms.Push(null);
             Exceptions = new TablePredicate<Type, string, TablePredicate, Rule>(nameof(Exceptions),
                 (Var<Type>)"type", (Var<string>)"message", (Var<TablePredicate>)"table", (Var<Rule>)"rule");
-            Problems = new TablePredicate<TablePredicate, string, Dictionary<string, object?>>(nameof(Problems),
+            Problems = new TablePredicate<TablePredicate, string, CaptureDebugStatePrimitive.CapturedState>(nameof(Problems),
                 (Var<TablePredicate>)"table", (Var<string>)"message", TED.Primitives.CaptureDebugStatePrimitive.DebugState);
             LoadingPrograms.Pop();
         }

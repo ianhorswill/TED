@@ -1,22 +1,43 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using TED.Interpreter;
 using TED.Preprocessing;
 
 namespace TED.Primitives
 {
-    internal class CaptureDebugStatePrimitive : PrimitivePredicate<Dictionary<string,object?>>
+    public class CaptureDebugStatePrimitive : PrimitivePredicate<CaptureDebugStatePrimitive.CapturedState>
     {
         public static CaptureDebugStatePrimitive Singleton = new CaptureDebugStatePrimitive("CaptureDebugState");
 
-        internal static readonly Var<Dictionary<string, object?>> DebugState =
-            new Var<Dictionary<string, object?>>("debugState");
+        internal static readonly Var<CapturedState> DebugState =
+            new Var<CapturedState>("debugState");
 
         internal static readonly Interpreter.Goal DefaultGoal = Singleton[DebugState];
 
         private CaptureDebugStatePrimitive(string name) : base(name)
         {
+        }
+
+        public class CapturedState : Dictionary<string, object?>
+        {
+            public CapturedState(IEnumerable<KeyValuePair<string, object?>> bindings) : base(bindings)
+            {
+            }
+
+            public override string ToString()
+            {
+                var b = new StringBuilder();
+                foreach (var binding in this)
+                {
+                    b.Append(binding.Key);
+                    b.Append(" = ");
+                    if (binding.Value != null)
+                        b.AppendLine(binding.Value.ToString());
+                    else b.AppendLine("null");
+                }
+                return b.ToString();
+            }
         }
 
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc)
@@ -30,15 +51,15 @@ namespace TED.Primitives
 
         private class Call : Interpreter.Call
         {
-            public readonly MatchOperation<Dictionary<string, object?>> output;
+            public readonly MatchOperation<CapturedState> output;
             public readonly ValueCell[] StateVariables;
             private bool enabled;
 
-            public Call(Predicate table, MatchOperation<Dictionary<string, object?>> output, ValueCell[] stateVariables) : base(table)
+            public Call(Predicate table, MatchOperation<CapturedState> output, ValueCell[] stateVariables) : base(table)
             {
                 this.output = output;
                 StateVariables = stateVariables;
-                ArgumentPattern = new Pattern<Dictionary<string, object?>>(output);
+                ArgumentPattern = new Pattern<CapturedState>(output);
             }
 
             public override IPattern ArgumentPattern { get; }
@@ -51,7 +72,7 @@ namespace TED.Primitives
             {
                 if (!enabled) return false;
                 enabled = false;
-                return output.Match(new Dictionary<string, object?>(
+                return output.Match(new CapturedState(
                     StateVariables.Select(c => new KeyValuePair<string, object?>(c.Name, c.BoxedValue)
                     )));
             }
