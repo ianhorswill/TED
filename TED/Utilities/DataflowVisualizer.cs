@@ -14,7 +14,9 @@ namespace TED.Utilities
         /// </summary>
         /// <param name="p"></param>
         /// <param name="path"></param>
-        public static void MakeGraph(Program p, string path)
+        public static void MakeGraph(Program p, string path) => MakeGraph(p).WriteGraph(path);
+
+        public static GraphViz<TablePredicate> MakeGraph(Program p)
         {
             var g = new GraphViz<TablePredicate>
             {
@@ -26,7 +28,6 @@ namespace TED.Utilities
                     ["style"] = "filled"
                 }
             };
-
 
             GraphViz<TablePredicate>.Cluster? baseTables = null; // g.MakeCluster("base tables");
             //baseTables.Attributes["label"] = "Base Tables";
@@ -46,17 +47,17 @@ namespace TED.Utilities
                 if (t.Property.TryGetValue(TablePredicate.UpdaterFor, out var baseTable))
                     ClusterOfBaseTable((TablePredicate)baseTable);
 
-            g.NodeCluster = 
-                t => t.IsExtensional ? 
-                    (baseTableClusters.ContainsKey(t)?ClusterOfBaseTable(t):baseTables) 
-                    : t.Property.TryGetValue(TablePredicate.UpdaterFor, out var baseTable)?
-                        (ClusterOfBaseTable((TablePredicate)baseTable))
-                        :null;
+            g.NodeCluster =
+                t => t.IsExtensional
+                    ? (baseTableClusters.ContainsKey(t) ? ClusterOfBaseTable(t) : baseTables)
+                    : t.Property.TryGetValue(TablePredicate.UpdaterFor, out var baseTable)
+                        ? (ClusterOfBaseTable((TablePredicate)baseTable))
+                        : null;
 
             g.AddReachableFrom(p.Tables, Dependencies);
-            g.WriteGraph(path);
+            return g;
         }
-        
+
         private static string PredicateLabel(TablePredicate p)
         {
             if (p.Property.TryGetValue(TablePredicate.VisualizerName, out var s))
