@@ -407,7 +407,7 @@ namespace TED {
         /// The table that provides initial values to this table, if any.
         /// This is untyped, so you probably want to be using Initially instead.
         /// </summary>
-        public abstract TablePredicate InitialValueTable { get; }
+        public abstract TablePredicate? InitialValueTable { get; }
 
         /// <summary>
         /// If you put a predicate in a rule body without arguments, it defaults to the rule's "default" arguments.
@@ -834,7 +834,7 @@ namespace TED {
         }
 
         /// <inheritdoc />
-        public override TablePredicate InitialValueTable => Initially;
+        public override TablePredicate InitialValueTable => initialValueTable;
 
         internal override void AddInitialData() {
             if (initialValueTable != null) Append(initialValueTable);
@@ -1084,7 +1084,7 @@ namespace TED {
         }
         
         /// <inheritdoc />
-        public override TablePredicate InitialValueTable => Initially;
+        public override TablePredicate InitialValueTable => initialValueTable;
 
         internal override void AddInitialData() {
             if (initialValueTable != null) Append(initialValueTable);
@@ -1429,7 +1429,7 @@ namespace TED {
         }
         
         /// <inheritdoc />
-        public override TablePredicate InitialValueTable => Initially;
+        public override TablePredicate InitialValueTable => initialValueTable;
         
         internal override void AddInitialData() {
             if (initialValueTable != null) Append(initialValueTable);
@@ -1767,7 +1767,7 @@ namespace TED {
         }
         
         /// <inheritdoc />
-        public override TablePredicate InitialValueTable => Initially;
+        public override TablePredicate InitialValueTable => initialValueTable;
 
         internal override void AddInitialData() {
             if (initialValueTable != null) Append(initialValueTable);
@@ -2121,7 +2121,7 @@ namespace TED {
         }
         
         /// <inheritdoc />
-        public override TablePredicate InitialValueTable => Initially;
+        public override TablePredicate InitialValueTable => initialValueTable;
 
         internal override void AddInitialData() {
             if (initialValueTable != null) Append(initialValueTable);
@@ -2491,7 +2491,7 @@ namespace TED {
         }
         
         /// <inheritdoc />
-        public override TablePredicate InitialValueTable => Initially;
+        public override TablePredicate InitialValueTable => initialValueTable;
 
         internal override void AddInitialData() {
             if (initialValueTable != null) Append(initialValueTable);
@@ -2876,7 +2876,7 @@ namespace TED {
         }
         
         /// <inheritdoc />
-        public override TablePredicate InitialValueTable => Initially;
+        public override TablePredicate InitialValueTable => initialValueTable;
 
         internal override void AddInitialData() {
             if (initialValueTable != null) Append(initialValueTable);
@@ -3277,7 +3277,7 @@ namespace TED {
         }
         
         /// <inheritdoc />
-        public override TablePredicate InitialValueTable => Initially;
+        public override TablePredicate InitialValueTable => initialValueTable;
 
         internal override void AddInitialData() {
             if (initialValueTable != null) Append(initialValueTable);
