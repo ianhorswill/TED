@@ -408,7 +408,7 @@ namespace TED.Tables
         public IEnumerable<TRow> RowsMatching(TColumn value)
         {
             for (var rowNumber = FirstRowWithValue(value);
-                 rowNumber != Table.NoRow;
+                 Table.ValidRow(rowNumber);
                  rowNumber = NextRowWithValue(rowNumber))
                 yield return table[rowNumber];
         }
