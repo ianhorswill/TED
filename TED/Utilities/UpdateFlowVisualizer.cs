@@ -14,7 +14,9 @@ namespace TED.Utilities
         /// </summary>
         /// <param name="p"></param>
         /// <param name="path"></param>
-        public static void MakeGraph(Program p, string path)
+        public static void MakeGraph(Program p, string path) => MakeGraph(p).WriteGraph(path);
+
+        public static GraphViz<TablePredicate> MakeGraph(Program p)
         {
             var g = new GraphViz<TablePredicate>
             {
@@ -29,9 +31,9 @@ namespace TED.Utilities
 
 
             g.AddReachableFrom(p.Tables.Where(t => t.IsDynamic), Dependencies);
-            g.WriteGraph(path);
+            return g;
         }
-        
+
         private static string PredicateLabel(TablePredicate p)
         {
             if (p.Property.TryGetValue(TablePredicate.VisualizerName, out var s))
