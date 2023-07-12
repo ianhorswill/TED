@@ -19,9 +19,9 @@ namespace TED.Primitives
         {
         }
 
-        public class CapturedState : Dictionary<string, object?>
+        public class CapturedState : Dictionary<IVariable, object?>
         {
-            public CapturedState(IEnumerable<KeyValuePair<string, object?>> bindings) : base(bindings)
+            public CapturedState(IEnumerable<KeyValuePair<IVariable, object?>> bindings) : base(bindings)
             {
             }
 
@@ -73,7 +73,7 @@ namespace TED.Primitives
                 if (!enabled) return false;
                 enabled = false;
                 return output.Match(new CapturedState(
-                    StateVariables.Select(c => new KeyValuePair<string, object?>(c.Name, c.BoxedValue)
+                    StateVariables.Select(c => new KeyValuePair<IVariable, object?>(c.Variable!, c.BoxedValue)
                     )));
             }
         }

@@ -401,23 +401,17 @@ namespace Tests
             var n = (Var<int>)"n";
             var m = (Var<int>)"m";
             var test = Predicate("test", n, m, TED.Primitives.CaptureDebugStatePrimitive.DebugState)
-                .If(n==1, m == n+1);
+                .If(n == 1, m == n + 1);
             Assert.AreEqual(1u, test.Length);
             var dict = test.First().Item3;
             Assert.AreEqual(2, dict.Count);
             foreach (var pair in dict)
-                switch (pair.Key)
-                {
-                    case "n":
-                        Assert.AreEqual(1, pair.Value);
-                        break;
-
-                    case "m":
-                        Assert.AreEqual(2, pair.Value);
-                        break;
-
-                    default: throw new Exception($"Unexpected variable in captured state: {pair.Key}");
-                }
+                if (ReferenceEquals(pair.Key, n))
+                    Assert.AreEqual(1, pair.Value);
+                else if (ReferenceEquals(pair.Key, m))
+                    Assert.AreEqual(2, pair.Value);
+                else
+                    throw new Exception($"Unexpected variable in captured state: {pair.Key}");
         }
     }
 }

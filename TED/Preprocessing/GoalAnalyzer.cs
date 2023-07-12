@@ -78,7 +78,7 @@ namespace TED.Preprocessing
                 return MatchOperation<T>.Read((ValueCell<T>)variableValueCells[v]);
             if (!variableValueCells.ContainsKey(v))
             {
-                var vc = ValueCell<T>.MakeVariable(v.Name);
+                var vc = ValueCell<T>.MakeVariable(v);
                 variableValueCells[v] = vc;
             }
 

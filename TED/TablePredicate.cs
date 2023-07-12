@@ -485,7 +485,7 @@ namespace TED {
         internal Comparison<uint> RowComparison<TRow, TColumn>(Table<TRow> table, int columnNumber) {
             if (!typeof(IComparable).IsAssignableFrom(typeof(TColumn))
                 && !typeof(IComparable<TColumn>).IsAssignableFrom(typeof(TColumn)))
-                return null;
+                return null!;
             var projection = (Table.Projection<TRow, TColumn>)Projection(columnNumber);
             var comparer = System.Collections.Generic.Comparer<TColumn>.Default;
             return (a, b) => comparer.Compare(projection(table[a]), projection(table[b]));

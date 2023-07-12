@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TED
+namespace TED.Interpreter
 {
     /// <summary>
     /// Run-time representation of a variable or a constant
@@ -13,25 +13,30 @@ namespace TED
         /// Name to use for cells representing constants
         /// </summary>
         protected const string ConstantName = " const ";
+
+        /// <summary>
+        /// The variable this cell corresponds to
+        /// </summary>
+        public readonly IVariable? Variable;
         
         /// <summary>
         /// Name, for debugging purposes
         /// </summary>
-        public readonly string Name;
+        public string Name => (Variable == null)?ConstantName:Variable.VariableName;
 
         /// <summary>
-        /// Make a cell with the specified name (name used only for debugging)
+        /// Make a cell with the specified v (v used only for debugging)
         /// </summary>
-        protected ValueCell(string name)
+        protected ValueCell(IVariable? variable)
         {
-            Name = name;
+            Variable = variable;
         }
 
         /// <summary>
         /// Is this the value cell for a variable or for a constant?
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public bool IsVariable => Name != ConstantName;
+        public bool IsVariable => Variable != null;
 
         /// <summary>
         /// Value stored in the cell, typed as object
@@ -47,7 +52,7 @@ namespace TED
     /// These get read and written through MatchInstructions, which get run when a Pattern is Matched
     /// or written to a row in a table using its Write method.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Type of data to be stored in the cell</typeparam>
     public sealed class ValueCell<T> : ValueCell
     {
         /// <summary>
@@ -69,7 +74,7 @@ namespace TED
         /// </summary>
         private static readonly Dictionary<T, ValueCell<T>> ConstantTable = new Dictionary<T, ValueCell<T>>();
         
-        private ValueCell(T value, string name) : base(name)
+        private ValueCell(T value, Var<T>? v) : base(v)
         {
             Value = value;
         }
@@ -77,7 +82,7 @@ namespace TED
         /// <summary>
         /// Make a ValueCell to hold the run-time value of a variable (a Var[T]).
         /// </summary>
-        public static ValueCell<T> MakeVariable(string name) => new ValueCell<T>(default(T)!, name);
+        public static ValueCell<T> MakeVariable(Var<T> v) => new ValueCell<T>(default(T)!, v);
 
         /// <summary>
         /// Return a ValueCell holding the specified constant
@@ -87,7 +92,7 @@ namespace TED
         {
             if (!ConstantTable.TryGetValue(value, out var c))
             {
-                c = new ValueCell<T>(value, ConstantName);
+                c = new ValueCell<T>(value, null);
                 ConstantTable[value] = c;
             }
 

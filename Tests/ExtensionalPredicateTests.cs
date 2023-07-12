@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using TED;
+using TED.Interpreter;
 using TED.Utilities;
 using static TED.Language;
 // ReSharper disable InconsistentNaming
@@ -36,7 +37,7 @@ namespace Tests
             for (var i = 0; i < 100; i++)
                 t.AddRow(i);
 
-            var c = ValueCell<int>.MakeVariable("c");
+            var c = ValueCell<int>.MakeVariable(null!);
             var p = new Pattern<int>(MatchOperation<int>.Write(c));
 
             var j = 0;
@@ -56,7 +57,7 @@ namespace Tests
             for (var i = 0; i < 100; i++)
                 t.AddRow(i);
 
-            var c = ValueCell<int>.MakeVariable("c");
+            var c = ValueCell<int>.MakeVariable(null!);
             var p = new Pattern<int>(MatchOperation<int>.Read(c));
 
             for (var j = 0; j < 100; j++)
@@ -76,7 +77,7 @@ namespace Tests
                 for (var j = 0; j < 10; j++)
                     t.AddRow(i, j);
 
-            var c = ValueCell<int>.MakeVariable("c");
+            var c = ValueCell<int>.MakeVariable(null!);
             var p = new Pattern<int,int>(MatchOperation<int>.Write(c), MatchOperation<int>.Read(c));
 
             var hits = t.Match(p).ToArray();

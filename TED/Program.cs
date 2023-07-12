@@ -126,7 +126,7 @@ namespace TED
             if (LoadingPrograms.Count > 0 && LoadingPrograms.Peek() != null)
             {
                 var program = LoadingPrograms.Peek();
-                program.Add(p);
+                program!.Add(p);
                 p.Program = program;
             }
         }
