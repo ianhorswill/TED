@@ -470,10 +470,12 @@ namespace TED {
         
         internal ColumnAccessor<TRow, TColumn, TKey> Accessor<TRow, TColumn, TKey>(Table<TRow> table, Var<TKey> key, Var<TColumn> column) {
             var keyIndex = IndexFor(ColumnPositionOfDefaultVariable(key), true);
+            if (keyIndex == null)
+                throw new InvalidOperationException($"Table {table.Name} has no key index for column {key.Name}");
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             var columnIndex = IndexFor(columnNumber, false);
             return new ColumnAccessor<TRow, TColumn, TKey>(table,
-                (KeyIndex<TRow,TKey>)keyIndex!,
+                (KeyIndex<TRow,TKey>)keyIndex,
                 (Table.Projection<TRow, TColumn>)Projection(columnNumber),
                 (GeneralIndex<TRow,TColumn>)columnIndex!,
                 (Table.Mutator<TRow, TColumn>)Mutator(columnNumber));
