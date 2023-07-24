@@ -2024,7 +2024,7 @@ namespace TED
                         var table = (Table<(T1,T2)>)tab;
                         if (scratch.Length < candidates.Length) scratch = new (T1, T2, float)[candidates.Table.Data.Length];
                         Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                        if (candidates.Length > 0) Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
+                        if (candidates.Length > 0) Array.Sort(scratch, 0, (int)candidates.Length, CandidateComparer<T1,T2>.Singleton);
                         t1Set.Clear();
                         t2Set.Clear();
                         for (var i = 0; i < candidates.Length; i++) { 
@@ -2058,7 +2058,7 @@ namespace TED
                         var table = (Table<(T1, T2)>)tab;
                         if (scratch.Length < candidates.Length) scratch = new (T1, T2, int)[candidates.Table.Data.Length];
                         Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                        if (candidates.Length > 0) Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateIntComparer<T1, T2>.Singleton);
+                        if (candidates.Length > 0) Array.Sort(scratch, 0, (int)candidates.Length, CandidateIntComparer<T1, T2>.Singleton);
                         t1Set.Clear();
                         t2Set.Clear();
                         for (var i = 0; i < candidates.Length; i++) {
@@ -2094,7 +2094,7 @@ namespace TED
                         var table = (Table<(T1,T2)>)tab; 
                         if (scratch.Length < candidates.Length) scratch = new (T1, T2, float)[candidates.Table.Data.Length];
                         Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                        if (candidates.Length > 0) Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T1,T2>.Singleton);
+                        if (candidates.Length > 0) Array.Sort(scratch, 0, (int)candidates.Length, CandidateComparer<T1,T2>.Singleton);
                         t1Set.Clear();
                         t2Capacity.Clear();
                         var capacityData = capacities.Table.Data;
@@ -2137,7 +2137,7 @@ namespace TED
                         var table = (Table<(T1, T2)>)tab;
                         if (scratch.Length < candidates.Length) scratch = new (T1, T2, int)[candidates.Table.Data.Length];
                         Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                        if (candidates.Length > 0) Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateIntComparer<T1, T2>.Singleton);
+                        if (candidates.Length > 0) Array.Sort(scratch, 0, (int)candidates.Length, CandidateIntComparer<T1, T2>.Singleton);
                         t1Set.Clear();
                         t2Capacity.Clear();
                         var capacityData = capacities.Table.Data;
@@ -2174,7 +2174,7 @@ namespace TED
                         var table = (Table<(T,T)>)tab;
                         if (scratch.Length < candidates.Length) scratch = new (T, T, float)[candidates.Table.Data.Length];
                         Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                        if (candidates.Length > 0) Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T,T>.Singleton);
+                        if (candidates.Length > 0) Array.Sort(scratch, 0, (int)candidates.Length, CandidateComparer<T,T>.Singleton);
                         t1Set.Clear();
                         for (var i = 0; i < candidates.Length; i++) {
                             (var i1, var i2, _) = scratch[i];
@@ -2204,7 +2204,7 @@ namespace TED
                         var table = (Table<(T, T)>)tab;
                         if (scratch.Length < candidates.Length) scratch = new (T, T, int)[candidates.Table.Data.Length];
                         Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                        if (candidates.Length > 0) Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateIntComparer<T, T>.Singleton);
+                        if (candidates.Length > 0) Array.Sort(scratch, 0, (int)candidates.Length, CandidateIntComparer<T, T>.Singleton);
                         t1Set.Clear();
                         for (var i = 0; i < candidates.Length; i++) {
                             (var i1, var i2, _) = scratch[i];
@@ -2234,7 +2234,7 @@ namespace TED
                     var table = (Table<(T, T)>)tab;
                     if (scratch.Length < candidates.Length) scratch = new (T, T, float)[candidates.Table.Data.Length];
                     Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                    if (candidates.Length > 0) Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateComparer<T, T>.Singleton);
+                    if (candidates.Length > 0) Array.Sort(scratch, 0, (int)candidates.Length, CandidateComparer<T, T>.Singleton);
                     t1Set.Clear();
                     for (var i = 0; i < candidates.Length; i++) {
                         (var i1, var i2, _) = scratch[i];
@@ -2262,7 +2262,7 @@ namespace TED
                         var table = (Table<(T, T)>)tab;
                         if (scratch.Length < candidates.Length) scratch = new (T, T, int)[candidates.Table.Data.Length];
                         Array.Copy(candidates.Table.Data, scratch, candidates.Length);
-                        if (candidates.Length > 0) Array.Sort(scratch, 0, candidates.Table.Data.Length, CandidateIntComparer<T, T>.Singleton);
+                        if (candidates.Length > 0) Array.Sort(scratch, 0, (int)candidates.Length, CandidateIntComparer<T, T>.Singleton);
                         t1Set.Clear();
                         for (var i = 0; i < candidates.Length; i++) {
                             (var i1, var i2, _) = scratch[i];
