@@ -288,6 +288,14 @@ namespace TED.Tables
             return Table.NoRow;
         }
 
+        private uint? BucketWithValue(in TColumn value)
+        {
+            for (var b = HashInternal(value, mask); buckets[b].firstRow != Table.NoRow; b = b + 1 & mask)
+                if (Comparer.Equals(buckets[b].columnValue, value))
+                    return b;
+            return null;
+        }
+
         /// <summary>
         /// Return the next row after the specified row in the link list of rows with a given column value.
         /// </summary>
@@ -337,6 +345,14 @@ namespace TED.Tables
 
         internal void Remove(uint row)
         {
+            uint b;
+            var value = projection(table.Data[row]);
+            // Find the bucket that has this value
+            for (b = HashInternal(value, mask); !Comparer.Equals(value, buckets[b].columnValue); b = b + 1 & mask)
+            { }
+
+            buckets[b].count--;
+
             var previous = previousRow![row];
             var next = nextRow[row];
             if (previous != Table.NoRow)
@@ -349,12 +365,6 @@ namespace TED.Tables
             }
 
             // It must be the first element of the list
-            uint b;
-            var value = projection(table.Data[row]);
-            // Find the bucket that has this value
-            for (b = HashInternal(value, mask); !Comparer.Equals(value, buckets[b].columnValue); b = b + 1 & mask)
-            { }
-
             if (next == Table.NoRow)
             {
                 // It was the only row in the list
@@ -405,12 +415,24 @@ namespace TED.Tables
                 Add(i);
         }
 
+        /// <summary>
+        /// Tuples in the table matching the specified column value
+        /// </summary>
         public IEnumerable<TRow> RowsMatching(TColumn value)
         {
             for (var rowNumber = FirstRowWithValue(value);
                  Table.ValidRow(rowNumber);
                  rowNumber = NextRowWithValue(rowNumber))
                 yield return table[rowNumber];
+        }
+
+        /// <summary>
+        /// The number of columns in the table with the specified value.
+        /// </summary>
+        public int RowsMatchingCount(TColumn value)
+        {
+            var b = BucketWithValue(value);
+            return b == null ? 0 : buckets[b.Value].count;
         }
     }
 

@@ -198,7 +198,7 @@ namespace Tests
         {
 
             var t = new Table<int>();
-            var index = new GeneralIndex<int, int>(null!, t, 0, (in int n)=>n);
+            var index = new GeneralIndex<int, int>(null!, t, 0, (in int n)=>n)!;
             t.AddIndex(index);
             index.EnableMutation();
 
@@ -211,34 +211,36 @@ namespace Tests
             for (var i = 0; i < 10; i++)
                 t.Add(0);
 
-            var rows = RowsWithValue(0).ToArray();
-            CollectionAssert.AreEqual(new uint[] { 9,8,7,6,5,4,3,2,1,0 }, rows);
+            void CheckRows(uint[] expectedRows)
+            {
+                var rows = RowsWithValue(0).ToArray();
+                CollectionAssert.AreEqual(expectedRows, rows);
+                Assert.AreEqual(expectedRows.Length, index.RowsMatchingCount(0));
+            }
+
+            CheckRows(new uint[] { 9,8,7,6,5,4,3,2,1,0 });
 
             // Test removing the first element
             index.Remove(9);
-            rows = RowsWithValue(0).ToArray();
-            CollectionAssert.AreEqual(new uint[] { 8,7,6,5,4,3,2,1,0 }, rows);
+            CheckRows(new uint[] { 8,7,6,5,4,3,2,1,0 });
 
             // Test removing the last element
             index.Remove(0);
-            rows = RowsWithValue(0).ToArray();
-            CollectionAssert.AreEqual(new uint[] { 8,7,6,5,4,3,2,1 }, rows);
+            CheckRows(new uint[] { 8, 7, 6, 5, 4, 3, 2, 1 });
 
             // Test removing a middle element
             index.Remove(5);
-            rows = RowsWithValue(0).ToArray();
-            CollectionAssert.AreEqual(new uint[] { 8,7,6,4,3,2,1 }, rows);
+            CheckRows(new uint[] { 8, 7, 6, 4, 3, 2, 1 });
 
             // Test removing all elements
-            foreach (var row in rows) index.Remove(row);
+            foreach (var row in RowsWithValue(0)) index.Remove(row);
             Assert.AreEqual(0, RowsWithValue(0).Count());
 
             // Test adding rows back in
             for (var i = 0u; i < 10u; i++)
                 index.Add(i);
 
-            rows = RowsWithValue(0).ToArray();
-            CollectionAssert.AreEqual(new uint[] { 9,8,7,6,5,4,3,2,1,0 }, rows);
+            CheckRows(new uint[] { 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 });
         }
 
         [TestMethod]
