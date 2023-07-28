@@ -18,8 +18,37 @@ namespace TED.Repl
             => Repl.Program.PredicateNamed(name)??throw new Exception($"There is no predicate named {name}");
         public static bool Identifier(ParserState s, Continuation<string> k) 
             => s.ReadToken(char.IsLetter, k);
+
         public bool Predicate(ParserState s, Continuation<TablePredicate> k)
-            => s.ReadToken(char.IsLetter, PredicateNamed, k);
+            => s.ReadToken(char.IsLetter, PredicateNamed, (s1, p) => PredicateFieldReference(s1, p, k));
+
+        private static bool PredicateFieldReference(ParserState s, TablePredicate predicate,
+            Continuation<TablePredicate> k)
+            => s.Match(".", s1 =>
+                Identifier(s1, (s2, fieldName) =>
+                    PredicateFieldReference(s2, LookupField(predicate, fieldName), k)))
+                || k(s, predicate);
+
+        private static TablePredicate LookupField(TablePredicate predicate, string fieldName)
+        {
+            var t = predicate.GetType();
+            var f = t.GetField(fieldName);
+            if (f != null)
+            {
+                if (f.FieldType.IsSubclassOf(typeof(TablePredicate)))
+                    return (TablePredicate)f.GetValue(predicate);
+                throw new Exception($"{predicate.Name}.{fieldName} is not a TablePredicate");
+            }
+            var p = t.GetProperty(fieldName);
+            if (p != null)
+            {
+                if (p.PropertyType.IsSubclassOf(typeof(TablePredicate)))
+                    return (TablePredicate)p.GetValue(predicate);
+                throw new Exception($"{predicate.Name}.{fieldName} is not a TablePredicate");
+            }
+
+            throw new MissingFieldException($"{predicate.Name} has no field or property named {fieldName}");
+        }
 
         public static bool Number(ParserState s, Continuation<Term> k)
             => s.ReadToken(char.IsDigit, (st, digits) => k(st, new Constant<int>(int.Parse(digits))));

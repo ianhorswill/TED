@@ -21,6 +21,25 @@ namespace Tests
         }
 
         [TestMethod]
+        public void PredicateFieldTest()
+        {
+            var p = new Program(nameof(QueryTest));
+            p.BeginPredicates();
+            var age = (Var<int>)"age";
+            var name = (Var<string>)"name";
+
+            var ti = TablePredicate<string, int>.FromCsv("testInit", "../../../TestTable.csv", name, age);
+            var test = TED.Language.Predicate("test", name,age);
+            test.Initially.If(ti);
+            p.EndPredicates();
+
+            var q = p.Repl.Query("TestQuery", "test.Initially[\"Tamika\", age]");
+            Assert.IsInstanceOfType(q,typeof(TablePredicate<int>));
+            Assert.AreEqual(1u, q.Length);
+            CollectionAssert.AreEqual(new[] { 11 }, ((IEnumerable<int>)q).ToArray());
+        }
+
+        [TestMethod]
         public void FullToken()
         {
             string result = null!;
