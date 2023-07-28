@@ -62,11 +62,11 @@ namespace TED.Primitives {
         /// <param name="implementation">C# implementation.
         /// This will be called with the values of the arguments.
         /// If it returns true, the call to the test succeeds, otherwise, it fails and the system backtracks</param>
-        /// <param name="isFunctional">This predicate has no side-effects and so can be safely constant-folded.</param>
-        public PrimitiveTest(string name, Func<T1, bool> implementation, bool isFunctional = true) : base(name) {
+        /// <param name="isPure">This predicate has no side-effects and so can be safely constant-folded.</param>
+        public PrimitiveTest(string name, Func<T1, bool> implementation, bool isPure = true) : base(name) {
             Implementation = implementation;
-            IsPure = isFunctional;
-            if (isFunctional)
+            IsPure = isPure;
+            if (isPure)
                 ConstantFolder = Implementation;
         }
 
@@ -118,11 +118,11 @@ namespace TED.Primitives {
         /// <param name="implementation">C# implementation.
         /// This will be called with the values of the arguments.
         /// If it returns true, the call to the test succeeds, otherwise, it fails and the system backtracks</param>
-        /// <param name="isFunctional">This predicate has no side-effects and so can be safely constant-folded</param>
-        public PrimitiveTest(string name, Func<T1, T2, bool> implementation, bool isFunctional = true) : base(name) {
+        /// <param name="isPure">This predicate has no side-effects and so can be safely constant-folded</param>
+        public PrimitiveTest(string name, Func<T1, T2, bool> implementation, bool isPure = true) : base(name) {
             Implementation = implementation;
-            IsPure = isFunctional;
-            if (isFunctional)
+            IsPure = isPure;
+            if (isPure)
                 ConstantFolder = Implementation;
         }
 
@@ -181,11 +181,11 @@ namespace TED.Primitives {
         /// <param name="implementation">C# implementation.
         /// This will be called with the values of the arguments.
         /// If it returns true, the call to the test succeeds, otherwise, it fails and the system backtracks</param>
-        /// <param name="isFunctional">This predicate has no side-effects and so can be safely constant-folded</param>
-        public PrimitiveTest(string name, Func<T1, T2, T3, bool> implementation, bool isFunctional = true) : base(name) {
+        /// <param name="isPure">This predicate has no side-effects and so can be safely constant-folded</param>
+        public PrimitiveTest(string name, Func<T1, T2, T3, bool> implementation, bool isPure = true) : base(name) {
             Implementation = implementation;
-            IsPure = isFunctional;
-            if (isFunctional)
+            IsPure = isPure;
+            if (isPure)
                 ConstantFolder = Implementation;
         }
 
@@ -250,11 +250,11 @@ namespace TED.Primitives {
         /// <param name="implementation">C# implementation.
         /// This will be called with the values of the arguments.
         /// If it returns true, the call to the test succeeds, otherwise, it fails and the system backtracks</param>
-        /// <param name="isFunctional">This predicate has no side-effects and so can be safely constant-folded</param>
-        public PrimitiveTest(string name, Func<T1, T2, T3, T4, bool> implementation, bool isFunctional = true) : base(name) {
+        /// <param name="isPure">This predicate has no side-effects and so can be safely constant-folded</param>
+        public PrimitiveTest(string name, Func<T1, T2, T3, T4, bool> implementation, bool isPure = true) : base(name) {
             Implementation = implementation;
-            IsPure = isFunctional;
-            if (isFunctional)
+            IsPure = isPure;
+            if (isPure)
                 ConstantFolder = Implementation;
         }
 
@@ -325,11 +325,11 @@ namespace TED.Primitives {
         /// <param name="implementation">C# implementation.
         /// This will be called with the values of the arguments.
         /// If it returns true, the call to the test succeeds, otherwise, it fails and the system backtracks</param>
-        /// <param name="isFunctional">This predicate has no side-effects and so can be safely constant-folded</param>
-        public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, bool> implementation, bool isFunctional = true) : base(name) {
+        /// <param name="isPure">This predicate has no side-effects and so can be safely constant-folded</param>
+        public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, bool> implementation, bool isPure = true) : base(name) {
             Implementation = implementation;
-            IsPure = isFunctional;
-            if (isFunctional)
+            IsPure = isPure;
+            if (isPure)
                 ConstantFolder = Implementation;
         }
 
@@ -406,11 +406,11 @@ namespace TED.Primitives {
         /// <param name="implementation">C# implementation.
         /// This will be called with the values of the arguments.
         /// If it returns true, the call to the test succeeds, otherwise, it fails and the system backtracks</param>
-        /// <param name="isFunctional">This predicate has no side-effects and so can be safely constant-folded</param>
-        public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, T6, bool> implementation, bool isFunctional = true) : base(name) {
+        /// <param name="isPure">This predicate has no side-effects and so can be safely constant-folded</param>
+        public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, T6, bool> implementation, bool isPure = true) : base(name) {
             Implementation = implementation;
-            IsPure = isFunctional;
-            if (isFunctional)
+            IsPure = isPure;
+            if (isPure)
                 ConstantFolder = Implementation;
         }
 
@@ -493,11 +493,11 @@ namespace TED.Primitives {
         /// <param name="implementation">C# implementation.
         /// This will be called with the values of the arguments.
         /// If it returns true, the call to the test succeeds, otherwise, it fails and the system backtracks</param>
-        /// <param name="isFunctional">This predicate has no side-effects and so can be safely constant-folded</param>
-        public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, T6, T7, bool> implementation, bool isFunctional = true) : base(name) {
+        /// <param name="isPure">This predicate has no side-effects and so can be safely constant-folded</param>
+        public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, T6, T7, bool> implementation, bool isPure = true) : base(name) {
             Implementation = implementation;
-            IsPure = isFunctional;
-            if (isFunctional)
+            IsPure = isPure;
+            if (isPure)
                 ConstantFolder = Implementation;
         }
 
@@ -586,11 +586,11 @@ namespace TED.Primitives {
         /// <param name="implementation">C# implementation.
         /// This will be called with the values of the arguments.
         /// If it returns true, the call to the test succeeds, otherwise, it fails and the system backtracks</param>
-        /// <param name="isFunctional">This predicate has no side-effects and so can be safely constant-folded</param>
-        public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, bool> implementation, bool isFunctional = true) : base(name) {
+        /// <param name="isPure">This predicate has no side-effects and so can be safely constant-folded</param>
+        public PrimitiveTest(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, bool> implementation, bool isPure = true) : base(name) {
             Implementation = implementation;
-            IsPure = isFunctional;
-            if (isFunctional)
+            IsPure = isPure;
+            if (isPure)
                 ConstantFolder = Implementation;
         }
 
