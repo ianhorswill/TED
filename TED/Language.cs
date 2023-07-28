@@ -1296,7 +1296,7 @@ namespace TED
         /// Makes a PrimitiveTest with the same name as the Func being passed in
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static PrimitiveTest Test(Func<bool> fn, bool isPure = true) => new PrimitiveTest(fn.Method.Name, fn, isPure);
+        public static PrimitiveTest TestMethod(Func<bool> fn, bool isPure = true) => new PrimitiveTest(fn.Method.Name, fn, isPure);
         /// <summary>
         /// Makes a PrimitiveTest with the given name
         /// </summary>
