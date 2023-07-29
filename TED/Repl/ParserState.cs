@@ -13,17 +13,19 @@ namespace TED.Repl
 
         public readonly string Text;
         public readonly int Position;
+        public readonly Parser.SymbolTable SymbolTable;
 
-        public ParserState(string text, int position)
+        public ParserState(string text, int position, Parser.SymbolTable symbolTable)
         {
             Text = text;
             Position = position;
+            SymbolTable = symbolTable;
         }
 
-        public ParserState(string s) : this(s, 0)
+        public ParserState(string s) : this(s, 0, new Parser.SymbolTable())
         { }
 
-        public ParserState JumpTo(int position) => new ParserState(Text, position);
+        public ParserState JumpTo(int position) => new ParserState(Text, position, SymbolTable);
 
         public bool End => Position == Text.Length;
 
@@ -46,7 +48,7 @@ namespace TED.Repl
         {
             int i;
             for (i = Position; i < Text.Length && char.IsWhiteSpace(Text[i]); i++) ;
-            return new ParserState(Text, i);
+            return new ParserState(Text, i, SymbolTable);
         }
 
         public bool ReadToken(System.Predicate<char> test, Continuation<string> k, bool allowEmpty = false)
@@ -66,6 +68,9 @@ namespace TED.Repl
                 return false;
             return k(JumpTo(i), func(Text.Substring(Position, i-Position)));
         }
+
+        public bool MatchSkippingWhitespace(string str, Continuation k)
+            => SkipWhitespace(s => s.Match(str, k));
 
         public bool Match(string s, Continuation k)
         {

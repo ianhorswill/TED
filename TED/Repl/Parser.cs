@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using static TED.Repl.ParserState;
 using TED.Interpreter;
 
@@ -60,7 +61,19 @@ namespace TED.Repl
                         s4 => k(s4, new Constant<string>(str)))));
 
         public static bool Variable(ParserState s, Continuation<Term> k) 
-            => s.ReadToken(char.IsLetter, str => (Var<object>) str, k);
+            => s.ReadToken(char.IsLetter, str => GetVariable(s, str), k);
+
+        /// <summary>
+        /// Get a variable with this name.
+        /// If we already have a variable by this name, return that.
+        /// If not, return a placeholder but don't add it to the symbol table
+        /// because we don't yet know its type.  When it gets used in a goal, MakeGoal will
+        /// make a new variable with this name and the correct type and add it to the symbol table.
+        /// </summary>
+        /// <param name="s">Parser state (for the symbol table)</param>
+        /// <param name="name">Name of the variable</param>
+        private static Term GetVariable(ParserState s, string name) 
+            => s.SymbolTable.MaybeGetVariable(name)??(Var<object>) name;
 
         public bool Term(ParserState s, Continuation<Term> k)
             => Number(s, k) || String(s, k) || Variable(s, k) || ExternalConstant(s,k);
@@ -75,17 +88,38 @@ namespace TED.Repl
                                   s5 => k(s5, Repl.ResolveConstant(str))))));
         }
 
-        public bool Goal(ParserState s, SymbolTable vars, Continuation<Goal> k)
+        public bool Goal(ParserState s, Continuation<Goal> k)
+            => SimpleGoal(s, k) || ComparisonExpression(s, k)
+            || s.MatchSkippingWhitespace("!", s2=>Goal(s2,k));
+        public bool SimpleGoal(ParserState s, Continuation<Goal> k)
             => Predicate(s,
                    (s1, predicate) => 
                        s1.MatchAnyOf("[(",
                            s2 => s2.DelimitedList<Term>(Term, ",",
                                (s3, args) => s3.MatchAnyOf("])",
-                                   s4 => k(s4, MakeGoal(predicate, args, vars))))))
-                        || s.Match("!", s5 => Goal(s5.SkipWhitespace(), vars, (s6, g) => k(s6, !g)));
+                                   s4 => k(s4, MakeGoal(predicate, args, s.SymbolTable))))))
+                        || s.Match("!", s5 => Goal(s5.SkipWhitespace(), (s6, g) => k(s6, !g)));
 
-        public bool Body(ParserState s, SymbolTable vars, Continuation<List<Goal>> k)
-            => s.DelimitedList((gs, gk) => Goal(gs, vars, gk), ",", k); 
+        private bool ComparisonExpression(ParserState s, Continuation<Goal> k)
+            => Term(s, (s1, left) =>
+                ComparisonOperator(s1, (s2, op) =>
+                    Term(s2, (s3, right) =>
+                        k(s3, left.MakeComparison(op, right)))));
+        
+        private static readonly string[] ComparisonOperators =
+        {
+            "<", ">", "<=", ">=", "==", "!="
+        };
+
+        private static bool ComparisonOperator(ParserState s, Continuation<string> k)
+            => s.SkipWhitespace(s1 =>
+                s.ReadToken(char.IsPunctuation,
+                    (s2, op) => ComparisonOperators.Contains(op)
+                                && k(s2, op)));
+
+        
+        public bool Body(ParserState s, Continuation<List<Goal>> k)
+            => s.DelimitedList(Goal, ",", k); 
 
         public Goal MakeGoal(TablePredicate p, List<Term> args, SymbolTable vars)
         {
@@ -126,6 +160,8 @@ namespace TED.Repl
                 }
                 return variable;
             }
+
+            public Term? MaybeGetVariable(string name) => variableTable.TryGetValue(name, out var v) ? v : null;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using TED;
+using TED.Interpreter;
 using TED.Repl;
 
 namespace Tests
@@ -94,43 +95,60 @@ namespace Tests
             CollectionAssert.AreEqual(new[] {"Foo", "Bar", "Baz"}, result!.ToArray());
         }
 
-        //[TestMethod]
-        //public void Goal()
-        //{
-        //    var _ = new Simulation("s");
-        //    var n = (Var<int>)"n";
-        //    var m = (Var<int>)"m";
-        //    var o = (Var<int>)"o";
-        //    var a = (Var<int>)"a";
-        //    var str = (Var<string>)"str";
-        //    // ReSharper disable once InconsistentNaming
-        //    var Foo = Predicate("Foo", n, m, o, a, str);
+        [TestMethod]
+        public void Goal()
+        {
+            var sim = new Simulation("s");
+            var n = (Var<int>)"n";
+            var m = (Var<int>)"m";
+            var o = (Var<int>)"o";
+            var a = (Var<int>)"a";
+            var str = (Var<string>)"str";
+            sim.BeginPredicates();
+            // ReSharper disable once InconsistentNaming
+            var Foo = TED.Language.Predicate("Foo", n, m, o, a, str);
+            sim.EndPredicates();
 
-        //    Goal g = null!;
+            Goal g = null!;
 
-        //    Assert.IsTrue(Parser.Goal(new ParserState("Foo[x, y, x, 1, \"String\"]"), new Parser.SymbolTable(),
-        //        (s, goal) =>
-        //        {
-        //            g = goal;
-        //            return s.End;
-        //        }));
+            Assert.IsTrue(sim.Repl.Parser.Goal(new ParserState("Foo[x, y, x, 1, \"String\"]"), (s, goal) =>
+                {
+                    g = goal;
+                    return s.End;
+                }));
 
-        //    Assert.AreEqual(Foo, g.Predicate);
-        //    Assert.AreEqual(5, g.Arguments.Length);
+            Assert.AreEqual(Foo, g.Predicate);
+            Assert.AreEqual(5, g.Arguments.Length);
 
-        //    var t = (Var<int>)g.Arguments[0];
-        //    Assert.AreEqual("x", t.Name);
+            var t = (Var<int>)g.Arguments[0];
+            Assert.AreEqual("x", t.Name);
 
-        //    t = (Var<int>)g.Arguments[1];
-        //    Assert.AreEqual("y", t.Name);
+            t = (Var<int>)g.Arguments[1];
+            Assert.AreEqual("y", t.Name);
 
-        //    Assert.AreEqual(g.Arguments[0], g.Arguments[2]);
+            Assert.AreEqual(g.Arguments[0], g.Arguments[2]);
 
-        //    var t4 = (Constant<int>)g.Arguments[3];
-        //    Assert.AreEqual(1, t4.Value);
+            var t4 = (Constant<int>)g.Arguments[3];
+            Assert.AreEqual(1, t4.Value);
 
-        //    var t5 = (Constant<string>)g.Arguments[4];
-        //    Assert.AreEqual("String", t5.Value);
-        //}
+            var t5 = (Constant<string>)g.Arguments[4];
+            Assert.AreEqual("String", t5.Value);
+        }
+
+        [TestMethod]
+        public void DualGoal()
+        {
+            var p = new Program(nameof(DualGoal));
+            p.BeginPredicates();
+            var i = (Var<int>)"i";
+            var j = (Var<int>)"j";
+            var T = TED.Language.Predicate("T", i, j);
+            p.EndPredicates();
+            for (var k = 0; k < 5; k++)
+                T.AddRow(k, 1);
+            var q = (TablePredicate<int,int>)p.Repl.Query("q", "T[a,b], T[b, a]");
+            Assert.AreEqual(1u,q.Length);
+            Assert.AreEqual((1,1), q.ToArray()[0]);
+        }
     }
 }

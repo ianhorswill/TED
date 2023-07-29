@@ -19,7 +19,7 @@ namespace TED.Repl
         /// <summary>
         /// Parser object to use to parse queries
         /// </summary>
-        private readonly Parser parser;
+        internal readonly Parser Parser;
 
         /// <summary>
         /// Called when the user types a term of the form $string or $"string".  Maps string to a Term.
@@ -42,7 +42,7 @@ namespace TED.Repl
         {
             Program = program;
             ResolveConstant = resolveConstant??NullConstantResolver;
-            parser = new Parser(this);
+            Parser = new Parser(this);
         }
 
         /// <summary>
@@ -55,17 +55,18 @@ namespace TED.Repl
         public TablePredicate Query(string name, string goalString)
         {
             List<Goal> body = null!;
-            var symbolTable = new Parser.SymbolTable();
-            if (!parser.Body(new ParserState(goalString), symbolTable, (s, b) =>
+            Parser.SymbolTable variables = null!;
+            if (!Parser.Body(new ParserState(goalString), (s, b) =>
                 {
                     if (!s.End)
                         throw new Exception("Characters remaining after end of goal");
                     body = b;
+                    variables = s.SymbolTable;
                     return true;
                 }))
                 throw new Exception("Syntax error");
-            var vars = symbolTable.VariablesInOrder.Cast<IVariable>().ToArray();
-            var predicate = TablePredicate.Create(name, vars);
+            var predicate = TablePredicate.Create(name,
+                variables.VariablesInOrder.Cast<IVariable>().ToArray());
             predicate.AddRule(body.ToArray());
             return predicate;
         }

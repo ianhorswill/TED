@@ -58,6 +58,8 @@ namespace TED
         /// True if evaluating this has no side effects; the only terms that are not pure are calls to impure functions.
         /// </summary>
         public virtual bool IsPure => true;
+
+        internal abstract Goal MakeComparison(string op, Term rhs);
     }
 
     /// <summary>
@@ -141,6 +143,24 @@ namespace TED
         /// </summary>
         public static Goal operator >=(Term<T> a, Term<T> b)
             => CatchComparisonTypeInitializerProblem(() => ComparisonPrimitive<T>.GreaterThanEq[a, b], ">=");
+
+        internal override Goal MakeComparison(string op, Term rhs)
+        {
+            var r = rhs as Term<T>;
+            if (ReferenceEquals(r, null))
+                throw new ArgumentException(
+                    "left- and right-hand arguments of comparison operator are different types.");
+            return op switch
+            {
+                "<" => this < r,
+                ">" => this > r,
+                "<=" => this <= r,
+                ">=" => this >= r,
+                "==" => EvalPrimitive<T>.Singleton[this, r],
+                "!=" => NotPrimitive.Singleton[EvalPrimitive<T>.Singleton[this, r]],
+                _ => throw new ArgumentOutOfRangeException(nameof(op))
+            };
+        }
 
         /// <summary>
         /// Add two terms using the existing overload for + for that data type
