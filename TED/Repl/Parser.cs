@@ -93,18 +93,19 @@ namespace TED.Repl
             || s.MatchSkippingWhitespace("!",
                 s2=>Goal(s2,(s3, g) =>
                     k(s3, !g)));
+
+        private bool TermList(ParserState s, Continuation<List<Term>> k)
+            => s.DelimitedList(Term, ",", k);
+
         public bool SimpleGoal(ParserState s, Continuation<Goal> k)
-            => Predicate(s,
-                   (s1, predicate) => 
-                       s1.MatchAnyOf("[(",
-                           s2 => s2.DelimitedList<Term>(Term, ",",
-                               (s3, args) => s3.MatchAnyOf("])",
-                                   s4 => k(s4, MakeGoal(predicate, args, s.SymbolTable))))));
+            => s.CallExpression<TablePredicate,Term>(Predicate, Term,
+                (s1, targetAndArgs) =>
+                    k(s1, MakeGoal(targetAndArgs.Item1, targetAndArgs.Item2, s1.SymbolTable)));
+
         private bool ComparisonExpression(ParserState s, Continuation<Goal> k)
-            => Term(s, (s1, left) =>
-                ComparisonOperator(s1, (s2, op) =>
-                    Term(s2, (s3, right) =>
-                        k(s3, left.MakeComparison(op, right)))));
+            => s.InfixOperator<string, Term>(ComparisonOperator, Term,
+                (s1, info) =>
+                    k(s1, info.Item2.MakeComparison(info.Item1, info.Item3)));
         
         private static readonly string[] ComparisonOperators =
         {

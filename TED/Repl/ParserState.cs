@@ -135,6 +135,42 @@ namespace TED.Repl
             return k(state, values);
         }
 
+        /// <summary>
+        /// Matches payload surrounded by specified bracket characters
+        /// </summary>
+        /// <typeparam name="T">Type of payload output</typeparam>
+        /// <param name="openOptions">Characters allowed as open bracket</param>
+        /// <param name="payload"></param>
+        /// <param name="closeOptions">Characters allowed as close bracket</param>
+        /// <param name="k">Continuation called with parser state after close bracket and output of payload</param>
+        /// <returns>True if successfully matched and continuation returns true.</returns>
+        public bool Bracketed<T>(string openOptions, Parser<T> payload, string closeOptions, Continuation<T> k) =>
+            SkipWhitespace().MatchAnyOf(openOptions,
+                s1 => payload(s1.SkipWhitespace(),
+                    (s2, pay) => 
+                        s2.SkipWhitespace().MatchAnyOf(closeOptions,
+                            s3 => k(s3, pay))));
+
+        public bool CallExpression<TCalled, TArg>(Parser<TCalled> called, Parser<TArg> arg,
+            Continuation<(TCalled, List<TArg>)> k)
+        {
+            bool Arglist(ParserState s, Continuation<List<TArg>> k) => s.DelimitedList(arg, ",", k);
+            return called(SkipWhitespace(),
+                (s1, target)
+                    => s1.Bracketed<List<TArg>>("[(", Arglist, ")]", (s2, args) =>
+                        k(s2, (target, args))));
+        }
+
+        public bool InfixOperator<TOperator, TArg>(Parser<TOperator> op, Parser<TArg> arg,
+            Continuation<(TOperator, TArg, TArg)> k)
+            => arg(SkipWhitespace(),
+                (s1, left) =>
+                    op(s1.SkipWhitespace(), 
+                        (s2, target) =>
+                            arg(s2.SkipWhitespace(),
+                                (s3, right) =>
+                                    k(s3, (target, left, right)))));
+
         public override string ToString() =>
             $"{Text.Substring(0, Position)}|{Text.Substring(Position, Text.Length - Position)}";
     }
