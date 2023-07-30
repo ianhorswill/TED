@@ -118,16 +118,19 @@ namespace TED.Repl
             });
 
             SkipWhite();
+            bool more = false;
             while (!state.End && parser(state, (newState, newElement) =>
                    {
                        values.Add(newElement);
                        state = newState;
                        SkipWhite();
-                       return state.Match(delimiter, new2 => { state = new2;
+                       more = state.Match(delimiter, new2 => { state = new2;
                            SkipWhite();
                            return true; 
                        });
-                   })) ;
+                       return true;
+                   })
+                   && more) ;
             SkipWhite();
             return k(state, values);
         }

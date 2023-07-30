@@ -89,17 +89,17 @@ namespace TED.Repl
         }
 
         public bool Goal(ParserState s, Continuation<Goal> k)
-            => SimpleGoal(s, k) || ComparisonExpression(s, k)
-            || s.MatchSkippingWhitespace("!", s2=>Goal(s2,k));
+            => ComparisonExpression(s, k) || SimpleGoal(s, k)
+            || s.MatchSkippingWhitespace("!",
+                s2=>Goal(s2,(s3, g) =>
+                    k(s3, !g)));
         public bool SimpleGoal(ParserState s, Continuation<Goal> k)
             => Predicate(s,
                    (s1, predicate) => 
                        s1.MatchAnyOf("[(",
                            s2 => s2.DelimitedList<Term>(Term, ",",
                                (s3, args) => s3.MatchAnyOf("])",
-                                   s4 => k(s4, MakeGoal(predicate, args, s.SymbolTable))))))
-                        || s.Match("!", s5 => Goal(s5.SkipWhitespace(), (s6, g) => k(s6, !g)));
-
+                                   s4 => k(s4, MakeGoal(predicate, args, s.SymbolTable))))));
         private bool ComparisonExpression(ParserState s, Continuation<Goal> k)
             => Term(s, (s1, left) =>
                 ComparisonOperator(s1, (s2, op) =>
@@ -111,9 +111,12 @@ namespace TED.Repl
             "<", ">", "<=", ">=", "==", "!="
         };
 
+        private static readonly char[] ComparisonChars = { '=', '!', '<', '>' };
+        private static bool IsComparisonChar(char c) => ComparisonChars.Contains(c);
+
         private static bool ComparisonOperator(ParserState s, Continuation<string> k)
             => s.SkipWhitespace(s1 =>
-                s.ReadToken(char.IsPunctuation,
+                s.ReadToken(IsComparisonChar,
                     (s2, op) => ComparisonOperators.Contains(op)
                                 && k(s2, op)));
 

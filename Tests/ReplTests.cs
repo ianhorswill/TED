@@ -150,5 +150,41 @@ namespace Tests
             Assert.AreEqual(1u,q.Length);
             Assert.AreEqual((1,1), q.ToArray()[0]);
         }
+
+        [TestMethod]
+        public void Negation()
+        {
+            var p = new Program(nameof(DualGoal));
+            p.BeginPredicates();
+            var i = (Var<int>)"i";
+            var j = (Var<int>)"j";
+            var T = TED.Language.Predicate("T", i, j);
+            p.EndPredicates();
+            for (var k = 0; k < 5; k++)
+                T.AddRow(k, 1);
+            var q = (TablePredicate<int,int>)p.Repl.Query("q", "T[a,b], !T[b, a]");
+            Assert.AreEqual(4u,q.Length);
+            Assert.IsFalse(q.Contains((1,1)));
+        }
+
+        [TestMethod]
+        public void Comparison()
+        {
+            var p = new Program(nameof(DualGoal));
+            p.BeginPredicates();
+            var i = (Var<int>)"i";
+            var j = (Var<int>)"j";
+            var T = TED.Language.Predicate("T", i, j);
+            p.EndPredicates();
+            for (var k = 0; k < 5; k++)
+                T.AddRow(k, 1);
+            var q = (TablePredicate<int,int>)p.Repl.Query("q", "T[a,b], a>b");
+            Assert.AreEqual(3u,q.Length);
+            CollectionAssert.AreEqual(new[]
+            {
+                (2,1), (3,1), (4,1)
+            },q.ToArray());
+            Assert.IsFalse(q.Contains((1,1)));
+        }
     }
 }
