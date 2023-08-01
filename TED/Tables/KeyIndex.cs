@@ -51,7 +51,7 @@ namespace TED.Tables
         /// </summary>
         private static readonly EqualityComparer<TKey> Comparer = Comparer<TKey>.Default;
 
-        internal KeyIndex(TablePredicate p, Table<TRow> t, int columnNumber, Table.Projection<TRow,TKey> projection) : base(columnNumber, projection)
+        internal KeyIndex(TablePredicate p, Table<TRow> t, int[] columnNumbers, Table.Projection<TRow,TKey> projection) : base(columnNumbers, projection)
         {
             predicate = p;
             table = t;

@@ -232,7 +232,7 @@ namespace TED.Tables
         /// </summary>
         private static readonly EqualityComparer<TColumn> Comparer = Comparer<TColumn>.Default;
 
-        internal GeneralIndex(TablePredicate p, Table<TRow> t, int columnNumber, Table.Projection<TRow,TColumn> projection) : base(columnNumber, projection)
+        internal GeneralIndex(TablePredicate p, Table<TRow> t, int[] columnNumbers, Table.Projection<TRow,TColumn> projection) : base(columnNumbers, projection)
         {
             predicate = p;
             table = t;

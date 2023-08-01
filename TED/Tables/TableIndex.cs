@@ -1,4 +1,6 @@
-﻿namespace TED.Tables
+﻿using System;
+
+namespace TED.Tables
 {
     /// <summary>
     /// Base type of indices into tables
@@ -8,7 +10,7 @@
         /// <summary>
         /// Position of the column: 0=first column, 1=second, etc.
         /// </summary>
-        public readonly int ColumnNumber;
+        public readonly int[] ColumnNumbers;
 
         /// <summary>
         /// If true, this index is for a column that is a key, i.e. rows have unique values for this column
@@ -40,19 +42,24 @@
         /// <summary>
         /// The index for the specified column, if any
         /// </summary>
-        protected TableIndex(int columnNumber)
+        protected TableIndex(int[] columnNumbers)
         {
-            ColumnNumber = columnNumber;
+            Array.Sort(columnNumbers);
+            ColumnNumbers = columnNumbers;
         }
 
         /// <summary>
         /// Make an index, either keyed or not keyed, depending on the isKey argument
         /// </summary>
-        internal static TableIndex MakeIndex<TRow, TColumn>(TablePredicate p, Table<TRow> t, int columnIndex,
+        internal static TableIndex MakeIndex<TRow, TColumn>(TablePredicate p, Table<TRow> t, int[] columnIndices,
             Table.Projection<TRow, TColumn> projection, bool isKey)
             => isKey
-                ? (TableIndex)new KeyIndex<TRow, TColumn>(p, t, columnIndex, projection)
-                : new GeneralIndex<TRow, TColumn>(p, t, columnIndex, projection);
+                ? (TableIndex)new KeyIndex<TRow, TColumn>(p, t, columnIndices, projection)
+                : new GeneralIndex<TRow, TColumn>(p, t, columnIndices, projection);
+
+        internal static TableIndex MakeIndex<TRow, TColumn>(TablePredicate p, Table<TRow> t, int columnIndex,
+            Table.Projection<TRow, TColumn> projection, bool isKey) =>
+            MakeIndex(p, t, new[] { columnIndex }, projection, isKey);
     }
 
     /// <summary>
@@ -63,7 +70,7 @@
     public abstract class TableIndex<TRow, TColumn> : TableIndex
     {
         /// <inheritdoc />
-        protected TableIndex(int columnNumber, Table.Projection<TRow,TColumn> projection) : base(columnNumber)
+        protected TableIndex(int[] columnNumbers, Table.Projection<TRow,TColumn> projection) : base(columnNumbers)
         {
             this.projection = projection;
         }

@@ -57,6 +57,7 @@ namespace TED {
         /// </summary>
         protected TablePredicate(string name, Action<Table>? updateProc, params IColumnSpec[] columns) : base(name) {
             Program.MaybeAddPredicate(this);
+            // ReSharper disable once VirtualMemberCallInConstructor
             TableUntyped.Name = name;
             DefaultVariables = columns.Select(spec => spec.UntypedVariable).ToArray();
             ColumnHeadings = DefaultVariables.Select(v => v.ToString()).ToArray();
@@ -188,11 +189,13 @@ namespace TED {
         /// <summary>
         /// Return the index of the specified type for the specified column
         /// </summary>
-        /// <param name="columnIndex">Column to find the index for</param>
+        /// <param name="columnIndices">Column to find the index for</param>
         /// <param name="key">Whether to look for a key or non-key</param>
         /// <returns>The index or null if there is not index of that type for that column</returns>
-        public TableIndex? IndexFor(int columnIndex, bool key) 
-            => TableUntyped.Indices.FirstOrDefault(i => i.ColumnNumber == columnIndex && key == i.IsKey);
+        public TableIndex? IndexFor(int[] columnIndices, bool key) 
+            => TableUntyped.Indices.FirstOrDefault(i => columnIndices.SequenceEqual(i.ColumnNumbers) && key == i.IsKey);
+
+        public TableIndex? IndexFor(int columnIndex, bool key) => IndexFor(new[] { columnIndex }, key);
 
         /// <summary>
         /// Return the index of the specified type for the specified column
@@ -240,7 +243,7 @@ namespace TED {
                         _ => throw new NotImplementedException("Unknown update mode")
                     };
                     updatePrerequisites = new List<TablePredicate>(dependencies.Where(t => t.IsDynamic && t.UpdateMode != UpdateMode.BaseTable));
-                };
+                }
                 return updatePrerequisites;
             }
         }
@@ -571,26 +574,29 @@ namespace TED {
 
         #region Async update
 
-        private Task? _updateTask;
+        private Task? updateTask;
 
         private Task[]? prerequisiteTasks;
 
-        internal void ResetUpdateTask() => _updateTask = null;
+        internal void ResetUpdateTask() => updateTask = null;
 
+        /// <summary>
+        /// Task object for updating this table, if running in parallel mode.
+        /// </summary>
         public Task UpdateTask {
             get {
-                if (_updateTask != null)
-                    return _updateTask;
+                if (updateTask != null)
+                    return updateTask;
                 if (UpdatePrerequisites.Count > 0) {
                     prerequisiteTasks ??= new Task[UpdatePrerequisites.Count];
                     int i = 0;
                     foreach (var p in UpdatePrerequisites)
                         prerequisiteTasks[i++] = p.UpdateTask;
-                    _updateTask = Task.Factory.ContinueWhenAll(prerequisiteTasks, (_) => UpdateAsyncDriver());
+                    updateTask = Task.Factory.ContinueWhenAll(prerequisiteTasks, (_) => UpdateAsyncDriver());
                 }
-                else _updateTask = Task.Factory.StartNew(UpdateAsyncDriver);
+                else updateTask = Task.Factory.StartNew(UpdateAsyncDriver);
                 MustRecompute = false;
-                return _updateTask;
+                return updateTask;
             }
         }
         

@@ -171,6 +171,16 @@ namespace TED.Repl
                                 (s3, right) =>
                                     k(s3, (target, left, right)))));
 
+        public bool InfixOperator<TArg>(string op, Parser<TArg> arg,
+            Continuation<(TArg, TArg)> k)
+            => arg(SkipWhitespace(),
+                (s1, left) =>
+                    s1.SkipWhitespace().Match(op, 
+                        (s2) =>
+                            arg(s2.SkipWhitespace(),
+                                (s3, right) =>
+                                    k(s3, (left, right)))));
+
         public override string ToString() =>
             $"{Text.Substring(0, Position)}|{Text.Substring(Position, Text.Length - Position)}";
     }

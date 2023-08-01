@@ -90,12 +90,10 @@ namespace TED.Repl
 
         public bool Goal(ParserState s, Continuation<Goal> k)
             => ComparisonExpression(s, k) || SimpleGoal(s, k)
+            || s.Bracketed("(", Goal, ")", k)
             || s.MatchSkippingWhitespace("!",
                 s2=>Goal(s2,(s3, g) =>
                     k(s3, !g)));
-
-        private bool TermList(ParserState s, Continuation<List<Term>> k)
-            => s.DelimitedList(Term, ",", k);
 
         public bool SimpleGoal(ParserState s, Continuation<Goal> k)
             => s.CallExpression<TablePredicate,Term>(Predicate, Term,
@@ -121,6 +119,18 @@ namespace TED.Repl
                     (s2, op) => ComparisonOperators.Contains(op)
                                 && k(s2, op)));
 
+        //public bool Disjunction(ParserState s, Continuation<Goal> k)
+        //    => s.InfixOperator<Goal>("|", Conjunction, (s1, args) =>
+        //        k(s1, args.Item1 | args.Item2))
+        //    | Conjunction(s, k);
+
+        //public bool Conjunction(ParserState s, Continuation<Goal> k)
+        //    => s.InfixOperator<Goal>("&", Literal, (s1, args) =>
+        //        k(s1, args.Item1 & args.Item2))
+        //    | Literal(s, k);
+
+        //public bool Literal(ParserState s, Continuation<Goal> k)
+        //=> 
         
         public bool Body(ParserState s, Continuation<List<Goal>> k)
             => s.DelimitedList(Goal, ",", k); 

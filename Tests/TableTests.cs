@@ -84,7 +84,7 @@ namespace Tests
         public void KeyIndexTest()
         {
             var t = new Table<int>();
-            var index = new KeyIndex<int, int>(null!, t, 0, (in int n)=>n);
+            var index = new KeyIndex<int, int>(null!, t, new [] { 0 }, (in int n)=>n);
             t.AddIndex(index);
             for (var i = 0; i < 1025; i++)
             {
@@ -103,7 +103,7 @@ namespace Tests
         public void DuplicateKeyTest()
         {
             var t = new Table<int>();
-            var index = new KeyIndex<int, int>(null!, t, 0, (in int n)=>n);
+            var index = new KeyIndex<int, int>(null!, t, new [] { 0 }, (in int n)=>n);
             t.AddIndex(index);
             t.Add(0);
             t.Add(0);
@@ -113,7 +113,7 @@ namespace Tests
         public void GeneralIndexTest()
         {
             var t = new Table<int>();
-            var index = new GeneralIndex<int, int>(null!, t, 0, (in int n)=>n);
+            var index = new GeneralIndex<int, int>(null!, t, new[] { 0 }, (in int n)=>n);
             t.AddIndex(index);
             for (var i = 0; i < 1025; i++)
             {
@@ -152,7 +152,7 @@ namespace Tests
         public void GeneralIndexEnumeratedType()
         {
             var t = new Table<(int, DayOfWeek)>();
-            var index = new GeneralIndex<(int, DayOfWeek), DayOfWeek>(null!, t, 0, (in (int, DayOfWeek) r)=>r.Item2);
+            var index = new GeneralIndex<(int, DayOfWeek), DayOfWeek>(null!, t, new[] { 0 }, (in (int, DayOfWeek) r)=>r.Item2);
             t.AddIndex(index);
             for (var i = 0; i < 1025; i++)
             {
@@ -166,7 +166,7 @@ namespace Tests
         public void KeyCounts()
         {
             var t = new Table<int>();
-            var index = new GeneralIndex<int, int>(null!, t, 0, (in int n)=>n);
+            var index = new GeneralIndex<int, int>(null!, t, new[] { 0 }, (in int n)=>n);
             t.AddIndex(index);
             for (var i = 0; i < 100; i++)
             {
@@ -198,7 +198,7 @@ namespace Tests
         {
 
             var t = new Table<int>();
-            var index = new GeneralIndex<int, int>(null!, t, 0, (in int n)=>n)!;
+            var index = new GeneralIndex<int, int>(null!, t, new[] { 0 }, (in int n)=>n)!;
             t.AddIndex(index);
             index.EnableMutation();
 
