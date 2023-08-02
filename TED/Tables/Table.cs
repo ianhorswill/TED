@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -27,6 +29,19 @@ namespace TED.Tables
         /// Returns the key value given the row
         /// </summary>
         public delegate TColumn Projection<TRow, out TColumn>(in TRow row);
+
+        /// <summary>
+        /// Given two column projections, make a projection that returns the two as a tuple.
+        /// </summary>
+        /// <param name="p1">Projection for the first column</param>
+        /// <param name="p2">Projection for the second column</param>
+        /// <typeparam name="TRow">Row type</typeparam>
+        /// <typeparam name="TColumn1">Type of the first column</typeparam>
+        /// <typeparam name="TColumn2">Type of the second column</typeparam>
+        /// <returns>Combined projection</returns>
+        public static Projection<TRow, (TColumn1, TColumn2)> JointProjection<TRow, TColumn1, TColumn2>(
+            Projection<TRow, TColumn1> p1, Projection<TRow, TColumn2> p2)
+            => (in TRow row) => (p1(in row), p2(in row));
 
         /// <summary>
         /// Modifies the value of a column in a row.
@@ -84,7 +99,11 @@ namespace TED.Tables
         /// Add an index to the table.
         /// This will not test for a duplicate index on the same column.
         /// </summary>
-        internal void AddIndex(TableIndex i) => Indices.Add(i);
+        internal void AddIndex(TableIndex i)
+        {
+            Indices.Add(i);
+            Indices.Sort();
+        }
     }
     /// <summary>
     /// A list of rows that hold the extension of a predicate

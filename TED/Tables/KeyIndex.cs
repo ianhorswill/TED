@@ -42,18 +42,12 @@ namespace TED.Tables
         private readonly Table<TRow> table;
 
         /// <summary>
-        /// TablePredicate corresponding to the table
-        /// </summary>
-        private readonly TablePredicate predicate;
-
-        /// <summary>
         /// Equality predicate for TKey
         /// </summary>
         private static readonly EqualityComparer<TKey> Comparer = Comparer<TKey>.Default;
 
-        internal KeyIndex(TablePredicate p, Table<TRow> t, int[] columnNumbers, Table.Projection<TRow,TKey> projection) : base(columnNumbers, projection)
+        internal KeyIndex(TablePredicate p, Table<TRow> t, int[] columnNumbers, Table.Projection<TRow,TKey> projection) : base(p, columnNumbers, projection)
         {
-            predicate = p;
             table = t;
             var capacity = t.Data.Length * 2;
             buckets = new (TKey key, uint row)[capacity];
@@ -134,7 +128,7 @@ namespace TED.Tables
 #endif
                 if (Comparer.Equals(key, buckets[b].key))
                     // It's already there
-                    throw new DuplicateKeyException(predicate, key!);
+                    throw new DuplicateKeyException(Predicate, key!);
             }
 
             // It's not there, but b is a free bucket, so store it there

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using TED.Interpreter;
 
@@ -12,6 +13,12 @@ namespace TED
     public readonly struct Pattern : IPattern {
         /// <inheritdoc />
         public bool IsInstantiated => true;
+
+        /// <inheritdoc />
+        public bool IsReadModeAt(int index)
+            => throw new ArgumentException($"Pattern doesn't have an argument number {index}");
+
+        public ValueCell ArgumentCell(int index) => throw new ArgumentException($"Pattern doesn't have an argument number {index}");
 
         /// <inheritdoc />
         public override string ToString() => "[No pattern]";
@@ -65,6 +72,22 @@ namespace TED
         /// True if all arguments in the pattern are instantiated.
         /// </summary>
         public bool IsInstantiated => Arg1.IsInstantiated;
+
+        /// <inheritdoc />
+        public bool IsReadModeAt(int index)
+            => index switch
+            {
+                0 => Arg1.IsInstantiated,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
+
+        /// <inheritdoc />
+        public ValueCell ArgumentCell(int index)
+            => index switch
+            {
+                0 => Arg1.ValueCell,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
 
         /// <inheritdoc />
         public override string ToString() => $"[{Arg1}]";
@@ -125,6 +148,24 @@ namespace TED
         /// True if all arguments in the pattern are instantiated.
         /// </summary>
         public bool IsInstantiated => Arg1.IsInstantiated && Arg2.IsInstantiated;
+
+        /// <inheritdoc />
+        public bool IsReadModeAt(int index)
+            => index switch
+            {
+                0 => Arg1.IsInstantiated,
+                1 => Arg2.IsInstantiated,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
+
+        /// <inheritdoc />
+        public ValueCell ArgumentCell(int index)
+            => index switch
+            {
+                0 => Arg1.ValueCell,
+                1 => Arg2.ValueCell,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
 
         /// <inheritdoc />
         public override string ToString() => $"[{Arg1},{Arg2}]";
@@ -193,6 +234,26 @@ namespace TED
         /// True if all arguments in the pattern are instantiated.
         /// </summary>
         public bool IsInstantiated => Arg1.IsInstantiated && Arg2.IsInstantiated && Arg3.IsInstantiated;
+
+        /// <inheritdoc />
+        public bool IsReadModeAt(int index)
+            => index switch
+            {
+                0 => Arg1.IsInstantiated,
+                1 => Arg2.IsInstantiated,
+                2 => Arg3.IsInstantiated,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
+
+        /// <inheritdoc />
+        public ValueCell ArgumentCell(int index)
+            => index switch
+            {
+                0 => Arg1.ValueCell,
+                1 => Arg2.ValueCell,
+                2 => Arg3.ValueCell,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
 
         /// <inheritdoc />
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3}]";
@@ -270,6 +331,28 @@ namespace TED
         /// </summary>
         public bool IsInstantiated
             => Arg1.IsInstantiated && Arg2.IsInstantiated && Arg3.IsInstantiated && Arg4.IsInstantiated;
+
+        /// <inheritdoc />
+        public bool IsReadModeAt(int index)
+            => index switch
+            {
+                0 => Arg1.IsInstantiated,
+                1 => Arg2.IsInstantiated,
+                2 => Arg3.IsInstantiated,
+                3 => Arg4.IsInstantiated,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
+
+        /// <inheritdoc />
+        public ValueCell ArgumentCell(int index)
+            => index switch
+            {
+                0 => Arg1.ValueCell,
+                1 => Arg2.ValueCell,
+                2 => Arg3.ValueCell,
+                3 => Arg4.ValueCell,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
 
         /// <inheritdoc />
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3},{Arg4}]";
@@ -353,6 +436,30 @@ namespace TED
         public bool IsInstantiated
             => Arg1.IsInstantiated && Arg2.IsInstantiated && Arg3.IsInstantiated && Arg4.IsInstantiated
                && Arg5.IsInstantiated;
+
+        /// <inheritdoc />
+        public bool IsReadModeAt(int index)
+            => index switch
+            {
+                0 => Arg1.IsInstantiated,
+                1 => Arg2.IsInstantiated,
+                2 => Arg3.IsInstantiated,
+                3 => Arg4.IsInstantiated,
+                4 => Arg5.IsInstantiated,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
+
+        /// <inheritdoc />
+        public ValueCell ArgumentCell(int index)
+            => index switch
+            {
+                0 => Arg1.ValueCell,
+                1 => Arg2.ValueCell,
+                2 => Arg3.ValueCell,
+                3 => Arg4.ValueCell,
+                4 => Arg5.ValueCell,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
 
         /// <inheritdoc />
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3},{Arg4},{Arg5}]";
@@ -454,6 +561,32 @@ namespace TED
         public bool IsInstantiated
             => Arg1.IsInstantiated && Arg2.IsInstantiated && Arg3.IsInstantiated && Arg4.IsInstantiated
                && Arg5.IsInstantiated && Arg6.IsInstantiated;
+
+        /// <inheritdoc />
+        public bool IsReadModeAt(int index)
+            => index switch
+            {
+                0 => Arg1.IsInstantiated,
+                1 => Arg2.IsInstantiated,
+                2 => Arg3.IsInstantiated,
+                3 => Arg4.IsInstantiated,
+                4 => Arg5.IsInstantiated,
+                5 => Arg6.IsInstantiated,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
+
+        /// <inheritdoc />
+        public ValueCell ArgumentCell(int index)
+            => index switch
+            {
+                0 => Arg1.ValueCell,
+                1 => Arg2.ValueCell,
+                2 => Arg3.ValueCell,
+                3 => Arg4.ValueCell,
+                4 => Arg5.ValueCell,
+                5 => Arg6.ValueCell,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
 
         /// <inheritdoc />
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3},{Arg4},{Arg5},{Arg6}]";
@@ -560,6 +693,34 @@ namespace TED
         public bool IsInstantiated
             => Arg1.IsInstantiated && Arg2.IsInstantiated && Arg3.IsInstantiated && Arg4.IsInstantiated
                && Arg5.IsInstantiated && Arg6.IsInstantiated && Arg7.IsInstantiated;
+
+        /// <inheritdoc />
+        public bool IsReadModeAt(int index)
+            => index switch
+            {
+                0 => Arg1.IsInstantiated,
+                1 => Arg2.IsInstantiated,
+                2 => Arg3.IsInstantiated,
+                3 => Arg4.IsInstantiated,
+                4 => Arg5.IsInstantiated,
+                5 => Arg6.IsInstantiated,
+                6 => Arg7.IsInstantiated,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
+
+        /// <inheritdoc />
+        public ValueCell ArgumentCell(int index)
+            => index switch
+            {
+                0 => Arg1.ValueCell,
+                1 => Arg2.ValueCell,
+                2 => Arg3.ValueCell,
+                3 => Arg4.ValueCell,
+                4 => Arg5.ValueCell,
+                5 => Arg6.ValueCell,
+                6 => Arg7.ValueCell,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
 
         /// <inheritdoc />
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3},{Arg4},{Arg5},{Arg6},{Arg7}]";
@@ -675,6 +836,36 @@ namespace TED
         public bool IsInstantiated
             => Arg1.IsInstantiated && Arg2.IsInstantiated && Arg3.IsInstantiated && Arg4.IsInstantiated
                && Arg5.IsInstantiated && Arg6.IsInstantiated && Arg7.IsInstantiated && Arg8.IsInstantiated;
+
+        /// <inheritdoc />
+        public bool IsReadModeAt(int index)
+            => index switch
+            {
+                0 => Arg1.IsInstantiated,
+                1 => Arg2.IsInstantiated,
+                2 => Arg3.IsInstantiated,
+                3 => Arg4.IsInstantiated,
+                4 => Arg5.IsInstantiated,
+                5 => Arg6.IsInstantiated,
+                6 => Arg7.IsInstantiated,
+                7 => Arg8.IsInstantiated,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
+
+        /// <inheritdoc />
+        public ValueCell ArgumentCell(int index)
+            => index switch
+            {
+                0 => Arg1.ValueCell,
+                1 => Arg2.ValueCell,
+                2 => Arg3.ValueCell,
+                3 => Arg4.ValueCell,
+                4 => Arg5.ValueCell,
+                5 => Arg6.ValueCell,
+                6 => Arg7.ValueCell,
+                7 => Arg8.ValueCell,
+                _ => throw new ArgumentException($"Pattern doesn't have an argument number {index}")
+            };
 
         /// <inheritdoc />
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3},{Arg4},{Arg5},{Arg6},{Arg7},{Arg8}]";

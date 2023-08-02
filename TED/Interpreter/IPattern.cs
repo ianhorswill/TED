@@ -11,5 +11,17 @@
         /// That is, they are either constants or variables that have already been given values by some previous call in the rule.
         /// </summary>
         bool IsInstantiated { get; }
+
+        /// <summary>
+        /// True if the index'th input is read mode
+        /// </summary>
+        bool IsReadModeAt(int index);
+
+        /// <summary>
+        /// The cell backing the specified argument
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        ValueCell ArgumentCell(int index);
     }
 }

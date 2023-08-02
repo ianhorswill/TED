@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
+using TED.Interpreter;
 
 namespace TED.Tables
 {
@@ -222,19 +223,12 @@ namespace TED.Tables
         private readonly Table<TRow> table;
 
         /// <summary>
-        /// The TablePredicate to which the Table belongs.
-        /// </summary>
-        // ReSharper disable once NotAccessedField.Local
-        private readonly TablePredicate predicate;
-
-        /// <summary>
-        /// Equality predicate for TColumn.
+        /// Equality Predicate for TColumn.
         /// </summary>
         private static readonly EqualityComparer<TColumn> Comparer = Comparer<TColumn>.Default;
 
-        internal GeneralIndex(TablePredicate p, Table<TRow> t, int[] columnNumbers, Table.Projection<TRow,TColumn> projection) : base(columnNumbers, projection)
+        internal GeneralIndex(TablePredicate p, Table<TRow> t, int[] columnNumbers, Table.Projection<TRow,TColumn> projection) : base(p, columnNumbers, projection)
         {
-            predicate = p;
             table = t;
             var columnType = typeof(TColumn);
             enumeratedTypeColumn = columnType.IsEnum;

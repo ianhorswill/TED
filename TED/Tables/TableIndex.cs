@@ -1,16 +1,28 @@
 ﻿using System;
+using System.Linq;
+using TED.Interpreter;
 
 namespace TED.Tables
 {
     /// <summary>
     /// Base type of indices into tables
     /// </summary>
-    public abstract class TableIndex
+    public abstract class TableIndex : IComparable<TableIndex>
     {
+        /// <summary>
+        /// TablePredicate corresponding to the table
+        /// </summary>
+        protected TablePredicate Predicate;
+
         /// <summary>
         /// Position of the column: 0=first column, 1=second, etc.
         /// </summary>
         public readonly int[] ColumnNumbers;
+
+        /// <summary>
+        /// Indices with higher priority numbers are used in preference to indices with smaller numbers
+        /// </summary>
+        public int Priority;
 
         /// <summary>
         /// If true, this index is for a column that is a key, i.e. rows have unique values for this column
@@ -42,11 +54,19 @@ namespace TED.Tables
         /// <summary>
         /// The index for the specified column, if any
         /// </summary>
-        protected TableIndex(int[] columnNumbers)
+        protected TableIndex(TablePredicate p, int[] columnNumbers)
         {
+            Predicate = p;
             Array.Sort(columnNumbers);
             ColumnNumbers = columnNumbers;
+            // ReSharper disable once VirtualMemberCallInConstructor
+            Priority = IsKey ? 1000 : 100 * columnNumbers.Length;
         }
+
+        /// <summary>
+        /// True if all the columns for this index are read mode in the specified pattern.
+        /// </summary>
+        public bool CanMatchOn(IPattern pattern) => ColumnNumbers.All(pattern.IsReadModeAt);
 
         /// <summary>
         /// Make an index, either keyed or not keyed, depending on the isKey argument
@@ -60,6 +80,17 @@ namespace TED.Tables
         internal static TableIndex MakeIndex<TRow, TColumn>(TablePredicate p, Table<TRow> t, int columnIndex,
             Table.Projection<TRow, TColumn> projection, bool isKey) =>
             MakeIndex(p, t, new[] { columnIndex }, projection, isKey);
+
+        /// <summary>
+        /// Make a call using arguments p and this index.
+        /// </summary>
+        internal abstract Call MakeCall(IPattern p);
+
+        public int CompareTo(TableIndex? other)
+        {
+            if (ReferenceEquals(this, other)) return 0;
+            return -Priority.CompareTo(other.Priority);
+        }
     }
 
     /// <summary>
@@ -70,7 +101,8 @@ namespace TED.Tables
     public abstract class TableIndex<TRow, TColumn> : TableIndex
     {
         /// <inheritdoc />
-        protected TableIndex(int[] columnNumbers, Table.Projection<TRow,TColumn> projection) : base(columnNumbers)
+        protected TableIndex(TablePredicate p, int[] columnNumbers, Table.Projection<TRow,TColumn> projection) 
+            : base(p, columnNumbers)
         {
             this.projection = projection;
         }
@@ -80,6 +112,14 @@ namespace TED.Tables
         /// </summary>
         // ReSharper disable once InconsistentNaming
         protected readonly Table.Projection<TRow,TColumn> projection;
+
+        internal override Call MakeCall(IPattern p)
+        {
+            if (ColumnNumbers.Length == 1)
+                return Predicate.MakeIndexCall<TColumn>(this, p, (ValueCell<TColumn>)p.ArgumentCell(ColumnNumbers[0]));
+
+            throw new NotImplementedException();
+        }
     }
 
 }

@@ -87,6 +87,9 @@ namespace Tests
                     ("Friday", "Saturday"), ("Saturday", "Sunday"), ("Sunday", "Monday")
                 }, d, n);
             NextDay.IndexByKey(d);
+            // Make sure that it's choosing the key index when there are also non-key indices
+            NextDay.IndexBy(d);
+            NextDay.IndexBy(n);
             var Mapped = Predicate("Mapped", d, n).If(Day[d], NextDay[d, n]);
             var rule = Mapped.Rules![0];
             Assert.IsInstanceOfType(rule.Body[1], typeof(TableCallWithKey<string, string, string>));

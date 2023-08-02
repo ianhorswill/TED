@@ -97,8 +97,8 @@ namespace TED {
         /// True if this table is only used for initialization of some other table
         /// </summary>
         public bool InitializationOnly;
-        
-        protected abstract Table TableUntyped { get; }
+
+        internal abstract Table TableUntyped { get; }
 
         /// <summary>
         /// If true, the underlying table enforces uniqueness of row/tuples by indexing them with a hashtable.
@@ -170,6 +170,23 @@ namespace TED {
             AddIndex(index, keyIndex);
         }
 
+        protected void AddIndex<TRow, TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        {
+            var columnNumber1 = ColumnPositionOfDefaultVariable(c1);
+            var columnNumber2 = ColumnPositionOfDefaultVariable(c2);
+            var projection = Table<TRow>.JointProjection(
+                (Table.Projection<TRow, TColumn1>)Projection(columnNumber1),
+                (Table.Projection<TRow, TColumn2>)Projection(columnNumber2));
+            TableUntyped.AddIndex(
+                TableIndex.MakeIndex(this,
+                    (Table<TRow>)TableUntyped,
+                    new[] { columnNumber1, columnNumber2 },
+                    projection,
+                    keyIndex));
+        }
+
+        public abstract void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex);
+
         /// <summary>
         /// Find the column/argument position of an argument, given the variable used to declare it.
         /// </summary>
@@ -188,12 +205,17 @@ namespace TED {
 
         /// <summary>
         /// Return the index of the specified type for the specified column
+        /// WARNING: THIS SORTS COLUMNINDICES.
         /// </summary>
         /// <param name="columnIndices">Column to find the index for</param>
         /// <param name="key">Whether to look for a key or non-key</param>
         /// <returns>The index or null if there is not index of that type for that column</returns>
-        public TableIndex? IndexFor(int[] columnIndices, bool key) 
-            => TableUntyped.Indices.FirstOrDefault(i => columnIndices.SequenceEqual(i.ColumnNumbers) && key == i.IsKey);
+        public TableIndex? IndexFor(int[] columnIndices, bool key)
+        {
+            Array.Sort(columnIndices);
+            return TableUntyped.Indices.FirstOrDefault(i =>
+                columnIndices.SequenceEqual(i.ColumnNumbers) && key == i.IsKey);
+        }
 
         public TableIndex? IndexFor(int columnIndex, bool key) => IndexFor(new[] { columnIndex }, key);
 
@@ -445,16 +467,12 @@ namespace TED {
         /// <summary>
         /// Return a function that returns the value of the specified column given a row.
         /// </summary>
-        public virtual Delegate Projection(int columnNumber) {
-            throw new NotImplementedException();
-        }
+        public abstract Delegate Projection(int columnNumber);
 
         /// <summary>
         /// Return a function that modifies the value of the specified column given a row.
         /// </summary>
-        public virtual Delegate Mutator(int columnNumber) {
-            throw new NotImplementedException();
-        }
+        public abstract Delegate Mutator(int columnNumber);
         
         /// <summary>
         /// Obtain an object that makes the column of the table behave like a dictionary
@@ -645,6 +663,8 @@ namespace TED {
             // and adds a CaptureDebugState call at the end of whatever body you specify for the If() on this goal.
             return Program.Problems[this, message, Primitives.CaptureDebugStatePrimitive.DebugState];
         }
+
+        internal abstract Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell);
     }
 
     /// <summary>
@@ -659,6 +679,11 @@ namespace TED {
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1)];
+
+        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        {
+            throw new NotImplementedException("Cannot have a two column index for a one-column table");
+        }
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex) {
@@ -731,7 +756,7 @@ namespace TED {
             }
         }
 
-        protected override Table TableUntyped => _table;
+        internal override Table TableUntyped => _table;
 
         /// <summary>
         /// Number of rows/items in the table/extension of the predicate
@@ -862,10 +887,21 @@ namespace TED {
             0 => (Table.Projection<T1, T1>)((in T1 row) => row),
             _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
         };
+
+        public override Delegate Mutator(int columnNumber)
+        {
+            throw new NotImplementedException("Mutators can't be used on single-column tables because there must be a key column and a separate mutation column");
+        }
+
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<T1,T1>(_table, 0),
             _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
         };
+
+        internal override Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell)
+        {
+            throw new NotImplementedException("Key index call to single-column table");
+        }
 
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
@@ -890,6 +926,11 @@ namespace TED {
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2)];
+
+        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        {
+            throw new NotImplementedException("Table must have more columns than the index");
+        }
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex) {
@@ -935,7 +976,7 @@ namespace TED {
             }
         }
 
-        protected override Table TableUntyped => _table;
+        internal override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -1168,6 +1209,22 @@ namespace TED {
             _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
         };
 
+        internal override Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell)
+            => index switch
+            {
+                KeyIndex<(T1, T2), TKey> ki =>
+                    new TableCallWithKey<TKey, T1, T2>(this,
+                        (Pattern<T1, T2>)pattern,
+                        ki,
+                        cell),
+                GeneralIndex<(T1, T2), TKey> gi =>
+                    new TableCallWithGeneralIndex<TKey, T1, T2>(this,
+                        (Pattern<T1, T2>)pattern,
+                        gi,
+                        cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
+
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -1194,6 +1251,17 @@ namespace TED {
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) 
             => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2), CastArg<T3>(args[2], 3)];
+
+        /// <summary>
+        /// Add an index on a pair of columns
+        /// </summary>
+        /// <param name="c1">First column</param>
+        /// <param name="c2">Second column</param>
+        /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
+        /// <typeparam name="TColumn1">Type of the first column</typeparam>
+        /// <typeparam name="TColumn2">Type of the second column</typeparam>
+        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+            => AddIndex<(T1,T2,T3), TColumn1, TColumn2>(c1, c2, keyIndex);
 
         /// <inheritdoc />
         protected override void AddIndex(int columnIndex, bool keyIndex) {
@@ -1238,6 +1306,22 @@ namespace TED {
                        : (KeyIndex<(T1, T2, T3), T>)i;
         }
 
+        internal override Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3), TKey> ki =>
+                    new TableCallWithKey<TKey, T1, T2, T3>(this,
+                        (Pattern<T1, T2, T3>)pattern,
+                        ki,
+                        cell),
+                GeneralIndex<(T1, T2, T3), TKey> gi =>
+                    new TableCallWithGeneralIndex<TKey, T1, T2, T3>(this,
+                        (Pattern<T1, T2, T3>)pattern,
+                        gi,
+                        cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
+
         /// <summary>
         /// Make a new table predicate with the specified name
         /// </summary>
@@ -1271,7 +1355,7 @@ namespace TED {
             }
         }
 
-        protected override Table TableUntyped => _table;
+        internal override Table TableUntyped => _table;
         
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -1541,6 +1625,17 @@ namespace TED {
         }
 
         /// <summary>
+        /// Add an index on a pair of columns
+        /// </summary>
+        /// <param name="c1">First column</param>
+        /// <param name="c2">Second column</param>
+        /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
+        /// <typeparam name="TColumn1">Type of the first column</typeparam>
+        /// <typeparam name="TColumn2">Type of the second column</typeparam>
+        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+            => AddIndex<(T1,T2,T3,T4), TColumn1, TColumn2>(c1, c2, keyIndex);
+
+        /// <summary>
         /// Get the index for the specified key
         /// </summary>
         /// <typeparam name="TKey">Type of the indexed column</typeparam>
@@ -1565,7 +1660,23 @@ namespace TED {
             return i == null ? throw new InvalidOperationException($"No key index defined for column {column}")
                        : (KeyIndex<(T1, T2, T3, T4), TKey>)i;
         }
-        
+
+        internal override Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3, T4), TKey> ki =>
+                    new TableCallWithKey<TKey, T1, T2, T3, T4>(this,
+                        (Pattern<T1, T2, T3, T4>)pattern,
+                        ki,
+                        cell),
+                GeneralIndex<(T1, T2, T3, T4), TKey> gi =>
+                    new TableCallWithGeneralIndex<TKey, T1, T2, T3, T4>(this,
+                        (Pattern<T1, T2, T3, T4>)pattern,
+                        gi,
+                        cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
+
         /// <summary>
         /// Make a new table predicate with the specified name
         /// </summary>
@@ -1602,7 +1713,7 @@ namespace TED {
             }
         }
 
-        protected override Table TableUntyped => _table;
+        internal override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -1887,6 +1998,17 @@ namespace TED {
         }
 
         /// <summary>
+        /// Add an index on a pair of columns
+        /// </summary>
+        /// <param name="c1">First column</param>
+        /// <param name="c2">Second column</param>
+        /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
+        /// <typeparam name="TColumn1">Type of the first column</typeparam>
+        /// <typeparam name="TColumn2">Type of the second column</typeparam>
+        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+            => AddIndex<(T1,T2,T3,T4,T5), TColumn1, TColumn2>(c1, c2, keyIndex);
+
+        /// <summary>
         /// Get the index for the specified key
         /// </summary>
         /// <typeparam name="TKey">Type of the indexed column</typeparam>
@@ -1911,6 +2033,22 @@ namespace TED {
             return i == null ? throw new InvalidOperationException($"No key index defined for column {column}")
                        : (KeyIndex<(T1, T2, T3, T4, T5), TKey>)i;
         }
+
+        internal override Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3, T4, T5), TKey> ki =>
+                    new TableCallWithKey<TKey, T1, T2, T3, T4, T5>(this,
+                        (Pattern<T1, T2, T3, T4, T5>)pattern,
+                        ki,
+                        cell),
+                GeneralIndex<(T1, T2, T3, T4, T5), TKey> gi =>
+                    new TableCallWithGeneralIndex<TKey, T1, T2, T3, T4, T5>(this,
+                        (Pattern<T1, T2, T3, T4, T5>)pattern,
+                        gi,
+                        cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
         
         /// <summary>
         /// Make a new table predicate with the specified name
@@ -1950,7 +2088,7 @@ namespace TED {
             }
         }
 
-        protected override Table TableUntyped => _table;
+        internal override Table TableUntyped => _table;
         
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -2250,6 +2388,17 @@ namespace TED {
         }
 
         /// <summary>
+        /// Add an index on a pair of columns
+        /// </summary>
+        /// <param name="c1">First column</param>
+        /// <param name="c2">Second column</param>
+        /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
+        /// <typeparam name="TColumn1">Type of the first column</typeparam>
+        /// <typeparam name="TColumn2">Type of the second column</typeparam>
+        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+            => AddIndex<(T1,T2,T3,T4,T5,T6), TColumn1, TColumn2>(c1, c2, keyIndex);
+
+        /// <summary>
         /// Get the index for the specified key
         /// </summary>
         /// <typeparam name="TKey">Type of the indexed column</typeparam>
@@ -2274,6 +2423,22 @@ namespace TED {
             return i == null ? throw new InvalidOperationException($"No key index defined for column {column}")
                        : (KeyIndex<(T1, T2, T3, T4, T5, T6), TKey>)i;
         }
+
+        internal override Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3, T4, T5, T6), TKey> ki =>
+                    new TableCallWithKey<TKey, T1, T2, T3, T4, T5, T6>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6>)pattern,
+                        ki,
+                        cell),
+                GeneralIndex<(T1, T2, T3, T4, T5, T6), TKey> gi =>
+                    new TableCallWithGeneralIndex<TKey, T1, T2, T3, T4, T5, T6>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6>)pattern,
+                        gi,
+                        cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
 
         /// <summary>
         /// Make a new table predicate with the specified name
@@ -2316,7 +2481,7 @@ namespace TED {
             }
         }
 
-        protected override Table TableUntyped => _table;
+        internal override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -2627,6 +2792,17 @@ namespace TED {
         }
 
         /// <summary>
+        /// Add an index on a pair of columns
+        /// </summary>
+        /// <param name="c1">First column</param>
+        /// <param name="c2">Second column</param>
+        /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
+        /// <typeparam name="TColumn1">Type of the first column</typeparam>
+        /// <typeparam name="TColumn2">Type of the second column</typeparam>
+        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+            => AddIndex<(T1,T2,T3,T4,T5,T6,T7), TColumn1, TColumn2>(c1, c2, keyIndex);
+
+        /// <summary>
         /// Get the index for the specified key
         /// </summary>
         /// <typeparam name="TKey">Type of the indexed column</typeparam>
@@ -2651,6 +2827,22 @@ namespace TED {
             return i == null ? throw new InvalidOperationException($"No key index defined for column {column}")
                        : (KeyIndex<(T1, T2, T3, T4, T5, T6, T7), TKey>)i;
         }
+
+        internal override Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3, T4, T5, T6, T7), TKey> ki =>
+                    new TableCallWithKey<TKey, T1, T2, T3, T4, T5, T6, T7>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6, T7>)pattern,
+                        ki,
+                        cell),
+                GeneralIndex<(T1, T2, T3, T4, T5, T6, T7), TKey> gi =>
+                    new TableCallWithGeneralIndex<TKey, T1, T2, T3, T4, T5, T6, T7>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6, T7>)pattern,
+                        gi,
+                        cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
 
         /// <summary>
         /// Make a new table predicate with the specified name
@@ -2695,7 +2887,7 @@ namespace TED {
             }
         }
 
-        protected override Table TableUntyped => _table;
+        internal override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -3020,6 +3212,17 @@ namespace TED {
         }
 
         /// <summary>
+        /// Add an index on a pair of columns
+        /// </summary>
+        /// <param name="c1">First column</param>
+        /// <param name="c2">Second column</param>
+        /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
+        /// <typeparam name="TColumn1">Type of the first column</typeparam>
+        /// <typeparam name="TColumn2">Type of the second column</typeparam>
+        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+            => AddIndex<(T1,T2,T3,T4,T5,T6,T7,T8), TColumn1, TColumn2>(c1, c2, keyIndex);
+
+        /// <summary>
         /// Get the index for the specified key
         /// </summary>
         /// <typeparam name="TKey">Type of the indexed column</typeparam>
@@ -3044,6 +3247,22 @@ namespace TED {
             return i == null ? throw new InvalidOperationException($"No key index defined for column {column}")
                        : (KeyIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey>)i;
         }
+
+        internal override Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey> ki =>
+                    new TableCallWithKey<TKey, T1, T2, T3, T4, T5, T6, T7, T8>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6, T7, T8>)pattern,
+                        ki,
+                        cell),
+                GeneralIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey> gi =>
+                    new TableCallWithGeneralIndex<TKey, T1, T2, T3, T4, T5, T6, T7, T8>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6, T7, T8>)pattern,
+                        gi,
+                        cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
 
         /// <summary>
         /// Make a new table predicate with the specified name
@@ -3092,7 +3311,7 @@ namespace TED {
             }
         }
 
-        protected override Table TableUntyped => _table;
+        internal override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
