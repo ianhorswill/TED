@@ -68,7 +68,10 @@ namespace TED {
                         break;
 
                     case IndexMode.NonKey:
-                        IndexBy(i);
+                        var ind = IndexBy(i);
+                        var priority = columns[i].Priority;
+                        if (priority != null)
+                            ind.Priority = priority.Value;
                         break;
                 }
 
@@ -147,45 +150,63 @@ namespace TED {
         /// <summary>
         /// Add a key index
         /// </summary>
-        public void IndexByKey(int columnIndex) => AddIndex(columnIndex, true);
+        public TableIndex IndexByKey(int columnIndex) => AddIndex(columnIndex, true);
 
         /// <summary>
         /// Add a key index
         /// </summary>
-        public void IndexByKey(IVariable column) => AddIndex(column, true);
+        public TableIndex IndexByKey(IVariable column) => AddIndex(column, true);
 
         /// <summary>
         /// Add an index; the column isn't a key, i.e. rows aren't assumed to have unique values for this column
         /// </summary>
-        public void IndexBy(int columnIndex) => AddIndex(columnIndex, false);
+        public TableIndex IndexBy(int columnIndex) => AddIndex(columnIndex, false);
 
         /// <summary>
         /// Add an index; the column isn't a key, i.e. rows aren't assumed to have unique values for this column
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public void IndexBy(IVariable column) => AddIndex(column, false);
+        public TableIndex IndexBy(IVariable column) => AddIndex(column, false);
 
-        private void AddIndex(IVariable t, bool keyIndex) {
+        /// <summary>
+        /// Add an index based on the specified two columns
+        /// </summary>
+        public TableIndex IndexBy<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2)
+            => AddIndex(c1, c2, false);
+
+        /// <summary>
+        /// Add a key index in which the two columns jointly specify the key.
+        /// </summary>
+        public TableIndex IndexByKey<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2)
+            => AddIndex(c1, c2, true);
+
+        private TableIndex AddIndex(IVariable t, bool keyIndex) {
             var index = ColumnPositionOfDefaultVariable(t);
-            AddIndex(index, keyIndex);
+            return AddIndex(index, keyIndex);
         }
 
-        protected void AddIndex<TRow, TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        protected TableIndex AddIndex<TRow, TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
         {
             var columnNumber1 = ColumnPositionOfDefaultVariable(c1);
             var columnNumber2 = ColumnPositionOfDefaultVariable(c2);
-            var projection = Table<TRow>.JointProjection(
+            var projection = Table.JointProjection(
                 (Table.Projection<TRow, TColumn1>)Projection(columnNumber1),
                 (Table.Projection<TRow, TColumn2>)Projection(columnNumber2));
-            TableUntyped.AddIndex(
-                TableIndex.MakeIndex(this,
-                    (Table<TRow>)TableUntyped,
-                    new[] { columnNumber1, columnNumber2 },
-                    projection,
-                    keyIndex));
+            var tableIndex = TableIndex.MakeIndex(this,
+                (Table<TRow>)TableUntyped,
+                new[] { columnNumber1, columnNumber2 },
+                projection,
+                keyIndex);
+            tableIndex.SetCallGenerator(p =>
+                MakeIndexCall(tableIndex, p,
+                    (ValueCell<TColumn1>)p.ArgumentCell(columnNumber1),
+                    (ValueCell<TColumn2>)p.ArgumentCell(columnNumber2)));
+            TableUntyped.AddIndex(tableIndex);
+            return tableIndex;
         }
 
-        public abstract void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex);
+        protected abstract TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
+            bool keyIndex);
 
         /// <summary>
         /// Find the column/argument position of an argument, given the variable used to declare it.
@@ -201,7 +222,7 @@ namespace TED {
         /// <summary>
         /// Add an index to the predicate's table
         /// </summary>
-        protected abstract void AddIndex(int columnIndex, bool keyIndex);
+        protected abstract TableIndex AddIndex(int columnIndex, bool keyIndex);
 
         /// <summary>
         /// Return the index of the specified type for the specified column
@@ -665,6 +686,7 @@ namespace TED {
         }
 
         internal abstract Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell);
+        internal abstract Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2);
     }
 
     /// <summary>
@@ -680,13 +702,14 @@ namespace TED {
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1)];
 
-        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        protected override TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
+            bool keyIndex)
         {
             throw new NotImplementedException("Cannot have a two column index for a one-column table");
         }
 
         /// <inheritdoc />
-        protected override void AddIndex(int columnIndex, bool keyIndex) {
+        protected override TableIndex AddIndex(int columnIndex, bool keyIndex) {
             throw new NotImplementedException("Single-column tables shouldn't be indexed.  Instead, set the Unique property to true.");
         }
 
@@ -903,6 +926,11 @@ namespace TED {
             throw new NotImplementedException("Key index call to single-column table");
         }
 
+        internal override Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2)
+        {
+            throw new NotImplementedException("Key index call to single-column table");
+        }
+
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -927,20 +955,19 @@ namespace TED {
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2)];
 
-        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        protected override TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
+            bool keyIndex)
         {
             throw new NotImplementedException("Table must have more columns than the index");
         }
 
         /// <inheritdoc />
-        protected override void AddIndex(int columnIndex, bool keyIndex) {
+        protected override TableIndex AddIndex(int columnIndex, bool keyIndex) {
             switch (columnIndex) {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2) r) => r.Item1, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2) r) => r.Item1, keyIndex));
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2) r) => r.Item2, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2) r) => r.Item2, keyIndex));
                 default:
                     throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
             }
@@ -1225,6 +1252,10 @@ namespace TED {
                 _ => throw new ArgumentException("Unknown index type")
             };
 
+        internal override Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2)
+        {
+            throw new NotImplementedException("double-column index call to two-column table");
+        }
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -1260,24 +1291,42 @@ namespace TED {
         /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
         /// <typeparam name="TColumn1">Type of the first column</typeparam>
         /// <typeparam name="TColumn2">Type of the second column</typeparam>
-        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        protected override TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
+            bool keyIndex)
             => AddIndex<(T1,T2,T3), TColumn1, TColumn2>(c1, c2, keyIndex);
 
         /// <inheritdoc />
-        protected override void AddIndex(int columnIndex, bool keyIndex) {
+        protected override TableIndex AddIndex(int columnIndex, bool keyIndex) {
             switch (columnIndex) {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3) r) => r.Item1, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3) r) => r.Item1, keyIndex));
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3) r) => r.Item2, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3) r) => r.Item2, keyIndex));
                 case 2:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3) r) => r.Item3, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3) r) => r.Item3, keyIndex));
                 default:
                     throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
             }
+        }
+
+        /// <summary>
+        /// Add a key index with the two specified columns jointly forming the key
+        /// </summary>
+        public TablePredicate<T1, T2, T3> JointKey<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2)
+        {
+            AddIndex(c1, c2, true);
+            return this;
+        }
+
+        /// <summary>
+        /// Add an index on the two specified columns 
+        /// </summary>
+        public TablePredicate<T1, T2, T3> JointIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, int? priority = null)
+        {
+            var i = AddIndex(c1, c2, false);
+            if (priority.HasValue)
+                i.Priority =priority.Value;
+            return this;
         }
 
         /// <summary>
@@ -1319,6 +1368,22 @@ namespace TED {
                         (Pattern<T1, T2, T3>)pattern,
                         gi,
                         cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
+
+        internal override Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3), (TKey1, TKey2)> ki =>
+                    new TableCallWithDoubleKey<TKey1, TKey2, T1, T2, T3>(this,
+                        (Pattern<T1, T2, T3>)pattern,
+                        ki,
+                        cell1, cell2),
+                GeneralIndex<(T1, T2, T3), (TKey1, TKey2)> gi =>
+                    new TableCallWithDoubleGeneralIndex<TKey1, TKey2, T1, T2, T3>(this,
+                        (Pattern<T1, T2, T3>)pattern,
+                        gi,
+                        cell1, cell2),
                 _ => throw new ArgumentException("Unknown index type")
             };
 
@@ -1605,20 +1670,16 @@ namespace TED {
             => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2), CastArg<T3>(args[2], 3), CastArg<T4>(args[3], 4)];
 
         /// <inheritdoc />
-        protected override void AddIndex(int columnIndex, bool keyIndex) {
+        protected override TableIndex AddIndex(int columnIndex, bool keyIndex) {
             switch (columnIndex) {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item1, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item1, keyIndex));
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item2, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item2, keyIndex));
                 case 2:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item3, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item3, keyIndex));
                 case 3:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item4, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4) r) => r.Item4, keyIndex));
                 default:
                     throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
             }
@@ -1632,8 +1693,29 @@ namespace TED {
         /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
         /// <typeparam name="TColumn1">Type of the first column</typeparam>
         /// <typeparam name="TColumn2">Type of the second column</typeparam>
-        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        protected override TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
+            bool keyIndex)
             => AddIndex<(T1,T2,T3,T4), TColumn1, TColumn2>(c1, c2, keyIndex);
+
+        /// <summary>
+        /// Add a key index with the two specified columns jointly forming the key
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4> JointKey<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2)
+        {
+            AddIndex(c1, c2, true);
+            return this;
+        }
+
+        /// <summary>
+        /// Add an index on the two specified columns 
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4> JointIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, int? priority = null)
+        {
+            var i = AddIndex(c1, c2, false);
+            if (priority.HasValue)
+                i.Priority =priority.Value;
+            return this;
+        }
 
         /// <summary>
         /// Get the index for the specified key
@@ -1674,6 +1756,22 @@ namespace TED {
                         (Pattern<T1, T2, T3, T4>)pattern,
                         gi,
                         cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
+
+        internal override Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3, T4), (TKey1, TKey2)> ki =>
+                    new TableCallWithDoubleKey<TKey1, TKey2, T1, T2, T3, T4>(this,
+                        (Pattern<T1, T2, T3, T4>)pattern,
+                        ki,
+                        cell1, cell2),
+                GeneralIndex<(T1, T2, T3, T4), (TKey1, TKey2)> gi =>
+                    new TableCallWithDoubleGeneralIndex<TKey1, TKey2, T1, T2, T3, T4>(this,
+                        (Pattern<T1, T2, T3, T4>)pattern,
+                        gi,
+                        cell1, cell2),
                 _ => throw new ArgumentException("Unknown index type")
             };
 
@@ -1975,23 +2073,18 @@ namespace TED {
             => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2), CastArg<T3>(args[2], 3), CastArg<T4>(args[3], 4), CastArg<T5>(args[4], 5)];
 
         /// <inheritdoc />
-        protected override void AddIndex(int columnIndex, bool keyIndex) {
+        protected override TableIndex AddIndex(int columnIndex, bool keyIndex) {
             switch (columnIndex) {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item1, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item1, keyIndex));
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item2, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item2, keyIndex));
                 case 2:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item3, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item3, keyIndex));
                 case 3:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item4, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item4, keyIndex));
                 case 4:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item5, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5) r) => r.Item5, keyIndex));
                 default:
                     throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
             }
@@ -2005,8 +2098,29 @@ namespace TED {
         /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
         /// <typeparam name="TColumn1">Type of the first column</typeparam>
         /// <typeparam name="TColumn2">Type of the second column</typeparam>
-        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        protected override TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
+            bool keyIndex)
             => AddIndex<(T1,T2,T3,T4,T5), TColumn1, TColumn2>(c1, c2, keyIndex);
+
+        /// <summary>
+        /// Add a key index with the two specified columns jointly forming the key
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5> JointKey<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2)
+        {
+            AddIndex(c1, c2, true);
+            return this;
+        }
+
+        /// <summary>
+        /// Add an index on the two specified columns 
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5> JointIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, int? priority = null)
+        {
+            var i = AddIndex(c1, c2, false);
+            if (priority.HasValue)
+                i.Priority =priority.Value;
+            return this;
+        }
 
         /// <summary>
         /// Get the index for the specified key
@@ -2050,6 +2164,22 @@ namespace TED {
                 _ => throw new ArgumentException("Unknown index type")
             };
         
+        internal override Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3, T4, T5), (TKey1, TKey2)> ki =>
+                    new TableCallWithDoubleKey<TKey1, TKey2, T1, T2, T3, T4, T5>(this,
+                        (Pattern<T1, T2, T3, T4, T5>)pattern,
+                        ki,
+                        cell1, cell2),
+                GeneralIndex<(T1, T2, T3, T4, T5), (TKey1, TKey2)> gi =>
+                    new TableCallWithDoubleGeneralIndex<TKey1, TKey2, T1, T2, T3, T4, T5>(this,
+                        (Pattern<T1, T2, T3, T4, T5>)pattern,
+                        gi,
+                        cell1, cell2),
+                _ => throw new ArgumentException("Unknown index type")
+            };
+
         /// <summary>
         /// Make a new table predicate with the specified name
         /// </summary>
@@ -2362,26 +2492,21 @@ namespace TED {
                 CastArg<T4>(args[3], 4), CastArg<T5>(args[4], 5), CastArg<T6>(args[5], 6)];
 
         /// <inheritdoc />
-        protected override void AddIndex(int columnIndex, bool keyIndex) {
+        protected override TableIndex AddIndex(int columnIndex, bool keyIndex) {
             switch (columnIndex) {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item1, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item1, keyIndex));
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item2, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item2, keyIndex));
                 case 2:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item3, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item3, keyIndex));
                 case 3:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item4, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item4, keyIndex));
                 case 4:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item5, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item5, keyIndex));
                 case 5:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item6, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6) r) => r.Item6, keyIndex));
+
                 default:
                     throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
             }
@@ -2395,8 +2520,29 @@ namespace TED {
         /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
         /// <typeparam name="TColumn1">Type of the first column</typeparam>
         /// <typeparam name="TColumn2">Type of the second column</typeparam>
-        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        protected override TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
+            bool keyIndex)
             => AddIndex<(T1,T2,T3,T4,T5,T6), TColumn1, TColumn2>(c1, c2, keyIndex);
+
+        /// <summary>
+        /// Add a key index with the two specified columns jointly forming the key
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6> JointKey<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2)
+        {
+            AddIndex(c1, c2, true);
+            return this;
+        }
+
+        /// <summary>
+        /// Add an index on the two specified columns 
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6> JointIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, int? priority = null)
+        {
+            var i = AddIndex(c1, c2, false);
+            if (priority.HasValue)
+                i.Priority =priority.Value;
+            return this;
+        }
 
         /// <summary>
         /// Get the index for the specified key
@@ -2437,6 +2583,22 @@ namespace TED {
                         (Pattern<T1, T2, T3, T4, T5, T6>)pattern,
                         gi,
                         cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
+
+        internal override Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3, T4, T5, T6), (TKey1, TKey2)> ki =>
+                    new TableCallWithDoubleKey<TKey1, TKey2, T1, T2, T3, T4, T5, T6>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6>)pattern,
+                        ki,
+                        cell1, cell2),
+                GeneralIndex<(T1, T2, T3, T4, T5, T6), (TKey1, TKey2)> gi =>
+                    new TableCallWithDoubleGeneralIndex<TKey1, TKey2, T1, T2, T3, T4, T5, T6>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6>)pattern,
+                        gi,
+                        cell1, cell2),
                 _ => throw new ArgumentException("Unknown index type")
             };
 
@@ -2763,29 +2925,22 @@ namespace TED {
                 CastArg<T4>(args[3], 4), CastArg<T5>(args[4], 5), CastArg<T6>(args[5], 6), CastArg<T7>(args[6], 7)];
 
         /// <inheritdoc />
-        protected override void AddIndex(int columnIndex, bool keyIndex) {
+        protected override TableIndex AddIndex(int columnIndex, bool keyIndex) {
             switch (columnIndex) {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item1, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item1, keyIndex));
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item2, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item2, keyIndex));
                 case 2:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item3, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item3, keyIndex));
                 case 3:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item4, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item4, keyIndex));
                 case 4:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item5, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item5, keyIndex));
                 case 5:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item6, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item6, keyIndex));
                 case 6:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item7, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7) r) => r.Item7, keyIndex));
                 default:
                     throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
             }
@@ -2799,8 +2954,29 @@ namespace TED {
         /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
         /// <typeparam name="TColumn1">Type of the first column</typeparam>
         /// <typeparam name="TColumn2">Type of the second column</typeparam>
-        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        protected override TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
+            bool keyIndex)
             => AddIndex<(T1,T2,T3,T4,T5,T6,T7), TColumn1, TColumn2>(c1, c2, keyIndex);
+
+        /// <summary>
+        /// Add a key index with the two specified columns jointly forming the key
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7> JointKey<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2)
+        {
+            AddIndex(c1, c2, true);
+            return this;
+        }
+
+        /// <summary>
+        /// Add an index on the two specified columns 
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7> JointIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, int? priority = null)
+        {
+            var i = AddIndex(c1, c2, false);
+            if (priority.HasValue)
+                i.Priority =priority.Value;
+            return this;
+        }
 
         /// <summary>
         /// Get the index for the specified key
@@ -2841,6 +3017,22 @@ namespace TED {
                         (Pattern<T1, T2, T3, T4, T5, T6, T7>)pattern,
                         gi,
                         cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
+
+        internal override Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3, T4, T5, T6, T7), (TKey1, TKey2)> ki =>
+                    new TableCallWithDoubleKey<TKey1, TKey2, T1, T2, T3, T4, T5, T6, T7>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6, T7>)pattern,
+                        ki,
+                        cell1, cell2),
+                GeneralIndex<(T1, T2, T3, T4, T5, T6, T7), (TKey1, TKey2)> gi =>
+                    new TableCallWithDoubleGeneralIndex<TKey1, TKey2, T1, T2, T3, T4, T5, T6, T7>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6, T7>)pattern,
+                        gi,
+                        cell1, cell2),
                 _ => throw new ArgumentException("Unknown index type")
             };
 
@@ -3180,32 +3372,24 @@ namespace TED {
                     CastArg<T5>(args[4], 5), CastArg<T6>(args[5], 6), CastArg<T7>(args[6], 7), CastArg<T8>(args[7], 8)];
 
         /// <inheritdoc />
-        protected override void AddIndex(int columnIndex, bool keyIndex) {
+        protected override TableIndex AddIndex(int columnIndex, bool keyIndex) {
             switch (columnIndex) {
                 case 0:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item1, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item1, keyIndex));
                 case 1:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item2, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item2, keyIndex));
                 case 2:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item3, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item3, keyIndex));
                 case 3:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item4, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item4, keyIndex));
                 case 4:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item5, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item5, keyIndex));
                 case 5:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item6, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item6, keyIndex));
                 case 6:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item7, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item7, keyIndex));
                 case 7:
-                    _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item8, keyIndex));
-                    break;
+                    return _table.AddIndex(TableIndex.MakeIndex(this, _table, columnIndex, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => r.Item8, keyIndex));
                 default:
                     throw new ArgumentException($"Attempt to add an index for nonexistent column number {columnIndex} to table {Name}");
             }
@@ -3219,8 +3403,29 @@ namespace TED {
         /// <param name="keyIndex">True if the two columns function as a key, i.e. now two rows will have the same values for the two at the same time</param>
         /// <typeparam name="TColumn1">Type of the first column</typeparam>
         /// <typeparam name="TColumn2">Type of the second column</typeparam>
-        public override void AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
+        protected override TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
+            bool keyIndex)
             => AddIndex<(T1,T2,T3,T4,T5,T6,T7,T8), TColumn1, TColumn2>(c1, c2, keyIndex);
+
+        /// <summary>
+        /// Add a key index with the two specified columns jointly forming the key
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> JointKey<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2)
+        {
+            AddIndex(c1, c2, true);
+            return this;
+        }
+
+        /// <summary>
+        /// Add an index on the two specified columns 
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> JointIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, int? priority = null)
+        {
+            var i = AddIndex(c1, c2, false);
+            if (priority.HasValue)
+                i.Priority =priority.Value;
+            return this;
+        }
 
         /// <summary>
         /// Get the index for the specified key
@@ -3261,6 +3466,22 @@ namespace TED {
                         (Pattern<T1, T2, T3, T4, T5, T6, T7, T8>)pattern,
                         gi,
                         cell),
+                _ => throw new ArgumentException("Unknown index type")
+            };
+
+        internal override Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2)
+            => index switch
+            {
+                KeyIndex<(T1, T2, T3, T4, T5, T6, T7, T8), (TKey1, TKey2)> ki =>
+                    new TableCallWithDoubleKey<TKey1, TKey2, T1, T2, T3, T4, T5, T6, T7, T8>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6, T7, T8>)pattern,
+                        ki,
+                        cell1, cell2),
+                GeneralIndex<(T1, T2, T3, T4, T5, T6, T7, T8), (TKey1, TKey2)> gi =>
+                    new TableCallWithDoubleGeneralIndex<TKey1, TKey2, T1, T2, T3, T4, T5, T6, T7, T8>(this,
+                        (Pattern<T1, T2, T3, T4, T5, T6, T7, T8>)pattern,
+                        gi,
+                        cell1, cell2),
                 _ => throw new ArgumentException("Unknown index type")
             };
 

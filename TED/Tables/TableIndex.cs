@@ -20,9 +20,31 @@ namespace TED.Tables
         public readonly int[] ColumnNumbers;
 
         /// <summary>
+        /// Delegate to generate calls for this table given a goal's IPattern.
+        /// </summary>
+        public delegate Call CallGenerator(IPattern p);
+
+        /// <summary>
+        /// Delegate to generate calls for this table given a goal's IPattern.
+        /// </summary>
+        protected CallGenerator GenerateCall;
+
+        internal void SetCallGenerator(CallGenerator g) => GenerateCall = g;
+
+        private int priority;
+
+        /// <summary>
         /// Indices with higher priority numbers are used in preference to indices with smaller numbers
         /// </summary>
-        public int Priority;
+        public int Priority
+        {
+            get => priority;
+            set
+            {
+                priority = value;
+                Predicate.TableUntyped.UpdateIndexOrdering();
+            }
+        }
 
         /// <summary>
         /// If true, this index is for a column that is a key, i.e. rows have unique values for this column
@@ -54,13 +76,15 @@ namespace TED.Tables
         /// <summary>
         /// The index for the specified column, if any
         /// </summary>
+#pragma warning disable CS8618
         protected TableIndex(TablePredicate p, int[] columnNumbers)
+#pragma warning restore CS8618
         {
             Predicate = p;
             Array.Sort(columnNumbers);
             ColumnNumbers = columnNumbers;
             // ReSharper disable once VirtualMemberCallInConstructor
-            Priority = IsKey ? 1000 : 100 * columnNumbers.Length;
+            priority = IsKey ? 1000 : 100 * columnNumbers.Length;
         }
 
         /// <summary>
@@ -84,12 +108,12 @@ namespace TED.Tables
         /// <summary>
         /// Make a call using arguments p and this index.
         /// </summary>
-        internal abstract Call MakeCall(IPattern p);
+        internal Call MakeCall(IPattern p) => GenerateCall(p);
 
         public int CompareTo(TableIndex? other)
         {
             if (ReferenceEquals(this, other)) return 0;
-            return -Priority.CompareTo(other.Priority);
+            return -Priority.CompareTo(other!.Priority);
         }
     }
 
@@ -105,6 +129,8 @@ namespace TED.Tables
             : base(p, columnNumbers)
         {
             this.projection = projection;
+            GenerateCall = pat =>
+                Predicate.MakeIndexCall(this, pat, (ValueCell<TColumn>)pat.ArgumentCell(ColumnNumbers[0]));
         }
 
         /// <summary>
@@ -112,14 +138,6 @@ namespace TED.Tables
         /// </summary>
         // ReSharper disable once InconsistentNaming
         protected readonly Table.Projection<TRow,TColumn> projection;
-
-        internal override Call MakeCall(IPattern p)
-        {
-            if (ColumnNumbers.Length == 1)
-                return Predicate.MakeIndexCall<TColumn>(this, p, (ValueCell<TColumn>)p.ArgumentCell(ColumnNumbers[0]));
-
-            throw new NotImplementedException();
-        }
     }
 
 }

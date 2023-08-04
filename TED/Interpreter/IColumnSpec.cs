@@ -21,6 +21,11 @@ namespace TED.Interpreter
         /// Name of this column
         /// </summary>
         string ColumnName { get; }
+
+        /// <summary>
+        /// For general indices, the priority of this index
+        /// </summary>
+        int? Priority => null;
     }
 
     /// <summary>
@@ -50,15 +55,20 @@ namespace TED.Interpreter
         /// </summary>
         public IndexMode IndexMode { get; }
 
+        private readonly int? priority;
+
+        public int? Priority => priority;
+
         /// <summary>
         /// Specify information about a column/argument of a table
         /// </summary>
         /// <param name="defaultVariable">Default variable to use</param>
         /// <param name="indexMode">Whether to maintain an index</param>
-        public IndexedColumnSpec(Var<T> defaultVariable, IndexMode indexMode)
+        public IndexedColumnSpec(Var<T> defaultVariable, IndexMode indexMode, int? priority = null)
         {
             variable = defaultVariable;
             IndexMode = indexMode;
+            this.priority = priority;
         }
 
         public string ColumnName => variable.Name;

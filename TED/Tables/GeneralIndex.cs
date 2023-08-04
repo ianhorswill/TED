@@ -227,7 +227,8 @@ namespace TED.Tables
         /// </summary>
         private static readonly EqualityComparer<TColumn> Comparer = Comparer<TColumn>.Default;
 
-        internal GeneralIndex(TablePredicate p, Table<TRow> t, int[] columnNumbers, Table.Projection<TRow,TColumn> projection) : base(p, columnNumbers, projection)
+        internal GeneralIndex(TablePredicate p, Table<TRow> t, int[] columnNumbers, Table.Projection<TRow,TColumn> projection) 
+            : base(p, columnNumbers, projection)
         {
             table = t;
             var columnType = typeof(TColumn);

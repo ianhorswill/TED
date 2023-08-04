@@ -77,6 +77,12 @@ namespace TED
         public IColumnSpec<T> Indexed => new IndexedColumnSpec<T>(this, IndexMode.NonKey);
 
         /// <summary>
+        /// Make a column spec for this variable that specifies this column should be indexed, but is not a key, and should have the specified priority.
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public IColumnSpec<T> IndexPriority(int priority) => new IndexedColumnSpec<T>(this, IndexMode.NonKey, priority);
+
+        /// <summary>
         /// For variables being used as formal parameters in predicate declarations: whether this column of the table is indexed or not
         /// </summary>
         public IndexMode IndexMode => IndexMode.None;

@@ -99,9 +99,15 @@ namespace TED.Tables
         /// Add an index to the table.
         /// This will not test for a duplicate index on the same column.
         /// </summary>
-        internal void AddIndex(TableIndex i)
+        internal TableIndex AddIndex(TableIndex i)
         {
             Indices.Add(i);
+            Indices.Sort();
+            return i;
+        }
+
+        internal void UpdateIndexOrdering()
+        {
             Indices.Sort();
         }
     }

@@ -135,6 +135,87 @@ namespace Tests
             CollectionAssert.AreEqual(NextDay.ToArray(), Mapped.ToArray());
         }
 
+        [TestMethod]
+        public void DoubleIndexedCallTest()
+        {
+            var person = (Var<string>)"person";
+            var other = (Var<string>)"other";
+            var relationship = (Var<string>)"relationship";
+            var Person = Predicate("Person",
+                new[] { "Joe", "Billy", "Sara", "Jenny", "Rachel" }, person);
+            var Relation = Predicate("Relation",
+                new[]
+                {
+                    ("Joe", "Sara", "sibling"),
+                    ("Sara", "Rachel", "coworker"),
+                    ("Joe", "Bill", "coworker"),
+                    ("Rachel", "Billy", "sibling")
+                }, 
+                person, other, relationship);
+            Relation.IndexBy(person, other);
+            Relation.IndexBy(other);
+            Relation.IndexByKey(person, other);
+            var Mapped = Predicate("Mapped", relationship).If(Relation["Sara", "Rachel", relationship]);
+            var rule = Mapped.Rules![0];
+            Assert.IsInstanceOfType(rule.Body[0], typeof(TableCallWithDoubleKey<string, string, string, string, string>));
+            CollectionAssert.AreEqual(new [] { "coworker" }, Mapped.ToArray());
+        }
+
+        [TestMethod,ExpectedException(typeof(DuplicateKeyException))]
+        public void DoubleIndexedDuplicateKeyTest()
+        {
+            var person = (Var<string>)"person";
+            var other = (Var<string>)"other";
+            var relationship = (Var<string>)"relationship";
+            var Person = Predicate("Person",
+                new[] { "Joe", "Billy", "Sara", "Jenny", "Rachel" }, person);
+            var Relation = Predicate("Relation",
+                new[]
+                {
+                    ("Joe", "Sara", "sibling"),
+                    ("Sara", "Rachel", "coworker"),
+                    ("Joe", "Bill", "coworker"),
+                    ("Rachel", "Billy", "sibling"),
+                    ("Sara", "Rachel", "sibling")
+                }, 
+                person, other, relationship);
+            Relation.IndexBy(person, other);
+            Relation.IndexBy(other);
+            Relation.IndexByKey(person, other);
+            var Mapped = Predicate("Mapped", relationship).If(Relation["Sara", "Rachel", relationship]);
+            var rule = Mapped.Rules![0];
+            Assert.IsInstanceOfType(rule.Body[0], typeof(TableCallWithDoubleKey<string, string, string, string, string>));
+            CollectionAssert.AreEqual(new [] { "coworker" }, Mapped.ToArray());
+        }
+
+        [TestMethod]
+        public void DoubleIndexedNonKeyTest()
+        {
+            var person = (Var<string>)"person";
+            var other = (Var<string>)"other";
+            var relationship = (Var<string>)"relationship";
+            var Person = Predicate("Person",
+                new[] { "Joe", "Billy", "Sara", "Jenny", "Rachel" }, person);
+            var Relation = Predicate("Relation",
+                new[]
+                {
+                    ("Joe", "Sara", "sibling"),
+                    ("Sara", "Rachel", "coworker"),
+                    ("Joe", "Bill", "coworker"),
+                    ("Rachel", "Billy", "sibling"),
+                    ("Sara", "Rachel", "sibling")
+                }, 
+                person, other, relationship);
+            Relation.IndexBy(person, other);
+            Relation.IndexBy(other);
+            
+            var Mapped = Predicate("Mapped", relationship).If(Relation["Sara", "Rachel", relationship]);
+            var rule = Mapped.Rules![0];
+            Assert.IsInstanceOfType(rule.Body[0], typeof(TableCallWithDoubleGeneralIndex<string, string, string, string, string>));
+            var result = Mapped.ToArray();
+            CollectionAssert.AreEqual(new [] { "sibling", "coworker" }, result);
+        }
+
         [TestMethod, ExpectedException(typeof(RuleExecutionException))]
         public void RuleExecutionExceptionTest()
         {
