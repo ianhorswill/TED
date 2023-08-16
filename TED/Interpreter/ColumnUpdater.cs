@@ -24,4 +24,22 @@ namespace TED.Interpreter
                 Accessor[key] = value;
         }
     }
+
+    internal class ColumnUpdater<TColumn, TKey1, TKey2> : ColumnUpdater
+    {
+        public ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor;
+        public TablePredicate<TKey1, TKey2, TColumn> UpdateList;
+
+        public ColumnUpdater(ColumnAccessor<TColumn, (TKey1, TKey2)> accessor, TablePredicate<TKey1, TKey2, TColumn> updateList)
+        {
+            Accessor = accessor;
+            UpdateList = updateList;
+        }
+
+        public override void DoUpdates()
+        {
+            foreach (var (key1, key2, value) in UpdateList)
+                Accessor[(key1, key2)] = value;
+        }
+    }
 }

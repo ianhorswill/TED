@@ -64,6 +64,7 @@ namespace TED.Interpreter
         /// </summary>
         /// <param name="defaultVariable">Default variable to use</param>
         /// <param name="indexMode">Whether to maintain an index</param>
+        /// <param name="priority">Relative priority for using this index in a call versus other indices</param>
         public IndexedColumnSpec(Var<T> defaultVariable, IndexMode indexMode, int? priority = null)
         {
             variable = defaultVariable;

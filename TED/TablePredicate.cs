@@ -508,6 +508,21 @@ namespace TED {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Obtain an object that makes the column of the table behave like a dictionary
+        /// Given the key for a row, you can get or set the value of the column
+        /// </summary>
+        /// <param name="key1">Column to use as the first half of the key</param>
+        /// <param name="key2">Column to use as the second half of the key</param>
+        /// <param name="column">Column to access</param>
+        /// <typeparam name="TColumn">Data type of the column</typeparam>
+        /// <typeparam name="TKey1">Data type of the first key column</typeparam>
+        /// <typeparam name="TKey2">Data type of the second key column</typeparam>
+        /// <returns>The accessor that lets you read and write column data</returns>
+        public virtual ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column) {
+            throw new NotImplementedException();
+        }
+
         public abstract Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> var);
         
         internal ColumnAccessor<TRow, TColumn, TKey> Accessor<TRow, TColumn, TKey>(Table<TRow> table, Var<TKey> key, Var<TColumn> column) {
@@ -518,6 +533,19 @@ namespace TED {
             var columnIndex = IndexFor(columnNumber, false);
             return new ColumnAccessor<TRow, TColumn, TKey>(table,
                 (KeyIndex<TRow,TKey>)keyIndex,
+                (Table.Projection<TRow, TColumn>)Projection(columnNumber),
+                (GeneralIndex<TRow,TColumn>)columnIndex!,
+                (Table.Mutator<TRow, TColumn>)Mutator(columnNumber));
+        }
+
+        internal ColumnAccessor<TRow, TColumn, (TKey1, TKey2)> Accessor<TRow, TColumn, TKey1, TKey2>(Table<TRow> table, Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column) {
+            var keyIndex = IndexFor(new [] { ColumnPositionOfDefaultVariable(key1), ColumnPositionOfDefaultVariable(key2) }, true);
+            if (keyIndex == null)
+                throw new InvalidOperationException($"Table {table.Name} has no key index for columns {key1.Name} and {key2.Name}");
+            var columnNumber = ColumnPositionOfDefaultVariable(column);
+            var columnIndex = IndexFor(columnNumber, false);
+            return new ColumnAccessor<TRow, TColumn, (TKey1, TKey2)>(table,
+                (KeyIndex<TRow,(TKey1,TKey2)>)keyIndex,
                 (Table.Projection<TRow, TColumn>)Projection(columnNumber),
                 (GeneralIndex<TRow,TColumn>)columnIndex!,
                 (Table.Mutator<TRow, TColumn>)Mutator(columnNumber));
@@ -542,7 +570,7 @@ namespace TED {
         /// </summary>
         internal event Action? OnUpdateColumns;
 
-        private Dictionary<(IVariable, IVariable), TablePredicate>? updateTables;
+        private Dictionary<(object, IVariable), TablePredicate>? updateTables;
 
         /// <summary>
         /// Tables that drive updates of columns of this table
@@ -554,7 +582,7 @@ namespace TED {
         /// given a key for the row to update.
         /// </summary>
         public TablePredicate<TKey, TColumn> Set<TKey, TColumn>(Var<TKey> key, Var<TColumn> column) {
-            updateTables ??= new Dictionary<(IVariable, IVariable), TablePredicate>();
+            updateTables ??= new Dictionary<(object, IVariable), TablePredicate>();
             if (updateTables.TryGetValue((key, column), out var t))
                 return (TablePredicate<TKey, TColumn>)t;
             var accessor = Accessor(key, column);
@@ -570,10 +598,36 @@ namespace TED {
         }
 
         /// <summary>
+        /// Return a table predicate to which rules can be added to update the specified column of this table predicate
+        /// given a key for the row to update.
+        /// </summary>
+        public TablePredicate<TKey1, TKey2, TColumn> Set<TKey1, TKey2, TColumn>((Var<TKey1>, Var<TKey2>) keyVars, Var<TColumn> column) {
+            updateTables ??= new Dictionary<(object, IVariable), TablePredicate>();
+            if (updateTables.TryGetValue((keyVars, column), out var t))
+                return (TablePredicate<TKey1, TKey2, TColumn>)t;
+            var accessor = Accessor(keyVars.Item1, keyVars.Item2, column);
+            var updateTable = new TablePredicate<TKey1, TKey2, TColumn>($"{Name}_{column.Name}_update", keyVars.Item1, keyVars.Item2, column) {
+                Property = { [UpdaterFor] = this, 
+                    [VisualizerName] = $"set {column.Name}"
+                }
+            };
+            var updater = new ColumnUpdater<TColumn, TKey1, TKey2>(accessor, updateTable);
+            OnUpdateColumns += updater.DoUpdates;
+            updateTables[(keyVars, column)] = updateTable;
+            return updateTable;
+        }
+
+        /// <summary>
         /// Sets the conditions for resetting the specified column to the specified value
         /// </summary>
         public TableGoal Set<TKey, TColumn>(Var<TKey> key, Var<TColumn> column, Term<TColumn> value)
             => Set(key, column)[key, value];
+
+        /// <summary>
+        /// Sets the conditions for resetting the specified column to the specified value
+        /// </summary>
+        public TableGoal Set<TKey1, TKey2, TColumn>((Var<TKey1>, Var<TKey2>) keys, Var<TColumn> column, Term<TColumn> value)
+            => Set((keys.Item1, keys.Item2), column)[keys.Item1, keys.Item2, value];
 
         /// <summary>
         /// Run any column updates for this table
@@ -1632,6 +1686,10 @@ namespace TED {
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
 
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
+            => Accessor(_table, key1, key2, column);
+
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3),T1>(_table, columnNumber),
             1 => RowComparison<(T1,T2,T3),T2>(_table, columnNumber),
@@ -2031,6 +2089,10 @@ namespace TED {
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
+            => Accessor(_table, key1, key2, column);
 
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3,T4),T1>(_table, columnNumber),
@@ -2446,6 +2508,10 @@ namespace TED {
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
+            => Accessor(_table, key1, key2, column);
 
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3,T4,T5),T1>(_table, columnNumber),
@@ -2876,6 +2942,10 @@ namespace TED {
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
+            => Accessor(_table, key1, key2, column);
 
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3,T4,T5,T6),T1>(_table, columnNumber),
@@ -3320,6 +3390,10 @@ namespace TED {
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
+            => Accessor(_table, key1, key2, column);
 
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3,T4,T5,T6,T7),T1>(_table, columnNumber),
@@ -3779,6 +3853,10 @@ namespace TED {
         /// <inheritdoc />
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
+
+        /// <inheritdoc />
+        public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
+            => Accessor(_table, key1, key2, column);
 
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T1>(_table, columnNumber),

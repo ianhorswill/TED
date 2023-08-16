@@ -129,5 +129,41 @@ namespace Tests
             var HasBoolMethod = Predicate("HasBoolMethods", t).If(Methods[t, m, typeof(bool)]);
             Assert.IsTrue(HasBoolMethod.Length > 0);
         }
+
+        [TestMethod]
+        public void Set()
+        {
+            var name = (Var<string>)"name";
+            var age = (Var<int>)"age";
+            var older = (Var<int>)"older";
+            var s = new Simulation(nameof(Set));
+            s.BeginPredicates();
+            var T = Language.Predicate("T", name.Key, age);
+            T.Set(name, age, older).If(T[name, age],older == age+1);
+            s.EndPredicates();
+            T.AddRow("Jane",1);
+            T.AddRow("Bruce", 2);
+            s.Update();
+            CollectionAssert.AreEqual(new [] { ("Jane", 2), ("Bruce", 3) }, T.ToArray());
+        }
+
+        [TestMethod]
+        public void SetDualKey()
+        {
+            var firstName = (Var<string>)"firstName";
+            var lastName = (Var<string>)"lastName";
+            var age = (Var<int>)"age";
+            var older = (Var<int>)"older";
+            var s = new Simulation(nameof(Set));
+            s.BeginPredicates();
+            var T = Language.Predicate("T", firstName, lastName, age);
+            T.IndexByKey(firstName, lastName);
+            T.Set((firstName, lastName), age, older).If(T[firstName, lastName, age],older == age+1);
+            s.EndPredicates();
+            T.AddRow("Jane", "Byrne", 1);
+            T.AddRow("Bruce", "Byrne", 2);
+            s.Update();
+            CollectionAssert.AreEqual(new [] { ("Jane", "Byrne", 2), ("Bruce", "Byrne", 3) }, T.ToArray());
+        }
     }
 }
