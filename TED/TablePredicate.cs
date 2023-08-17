@@ -185,6 +185,16 @@ namespace TED {
             return AddIndex(index, keyIndex);
         }
 
+        /// <summary>
+        /// Adds an index that indexes the table by the joint values of two columns
+        /// </summary>
+        /// <param name="c1">First column</param>
+        /// <param name="c2">Second column</param>
+        /// <param name="keyIndex">If true, the two columns form a key</param>
+        /// <typeparam name="TRow">Data type of the rows of the table</typeparam>
+        /// <typeparam name="TColumn1">Data type of the first column</typeparam>
+        /// <typeparam name="TColumn2">Data type of the second column</typeparam>
+        /// <returns>The index</returns>
         protected TableIndex AddIndex<TRow, TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
         {
             var columnNumber1 = ColumnPositionOfDefaultVariable(c1);
@@ -205,6 +215,15 @@ namespace TED {
             return tableIndex;
         }
 
+        /// <summary>
+        /// Adds an index that indexes the table by the joint values of two columns
+        /// </summary>
+        /// <param name="c1">First column</param>
+        /// <param name="c2">Second column</param>
+        /// <param name="keyIndex">If true, the two columns form a key</param>
+        /// <typeparam name="TColumn1">Data type of the first column</typeparam>
+        /// <typeparam name="TColumn2">Data type of the second column</typeparam>
+        /// <returns>The index</returns>
         protected abstract TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
             bool keyIndex);
 
@@ -226,7 +245,7 @@ namespace TED {
 
         /// <summary>
         /// Return the index of the specified type for the specified column
-        /// WARNING: THIS SORTS COLUMNINDICES.
+        /// WARNING: THIS SORTS columnIndices.
         /// </summary>
         /// <param name="columnIndices">Column to find the index for</param>
         /// <param name="key">Whether to look for a key or non-key</param>
@@ -481,9 +500,8 @@ namespace TED {
         /// <typeparam name="T">Expected type</typeparam>
         /// <returns>Cast term</returns>
         /// <exception cref="ArgumentException">If it's the wrong type</exception>
-        protected Term<T> CastArg<T>(Term arg, int position) => arg is Term<T> result ? result
-                                                                    : throw new ArgumentException(
-                                                                          $"Argument {position} to {Name} should be of type {typeof(T).Name}");
+        protected Term<T> CastArg<T>(Term arg, int position) => arg as Term<T> ?? throw new ArgumentException(
+            $"Argument {position} to {Name} should be of type {typeof(T).Name}");
 
         /// <summary>
         /// Return a function that returns the value of the specified column given a row.
@@ -523,7 +541,13 @@ namespace TED {
             throw new NotImplementedException();
         }
 
-        public abstract Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> var);
+        /// <summary>
+        /// Returns a procedure that given a row number within the table returns the value of the specified column for that row.
+        /// </summary>
+        /// <param name="column">Column to get the value of</param>
+        /// <typeparam name="TColumn">Data type of the column</typeparam>
+        /// <returns>Procedure mapping row numbers to the value of the row's column.</returns>
+        public abstract Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column);
         
         internal ColumnAccessor<TRow, TColumn, TKey> Accessor<TRow, TColumn, TKey>(Table<TRow> table, Var<TKey> key, Var<TColumn> column) {
             var keyIndex = IndexFor(ColumnPositionOfDefaultVariable(key), true);
@@ -563,6 +587,10 @@ namespace TED {
             return (a, b) => comparer.Compare(projection(table[a]), projection(table[b]));
         }
 
+        /// <summary>
+        /// Given a column number, returns a comparison (greater/less than test) that compares the values
+        /// of the column given two row numbers.
+        /// </summary>
         public abstract Comparison<uint> RowComparison(int columnNumber);
 
         /// <summary>
@@ -693,7 +721,7 @@ namespace TED {
             }
         }
         
-        public void UpdateAsyncDriver() {
+        internal void UpdateAsyncDriver() {
             #if PROFILER
             UpdateTime.Start();
             #endif
@@ -716,13 +744,16 @@ namespace TED {
                     throw new NotImplementedException($"Unknown update mode {UpdateMode}");
             }
             #if PROFILER
-            UpdateTime.Start();
+            UpdateTime.Stop();
             #endif
         }
 
         #endregion
         #if PROFILER
         internal readonly Stopwatch UpdateTime = new Stopwatch();
+        /// <summary>
+        /// Total number of milliseconds spent updating this table predicate since the start of the program.
+        /// </summary>
         public long TotalExecutionTime => UpdateTime.ElapsedMilliseconds;
         #endif
 
@@ -756,6 +787,7 @@ namespace TED {
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1)];
 
+        /// <inheritdoc />
         protected override TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
             bool keyIndex)
         {
@@ -807,7 +839,7 @@ namespace TED {
         /// <param name="arg1">Default argument to the predicate</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1> FromCsv(string name, string path, IColumnSpec<T1> arg1) {
-            (var header, var data) = CsvReader.ReadCsv(path);
+            var (header, data) = CsvReader.ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1);
             var p = new TablePredicate<T1>(name, arg1);
             foreach (var row in data)
@@ -960,16 +992,19 @@ namespace TED {
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        /// <inheritdoc />
         public override Delegate Projection(int columnNumber) => columnNumber switch {
             0 => (Table.Projection<T1, T1>)((in T1 row) => row),
             _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
         };
 
+        /// <inheritdoc />
         public override Delegate Mutator(int columnNumber)
         {
             throw new NotImplementedException("Mutators can't be used on single-column tables because there must be a key column and a separate mutation column");
         }
 
+        /// <inheritdoc />
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<T1,T1>(_table, 0),
             _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
@@ -985,6 +1020,7 @@ namespace TED {
             throw new NotImplementedException("Key index call to single-column table");
         }
 
+        /// <inheritdoc />
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -1009,6 +1045,7 @@ namespace TED {
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2)];
 
+        /// <inheritdoc />
         protected override TableIndex AddIndex<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2,
             bool keyIndex)
         {
@@ -1097,7 +1134,7 @@ namespace TED {
         /// <param name="arg2">Second argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) {
-            (var header, var data) = CsvReader.ReadCsv(path);
+            var (header, data) = CsvReader.ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2);
             var p = new TablePredicate<T1, T2>(name, arg1, arg2);
             foreach (var row in data)
@@ -1284,6 +1321,7 @@ namespace TED {
         public override ColumnAccessor<TColumn, TKey> Accessor<TColumn, TKey>(Var<TKey> key, Var<TColumn> column)
             => Accessor(_table, key, column);
 
+        /// <inheritdoc />
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2),T1>(_table, columnNumber),
             1 => RowComparison<(T1,T2),T2>(_table, columnNumber),
@@ -1310,6 +1348,8 @@ namespace TED {
         {
             throw new NotImplementedException("double-column index call to two-column table");
         }
+
+        /// <inheritdoc />
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -1515,7 +1555,7 @@ namespace TED {
         /// <param name="arg3">Third argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) {
-            (var header, var data) = CsvReader.ReadCsv(path);
+            var (header, data) = CsvReader.ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3);
             var p = new TablePredicate<T1, T2, T3>(name, arg1, arg2, arg3);
             foreach (var row in data)
@@ -1690,6 +1730,7 @@ namespace TED {
         public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
             => Accessor(_table, key1, key2, column);
 
+        /// <inheritdoc />
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3),T1>(_table, columnNumber),
             1 => RowComparison<(T1,T2,T3),T2>(_table, columnNumber),
@@ -1697,6 +1738,7 @@ namespace TED {
             _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
         };
 
+        /// <inheritdoc />
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -1912,7 +1954,7 @@ namespace TED {
         /// <param name="arg4">Fourth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4) {
-            (var header, var data) = CsvReader.ReadCsv(path);
+            var (header, data) = CsvReader.ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4);
             var p = new TablePredicate<T1, T2, T3, T4>(name, arg1, arg2, arg3, arg4);
             foreach (var row in data)
@@ -2094,6 +2136,7 @@ namespace TED {
         public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
             => Accessor(_table, key1, key2, column);
 
+        /// <inheritdoc />
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3,T4),T1>(_table, columnNumber),
             1 => RowComparison<(T1,T2,T3,T4),T2>(_table, columnNumber),
@@ -2102,6 +2145,7 @@ namespace TED {
             _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
         };
 
+        /// <inheritdoc />
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -2324,7 +2368,7 @@ namespace TED {
         /// <param name="arg5">Fifth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5) {
-            (var header, var data) = CsvReader.ReadCsv(path);
+            var (header, data) = CsvReader.ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5);
             var p = new TablePredicate<T1, T2, T3, T4, T5>(name, arg1, arg2, arg3, arg4, arg5);
             foreach (var row in data)
@@ -2513,6 +2557,7 @@ namespace TED {
         public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
             => Accessor(_table, key1, key2, column);
 
+        /// <inheritdoc />
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3,T4,T5),T1>(_table, columnNumber),
             1 => RowComparison<(T1,T2,T3,T4,T5),T2>(_table, columnNumber),
@@ -2522,6 +2567,7 @@ namespace TED {
             _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
         };
 
+        /// <inheritdoc />
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -2753,7 +2799,7 @@ namespace TED {
         /// <param name="arg6">Sixth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6) {
-            (var header, var data) = CsvReader.ReadCsv(path);
+            var (header, data) = CsvReader.ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5, arg6);
             var p = new TablePredicate<T1, T2, T3, T4, T5, T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
             foreach (var row in data)
@@ -2947,6 +2993,7 @@ namespace TED {
         public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
             => Accessor(_table, key1, key2, column);
 
+        /// <inheritdoc />
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3,T4,T5,T6),T1>(_table, columnNumber),
             1 => RowComparison<(T1,T2,T3,T4,T5,T6),T2>(_table, columnNumber),
@@ -2957,6 +3004,7 @@ namespace TED {
             _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
         };
 
+        /// <inheritdoc />
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -3194,7 +3242,7 @@ namespace TED {
         /// <param name="arg7">Seventh argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6, T7> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7) {
-            (var header, var data) = CsvReader.ReadCsv(path);
+            var (header, data) = CsvReader.ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             var p = new TablePredicate<T1, T2, T3, T4, T5, T6, T7>(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             foreach (var row in data)
@@ -3395,6 +3443,7 @@ namespace TED {
         public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
             => Accessor(_table, key1, key2, column);
 
+        /// <inheritdoc />
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3,T4,T5,T6,T7),T1>(_table, columnNumber),
             1 => RowComparison<(T1,T2,T3,T4,T5,T6,T7),T2>(_table, columnNumber),
@@ -3406,6 +3455,7 @@ namespace TED {
             _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
         };
 
+        /// <inheritdoc />
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -3652,7 +3702,7 @@ namespace TED {
         /// <param name="arg8">Eighth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8) {
-            (var header, var data) = CsvReader.ReadCsv(path);
+            var (header, data) = CsvReader.ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             var p = new TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             foreach (var row in data)
@@ -3858,6 +3908,7 @@ namespace TED {
         public override ColumnAccessor<TColumn, (TKey1, TKey2)> Accessor<TColumn, TKey1, TKey2>(Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column)
             => Accessor(_table, key1, key2, column);
 
+        /// <inheritdoc />
         public override Comparison<uint> RowComparison(int columnNumber) => columnNumber switch {
             0 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T1>(_table, columnNumber),
             1 => RowComparison<(T1,T2,T3,T4,T5,T6,T7,T8),T2>(_table, columnNumber),
@@ -3870,6 +3921,7 @@ namespace TED {
             _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
         };
 
+        /// <inheritdoc />
         public override Func<uint, TColumn> ColumnValueFromRowNumber<TColumn>(Var<TColumn> column) {
             var columnNumber = ColumnPositionOfDefaultVariable(column);
             return columnNumber switch {
@@ -3880,6 +3932,8 @@ namespace TED {
                 4 => (Func<uint, TColumn>)(Delegate)(Func<uint,T5>)(rowNum => _table.Data[rowNum].Item5),
                 5 => (Func<uint, TColumn>)(Delegate)(Func<uint,T6>)(rowNum => _table.Data[rowNum].Item6),
                 6 => (Func<uint, TColumn>)(Delegate)(Func<uint,T7>)(rowNum => _table.Data[rowNum].Item7),
+                // VS says there's a type error here because it thinks Item8 returns T1 rather than T8
+                // but the code compiles fine.
                 7 => (Func<uint, TColumn>)(Delegate)(Func<uint,T8>)(rowNum => _table.Data[rowNum].Item8),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
             };
