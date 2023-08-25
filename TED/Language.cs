@@ -5,6 +5,7 @@ using System.Xml.Schema;
 using TED.Interpreter;
 using TED.Primitives;
 using TED.Tables;
+using TED.Utilities;
 using Random = TED.Utilities.Random;
 
 namespace TED
@@ -53,7 +54,14 @@ namespace TED
         /// <summary>
         /// Prob(p) succeeds with a probability of p (p in the range [0,1])
         /// </summary>
-        public static readonly PrimitiveTest<float> Prob = new PrimitiveTest<float>("Prob", Random.Roll, false);
+        public static PrimitiveTest<float> Prob
+        {
+            get
+            {
+                var r = Random.MakeRng();
+                return new PrimitiveTest<float>("Prob", (prob) => r.Roll(prob), false);
+            }
+        }
 
         /// <summary>
         /// Breakpoint execution of a rule

@@ -42,6 +42,8 @@ namespace TED.Primitives
 
             private bool finished;
 
+            private readonly System.Random rng = Random.MakeRng();
+
             public override void Reset() => finished = false;
 
             public override bool NextSolution()
@@ -49,7 +51,7 @@ namespace TED.Primitives
                 var len = table.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(table.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                outputArg.Match(table.Table[(uint)rng.InRangeExclusive(0, (int)len)]);
                 return true;
             }
         }
@@ -80,13 +82,15 @@ namespace TED.Primitives
 
             private bool finished;
 
+            private readonly System.Random rng = Random.MakeRng();
+
             public override void Reset() => finished = false;
 
             public override bool NextSolution() {
                 var len = predicate.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                outputArg.Match(predicate.Table[(uint)rng.InRangeExclusive(0, (int)len)]);
                 return true;
             }
         }
@@ -118,13 +122,15 @@ namespace TED.Primitives
 
             private bool finished;
 
+            private readonly System.Random rng = Random.MakeRng();
+
             public override void Reset() => finished = false;
 
             public override bool NextSolution() {
                 var len = predicate.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                outputArg.Match(predicate.Table[(uint)rng.InRangeExclusive(0, (int)len)]);
                 return true;
             }
         }
@@ -159,13 +165,15 @@ namespace TED.Primitives
 
             private bool finished;
 
+            private readonly System.Random rng = Random.MakeRng();
+
             public override void Reset() => finished = false;
 
             public override bool NextSolution() {
                 var len = predicate.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                outputArg.Match(predicate.Table[(uint)rng.InRangeExclusive(0, (int)len)]);
                 return true;
             }
         }
@@ -200,6 +208,7 @@ namespace TED.Primitives
             }
 
             private bool finished;
+            private readonly System.Random rng = Random.MakeRng();
 
             public override void Reset() => finished = false;
 
@@ -207,7 +216,7 @@ namespace TED.Primitives
                 var len = predicate.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                outputArg.Match(predicate.Table[(uint)rng.InRangeExclusive(0, (int)len)]);
                 return true;
             }
         }
@@ -245,13 +254,15 @@ namespace TED.Primitives
 
             private bool finished;
 
+            private readonly System.Random rng = Random.MakeRng();
+
             public override void Reset() => finished = false;
 
             public override bool NextSolution() {
                 var len = predicate.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                outputArg.Match(predicate.Table[(uint)rng.InRangeExclusive(0, (int)len)]);
                 return true;
             }
         }
@@ -291,13 +302,15 @@ namespace TED.Primitives
 
             private bool finished;
 
+            private readonly System.Random rng = Random.MakeRng();
+
             public override void Reset() => finished = false;
 
             public override bool NextSolution() {
                 var len = predicate.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                outputArg.Match(predicate.Table[(uint)rng.InRangeExclusive(0, (int)len)]);
                 return true;
             }
         }
@@ -338,13 +351,15 @@ namespace TED.Primitives
 
             private bool finished;
 
+            private readonly System.Random rng = Random.MakeRng();
+
             public override void Reset() => finished = false;
 
             public override bool NextSolution() {
                 var len = predicate.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(predicate.Table[(uint)Random.InRangeExclusive(0, (int)len)]);
+                outputArg.Match(predicate.Table[(uint)rng.InRangeExclusive(0, (int)len)]);
                 return true;
             }
         }

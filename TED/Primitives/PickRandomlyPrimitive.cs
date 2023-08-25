@@ -37,6 +37,8 @@ namespace TED.Primitives
 
             private bool finished;
 
+            private readonly System.Random rng = Random.MakeRng();
+
             public override void Reset() => finished = false;
 
             public override bool NextSolution()
@@ -44,7 +46,7 @@ namespace TED.Primitives
                 var len = choices.Length;
                 if (finished || len == 0) return false;
                 finished = true;
-                outputArg.Match(choices[(uint)Random.InRangeExclusive(0, len)]);
+                outputArg.Match(choices[(uint)rng.InRangeExclusive(0, len)]);
                 return true;
             }
         }
