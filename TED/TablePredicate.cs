@@ -267,19 +267,12 @@ namespace TED {
         /// </summary>
         protected abstract TableIndex AddIndex(int column1Index, int column2Index, bool keyIndex);
 
-        internal int[] JointIndexCheck(int column1Index, int column2Index, bool keyIndex) {
-            var jointColumns = new int[2];
-            if (column1Index > column2Index) {
-                jointColumns[0] = column1Index;
-                jointColumns[1] = column2Index;
-                return jointColumns;
-            }
-            jointColumns[1] = column1Index;
-            jointColumns[0] = column2Index;
-            if (column1Index != column2Index) return jointColumns;
+        internal (int Column1, int Column2) JointOrderCheck(int column1Index, int column2Index, bool keyIndex) {
+            if (column1Index < column2Index) return (column1Index, column2Index);
+            if (column1Index != column2Index) return (column2Index, column1Index);
             var keyOrIndex = keyIndex ? "key" : "index";
             throw new ArgumentException(
-                $"Attempt to add a the same column twice to the joint {keyOrIndex} for column number {column1Index} to table {Name}");
+                $"Attempt to add column number {column1Index} twice to the joint {keyOrIndex} for the table {Name}");
         }
 
         /// <summary>
@@ -1435,19 +1428,19 @@ namespace TED {
 
         /// <inheritdoc />
         protected override TableIndex AddIndex(int column1Index, int column2Index, bool keyIndex) {
-            var jointColumns = JointIndexCheck(column1Index, column2Index, keyIndex);
-            switch (jointColumns[0], jointColumns[1]) {
+            var joint = JointOrderCheck(column1Index, column2Index, keyIndex);
+            switch (joint) {
                 case (0, 1):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3) r) => (r.Item1, r.Item2), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T2>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3) r) => (r.Item1, r.Item3), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3) r) => (r.Item2, r.Item3), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 default: {
                     var keyOrIndex = keyIndex ? "key" : "index";
-                    var nonexistentColumn = (column1Index < 0 || column1Index > 2) ? column1Index : column2Index;
+                    var columnOutOfRange = (column1Index < 0 || column1Index >= DefaultVariables.Length) ? column1Index : column2Index;
                     throw new ArgumentException(
-                        $"Attempt to add an index to the joint {keyOrIndex} for nonexistent column number {nonexistentColumn} to table {Name}");
+                        $"Attempt to add nonexistent column number {columnOutOfRange} to the joint {keyOrIndex} for the table {Name}");
                 }
             }
         }
@@ -1839,25 +1832,25 @@ namespace TED {
 
         /// <inheritdoc />
         protected override TableIndex AddIndex(int column1Index, int column2Index, bool keyIndex) {
-            var jointColumns = JointIndexCheck(column1Index, column2Index, keyIndex);
-            switch (jointColumns[0], jointColumns[1]) {
+            var joint = JointOrderCheck(column1Index, column2Index, keyIndex);
+            switch (joint) {
                 case (0, 1):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4) r) => (r.Item1, r.Item2), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T2>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4) r) => (r.Item1, r.Item3), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4) r) => (r.Item1, r.Item4), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4) r) => (r.Item2, r.Item3), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4) r) => (r.Item2, r.Item4), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4) r) => (r.Item3, r.Item4), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 default: {
                     var keyOrIndex = keyIndex ? "key" : "index";
-                    var nonexistentColumn = (column1Index < 0 || column1Index > 2) ? column1Index : column2Index;
+                    var columnOutOfRange = (column1Index < 0 || column1Index >= DefaultVariables.Length) ? column1Index : column2Index;
                     throw new ArgumentException(
-                        $"Attempt to add an index to the joint {keyOrIndex} for nonexistent column number {nonexistentColumn} to table {Name}");
+                        $"Attempt to add nonexistent column number {columnOutOfRange} to the joint {keyOrIndex} for the table {Name}");
                 }
             }
         }
@@ -2263,33 +2256,33 @@ namespace TED {
 
         /// <inheritdoc />
         protected override TableIndex AddIndex(int column1Index, int column2Index, bool keyIndex) {
-            var jointColumns = JointIndexCheck(column1Index, column2Index, keyIndex);
-            switch (jointColumns[0], jointColumns[1]) {
+            var joint = JointOrderCheck(column1Index, column2Index, keyIndex);
+            switch (joint) {
                 case (0, 1):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5) r) => (r.Item1, r.Item2), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T2>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5) r) => (r.Item1, r.Item3), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5) r) => (r.Item1, r.Item4), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5) r) => (r.Item1, r.Item5), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5) r) => (r.Item2, r.Item3), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5) r) => (r.Item2, r.Item4), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5) r) => (r.Item2, r.Item5), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5) r) => (r.Item3, r.Item4), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5) r) => (r.Item3, r.Item5), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (3, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5) r) => (r.Item4, r.Item5), keyIndex));
+                    return AddIndex((Var<T4>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 default: {
                     var keyOrIndex = keyIndex ? "key" : "index";
-                    var nonexistentColumn = (column1Index < 0 || column1Index > 2) ? column1Index : column2Index;
+                    var columnOutOfRange = (column1Index < 0 || column1Index >= DefaultVariables.Length) ? column1Index : column2Index;
                     throw new ArgumentException(
-                        $"Attempt to add an index to the joint {keyOrIndex} for nonexistent column number {nonexistentColumn} to table {Name}");
+                        $"Attempt to add nonexistent column number {columnOutOfRange} to the joint {keyOrIndex} for the table {Name}");
                 }
             }
         }
@@ -2710,43 +2703,43 @@ namespace TED {
 
         /// <inheritdoc />
         protected override TableIndex AddIndex(int column1Index, int column2Index, bool keyIndex) {
-            var jointColumns = JointIndexCheck(column1Index, column2Index, keyIndex);
-            switch (jointColumns[0], jointColumns[1]) {
+            var joint = JointOrderCheck(column1Index, column2Index, keyIndex);
+            switch (joint) {
                 case (0, 1):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item1, r.Item2), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T2>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item1, r.Item3), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item1, r.Item4), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item1, r.Item5), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item1, r.Item6), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item2, r.Item3), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item2, r.Item4), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item2, r.Item5), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item2, r.Item6), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item3, r.Item4), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item3, r.Item5), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item3, r.Item6), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (3, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item4, r.Item5), keyIndex));
+                    return AddIndex((Var<T4>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (3, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item4, r.Item6), keyIndex));
+                    return AddIndex((Var<T4>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (4, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6) r) => (r.Item5, r.Item6), keyIndex));
+                    return AddIndex((Var<T5>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 default: {
                     var keyOrIndex = keyIndex ? "key" : "index";
-                    var nonexistentColumn = (column1Index < 0 || column1Index > 2) ? column1Index : column2Index;
+                    var columnOutOfRange = (column1Index < 0 || column1Index >= DefaultVariables.Length) ? column1Index : column2Index;
                     throw new ArgumentException(
-                        $"Attempt to add an index to the joint {keyOrIndex} for nonexistent column number {nonexistentColumn} to table {Name}");
+                        $"Attempt to add nonexistent column number {columnOutOfRange} to the joint {keyOrIndex} for the table {Name}");
                 }
             }
         }
@@ -3179,55 +3172,55 @@ namespace TED {
 
         /// <inheritdoc />
         protected override TableIndex AddIndex(int column1Index, int column2Index, bool keyIndex) {
-            var jointColumns = JointIndexCheck(column1Index, column2Index, keyIndex);
-            switch (jointColumns[0], jointColumns[1]) {
+            var joint = JointOrderCheck(column1Index, column2Index, keyIndex);
+            switch (joint) {
                 case (0, 1):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item1, r.Item2), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T2>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item1, r.Item3), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item1, r.Item4), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item1, r.Item5), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item1, r.Item6), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item1, r.Item7), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item2, r.Item3), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item2, r.Item4), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item2, r.Item5), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item2, r.Item6), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item2, r.Item7), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item3, r.Item4), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item3, r.Item5), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item3, r.Item6), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item3, r.Item7), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (3, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item4, r.Item5), keyIndex));
+                    return AddIndex((Var<T4>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (3, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item4, r.Item6), keyIndex));
+                    return AddIndex((Var<T4>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (3, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item4, r.Item7), keyIndex));
+                    return AddIndex((Var<T4>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (4, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item5, r.Item6), keyIndex));
+                    return AddIndex((Var<T5>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (4, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item5, r.Item7), keyIndex));
+                    return AddIndex((Var<T5>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (5, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7) r) => (r.Item6, r.Item7), keyIndex));
+                    return AddIndex((Var<T6>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 default: {
                     var keyOrIndex = keyIndex ? "key" : "index";
-                    var nonexistentColumn = (column1Index < 0 || column1Index > 2) ? column1Index : column2Index;
+                    var columnOutOfRange = (column1Index < 0 || column1Index >= DefaultVariables.Length) ? column1Index : column2Index;
                     throw new ArgumentException(
-                        $"Attempt to add an index to the joint {keyOrIndex} for nonexistent column number {nonexistentColumn} to table {Name}");
+                        $"Attempt to add nonexistent column number {columnOutOfRange} to the joint {keyOrIndex} for the table {Name}");
                 }
             }
         }
@@ -3674,69 +3667,69 @@ namespace TED {
 
         /// <inheritdoc />
         protected override TableIndex AddIndex(int column1Index, int column2Index, bool keyIndex) {
-            var jointColumns = JointIndexCheck(column1Index, column2Index, keyIndex);
-            switch (jointColumns[0], jointColumns[1]) {
+            var joint = JointOrderCheck(column1Index, column2Index, keyIndex);
+            switch (joint) {
                 case (0, 1):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item1, r.Item2), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T2>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item1, r.Item3), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item1, r.Item4), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item1, r.Item5), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item1, r.Item6), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item1, r.Item7), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (0, 7):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item1, r.Item8), keyIndex));
+                    return AddIndex((Var<T1>)DefaultVariables[joint.Column1], (Var<T8>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 2):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item2, r.Item3), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T3>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item2, r.Item4), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item2, r.Item5), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item2, r.Item6), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item2, r.Item7), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (1, 7):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item2, r.Item8), keyIndex));
+                    return AddIndex((Var<T2>)DefaultVariables[joint.Column1], (Var<T8>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 3):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item3, r.Item4), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T4>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item3, r.Item5), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item3, r.Item6), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item3, r.Item7), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (2, 7):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item3, r.Item8), keyIndex));
+                    return AddIndex((Var<T3>)DefaultVariables[joint.Column1], (Var<T8>)DefaultVariables[joint.Column2], keyIndex);
                 case (3, 4):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item4, r.Item5), keyIndex));
+                    return AddIndex((Var<T4>)DefaultVariables[joint.Column1], (Var<T5>)DefaultVariables[joint.Column2], keyIndex);
                 case (3, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item4, r.Item6), keyIndex));
+                    return AddIndex((Var<T4>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (3, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item4, r.Item7), keyIndex));
+                    return AddIndex((Var<T4>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (3, 7):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item4, r.Item8), keyIndex));
+                    return AddIndex((Var<T4>)DefaultVariables[joint.Column1], (Var<T8>)DefaultVariables[joint.Column2], keyIndex);
                 case (4, 5):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item5, r.Item6), keyIndex));
+                    return AddIndex((Var<T5>)DefaultVariables[joint.Column1], (Var<T6>)DefaultVariables[joint.Column2], keyIndex);
                 case (4, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item5, r.Item7), keyIndex));
+                    return AddIndex((Var<T5>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (4, 7):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item5, r.Item8), keyIndex));
+                    return AddIndex((Var<T5>)DefaultVariables[joint.Column1], (Var<T8>)DefaultVariables[joint.Column2], keyIndex);
                 case (5, 6):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item6, r.Item7), keyIndex));
+                    return AddIndex((Var<T6>)DefaultVariables[joint.Column1], (Var<T7>)DefaultVariables[joint.Column2], keyIndex);
                 case (5, 7):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item6, r.Item8), keyIndex));
+                    return AddIndex((Var<T6>)DefaultVariables[joint.Column1], (Var<T8>)DefaultVariables[joint.Column2], keyIndex);
                 case (6, 7):
-                    return _table.AddIndex(MakeIndex(this, _table, jointColumns, (in (T1, T2, T3, T4, T5, T6, T7, T8) r) => (r.Item7, r.Item8), keyIndex));
+                    return AddIndex((Var<T7>)DefaultVariables[joint.Column1], (Var<T8>)DefaultVariables[joint.Column2], keyIndex);
                 default: {
                     var keyOrIndex = keyIndex ? "key" : "index";
-                    var nonexistentColumn = (column1Index < 0 || column1Index > 2) ? column1Index : column2Index;
+                    var columnOutOfRange = (column1Index < 0 || column1Index >= DefaultVariables.Length) ? column1Index : column2Index;
                     throw new ArgumentException(
-                        $"Attempt to add an index to the joint {keyOrIndex} for nonexistent column number {nonexistentColumn} to table {Name}");
+                        $"Attempt to add nonexistent column number {columnOutOfRange} to the joint {keyOrIndex} for the table {Name}");
                 }
             }
         }
