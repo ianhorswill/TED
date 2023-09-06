@@ -26,6 +26,9 @@ namespace TED.Interpreter
         /// For general indices, the priority of this index
         /// </summary>
         int? Priority => null;
+
+
+        bool JointPartial => false;
     }
 
     /// <summary>
@@ -59,17 +62,23 @@ namespace TED.Interpreter
 
         public int? Priority => priority;
 
+
+        private readonly bool jointPartial;
+
+        public bool JointPartial => jointPartial;
+
         /// <summary>
         /// Specify information about a column/argument of a table
         /// </summary>
         /// <param name="defaultVariable">Default variable to use</param>
         /// <param name="indexMode">Whether to maintain an index</param>
         /// <param name="priority">Relative priority for using this index in a call versus other indices</param>
-        public IndexedColumnSpec(Var<T> defaultVariable, IndexMode indexMode, int? priority = null)
+        public IndexedColumnSpec(Var<T> defaultVariable, IndexMode indexMode, int? priority = null, bool jointPartial = false)
         {
             variable = defaultVariable;
             IndexMode = indexMode;
             this.priority = priority;
+            this.jointPartial = jointPartial;
         }
 
         public string ColumnName => variable.Name;
