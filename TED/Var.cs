@@ -82,6 +82,14 @@ namespace TED
         // ReSharper disable once UnusedMember.Global
         public IColumnSpec<T> IndexPriority(int priority) => new IndexedColumnSpec<T>(this, IndexMode.NonKey, priority);
 
+
+        public IColumnSpec<T> JointKey => new IndexedColumnSpec<T>(this, IndexMode.Key, null, true);
+
+        public IColumnSpec<T> JointIndexed => new IndexedColumnSpec<T>(this, IndexMode.NonKey, null, true);
+
+        public IColumnSpec<T> JointIndexPriority(int priority) => new IndexedColumnSpec<T>(this, IndexMode.NonKey, priority, true);
+
+
         /// <summary>
         /// For variables being used as formal parameters in predicate declarations: whether this column of the table is indexed or not
         /// </summary>
