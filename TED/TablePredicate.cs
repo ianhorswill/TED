@@ -14,7 +14,11 @@ using TED.Utilities;
 // ReSharper disable UnusedMember.Global
 
 namespace TED {
+    using static CsvReader;
+    using static CsvWriter;
+    using static Table;
     using static TableIndex;
+    using static String;
 
     /// <summary>
     /// Untyped base class for TablePredicates
@@ -215,13 +219,12 @@ namespace TED {
         /// <typeparam name="TColumn1">Data type of the first column</typeparam>
         /// <typeparam name="TColumn2">Data type of the second column</typeparam>
         /// <returns>The index</returns>
-        protected TableIndex AddIndex<TRow, TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex)
-        {
+        protected TableIndex AddIndex<TRow, TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2, bool keyIndex) {
             var columnNumber1 = ColumnPositionOfDefaultVariable(c1);
             var columnNumber2 = ColumnPositionOfDefaultVariable(c2);
-            var projection = Table.JointProjection(
-                (Table.Projection<TRow, TColumn1>)Projection(columnNumber1),
-                (Table.Projection<TRow, TColumn2>)Projection(columnNumber2));
+            var projection = JointProjection(
+                (Projection<TRow, TColumn1>)Projection(columnNumber1),
+                (Projection<TRow, TColumn2>)Projection(columnNumber2));
             var tableIndex = MakeIndex(this,
                 (Table<TRow>)TableUntyped,
                 new[] { columnNumber1, columnNumber2 },
@@ -282,8 +285,7 @@ namespace TED {
         /// <param name="columnIndices">Column to find the index for</param>
         /// <param name="key">Whether to look for a key or non-key</param>
         /// <returns>The index or null if there is not index of that type for that column</returns>
-        public TableIndex? IndexFor(int[] columnIndices, bool key)
-        {
+        public TableIndex? IndexFor(int[] columnIndices, bool key) {
             Array.Sort(columnIndices);
             return TableUntyped.Indices.FirstOrDefault(i =>
                 columnIndices.SequenceEqual(i.ColumnNumbers) && key == i.IsKey);
@@ -458,7 +460,14 @@ namespace TED {
         /// </summary>
         /// <param name="rowNumber">Row number within the table</param>
         /// <param name="buffer">Buffer in which to write the string forms</param>
-        public virtual void RowToStrings(uint rowNumber, string[] buffer) {}
+        public virtual void RowToStrings(uint rowNumber, string[] buffer) { }
+
+        /// <summary>
+        /// Write the columns of the specified tuple in to the specified array of strings
+        /// </summary>
+        /// <param name="rowNumber">Row number within the table</param>
+        /// <param name="buffer">Buffer in which to write the string forms</param>
+        internal virtual void RowToCsv(uint rowNumber, string[] buffer) { }
 
         /// <summary>
         /// Number of tuples (rows) in the predicates extension
@@ -478,6 +487,10 @@ namespace TED {
                 RowToStrings(startRow + i, buffer[i]);
             return i;
         }
+
+        /// <summary> Writes the entire table out to the specified path </summary>
+        /// <param name="path">Path to where the csv file should be written</param>
+        public void ToCsv(string path) => TableToCsv(path, this);
 
         /// <summary>
         /// Call the specified function on each row of the table, allowing it to overwrite them
@@ -519,7 +532,7 @@ namespace TED {
                 throw new InvalidDataException(
                     $"Predicate {name} declared with {args.Length} arguments, but CSV file contains {headerRow.Length} columns");
             for (var i = 0; i < headerRow.Length; i++)
-                if (string.Compare(headerRow[i], args[i].ColumnName, true, CultureInfo.InvariantCulture) != 0)
+                if (Compare(headerRow[i], args[i].ColumnName, true, CultureInfo.InvariantCulture) != 0)
                     throw new InvalidDataException(
                         $"For predicate {name}, the column name {headerRow[i]} in the CSV file does not match the declared name {args[i].ColumnName}");
         }
@@ -589,9 +602,9 @@ namespace TED {
             var columnIndex = IndexFor(columnNumber, false);
             return new ColumnAccessor<TRow, TColumn, TKey>(table,
                 (KeyIndex<TRow,TKey>)keyIndex,
-                (Table.Projection<TRow, TColumn>)Projection(columnNumber),
+                (Projection<TRow, TColumn>)Projection(columnNumber),
                 (GeneralIndex<TRow,TColumn>)columnIndex!,
-                (Table.Mutator<TRow, TColumn>)Mutator(columnNumber));
+                (Mutator<TRow, TColumn>)Mutator(columnNumber));
         }
 
         internal ColumnAccessor<TRow, TColumn, (TKey1, TKey2)> Accessor<TRow, TColumn, TKey1, TKey2>(Table<TRow> table, Var<TKey1> key1, Var<TKey2> key2, Var<TColumn> column) {
@@ -602,9 +615,9 @@ namespace TED {
             var columnIndex = IndexFor(columnNumber, false);
             return new ColumnAccessor<TRow, TColumn, (TKey1, TKey2)>(table,
                 (KeyIndex<TRow,(TKey1,TKey2)>)keyIndex,
-                (Table.Projection<TRow, TColumn>)Projection(columnNumber),
+                (Projection<TRow, TColumn>)Projection(columnNumber),
                 (GeneralIndex<TRow,TColumn>)columnIndex!,
-                (Table.Mutator<TRow, TColumn>)Mutator(columnNumber));
+                (Mutator<TRow, TColumn>)Mutator(columnNumber));
         }
 
         /// <summary>
@@ -614,7 +627,7 @@ namespace TED {
             if (!typeof(IComparable).IsAssignableFrom(typeof(TColumn))
                 && !typeof(IComparable<TColumn>).IsAssignableFrom(typeof(TColumn)))
                 return null!;
-            var projection = (Table.Projection<TRow, TColumn>)Projection(columnNumber);
+            var projection = (Projection<TRow, TColumn>)Projection(columnNumber);
             var comparer = System.Collections.Generic.Comparer<TColumn>.Default;
             return (a, b) => comparer.Compare(projection(table[a]), projection(table[b]));
         }
@@ -871,11 +884,11 @@ namespace TED {
         /// <param name="arg1">Default argument to the predicate</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1> FromCsv(string name, string path, IColumnSpec<T1> arg1) {
-            var (header, data) = CsvReader.ReadCsv(path);
+            var (header, data) = ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1);
             var p = new TablePredicate<T1>(name, arg1);
             foreach (var row in data)
-                p.AddRow(CsvReader.ConvertCell<T1>(row[0]));
+                p.AddRow(ConvertCell<T1>(row[0]));
             return p;
         }
 
@@ -935,6 +948,14 @@ namespace TED {
         public override void RowToStrings(uint rowNumber, string[] buffer) {
             var r = Table.PositionReference(rowNumber);
             buffer[0] = Stringify(r);
+        }
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        internal override void RowToCsv(uint rowNumber, string[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = CsvWriter.Stringify(r);
         }
 
         /// <summary>
@@ -1026,7 +1047,7 @@ namespace TED {
 
         /// <inheritdoc />
         public override Delegate Projection(int columnNumber) => columnNumber switch {
-            0 => (Table.Projection<T1, T1>)((in T1 row) => row),
+            0 => (Projection<T1, T1>)((in T1 row) => row),
             _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
         };
 
@@ -1163,11 +1184,11 @@ namespace TED {
         /// <param name="arg2">Second argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) {
-            var (header, data) = CsvReader.ReadCsv(path);
+            var (header, data) = ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2);
             var p = new TablePredicate<T1, T2>(name, arg1, arg2);
             foreach (var row in data)
-                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]));
+                p.AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]));
             return p;
         }
 
@@ -1189,7 +1210,16 @@ namespace TED {
             buffer[0] = Stringify(r.Item1);
             buffer[1] = Stringify(r.Item2);
         }
-        
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        internal override void RowToCsv(uint rowNumber, string[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = CsvWriter.Stringify(r.Item1);
+            buffer[1] = CsvWriter.Stringify(r.Item2);
+        }
+
         /// <summary>
         /// Call method on every row of the table, passing it a reference so it can rewrite it as it likes
         /// </summary>
@@ -1328,8 +1358,8 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Projection<(T1,T2), T1>)((in (T1,T2) row) => row.Item1),
-                1 => (Table.Projection<(T1,T2), T2>)((in (T1,T2) row) => row.Item2),
+                0 => (Projection<(T1,T2), T1>)((in (T1,T2) row) => row.Item1),
+                1 => (Projection<(T1,T2), T2>)((in (T1,T2) row) => row.Item2),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -1339,8 +1369,8 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Mutator<(T1,T2), T1>)((ref (T1,T2) row, in T1 value) => row.Item1 = value),
-                1 => (Table.Mutator<(T1,T2), T2>)((ref (T1,T2) row, in T2 value) => row.Item2 = value),
+                0 => (Mutator<(T1,T2), T1>)((ref (T1,T2) row, in T1 value) => row.Item1 = value),
+                1 => (Mutator<(T1,T2), T2>)((ref (T1,T2) row, in T2 value) => row.Item2 = value),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -1595,11 +1625,11 @@ namespace TED {
         /// <param name="arg3">Third argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) {
-            var (header, data) = CsvReader.ReadCsv(path);
+            var (header, data) = ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3);
             var p = new TablePredicate<T1, T2, T3>(name, arg1, arg2, arg3);
             foreach (var row in data)
-                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]), CsvReader.ConvertCell<T3>(row[2]));
+                p.AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]));
             return p;
         }
 
@@ -1622,6 +1652,16 @@ namespace TED {
             buffer[0] = Stringify(r.Item1);
             buffer[1] = Stringify(r.Item2);
             buffer[2] = Stringify(r.Item3);
+        }
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        internal override void RowToCsv(uint rowNumber, string[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = CsvWriter.Stringify(r.Item1);
+            buffer[1] = CsvWriter.Stringify(r.Item2);
+            buffer[2] = CsvWriter.Stringify(r.Item3);
         }
 
         /// <summary>
@@ -1742,9 +1782,9 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Projection<(T1,T2,T3), T1>)((in (T1,T2,T3) row) => row.Item1),
-                1 => (Table.Projection<(T1,T2,T3), T2>)((in (T1,T2,T3) row) => row.Item2),
-                2 => (Table.Projection<(T1,T2,T3), T3>)((in (T1,T2,T3) row) => row.Item3),
+                0 => (Projection<(T1,T2,T3), T1>)((in (T1,T2,T3) row) => row.Item1),
+                1 => (Projection<(T1,T2,T3), T2>)((in (T1,T2,T3) row) => row.Item2),
+                2 => (Projection<(T1,T2,T3), T3>)((in (T1,T2,T3) row) => row.Item3),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -1754,9 +1794,9 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Mutator<(T1,T2,T3), T1>)((ref (T1,T2,T3) row, in T1 value) => row.Item1 = value),
-                1 => (Table.Mutator<(T1,T2,T3), T2>)((ref (T1,T2,T3) row, in T2 value) => row.Item2 = value),
-                2 => (Table.Mutator<(T1,T2,T3), T3>)((ref (T1,T2,T3) row, in T3 value) => row.Item3 = value),
+                0 => (Mutator<(T1,T2,T3), T1>)((ref (T1,T2,T3) row, in T1 value) => row.Item1 = value),
+                1 => (Mutator<(T1,T2,T3), T2>)((ref (T1,T2,T3) row, in T2 value) => row.Item2 = value),
+                2 => (Mutator<(T1,T2,T3), T3>)((ref (T1,T2,T3) row, in T3 value) => row.Item3 = value),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -2008,11 +2048,11 @@ namespace TED {
         /// <param name="arg4">Fourth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4) {
-            var (header, data) = CsvReader.ReadCsv(path);
+            var (header, data) = ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4);
             var p = new TablePredicate<T1, T2, T3, T4>(name, arg1, arg2, arg3, arg4);
             foreach (var row in data)
-                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]), CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]));
+                p.AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]));
             return p;
         }
 
@@ -2037,6 +2077,17 @@ namespace TED {
             buffer[1] = Stringify(r.Item2);
             buffer[2] = Stringify(r.Item3);
             buffer[3] = Stringify(r.Item4);
+        }
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        internal override void RowToCsv(uint rowNumber, string[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = CsvWriter.Stringify(r.Item1);
+            buffer[1] = CsvWriter.Stringify(r.Item2);
+            buffer[2] = CsvWriter.Stringify(r.Item3);
+            buffer[3] = CsvWriter.Stringify(r.Item4);
         }
 
         /// <summary>
@@ -2160,10 +2211,10 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Projection<(T1,T2,T3,T4), T1>)((in (T1,T2,T3,T4) row) => row.Item1),
-                1 => (Table.Projection<(T1,T2,T3,T4), T2>)((in (T1,T2,T3,T4) row) => row.Item2),
-                2 => (Table.Projection<(T1,T2,T3,T4), T3>)((in (T1,T2,T3,T4) row) => row.Item3),
-                3 => (Table.Projection<(T1,T2,T3,T4), T4>)((in (T1,T2,T3,T4) row) => row.Item4),
+                0 => (Projection<(T1,T2,T3,T4), T1>)((in (T1,T2,T3,T4) row) => row.Item1),
+                1 => (Projection<(T1,T2,T3,T4), T2>)((in (T1,T2,T3,T4) row) => row.Item2),
+                2 => (Projection<(T1,T2,T3,T4), T3>)((in (T1,T2,T3,T4) row) => row.Item3),
+                3 => (Projection<(T1,T2,T3,T4), T4>)((in (T1,T2,T3,T4) row) => row.Item4),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -2173,10 +2224,10 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Mutator<(T1,T2,T3,T4), T1>)((ref (T1,T2,T3,T4) row, in T1 value) => row.Item1 = value),
-                1 => (Table.Mutator<(T1,T2,T3,T4), T2>)((ref (T1,T2,T3,T4) row, in T2 value) => row.Item2 = value),
-                2 => (Table.Mutator<(T1,T2,T3,T4), T3>)((ref (T1,T2,T3,T4) row, in T3 value) => row.Item3 = value),
-                3 => (Table.Mutator<(T1,T2,T3,T4), T4>)((ref (T1,T2,T3,T4) row, in T4 value) => row.Item4 = value),
+                0 => (Mutator<(T1,T2,T3,T4), T1>)((ref (T1,T2,T3,T4) row, in T1 value) => row.Item1 = value),
+                1 => (Mutator<(T1,T2,T3,T4), T2>)((ref (T1,T2,T3,T4) row, in T2 value) => row.Item2 = value),
+                2 => (Mutator<(T1,T2,T3,T4), T3>)((ref (T1,T2,T3,T4) row, in T3 value) => row.Item3 = value),
+                3 => (Mutator<(T1,T2,T3,T4), T4>)((ref (T1,T2,T3,T4) row, in T4 value) => row.Item4 = value),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -2443,12 +2494,12 @@ namespace TED {
         /// <param name="arg5">Fifth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5) {
-            var (header, data) = CsvReader.ReadCsv(path);
+            var (header, data) = ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5);
             var p = new TablePredicate<T1, T2, T3, T4, T5>(name, arg1, arg2, arg3, arg4, arg5);
             foreach (var row in data)
-                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
-                    CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]));
+                p.AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]),
+                    ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]), ConvertCell<T5>(row[4]));
             return p;
         }
 
@@ -2475,6 +2526,18 @@ namespace TED {
             buffer[2] = Stringify(r.Item3);
             buffer[3] = Stringify(r.Item4);
             buffer[4] = Stringify(r.Item5);
+        }
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        internal override void RowToCsv(uint rowNumber, string[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = CsvWriter.Stringify(r.Item1);
+            buffer[1] = CsvWriter.Stringify(r.Item2);
+            buffer[2] = CsvWriter.Stringify(r.Item3);
+            buffer[3] = CsvWriter.Stringify(r.Item4);
+            buffer[4] = CsvWriter.Stringify(r.Item5);
         }
 
         /// <summary>
@@ -2600,11 +2663,11 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Projection<(T1,T2,T3,T4,T5), T1>)((in (T1,T2,T3,T4,T5) row) => row.Item1),
-                1 => (Table.Projection<(T1,T2,T3,T4,T5), T2>)((in (T1,T2,T3,T4,T5) row) => row.Item2),
-                2 => (Table.Projection<(T1,T2,T3,T4,T5), T3>)((in (T1,T2,T3,T4,T5) row) => row.Item3),
-                3 => (Table.Projection<(T1,T2,T3,T4,T5), T4>)((in (T1,T2,T3,T4,T5) row) => row.Item4),
-                4 => (Table.Projection<(T1,T2,T3,T4,T5), T5>)((in (T1,T2,T3,T4,T5) row) => row.Item5),
+                0 => (Projection<(T1,T2,T3,T4,T5), T1>)((in (T1,T2,T3,T4,T5) row) => row.Item1),
+                1 => (Projection<(T1,T2,T3,T4,T5), T2>)((in (T1,T2,T3,T4,T5) row) => row.Item2),
+                2 => (Projection<(T1,T2,T3,T4,T5), T3>)((in (T1,T2,T3,T4,T5) row) => row.Item3),
+                3 => (Projection<(T1,T2,T3,T4,T5), T4>)((in (T1,T2,T3,T4,T5) row) => row.Item4),
+                4 => (Projection<(T1,T2,T3,T4,T5), T5>)((in (T1,T2,T3,T4,T5) row) => row.Item5),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -2614,11 +2677,11 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Mutator<(T1,T2,T3,T4,T5), T1>)((ref (T1,T2,T3,T4,T5) row, in T1 value) => row.Item1 = value),
-                1 => (Table.Mutator<(T1,T2,T3,T4,T5), T2>)((ref (T1,T2,T3,T4,T5) row, in T2 value) => row.Item2 = value),
-                2 => (Table.Mutator<(T1,T2,T3,T4,T5), T3>)((ref (T1,T2,T3,T4,T5) row, in T3 value) => row.Item3 = value),
-                3 => (Table.Mutator<(T1,T2,T3,T4,T5), T4>)((ref (T1,T2,T3,T4,T5) row, in T4 value) => row.Item4 = value),
-                4 => (Table.Mutator<(T1,T2,T3,T4,T5), T5>)((ref (T1,T2,T3,T4,T5) row, in T5 value) => row.Item5 = value),
+                0 => (Mutator<(T1,T2,T3,T4,T5), T1>)((ref (T1,T2,T3,T4,T5) row, in T1 value) => row.Item1 = value),
+                1 => (Mutator<(T1,T2,T3,T4,T5), T2>)((ref (T1,T2,T3,T4,T5) row, in T2 value) => row.Item2 = value),
+                2 => (Mutator<(T1,T2,T3,T4,T5), T3>)((ref (T1,T2,T3,T4,T5) row, in T3 value) => row.Item3 = value),
+                3 => (Mutator<(T1,T2,T3,T4,T5), T4>)((ref (T1,T2,T3,T4,T5) row, in T4 value) => row.Item4 = value),
+                4 => (Mutator<(T1,T2,T3,T4,T5), T5>)((ref (T1,T2,T3,T4,T5) row, in T5 value) => row.Item5 = value),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -2903,13 +2966,13 @@ namespace TED {
         /// <param name="arg6">Sixth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6) {
-            var (header, data) = CsvReader.ReadCsv(path);
+            var (header, data) = ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5, arg6);
             var p = new TablePredicate<T1, T2, T3, T4, T5, T6>(name, arg1, arg2, arg3, arg4, arg5, arg6);
             foreach (var row in data)
-                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
-                    CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]),
-                    CsvReader.ConvertCell<T6>(row[5]));
+                p.AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]),
+                    ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]), ConvertCell<T5>(row[4]),
+                    ConvertCell<T6>(row[5]));
             return p;
         }
 
@@ -2938,6 +3001,19 @@ namespace TED {
             buffer[3] = Stringify(r.Item4);
             buffer[4] = Stringify(r.Item5);
             buffer[5] = Stringify(r.Item6);
+        }
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        internal override void RowToCsv(uint rowNumber, string[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = CsvWriter.Stringify(r.Item1);
+            buffer[1] = CsvWriter.Stringify(r.Item2);
+            buffer[2] = CsvWriter.Stringify(r.Item3);
+            buffer[3] = CsvWriter.Stringify(r.Item4);
+            buffer[4] = CsvWriter.Stringify(r.Item5);
+            buffer[5] = CsvWriter.Stringify(r.Item6);
         }
 
         /// <summary>
@@ -3063,12 +3139,12 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T1>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item1),
-                1 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T2>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item2),
-                2 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T3>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item3),
-                3 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T4>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item4),
-                4 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T5>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item5),
-                5 => (Table.Projection<(T1,T2,T3,T4,T5,T6), T6>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item6),
+                0 => (Projection<(T1,T2,T3,T4,T5,T6), T1>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item1),
+                1 => (Projection<(T1,T2,T3,T4,T5,T6), T2>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item2),
+                2 => (Projection<(T1,T2,T3,T4,T5,T6), T3>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item3),
+                3 => (Projection<(T1,T2,T3,T4,T5,T6), T4>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item4),
+                4 => (Projection<(T1,T2,T3,T4,T5,T6), T5>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item5),
+                5 => (Projection<(T1,T2,T3,T4,T5,T6), T6>)((in (T1,T2,T3,T4,T5,T6) row) => row.Item6),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -3078,12 +3154,12 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T1>)((ref (T1,T2,T3,T4,T5,T6) row, in T1 value) => row.Item1 = value),
-                1 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T2>)((ref (T1,T2,T3,T4,T5,T6) row, in T2 value) => row.Item2 = value),
-                2 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T3>)((ref (T1,T2,T3,T4,T5,T6) row, in T3 value) => row.Item3 = value),
-                3 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T4>)((ref (T1,T2,T3,T4,T5,T6) row, in T4 value) => row.Item4 = value),
-                4 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T5>)((ref (T1,T2,T3,T4,T5,T6) row, in T5 value) => row.Item5 = value),
-                5 => (Table.Mutator<(T1,T2,T3,T4,T5,T6), T6>)((ref (T1,T2,T3,T4,T5,T6) row, in T6 value) => row.Item6 = value),
+                0 => (Mutator<(T1,T2,T3,T4,T5,T6), T1>)((ref (T1,T2,T3,T4,T5,T6) row, in T1 value) => row.Item1 = value),
+                1 => (Mutator<(T1,T2,T3,T4,T5,T6), T2>)((ref (T1,T2,T3,T4,T5,T6) row, in T2 value) => row.Item2 = value),
+                2 => (Mutator<(T1,T2,T3,T4,T5,T6), T3>)((ref (T1,T2,T3,T4,T5,T6) row, in T3 value) => row.Item3 = value),
+                3 => (Mutator<(T1,T2,T3,T4,T5,T6), T4>)((ref (T1,T2,T3,T4,T5,T6) row, in T4 value) => row.Item4 = value),
+                4 => (Mutator<(T1,T2,T3,T4,T5,T6), T5>)((ref (T1,T2,T3,T4,T5,T6) row, in T5 value) => row.Item5 = value),
+                5 => (Mutator<(T1,T2,T3,T4,T5,T6), T6>)((ref (T1,T2,T3,T4,T5,T6) row, in T6 value) => row.Item6 = value),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -3387,13 +3463,13 @@ namespace TED {
         /// <param name="arg7">Seventh argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6, T7> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7) {
-            var (header, data) = CsvReader.ReadCsv(path);
+            var (header, data) = ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             var p = new TablePredicate<T1, T2, T3, T4, T5, T6, T7>(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             foreach (var row in data)
-                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
-                    CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]),
-                    CsvReader.ConvertCell<T6>(row[5]), CsvReader.ConvertCell<T7>(row[6]));
+                p.AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]),
+                    ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]), ConvertCell<T5>(row[4]),
+                    ConvertCell<T6>(row[5]), ConvertCell<T7>(row[6]));
             return p;
         }
 
@@ -3424,6 +3500,20 @@ namespace TED {
             buffer[4] = Stringify(r.Item5);
             buffer[5] = Stringify(r.Item6);
             buffer[6] = Stringify(r.Item7);
+        }
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        internal override void RowToCsv(uint rowNumber, string[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = CsvWriter.Stringify(r.Item1);
+            buffer[1] = CsvWriter.Stringify(r.Item2);
+            buffer[2] = CsvWriter.Stringify(r.Item3);
+            buffer[3] = CsvWriter.Stringify(r.Item4);
+            buffer[4] = CsvWriter.Stringify(r.Item5);
+            buffer[5] = CsvWriter.Stringify(r.Item6);
+            buffer[6] = CsvWriter.Stringify(r.Item7);
         }
 
         /// <summary>
@@ -3552,13 +3642,13 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T1>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item1),
-                1 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T2>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item2),
-                2 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T3>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item3),
-                3 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T4>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item4),
-                4 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T5>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item5),
-                5 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T6>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item6),
-                6 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7), T7>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item7),
+                0 => (Projection<(T1,T2,T3,T4,T5,T6,T7), T1>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item1),
+                1 => (Projection<(T1,T2,T3,T4,T5,T6,T7), T2>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item2),
+                2 => (Projection<(T1,T2,T3,T4,T5,T6,T7), T3>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item3),
+                3 => (Projection<(T1,T2,T3,T4,T5,T6,T7), T4>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item4),
+                4 => (Projection<(T1,T2,T3,T4,T5,T6,T7), T5>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item5),
+                5 => (Projection<(T1,T2,T3,T4,T5,T6,T7), T6>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item6),
+                6 => (Projection<(T1,T2,T3,T4,T5,T6,T7), T7>)((in (T1,T2,T3,T4,T5,T6,T7) row) => row.Item7),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -3568,13 +3658,13 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T1>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T1 value) => row.Item1 = value),
-                1 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T2>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T2 value) => row.Item2 = value),
-                2 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T3>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T3 value) => row.Item3 = value),
-                3 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T4>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T4 value) => row.Item4 = value),
-                4 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T5>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T5 value) => row.Item5 = value),
-                5 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T6>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T6 value) => row.Item6 = value),
-                6 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7), T7>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T7 value) => row.Item7 = value),
+                0 => (Mutator<(T1,T2,T3,T4,T5,T6,T7), T1>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T1 value) => row.Item1 = value),
+                1 => (Mutator<(T1,T2,T3,T4,T5,T6,T7), T2>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T2 value) => row.Item2 = value),
+                2 => (Mutator<(T1,T2,T3,T4,T5,T6,T7), T3>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T3 value) => row.Item3 = value),
+                3 => (Mutator<(T1,T2,T3,T4,T5,T6,T7), T4>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T4 value) => row.Item4 = value),
+                4 => (Mutator<(T1,T2,T3,T4,T5,T6,T7), T5>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T5 value) => row.Item5 = value),
+                5 => (Mutator<(T1,T2,T3,T4,T5,T6,T7), T6>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T6 value) => row.Item6 = value),
+                6 => (Mutator<(T1,T2,T3,T4,T5,T6,T7), T7>)((ref (T1,T2,T3,T4,T5,T6,T7) row, in T7 value) => row.Item7 = value),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -3903,13 +3993,13 @@ namespace TED {
         /// <param name="arg8">Eighth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> FromCsv(string name, string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8) {
-            var (header, data) = CsvReader.ReadCsv(path);
+            var (header, data) = ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             var p = new TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
             foreach (var row in data)
-                p.AddRow(CsvReader.ConvertCell<T1>(row[0]), CsvReader.ConvertCell<T2>(row[1]),
-                    CsvReader.ConvertCell<T3>(row[2]), CsvReader.ConvertCell<T4>(row[3]), CsvReader.ConvertCell<T5>(row[4]),
-                    CsvReader.ConvertCell<T6>(row[5]), CsvReader.ConvertCell<T7>(row[6]), CsvReader.ConvertCell<T8>(row[7]));
+                p.AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]),
+                    ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]), ConvertCell<T5>(row[4]),
+                    ConvertCell<T6>(row[5]), ConvertCell<T7>(row[6]), ConvertCell<T8>(row[7]));
             return p;
         }
 
@@ -3942,6 +4032,21 @@ namespace TED {
             buffer[5] = Stringify(r.Item6);
             buffer[6] = Stringify(r.Item7);
             buffer[7] = Stringify(r.Item8);
+        }
+
+        /// <summary>
+        /// Convert the columns of the specified row to strings and write them to buffer
+        /// </summary>
+        internal override void RowToCsv(uint rowNumber, string[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = CsvWriter.Stringify(r.Item1);
+            buffer[1] = CsvWriter.Stringify(r.Item2);
+            buffer[2] = CsvWriter.Stringify(r.Item3);
+            buffer[3] = CsvWriter.Stringify(r.Item4);
+            buffer[4] = CsvWriter.Stringify(r.Item5);
+            buffer[5] = CsvWriter.Stringify(r.Item6);
+            buffer[6] = CsvWriter.Stringify(r.Item7);
+            buffer[7] = CsvWriter.Stringify(r.Item8);
         }
 
         /// <summary>
@@ -4071,14 +4176,14 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T1>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item1),
-                1 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T2>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item2),
-                2 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T3>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item3),
-                3 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T4>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item4),
-                4 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T5>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item5),
-                5 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T6>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item6),
-                6 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T7>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item7),
-                7 => (Table.Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T8>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item8),
+                0 => (Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T1>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item1),
+                1 => (Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T2>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item2),
+                2 => (Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T3>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item3),
+                3 => (Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T4>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item4),
+                4 => (Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T5>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item5),
+                5 => (Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T6>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item6),
+                6 => (Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T7>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item7),
+                7 => (Projection<(T1,T2,T3,T4,T5,T6,T7,T8), T8>)((in (T1,T2,T3,T4,T5,T6,T7,T8) row) => row.Item8),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
@@ -4088,14 +4193,14 @@ namespace TED {
         {
             return columnNumber switch
             {
-                0 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T1>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T1 value) => row.Item1 = value),
-                1 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T2>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T2 value) => row.Item2 = value),
-                2 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T3>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T3 value) => row.Item3 = value),
-                3 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T4>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T4 value) => row.Item4 = value),
-                4 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T5>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T5 value) => row.Item5 = value),
-                5 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T6>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T6 value) => row.Item6 = value),
-                6 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T7>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T7 value) => row.Item7 = value),
-                7 => (Table.Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T8>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T8 value) => row.Item8 = value),
+                0 => (Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T1>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T1 value) => row.Item1 = value),
+                1 => (Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T2>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T2 value) => row.Item2 = value),
+                2 => (Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T3>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T3 value) => row.Item3 = value),
+                3 => (Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T4>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T4 value) => row.Item4 = value),
+                4 => (Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T5>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T5 value) => row.Item5 = value),
+                5 => (Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T6>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T6 value) => row.Item6 = value),
+                6 => (Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T7>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T7 value) => row.Item7 = value),
+                7 => (Mutator<(T1,T2,T3,T4,T5,T6,T7,T8), T8>)((ref (T1,T2,T3,T4,T5,T6,T7,T8) row, in T8 value) => row.Item8 = value),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in this table")
             };
         }
