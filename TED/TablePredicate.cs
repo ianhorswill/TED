@@ -804,6 +804,31 @@ namespace TED {
 
         internal abstract Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell);
         internal abstract Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2);
+
+        /// <summary>
+        /// Returns a delegate that will test a RowTest delegate for this table that tests whether the specified column has the specified value.
+        /// </summary>
+        public virtual Delegate ColumnTest(int columnNumber, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Set the table to reclaim rows whose specified column have the specified value, when the table runs out of space.
+        /// Reclamation is triggered when the table runs out of space in its current backing array, or when Reclaim() is called
+        /// </summary>
+        /// <param name="targetLoad">If reclamation is triggered because the table is out of space, and the fraction of space used after reclamation is more than this, the table's array will be expanded.</param>
+        public void ReclaimRowsWithColumnValue<T>(Var<T> column, T value, float targetLoad = 0.5f)
+        {
+            TableUntyped.SetReclamationRowTest(ColumnTest(ColumnPositionOfDefaultVariable(column), value));
+            TableUntyped.PostCompactionTargetLoad = targetLoad;
+        }
+
+        /// <summary>
+        /// Force deletion of rows indicated by a previous call to ReclaimRowsWithColumnValue.
+        /// This will not expand the underlying array for the table.
+        /// </summary>
+        public void Reclaim() => TableUntyped.Reclaim();
     }
 
     /// <summary>
@@ -1387,6 +1412,30 @@ namespace TED {
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
             };
         }
+
+        /// <inheritdoc />
+        public override Delegate ColumnTest(int columnNumber, object value)
+        {
+            switch (columnNumber)
+            {
+                case 0:
+                {
+                    var v = (T1)value;
+                    return (Tables.Table.RowTest<(T1, T2)>)((in (T1, T2) row) =>
+                        EqualityComparer<T1>.Default.Equals(row.Item1, v));
+                }
+
+                case 1:
+                {
+                    var v = (T2)value;
+                    return (Tables.Table.RowTest<(T1, T2)>)((in (T1, T2) row) =>
+                        EqualityComparer<T2>.Default.Equals(row.Item2, v));
+                }
+
+                default:
+                    throw new ArgumentException($"There is no column number {columnNumber} in table {Name}");
+            }
+        }
     }
 
 
@@ -1787,6 +1836,37 @@ namespace TED {
                 2 => (Func<uint, TColumn>)(Delegate)(Func<uint,T3>)(rowNum => _table.Data[rowNum].Item3),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
             };
+        }
+
+        /// <inheritdoc />
+        public override Delegate ColumnTest(int columnNumber, object value)
+        {
+            switch (columnNumber)
+            {
+                case 0:
+                {
+                    var v = (T1)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3)>)((in (T1, T2, T3) row) =>
+                        EqualityComparer<T1>.Default.Equals(row.Item1, v));
+                }
+
+                case 1:
+                {
+                    var v = (T2)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3)>)((in (T1, T2, T3) row) =>
+                        EqualityComparer<T2>.Default.Equals(row.Item2, v));
+                }
+
+                case 2:
+                {
+                    var v = (T3)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3)>)((in (T1, T2, T3) row) =>
+                        EqualityComparer<T3>.Default.Equals(row.Item3, v));
+                }
+
+                default:
+                    throw new ArgumentException($"There is no column number {columnNumber} in table {Name}");
+            }
         }
     }
 
@@ -2209,6 +2289,44 @@ namespace TED {
                 3 => (Func<uint, TColumn>)(Delegate)(Func<uint,T4>)(rowNum => _table.Data[rowNum].Item4),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
             };
+        }
+
+        /// <inheritdoc />
+        public override Delegate ColumnTest(int columnNumber, object value)
+        {
+            switch (columnNumber)
+            {
+                case 0:
+                {
+                    var v = (T1)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
+                        EqualityComparer<T1>.Default.Equals(row.Item1, v));
+                }
+
+                case 1:
+                {
+                    var v = (T2)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
+                        EqualityComparer<T2>.Default.Equals(row.Item2, v));
+                }
+
+                case 2:
+                {
+                    var v = (T3)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
+                        EqualityComparer<T3>.Default.Equals(row.Item3, v));
+                }
+
+                case 3:
+                {
+                    var v = (T4)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
+                        EqualityComparer<T4>.Default.Equals(row.Item4, v));
+                }
+
+                default:
+                    throw new ArgumentException($"There is no column number {columnNumber} in table {Name}");
+            }
         }
     }
 
@@ -2653,6 +2771,51 @@ namespace TED {
                 4 => (Func<uint, TColumn>)(Delegate)(Func<uint,T5>)(rowNum => _table.Data[rowNum].Item5),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
             };
+        }
+
+        /// <inheritdoc />
+        public override Delegate ColumnTest(int columnNumber, object value)
+        {
+            switch (columnNumber)
+            {
+                case 0:
+                {
+                    var v = (T1)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
+                        EqualityComparer<T1>.Default.Equals(row.Item1, v));
+                }
+
+                case 1:
+                {
+                    var v = (T2)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
+                        EqualityComparer<T2>.Default.Equals(row.Item2, v));
+                }
+
+                case 2:
+                {
+                    var v = (T3)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
+                        EqualityComparer<T3>.Default.Equals(row.Item3, v));
+                }
+
+                case 3:
+                {
+                    var v = (T4)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
+                        EqualityComparer<T4>.Default.Equals(row.Item4, v));
+                }
+
+                case 4:
+                {
+                    var v = (T5)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
+                        EqualityComparer<T5>.Default.Equals(row.Item5, v));
+                }
+
+                default:
+                    throw new ArgumentException($"There is no column number {columnNumber} in table {Name}");
+            }
         }
     }
 
@@ -3120,6 +3283,58 @@ namespace TED {
                 5 => (Func<uint, TColumn>)(Delegate)(Func<uint,T6>)(rowNum => _table.Data[rowNum].Item6),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
             };
+        }
+
+        /// <inheritdoc />
+        public override Delegate ColumnTest(int columnNumber, object value)
+        {
+            switch (columnNumber)
+            {
+                case 0:
+                {
+                    var v = (T1)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                        EqualityComparer<T1>.Default.Equals(row.Item1, v));
+                }
+
+                case 1:
+                {
+                    var v = (T2)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                        EqualityComparer<T2>.Default.Equals(row.Item2, v));
+                }
+
+                case 2:
+                {
+                    var v = (T3)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                        EqualityComparer<T3>.Default.Equals(row.Item3, v));
+                }
+
+                case 3:
+                {
+                    var v = (T4)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                        EqualityComparer<T4>.Default.Equals(row.Item4, v));
+                }
+
+                case 4:
+                {
+                    var v = (T5)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                        EqualityComparer<T5>.Default.Equals(row.Item5, v));
+                }
+
+                case 5:
+                {
+                    var v = (T6)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                        EqualityComparer<T6>.Default.Equals(row.Item6, v));
+                }
+
+                default:
+                    throw new ArgumentException($"There is no column number {columnNumber} in table {Name}");
+            }
         }
     }
 
@@ -3613,6 +3828,65 @@ namespace TED {
                 6 => (Func<uint, TColumn>)(Delegate)(Func<uint,T7>)(rowNum => _table.Data[rowNum].Item7),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
             };
+        }
+
+        /// <inheritdoc />
+        public override Delegate ColumnTest(int columnNumber, object value)
+        {
+            switch (columnNumber)
+            {
+                case 0:
+                {
+                    var v = (T1)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                        EqualityComparer<T1>.Default.Equals(row.Item1, v));
+                }
+
+                case 1:
+                {
+                    var v = (T2)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                        EqualityComparer<T2>.Default.Equals(row.Item2, v));
+                }
+
+                case 2:
+                {
+                    var v = (T3)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                        EqualityComparer<T3>.Default.Equals(row.Item3, v));
+                }
+
+                case 3:
+                {
+                    var v = (T4)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                        EqualityComparer<T4>.Default.Equals(row.Item4, v));
+                }
+
+                case 4:
+                {
+                    var v = (T5)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                        EqualityComparer<T5>.Default.Equals(row.Item5, v));
+                }
+
+                case 5:
+                {
+                    var v = (T6)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                        EqualityComparer<T6>.Default.Equals(row.Item6, v));
+                }
+
+                case 6:
+                {
+                    var v = (T7)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                        EqualityComparer<T7>.Default.Equals(row.Item7, v));
+                }
+
+                default:
+                    throw new ArgumentException($"There is no column number {columnNumber} in table {Name}");
+            }
         }
     }
 
@@ -4138,6 +4412,72 @@ namespace TED {
                 7 => (Func<uint, TColumn>)(Delegate)(Func<uint,T8>)(rowNum => _table.Data[rowNum].Item8),
                 _ => throw new ArgumentException($"There is no column number {columnNumber} in table {Name}")
             };
+        }
+
+        /// <inheritdoc />
+        public override Delegate ColumnTest(int columnNumber, object value)
+        {
+            switch (columnNumber)
+            {
+                case 0:
+                {
+                    var v = (T1)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                        EqualityComparer<T1>.Default.Equals(row.Item1, v));
+                }
+
+                case 1:
+                {
+                    var v = (T2)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                        EqualityComparer<T2>.Default.Equals(row.Item2, v));
+                }
+
+                case 2:
+                {
+                    var v = (T3)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                        EqualityComparer<T3>.Default.Equals(row.Item3, v));
+                }
+
+                case 3:
+                {
+                    var v = (T4)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                        EqualityComparer<T4>.Default.Equals(row.Item4, v));
+                }
+
+                case 4:
+                {
+                    var v = (T5)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                        EqualityComparer<T5>.Default.Equals(row.Item5, v));
+                }
+
+                case 5:
+                {
+                    var v = (T6)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                        EqualityComparer<T6>.Default.Equals(row.Item6, v));
+                }
+
+                case 6:
+                {
+                    var v = (T7)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                        EqualityComparer<T7>.Default.Equals(row.Item7, v));
+                }
+
+                case 7:
+                {
+                    var v = (T8)value;
+                    return (Tables.Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                        EqualityComparer<T8>.Default.Equals(row.Item8, v));
+                }
+
+                default:
+                    throw new ArgumentException($"There is no column number {columnNumber} in table {Name}");
+            }
         }
     }
 }
