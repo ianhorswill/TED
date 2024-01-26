@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using TED;
 using TED.Tables;
 using static TED.Language;
@@ -146,7 +145,9 @@ namespace Tests
 
         enum DayOfWeek
         {
+            // ReSharper disable UnusedMember.Local
             Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+            // ReSharper restore UnusedMember.Local
         };
 
         [TestMethod]
@@ -199,7 +200,7 @@ namespace Tests
         {
 
             var t = new Table<int>();
-            var index = new GeneralIndex<int, int>(null!, t, new[] { 0 }, (in int n)=>n)!;
+            var index = new GeneralIndex<int, int>(null!, t, new[] { 0 }, (in int n)=>n);
             t.AddIndex(index);
             index.EnableMutation();
 
