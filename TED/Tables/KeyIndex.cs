@@ -96,6 +96,8 @@ namespace TED.Tables
             return Table.NoRow;
         }
 
+        internal override uint RowWithKey(in TRow rowData) => RowWithKey(projection(in rowData));
+
         /// <summary>
         /// Yes, this is a key index
         /// </summary>

@@ -83,7 +83,7 @@ namespace TED.Tables
         /// List of all the Indices into the table, be they KeyIndex or GeneralIndex.
         /// </summary>
         internal readonly List<TableIndex> Indices = new List<TableIndex>();
-
+        
         /// <summary>
         /// If true, the rows of the table are required to be different from one another.
         /// In other words, this is a set rather than a bag.  Unique tables keep a hash table
@@ -99,10 +99,13 @@ namespace TED.Tables
         /// </summary>
         internal TableIndex AddIndex(TableIndex i)
         {
+            if (i.IsKey) SetKeyIndex(i);
             Indices.Add(i);
             Indices.Sort();
             return i;
         }
+
+        protected abstract void SetKeyIndex(TableIndex tableIndex);
 
         internal void UpdateIndexOrdering()
         {
@@ -171,6 +174,17 @@ namespace TED.Tables
         //bool SpaceRemaining => Length < data.Length;
 
         private RowSet? rowSet;
+
+        
+        /// <summary>
+        /// The key index for this table, if any.
+        /// </summary>
+        internal TableIndex<T>? KeyIndex;
+
+        protected override void SetKeyIndex(TableIndex tableIndex)
+        {
+            KeyIndex = (TableIndex<T>)tableIndex;
+        }
 
         /// <summary>
         /// If defined, then when the table runs out of space, it will delete all rows satisfying this predicate
@@ -298,6 +312,25 @@ namespace TED.Tables
                     i.Add(Length);
                 Length++;
             }
+        }
+
+        internal void ReplaceRow(uint row, in T item)
+        {
+            foreach (var i in Indices)
+                if (!i.IsKey)
+                    i.Remove(row);
+            Data[row] = item;
+            foreach (var i in Indices)
+                if (!i.IsKey)
+                    i.Add(row);
+        }
+
+        internal void AddOrReplace(in T item)
+        {
+            var row = KeyIndex!.RowWithKey(in item);
+            if (row == Table.NoRow)
+                Add(item);
+            else ReplaceRow(row, item);
         }
 
         /// <summary>
