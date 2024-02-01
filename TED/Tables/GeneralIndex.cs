@@ -338,7 +338,7 @@ namespace TED.Tables
             }
         }
 
-        internal void Remove(uint row)
+        internal override void Remove(uint row)
         {
             uint b;
             var value = projection(table.Data[row]);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using TED.Interpreter;
 
 namespace TED.Tables
@@ -115,6 +116,11 @@ namespace TED.Tables
             if (ReferenceEquals(this, other)) return 0;
             return -Priority.CompareTo(other!.Priority);
         }
+
+        internal virtual void Remove(uint rowNumber)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>
@@ -122,7 +128,7 @@ namespace TED.Tables
     /// </summary>
     /// <typeparam name="TRow">Type of the rows of the table</typeparam>
     /// <typeparam name="TColumn">Type of the column being indexed</typeparam>
-    public abstract class TableIndex<TRow, TColumn> : TableIndex
+    public abstract class TableIndex<TRow, TColumn> : TableIndex<TRow>
     {
         /// <inheritdoc />
         protected TableIndex(TablePredicate p, int[] columnNumbers, Table.Projection<TRow,TColumn> projection) 
@@ -138,6 +144,28 @@ namespace TED.Tables
         /// </summary>
         // ReSharper disable once InconsistentNaming
         protected readonly Table.Projection<TRow,TColumn> projection;
+    }
+
+    /// <summary>
+    /// Partially typed base class for table indices
+    /// This contains members that need to know the row type but not the column type
+    /// </summary>
+    /// <typeparam name="TRow"></typeparam>
+    public abstract class TableIndex<TRow> : TableIndex
+    {
+        /// <inheritdoc />
+        protected TableIndex(TablePredicate p, int[] columnNumbers) : base(p, columnNumbers) { }
+
+        /// <summary>
+        /// For key indexes only
+        /// Return the row number of the containing the same key as rowData, if any
+        /// </summary>
+        /// <param name="rowData">Row data</param>
+        /// <returns>Row number of row containing the same key as rowData, or Table.NoRow, if it doesn't appear.</returns>
+        internal virtual uint RowWithKey(in TRow rowData)
+        {
+            throw new NotSupportedException("KeyRow may only be invoked on KeyIndexes.");
+        }
     }
 
 }

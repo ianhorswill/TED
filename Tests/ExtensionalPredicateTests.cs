@@ -165,5 +165,25 @@ namespace Tests
             s.Update();
             CollectionAssert.AreEqual(new [] { ("Jane", "Byrne", 2), ("Bruce", "Byrne", 3) }, T.ToArray());
         }
+
+        [TestMethod]
+        public void OverwriteModeTest()
+        {
+            var i = (Var<int>)"i";
+            var j = (Var<int>)"j";
+            var input = new TablePredicate<int, int>("input", i, j);
+            for (int k = 0; k < 100; k++)
+                input.AddRow(k % 10, k);
+            var p = new TablePredicate<int, int>("p", i.Key, j) { Overwrite = true };
+            p.Append(input);
+            Assert.AreEqual(10u, p.Length);
+            var counter = 90;
+            foreach (var row in p)
+            {
+                Assert.AreEqual(counter%10, row.Item1);
+                Assert.AreEqual(counter, row.Item2);
+                counter++;
+            }
+        }
     }
 }

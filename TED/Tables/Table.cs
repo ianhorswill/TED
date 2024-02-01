@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -85,7 +83,7 @@ namespace TED.Tables
         /// List of all the Indices into the table, be they KeyIndex or GeneralIndex.
         /// </summary>
         internal readonly List<TableIndex> Indices = new List<TableIndex>();
-
+        
         /// <summary>
         /// If true, the rows of the table are required to be different from one another.
         /// In other words, this is a set rather than a bag.  Unique tables keep a hash table
@@ -101,16 +99,40 @@ namespace TED.Tables
         /// </summary>
         internal TableIndex AddIndex(TableIndex i)
         {
+            if (i.IsKey) SetKeyIndex(i);
             Indices.Add(i);
             Indices.Sort();
             return i;
         }
 
+        protected abstract void SetKeyIndex(TableIndex tableIndex);
+
         internal void UpdateIndexOrdering()
         {
             Indices.Sort();
         }
+
+        public delegate bool RowTest<T>(in T row);
+
+        /// <summary>
+        /// Set the test used to decide if a row should be reclaimed
+        /// </summary>
+        /// <param name="t">A RowTest that returns true if a row should be reclaimed</param>
+        public abstract void SetReclamationRowTest(Delegate t);
+
+        /// <summary>
+        /// Force deletion of reclaimable rows.
+        /// This will not grow the underlying array.
+        /// </summary>
+        public abstract void Reclaim();
+
+        /// <summary>
+        /// For use with tables that support compaction. Target fraction of space that should be used after compaction.
+        /// If more than this fraction of space is in use, the table will expand its space.  Default is 0.5 (50%).
+        /// </summary>
+        public float PostCompactionTargetLoad = 0.5f;
     }
+
     /// <summary>
     /// A list of rows that hold the extension of a predicate
     /// </summary>
@@ -153,6 +175,27 @@ namespace TED.Tables
 
         private RowSet? rowSet;
 
+        
+        /// <summary>
+        /// The key index for this table, if any.
+        /// </summary>
+        internal TableIndex<T>? KeyIndex;
+
+        protected override void SetKeyIndex(TableIndex tableIndex)
+        {
+            KeyIndex = (TableIndex<T>)tableIndex;
+        }
+
+        /// <summary>
+        /// If defined, then when the table runs out of space, it will delete all rows satisfying this predicate
+        /// </summary>
+        public RowTest<T>? ReclaimRowTest;
+
+        public override void SetReclamationRowTest(Delegate t)
+        {
+            ReclaimRowTest = (RowTest<T>)t;
+        }
+
         public override void Clear()
 
         {
@@ -171,12 +214,84 @@ namespace TED.Tables
         {
             if (Length + extra > Data.Length)
             {
-                var newArray = new T[Data.Length * 2];
-                Array.Copy(Data, newArray, Data.Length);
-                Data = newArray;
+                if (ReclaimRowTest == null)
+                {
+                    // Easy case: copy everything over as a block
+                    var newArray = new T[Data.Length * 2];
+                    Array.Copy(Data, newArray, Data.Length);
+                    Data = newArray;
+                }
+                else 
+                    // Hard case: copy only the unreclaimed rows
+                    ReclaimRows();
+
                 rowSet?.Expand();
                 foreach (var i in Indices) i.Expand();
             }
+        }
+
+        private void ReclaimRows()
+        {
+            var liveRows = MakeCompactionMap();
+            var loadFactor = ((float)liveRows)/Data.Length;
+            var destination = Data;
+            if (loadFactor > PostCompactionTargetLoad)
+                destination = new T[Data.Length * 2];
+            CopyUsingCompactionMap(destination);
+        }
+
+        private List<(int start, int length)>? compactionMap;
+
+        private int MakeCompactionMap()
+        {
+            if (compactionMap == null)
+                compactionMap = new List<(int start, int length)>();
+            else
+                compactionMap.Clear();
+
+            var length = 0;
+            var blockStart = 0;
+            while (blockStart < Length)
+            {
+                // Find the start of the next block of preserved rows
+                for (; blockStart < Length && ReclaimRowTest!(Data[blockStart]); blockStart++)
+                {
+                }
+
+                if (blockStart == Length)
+                    break;
+                // Find the end of the block
+                var i = blockStart + 1;
+                for (; i < Length && !ReclaimRowTest!(Data[i]); i++)
+                {
+                }
+
+                var blockLength = i - blockStart;
+                compactionMap.Add((blockStart, blockLength));
+                blockStart += blockLength;
+                length += blockLength;
+            }
+
+            return length;
+        }
+
+        private void CopyUsingCompactionMap(T[] array)
+        {
+            var dest = 0;
+            foreach (var block in compactionMap!)
+            {
+                Array.Copy(Data, block.start, array, dest, block.length);
+                dest += block.length;
+            }
+
+            Data = array;
+            Length = (uint)dest;
+        }
+
+        public override void Reclaim()
+        {
+            MakeCompactionMap();
+            CopyUsingCompactionMap(Data);
         }
 
         /// <summary>
@@ -197,6 +312,25 @@ namespace TED.Tables
                     i.Add(Length);
                 Length++;
             }
+        }
+
+        internal void ReplaceRow(uint row, in T item)
+        {
+            foreach (var i in Indices)
+                if (!i.IsKey)
+                    i.Remove(row);
+            Data[row] = item;
+            foreach (var i in Indices)
+                if (!i.IsKey)
+                    i.Add(row);
+        }
+
+        internal void AddOrReplace(in T item)
+        {
+            var row = KeyIndex!.RowWithKey(in item);
+            if (row == Table.NoRow)
+                Add(item);
+            else ReplaceRow(row, item);
         }
 
         /// <summary>

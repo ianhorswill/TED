@@ -145,7 +145,9 @@ namespace Tests
 
         enum DayOfWeek
         {
+            // ReSharper disable UnusedMember.Local
             Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+            // ReSharper restore UnusedMember.Local
         };
 
         [TestMethod]
@@ -198,7 +200,7 @@ namespace Tests
         {
 
             var t = new Table<int>();
-            var index = new GeneralIndex<int, int>(null!, t, new[] { 0 }, (in int n)=>n)!;
+            var index = new GeneralIndex<int, int>(null!, t, new[] { 0 }, (in int n)=>n);
             t.AddIndex(index);
             index.EnableMutation();
 
@@ -298,6 +300,44 @@ namespace Tests
             var nKey = Table.KeyIndex(n);
             foreach (var i in nums)
                 Assert.AreEqual(i+1, nKey[i].Item2);
+        }
+
+        [TestMethod]
+        public void ReclamationTest()
+        {
+            var t = new Table<(int, bool)>() { ReclaimRowTest = (in (int, bool) row) => !row.Item2 };
+            // Add rows for numbers from 0 to 99, but mark odd numbers for reclamation
+            for (var i = 0; i < 100; i++)
+                t.Add((i, i%2 == 0));
+            // Make sure at least the first 50 entries are compacted.
+            var counter = 0;
+            foreach (var pair in t)
+            {
+                if (pair != (counter, true))
+                {
+                    Assert.IsTrue(counter > 50);
+                    break;
+                }
+                counter += 2;
+            }
+            // Now force compact the rest
+            t.Reclaim();
+            Assert.AreEqual(50u, t.Length);
+            counter = 0;
+            foreach (var pair in t)
+            {
+                Assert.AreEqual((counter, true), pair);
+                counter += 2;
+            }
+            // Now just to be paranoid, make sure that reclaiming a table with no reclaimable rows doesn't do anything bad.
+            t.Reclaim();
+            Assert.AreEqual(50u, t.Length);
+            counter = 0;
+            foreach (var pair in t)
+            {
+                Assert.AreEqual((counter, true), pair);
+                counter += 2;
+            }
         }
     }
 }
