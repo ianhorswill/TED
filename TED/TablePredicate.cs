@@ -500,6 +500,13 @@ namespace TED {
         /// </summary>
         /// <param name="updateFn"></param>
         public delegate void Update<T>(ref T updateFn);
+
+        /// <summary>
+        /// If adding a row with the same key as an existing row, overwrite the original row rather
+        /// than throwing an exception.
+        /// This requires that there be exactly one key index.
+        /// </summary>
+        public bool Overwrite;
         
         /// <summary>
         /// Append all the rows of the tables in Inputs to this table
@@ -1265,7 +1272,10 @@ namespace TED {
         public void Append(TablePredicate<T1, T2> t) {
             for (var i = 0u; i < t._table.Length; i++) {
                 var row = t._table.PositionReference(i);
-                AddRow(row.Item1, row.Item2);
+                if (Overwrite)
+                    Table.AddOrReplace(row);
+                else
+                    Table.Add(row);
             }
         }
 
@@ -1733,7 +1743,10 @@ namespace TED {
         public void Append(TablePredicate<T1, T2, T3> t) {
             for (var i = 0u; i < t._table.Length; i++) {
                 var row = t._table.PositionReference(i);
-                AddRow(row.Item1, row.Item2, row.Item3);
+                if (Overwrite)
+                    Table.AddOrReplace(row);
+                else
+                    Table.Add(row);
             }
         }
 
@@ -2190,7 +2203,10 @@ namespace TED {
         public void Append(TablePredicate<T1, T2, T3, T4> t) {
             for (var i = 0u; i < t._table.Length; i++) {
                 var row = t._table.PositionReference(i);
-                AddRow(row.Item1, row.Item2, row.Item3, row.Item4);
+                if (Overwrite)
+                    Table.AddOrReplace(row);
+                else
+                    Table.Add(row);
             }
         }
 
@@ -2678,7 +2694,10 @@ namespace TED {
         public void Append(TablePredicate<T1, T2, T3, T4, T5> t) {
             for (var i = 0u; i < t._table.Length; i++) {
                 var row = t._table.PositionReference(i);
-                AddRow(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5);
+                if (Overwrite)
+                    Table.AddOrReplace(row);
+                else
+                    Table.Add(row);
             }
         }
 
@@ -3199,7 +3218,10 @@ namespace TED {
         public void Append(TablePredicate<T1, T2, T3, T4, T5, T6> t) {
             for (var i = 0u; i < t._table.Length; i++) {
                 var row = t._table.PositionReference(i);
-                AddRow(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6);
+                if (Overwrite)
+                    Table.AddOrReplace(row);
+                else
+                    Table.Add(row);
             }
         }
 
@@ -3751,7 +3773,10 @@ namespace TED {
         public void Append(TablePredicate<T1, T2, T3, T4, T5, T6, T7> t) {
             for (var i = 0u; i < t._table.Length; i++) {
                 var row = t._table.PositionReference(i);
-                AddRow(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7);
+                if (Overwrite)
+                    Table.AddOrReplace(row);
+                else
+                    Table.Add(row);
             }
         }
 
@@ -4343,7 +4368,10 @@ namespace TED {
         public void Append(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> t) {
             for (var i = 0u; i < t._table.Length; i++) {
                 var row = t._table.PositionReference(i);
-                AddRow(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8);
+                if (Overwrite)
+                    Table.AddOrReplace(row);
+                else
+                    Table.Add(row);
             }
         }
 
