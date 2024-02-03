@@ -211,6 +211,12 @@ namespace TED.Tables
         private uint[]? previousRow;
 
         /// <summary>
+        /// Number keys that have been completely removed since we last reindexed.
+        /// We need to track this since it's possible for the table to fill with deletions, making lookups loop infinitely.
+        /// </summary>
+        private int completeDeletions;
+
+        /// <summary>
         /// The length of the buckets array is always a power of 2.  Mask is the length-1, so we can easily
         /// project a hash value into a bucket number by and'ing the hash value with the mask.
         /// </summary>
@@ -246,10 +252,13 @@ namespace TED.Tables
                 Debug.Assert((mask & capacity) == 0, "Capacity must be a power of 2");
             }
 
-            Reindex();
+            if (p.Overwrite)
+                EnableMutation();
+            else
+                Reindex();
         }
 
-        public void EnableMutation()
+        internal override void EnableMutation()
         {
             if (previousRow != null)
                 return;
@@ -308,6 +317,14 @@ namespace TED.Tables
         /// <param name="row">Row number of the row we're adding</param>
         internal override void Add(uint row)
         {
+            if (completeDeletions > buckets.Length / 4)
+            {
+                Clear();
+                // The length of the table has not yet been incremented, so this won't add the new row yet.
+                Reindex();
+            }
+
+            // Add the new row
             uint b;
             var value = projection(table.Data[row]);
             // Find the first bucket which either has this value, or which is empty
@@ -364,6 +381,7 @@ namespace TED.Tables
             {
                 // It was the only row in the list
                 buckets[b].firstRow = Table.DeletedRow;
+                completeDeletions++;
             }
             else
             {
@@ -405,6 +423,7 @@ namespace TED.Tables
         /// </summary>
         internal override void Reindex()
         {
+            completeDeletions = 0;
             // Build the initial index
             for (var i = 0u; i < table.Length; i++)
                 Add(i);

@@ -330,7 +330,8 @@ namespace TED.Tables
             var row = KeyIndex!.RowWithKey(in item);
             if (row == Table.NoRow)
                 Add(item);
-            else ReplaceRow(row, item);
+            else
+                ReplaceRow(row, item);
         }
 
         /// <summary>
