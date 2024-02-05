@@ -510,12 +510,25 @@ namespace TED {
         /// <param name="updateFn"></param>
         public delegate void Update<T>(ref T updateFn);
 
+        private bool _overwrite;
+
         /// <summary>
         /// If adding a row with the same key as an existing row, overwrite the original row rather
         /// than throwing an exception.
         /// This requires that there be exactly one key index.
         /// </summary>
-        public bool Overwrite;
+        public bool Overwrite
+        {
+            get => _overwrite;
+            set
+            {
+                _overwrite = value;
+                if (value)
+                    foreach (var i in Indices)
+                        if (!i.IsKey)
+                            i.EnableMutation();
+            }
+        }
         
         /// <summary>
         /// Append all the rows of the tables in Inputs to this table

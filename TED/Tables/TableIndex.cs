@@ -121,6 +121,11 @@ namespace TED.Tables
         {
             throw new NotImplementedException();
         }
+
+        internal virtual void EnableMutation()
+        {
+            throw new InvalidOperationException("Mutation is not supported on this type of index");
+        }
     }
 
     /// <summary>

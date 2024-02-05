@@ -112,8 +112,10 @@ namespace Tests
         [TestMethod]
         public void GeneralIndexTest()
         {
-            var t = new Table<int>();
-            var index = new GeneralIndex<int, int>(null!, t, new[] { 0 }, (in int n)=>n);
+            var n = (Var<int>)"n";
+            var p = new TablePredicate<int>("p", n);
+            var t = p.Table;
+            var index = new GeneralIndex<int, int>(p, t, new[] { 0 }, (in int n)=>n);
             t.AddIndex(index);
             for (var i = 0; i < 1025; i++)
             {
@@ -153,8 +155,11 @@ namespace Tests
         [TestMethod]
         public void GeneralIndexEnumeratedType()
         {
-            var t = new Table<(int, DayOfWeek)>();
-            var index = new GeneralIndex<(int, DayOfWeek), DayOfWeek>(null!, t, new[] { 0 }, (in (int, DayOfWeek) r)=>r.Item2);
+            var n = (Var<int>)"n";
+            var dow = (Var<DayOfWeek>)"dow";
+            var p = new TablePredicate<int, DayOfWeek>("p", n, dow);
+            var t = p.Table;
+            var index = new GeneralIndex<(int, DayOfWeek), DayOfWeek>(p, t, new[] { 0 }, (in (int, DayOfWeek) r)=>r.Item2);
             t.AddIndex(index);
             for (var i = 0; i < 1025; i++)
             {
@@ -167,8 +172,10 @@ namespace Tests
         [TestMethod]
         public void KeyCounts()
         {
-            var t = new Table<int>();
-            var index = new GeneralIndex<int, int>(null!, t, new[] { 0 }, (in int n)=>n);
+            var n = (Var<int>)"n";
+            var p = new TablePredicate<int>("p", n);
+            var t = p.Table;
+            var index = new GeneralIndex<int, int>(p, t, new[] { 0 }, (in int n)=>n);
             t.AddIndex(index);
             for (var i = 0; i < 100; i++)
             {
@@ -199,8 +206,10 @@ namespace Tests
         public void IndexDeletionTest()
         {
 
-            var t = new Table<int>();
-            var index = new GeneralIndex<int, int>(null!, t, new[] { 0 }, (in int n)=>n);
+            var n = (Var<int>)"n";
+            var p = new TablePredicate<int>("p", n);
+            var t = p.Table;
+            var index = new GeneralIndex<int, int>(p, t, new[] { 0 }, (in int n)=>n);
             t.AddIndex(index);
             index.EnableMutation();
 
