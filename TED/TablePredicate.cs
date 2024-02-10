@@ -534,6 +534,15 @@ namespace TED {
         /// <param name="path">Path to where the csv file should be written</param>
         public void ToCsv(string path) => TableToCsv(path, this);
 
+        /// <summary>Load CSV contents into the table that calls this load</summary>
+        /// <param name="name">Name of the csv file (if different from the name of the table)</param>
+        /// <param name="path">Path to the folder where the CSV file is (with trailing slash)</param>
+        public abstract void LoadCsv(string name, string path);
+
+        /// <summary>Load CSV contents into the table that calls this load</summary>
+        /// <param name="path">Path to the folder where the CSV file containing this tables data is (with trailing slash)</param>
+        public void LoadCsv(string path) => LoadCsv(Name, path);
+
         /// <summary>
         /// Call the specified function on each row of the table, allowing it to overwrite them
         /// </summary>
@@ -973,7 +982,7 @@ namespace TED {
         /// <param name="arg1">Default argument to the predicate</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1> FromCsv(string name, string path, IColumnSpec<T1> arg1) {
-            var (header, data) = ReadCsv(path);
+            (var header, var data) = ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1);
             var p = new TablePredicate<T1>(name, arg1);
             foreach (var row in data)
@@ -988,6 +997,14 @@ namespace TED {
         /// <param name="arg1">Argument to the predicate</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1> FromCsv(string path, IColumnSpec<T1> arg1) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1);
+
+        /// <inheritdoc />
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new []{path, name}) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0]);
+            Clear();
+            foreach (var row in data) AddRow(ConvertCell<T1>(row[0]));
+        }
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<T1> _table = new Table<T1>();
@@ -1287,7 +1304,6 @@ namespace TED {
             return p;
         }
 
-
         /// <summary>
         /// Read an extensional predicate from a CSV file
         /// </summary>
@@ -1302,6 +1318,13 @@ namespace TED {
             var r = Table.PositionReference(rowNumber);
             buffer[0] = r.Item1;
             buffer[1] = r.Item2;
+        }
+        
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1]);
+            Clear();
+            foreach (var row in data) AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]));
         }
 
         /// <summary>
@@ -1780,6 +1803,14 @@ namespace TED {
             buffer[1] = r.Item2;
             buffer[2] = r.Item3;
         }
+        
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], 
+                                 (IColumnSpec<T2>)DefaultVariables[1], (IColumnSpec<T3>)DefaultVariables[2]);
+            Clear();
+            foreach (var row in data) AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]));
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -2246,6 +2277,15 @@ namespace TED {
             buffer[1] = r.Item2;
             buffer[2] = r.Item3;
             buffer[3] = r.Item4;
+        }
+        
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1], 
+                                 (IColumnSpec<T3>)DefaultVariables[2], (IColumnSpec<T4>)DefaultVariables[3]);
+            Clear();
+            foreach (var row in data) 
+                AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]));
         }
 
         /// <summary>
@@ -2744,6 +2784,15 @@ namespace TED {
             buffer[2] = r.Item3;
             buffer[3] = r.Item4;
             buffer[4] = r.Item5;
+        }
+        
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1],
+                                 (IColumnSpec<T3>)DefaultVariables[2], (IColumnSpec<T4>)DefaultVariables[3], (IColumnSpec<T5>)DefaultVariables[4]);
+            Clear();
+            foreach (var row in data) 
+                AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]), ConvertCell<T5>(row[4]));
         }
 
         /// <summary>
@@ -3276,6 +3325,16 @@ namespace TED {
             buffer[3] = r.Item4;
             buffer[4] = r.Item5;
             buffer[5] = r.Item6;
+        }
+        
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1], (IColumnSpec<T3>)DefaultVariables[2], 
+                                 (IColumnSpec<T4>)DefaultVariables[3], (IColumnSpec<T5>)DefaultVariables[4], (IColumnSpec<T6>)DefaultVariables[5]);
+            Clear();
+            foreach (var row in data) 
+                AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), 
+                       ConvertCell<T4>(row[3]), ConvertCell<T5>(row[4]), ConvertCell<T6>(row[5]));
         }
 
         /// <summary>
@@ -3840,6 +3899,16 @@ namespace TED {
             buffer[4] = r.Item5;
             buffer[5] = r.Item6;
             buffer[6] = r.Item7;
+        }
+        
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1], (IColumnSpec<T3>)DefaultVariables[2],
+                                 (IColumnSpec<T4>)DefaultVariables[3], (IColumnSpec<T5>)DefaultVariables[4], (IColumnSpec<T6>)DefaultVariables[5], (IColumnSpec<T7>)DefaultVariables[6]);
+            Clear();
+            foreach (var row in data)
+                AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]), 
+                       ConvertCell<T5>(row[4]), ConvertCell<T6>(row[5]), ConvertCell<T7>(row[6]));
         }
 
         /// <summary>
@@ -4445,6 +4514,16 @@ namespace TED {
             buffer[5] = r.Item6;
             buffer[6] = r.Item7;
             buffer[7] = r.Item8;
+        }
+        
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1], (IColumnSpec<T3>)DefaultVariables[2], (IColumnSpec<T4>)DefaultVariables[3], 
+                                 (IColumnSpec<T5>)DefaultVariables[4], (IColumnSpec<T6>)DefaultVariables[5], (IColumnSpec<T7>)DefaultVariables[6], (IColumnSpec<T8>)DefaultVariables[7]);
+            Clear();
+            foreach (var row in data)
+                AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]),
+                       ConvertCell<T5>(row[4]), ConvertCell<T6>(row[5]), ConvertCell<T7>(row[6]), ConvertCell<T8>(row[7]));
         }
 
         /// <summary>

@@ -43,7 +43,7 @@ namespace TED.Utilities {
 
         /// <summary> Moves the cell string buffer into the row buffer </summary>
         private static void AddCellToRow() {
-            RowBuffer.Add(CellBuffer.ToString());
+            RowBuffer.Add(CellBuffer.ToString().Trim());
             CellBuffer.Clear();
         }
 
@@ -103,23 +103,10 @@ namespace TED.Utilities {
             while (!End) rows.Add(GetRow());
             return (rows[0], rows.Skip(1).ToArray());
         }
-
-        #region Parsing
+        
         /// <summary> Mapping of types to functions that convert a string to the specified type. </summary>
         private static readonly Dictionary<Type, Func<string, object>> ParserTable =
             new Dictionary<Type, Func<string, object>>();
-
-        private static object ConvertCellInternal(string cell, Type t) =>
-            ParserTable.TryGetValue(t, out var parser) ? parser(cell) :
-            t == typeof(string) ? cell :
-            t == typeof(int) ? int.Parse(cell) :
-            t == typeof(uint) ? uint.Parse(cell) :
-            t == typeof(double) ? double.Parse(cell) :
-            t == typeof(float) ? float.Parse(cell) :
-            t == typeof(bool) ? bool.Parse(cell) :
-            t.IsEnum ? Parse(t, cell, true) :
-            throw new ArgumentException($"Can't convert cells of type {t.Name}");
-        #endregion
 
         /// <summary>
         /// Assigns a custom method for converting the string in a cell to a particular data type.
@@ -127,11 +114,35 @@ namespace TED.Utilities {
         /// <param name="t">Type to be parsed</param>
         /// <param name="parser">Function that will return the object given the string</param>
         public static void DeclareParser(Type t, Func<string, object> parser) => ParserTable[t] = parser;
-        
+
+        /// <summary> Try to convert a string representation of a value to a specific type. </summary>
+        /// <param name="t">Type to convert the string to</param>
+        /// <param name="input">String to be converted to type T</param>
+        /// <param name="result">Object of type T with value converted from the cell string if successful, otherwise null</param>
+        public static void TryParse(Type t, string input, out object? result) => 
+            result = ParserTable.TryGetValue(t, out var parser) ? parser(input) : null;
+
         /// <summary> Convert a string representation of a value to a specific type. </summary>
         /// <typeparam name="T">Type to convert the string to</typeparam>
         /// <param name="cell">String to be converted to type T</param>
         /// <returns>Object of type T with value converted from the cell string</returns>
         public static T ConvertCell<T>(string cell) => (T)ConvertCellInternal(cell, typeof(T));
+
+        private static object ConvertCellInternal(string cell, Type t) =>
+            ParserTable.TryGetValue(t, out var parser) ? parser(cell) :
+            t == typeof(string) ? cell :
+            t == typeof(int) ? int.Parse(cell) :
+            t == typeof(uint) ? uint.Parse(cell) :
+            t == typeof(short) ? short.Parse(cell) :
+            t == typeof(ushort) ? ushort.Parse(cell) :
+            t == typeof(sbyte) ? sbyte.Parse(cell) :
+            t == typeof(byte) ? byte.Parse(cell) :
+            t == typeof(long) ? long.Parse(cell) :
+            t == typeof(ulong) ? ulong.Parse(cell) :
+            t == typeof(double) ? double.Parse(cell) :
+            t == typeof(float) ? float.Parse(cell) :
+            t == typeof(bool) ? bool.Parse(cell) :
+            t.IsEnum ? Parse(t, cell, true) :
+            throw new ArgumentException($"Can't convert cells of type {t.Name}");
     }
 }
