@@ -143,6 +143,11 @@ namespace TED {
         public readonly IVariable[] DefaultVariables;
 
         /// <summary>
+        /// Number of arguments to the predicate
+        /// </summary>
+        public int Arity => DefaultVariables.Length;
+
+        /// <summary>
         /// Returns a goal of the predicate applied to the specified arguments
         /// </summary>
         /// <param name="args">Arguments to the predicate</param>
@@ -459,18 +464,52 @@ namespace TED {
         protected static string Stringify<T>(in T value) => value == null ? "null" : value.ToString();
 
         /// <summary>
-        /// Write the columns of the specified tuple in to the specified array of strings
+        /// Write the columns of the specified row into the specified array
         /// </summary>
         /// <param name="rowNumber">Row number within the table</param>
-        /// <param name="buffer">Buffer in which to write the string forms</param>
-        public virtual void RowToStrings(uint rowNumber, string[] buffer) { }
+        /// <param name="buffer">Buffer in which to write the row data</param>
+        public abstract void GetUntypedRowData(uint rowNumber, object?[] buffer);
+
+        /// <summary>
+        /// Enumerate all rows of the table as object?[] arrays.
+        /// Note that this will box any value types in columns, so it is potentially expensive.
+        /// </summary>
+        /// <param name="reuseBuffer">If true, the save object?[] array will be reused for each returned result.  Otherwise, new buffers will be allocated for each row.</param>
+        public IEnumerable<object?[]> UntypedRows(bool reuseBuffer = false)
+        {
+            if (reuseBuffer)
+            {
+                var buffer = new object?[Arity];
+                for (uint i = 0; i < Length; i++)
+                {
+                    GetUntypedRowData(i, buffer);
+                    yield return buffer;
+                }
+            }
+            else
+            {
+                for (uint i = 0; i < Length; i++)
+                {
+                    var buffer = new object?[Arity];
+                    GetUntypedRowData(i, buffer);
+                    yield return buffer;
+                }
+            }
+        }
 
         /// <summary>
         /// Write the columns of the specified tuple in to the specified array of strings
         /// </summary>
         /// <param name="rowNumber">Row number within the table</param>
         /// <param name="buffer">Buffer in which to write the string forms</param>
-        internal virtual void RowToCsv(uint rowNumber, string[] buffer) { }
+        public abstract void RowToStrings(uint rowNumber, string[] buffer);
+
+        /// <summary>
+        /// Write the columns of the specified tuple in to the specified array of strings
+        /// </summary>
+        /// <param name="rowNumber">Row number within the table</param>
+        /// <param name="buffer">Buffer in which to write the string forms</param>
+        internal abstract void RowToCsv(uint rowNumber, string[] buffer);
 
         /// <summary>
         /// Number of tuples (rows) in the predicates extension
@@ -501,7 +540,7 @@ namespace TED {
         /// <param name="updateFn"></param>
         public delegate void Update<T>(ref T updateFn);
 
-        private bool _overwrite;
+        private bool overwrite;
 
         /// <summary>
         /// If adding a row with the same key as an existing row, overwrite the original row rather
@@ -510,10 +549,10 @@ namespace TED {
         /// </summary>
         public bool Overwrite
         {
-            get => _overwrite;
+            get => overwrite;
             set
             {
-                _overwrite = value;
+                overwrite = value;
                 if (value)
                     foreach (var i in Indices)
                         if (!i.IsKey)
@@ -992,6 +1031,12 @@ namespace TED {
             }
         }
 
+        /// <inheritdoc />
+        public override void GetUntypedRowData(uint rowNumber, object?[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = r;
+        }
+
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
         /// </summary>
@@ -1252,6 +1297,13 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2);
 
+        /// <inheritdoc />
+        public override void GetUntypedRowData(uint rowNumber, object?[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = r.Item1;
+            buffer[1] = r.Item2;
+        }
+
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
         /// </summary>
@@ -1479,14 +1531,14 @@ namespace TED {
                 case 0:
                 {
                     var v = (T1)value;
-                    return (Table.RowTest<(T1, T2)>)((in (T1, T2) row) =>
+                    return (RowTest<(T1, T2)>)((in (T1, T2) row) =>
                         EqualityComparer<T1>.Default.Equals(row.Item1, v));
                 }
 
                 case 1:
                 {
                     var v = (T2)value;
-                    return (Table.RowTest<(T1, T2)>)((in (T1, T2) row) =>
+                    return (RowTest<(T1, T2)>)((in (T1, T2) row) =>
                         EqualityComparer<T2>.Default.Equals(row.Item2, v));
                 }
 
@@ -1721,6 +1773,14 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3);
 
+        /// <inheritdoc />
+        public override void GetUntypedRowData(uint rowNumber, object?[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = r.Item1;
+            buffer[1] = r.Item2;
+            buffer[2] = r.Item3;
+        }
+
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
         /// </summary>
@@ -1917,21 +1977,21 @@ namespace TED {
                 case 0:
                 {
                     var v = (T1)value;
-                    return (Table.RowTest<(T1, T2, T3)>)((in (T1, T2, T3) row) =>
+                    return (RowTest<(T1, T2, T3)>)((in (T1, T2, T3) row) =>
                         EqualityComparer<T1>.Default.Equals(row.Item1, v));
                 }
 
                 case 1:
                 {
                     var v = (T2)value;
-                    return (Table.RowTest<(T1, T2, T3)>)((in (T1, T2, T3) row) =>
+                    return (RowTest<(T1, T2, T3)>)((in (T1, T2, T3) row) =>
                         EqualityComparer<T2>.Default.Equals(row.Item2, v));
                 }
 
                 case 2:
                 {
                     var v = (T3)value;
-                    return (Table.RowTest<(T1, T2, T3)>)((in (T1, T2, T3) row) =>
+                    return (RowTest<(T1, T2, T3)>)((in (T1, T2, T3) row) =>
                         EqualityComparer<T3>.Default.Equals(row.Item3, v));
                 }
 
@@ -2179,6 +2239,15 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4);
 
+        /// <inheritdoc />
+        public override void GetUntypedRowData(uint rowNumber, object?[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = r.Item1;
+            buffer[1] = r.Item2;
+            buffer[2] = r.Item3;
+            buffer[3] = r.Item4;
+        }
+
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
         /// </summary>
@@ -2384,28 +2453,28 @@ namespace TED {
                 case 0:
                 {
                     var v = (T1)value;
-                    return (Table.RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
+                    return (RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
                         EqualityComparer<T1>.Default.Equals(row.Item1, v));
                 }
 
                 case 1:
                 {
                     var v = (T2)value;
-                    return (Table.RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
+                    return (RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
                         EqualityComparer<T2>.Default.Equals(row.Item2, v));
                 }
 
                 case 2:
                 {
                     var v = (T3)value;
-                    return (Table.RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
+                    return (RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
                         EqualityComparer<T3>.Default.Equals(row.Item3, v));
                 }
 
                 case 3:
                 {
                     var v = (T4)value;
-                    return (Table.RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
+                    return (RowTest<(T1, T2, T3, T4)>)((in (T1, T2, T3, T4) row) =>
                         EqualityComparer<T4>.Default.Equals(row.Item4, v));
                 }
 
@@ -2667,6 +2736,15 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5);
 
+        /// <inheritdoc />
+        public override void GetUntypedRowData(uint rowNumber, object?[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = r.Item1;
+            buffer[1] = r.Item2;
+            buffer[2] = r.Item3;
+            buffer[3] = r.Item4;
+            buffer[4] = r.Item5;
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -2881,35 +2959,35 @@ namespace TED {
                 case 0:
                 {
                     var v = (T1)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
                         EqualityComparer<T1>.Default.Equals(row.Item1, v));
                 }
 
                 case 1:
                 {
                     var v = (T2)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
                         EqualityComparer<T2>.Default.Equals(row.Item2, v));
                 }
 
                 case 2:
                 {
                     var v = (T3)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
                         EqualityComparer<T3>.Default.Equals(row.Item3, v));
                 }
 
                 case 3:
                 {
                     var v = (T4)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
                         EqualityComparer<T4>.Default.Equals(row.Item4, v));
                 }
 
                 case 4:
                 {
                     var v = (T5)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5)>)((in (T1, T2, T3, T4, T5) row) =>
                         EqualityComparer<T5>.Default.Equals(row.Item5, v));
                 }
 
@@ -3189,6 +3267,16 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6);
 
+        /// <inheritdoc />
+        public override void GetUntypedRowData(uint rowNumber, object?[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = r.Item1;
+            buffer[1] = r.Item2;
+            buffer[2] = r.Item3;
+            buffer[3] = r.Item4;
+            buffer[4] = r.Item5;
+            buffer[5] = r.Item6;
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -3409,42 +3497,42 @@ namespace TED {
                 case 0:
                 {
                     var v = (T1)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
                         EqualityComparer<T1>.Default.Equals(row.Item1, v));
                 }
 
                 case 1:
                 {
                     var v = (T2)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
                         EqualityComparer<T2>.Default.Equals(row.Item2, v));
                 }
 
                 case 2:
                 {
                     var v = (T3)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
                         EqualityComparer<T3>.Default.Equals(row.Item3, v));
                 }
 
                 case 3:
                 {
                     var v = (T4)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
                         EqualityComparer<T4>.Default.Equals(row.Item4, v));
                 }
 
                 case 4:
                 {
                     var v = (T5)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
                         EqualityComparer<T5>.Default.Equals(row.Item5, v));
                 }
 
                 case 5:
                 {
                     var v = (T6)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6)>)((in (T1, T2, T3, T4, T5, T6) row) =>
                         EqualityComparer<T6>.Default.Equals(row.Item6, v));
                 }
 
@@ -3742,6 +3830,17 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6, T7> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
+        /// <inheritdoc />
+        public override void GetUntypedRowData(uint rowNumber, object?[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = r.Item1;
+            buffer[1] = r.Item2;
+            buffer[2] = r.Item3;
+            buffer[3] = r.Item4;
+            buffer[4] = r.Item5;
+            buffer[5] = r.Item6;
+            buffer[6] = r.Item7;
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -3971,49 +4070,49 @@ namespace TED {
                 case 0:
                 {
                     var v = (T1)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
                         EqualityComparer<T1>.Default.Equals(row.Item1, v));
                 }
 
                 case 1:
                 {
                     var v = (T2)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
                         EqualityComparer<T2>.Default.Equals(row.Item2, v));
                 }
 
                 case 2:
                 {
                     var v = (T3)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
                         EqualityComparer<T3>.Default.Equals(row.Item3, v));
                 }
 
                 case 3:
                 {
                     var v = (T4)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
                         EqualityComparer<T4>.Default.Equals(row.Item4, v));
                 }
 
                 case 4:
                 {
                     var v = (T5)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
                         EqualityComparer<T5>.Default.Equals(row.Item5, v));
                 }
 
                 case 5:
                 {
                     var v = (T6)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
                         EqualityComparer<T6>.Default.Equals(row.Item6, v));
                 }
 
                 case 6:
                 {
                     var v = (T7)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7)>)((in (T1, T2, T3, T4, T5, T6, T7) row) =>
                         EqualityComparer<T7>.Default.Equals(row.Item7, v));
                 }
 
@@ -4335,6 +4434,18 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
+        /// <inheritdoc />
+        public override void GetUntypedRowData(uint rowNumber, object?[] buffer) {
+            var r = Table.PositionReference(rowNumber);
+            buffer[0] = r.Item1;
+            buffer[1] = r.Item2;
+            buffer[2] = r.Item3;
+            buffer[3] = r.Item4;
+            buffer[4] = r.Item5;
+            buffer[5] = r.Item6;
+            buffer[6] = r.Item7;
+            buffer[7] = r.Item8;
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -4573,56 +4684,56 @@ namespace TED {
                 case 0:
                 {
                     var v = (T1)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
                         EqualityComparer<T1>.Default.Equals(row.Item1, v));
                 }
 
                 case 1:
                 {
                     var v = (T2)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
                         EqualityComparer<T2>.Default.Equals(row.Item2, v));
                 }
 
                 case 2:
                 {
                     var v = (T3)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
                         EqualityComparer<T3>.Default.Equals(row.Item3, v));
                 }
 
                 case 3:
                 {
                     var v = (T4)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
                         EqualityComparer<T4>.Default.Equals(row.Item4, v));
                 }
 
                 case 4:
                 {
                     var v = (T5)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
                         EqualityComparer<T5>.Default.Equals(row.Item5, v));
                 }
 
                 case 5:
                 {
                     var v = (T6)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
                         EqualityComparer<T6>.Default.Equals(row.Item6, v));
                 }
 
                 case 6:
                 {
                     var v = (T7)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
                         EqualityComparer<T7>.Default.Equals(row.Item7, v));
                 }
 
                 case 7:
                 {
                     var v = (T8)value;
-                    return (Table.RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+                    return (RowTest<(T1, T2, T3, T4, T5, T6, T7, T8)>)((in (T1, T2, T3, T4, T5, T6, T7, T8) row) =>
                         EqualityComparer<T8>.Default.Equals(row.Item8, v));
                 }
 
