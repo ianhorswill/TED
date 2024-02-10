@@ -495,6 +495,15 @@ namespace TED {
         /// <param name="path">Path to where the csv file should be written</param>
         public void ToCsv(string path) => TableToCsv(path, this);
 
+        /// <summary>Load CSV contents into the table that calls this load</summary>
+        /// <param name="name">Name of the csv file (if different from the name of the table)</param>
+        /// <param name="path">Path to the folder where the CSV file is (with trailing slash)</param>
+        public abstract void LoadCsv(string name, string path);
+
+        /// <summary>Load CSV contents into the table that calls this load</summary>
+        /// <param name="path">Path to the folder where the CSV file containing this tables data is (with trailing slash)</param>
+        public void LoadCsv(string path) => LoadCsv(Name, path);
+
         /// <summary>
         /// Call the specified function on each row of the table, allowing it to overwrite them
         /// </summary>
@@ -934,7 +943,7 @@ namespace TED {
         /// <param name="arg1">Default argument to the predicate</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1> FromCsv(string name, string path, IColumnSpec<T1> arg1) {
-            var (header, data) = ReadCsv(path);
+            (var header, var data) = ReadCsv(path);
             VerifyCsvColumnNames(name, header, arg1);
             var p = new TablePredicate<T1>(name, arg1);
             foreach (var row in data)
@@ -949,6 +958,14 @@ namespace TED {
         /// <param name="arg1">Argument to the predicate</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1> FromCsv(string path, IColumnSpec<T1> arg1) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1);
+
+        /// <inheritdoc />
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new []{path, name}) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0]);
+            Clear();
+            foreach (var row in data) AddRow(ConvertCell<T1>(row[0]));
+        }
 
         // ReSharper disable once InconsistentNaming
         internal readonly Table<T1> _table = new Table<T1>();
@@ -1242,7 +1259,6 @@ namespace TED {
             return p;
         }
 
-
         /// <summary>
         /// Read an extensional predicate from a CSV file
         /// </summary>
@@ -1251,6 +1267,14 @@ namespace TED {
         /// <param name="arg2">Second argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2);
+
+        /// <inheritdoc />
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1]);
+            Clear();
+            foreach (var row in data) AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]));
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -1721,6 +1745,15 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3);
 
+        /// <inheritdoc />
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], 
+                                 (IColumnSpec<T2>)DefaultVariables[1], (IColumnSpec<T3>)DefaultVariables[2]);
+            Clear();
+            foreach (var row in data) AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]));
+        }
+
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
         /// </summary>
@@ -2178,6 +2211,16 @@ namespace TED {
         /// <param name="arg4">Fourth argument</param>
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4);
+
+        /// <inheritdoc />
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1], 
+                                 (IColumnSpec<T3>)DefaultVariables[2], (IColumnSpec<T4>)DefaultVariables[3]);
+            Clear();
+            foreach (var row in data) 
+                AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]));
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -2667,6 +2710,15 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5);
 
+        /// <inheritdoc />
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1],
+                                 (IColumnSpec<T3>)DefaultVariables[2], (IColumnSpec<T4>)DefaultVariables[3], (IColumnSpec<T5>)DefaultVariables[4]);
+            Clear();
+            foreach (var row in data) 
+                AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]), ConvertCell<T5>(row[4]));
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -3189,6 +3241,16 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6);
 
+        /// <inheritdoc />
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1], (IColumnSpec<T3>)DefaultVariables[2], 
+                                 (IColumnSpec<T4>)DefaultVariables[3], (IColumnSpec<T5>)DefaultVariables[4], (IColumnSpec<T6>)DefaultVariables[5]);
+            Clear();
+            foreach (var row in data) 
+                AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), 
+                       ConvertCell<T4>(row[3]), ConvertCell<T5>(row[4]), ConvertCell<T6>(row[5]));
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -3742,6 +3804,16 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6, T7> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
+        /// <inheritdoc />
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1], (IColumnSpec<T3>)DefaultVariables[2],
+                                 (IColumnSpec<T4>)DefaultVariables[3], (IColumnSpec<T5>)DefaultVariables[4], (IColumnSpec<T6>)DefaultVariables[5], (IColumnSpec<T7>)DefaultVariables[6]);
+            Clear();
+            foreach (var row in data)
+                AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]), 
+                       ConvertCell<T5>(row[4]), ConvertCell<T6>(row[5]), ConvertCell<T7>(row[6]));
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
@@ -4335,6 +4407,16 @@ namespace TED {
         /// <returns>The TablePredicate</returns>
         public static TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> FromCsv(string path, IColumnSpec<T1> arg1, IColumnSpec<T2> arg2, IColumnSpec<T3> arg3, IColumnSpec<T4> arg4, IColumnSpec<T5> arg5, IColumnSpec<T6> arg6, IColumnSpec<T7> arg7, IColumnSpec<T8> arg8) => FromCsv(Path.GetFileNameWithoutExtension(path), path, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
+        /// <inheritdoc />
+        public override void LoadCsv(string name, string path) {
+            (var header, var data) = ReadCsv(Path.Combine(new[] { path, name }) + ".csv");
+            VerifyCsvColumnNames(name, header, (IColumnSpec<T1>)DefaultVariables[0], (IColumnSpec<T2>)DefaultVariables[1], (IColumnSpec<T3>)DefaultVariables[2], (IColumnSpec<T4>)DefaultVariables[3], 
+                                 (IColumnSpec<T5>)DefaultVariables[4], (IColumnSpec<T6>)DefaultVariables[5], (IColumnSpec<T7>)DefaultVariables[6], (IColumnSpec<T8>)DefaultVariables[7]);
+            Clear();
+            foreach (var row in data)
+                AddRow(ConvertCell<T1>(row[0]), ConvertCell<T2>(row[1]), ConvertCell<T3>(row[2]), ConvertCell<T4>(row[3]),
+                       ConvertCell<T5>(row[4]), ConvertCell<T6>(row[5]), ConvertCell<T7>(row[6]), ConvertCell<T8>(row[7]));
+        }
 
         /// <summary>
         /// Convert the columns of the specified row to strings and write them to buffer
