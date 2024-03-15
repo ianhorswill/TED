@@ -106,7 +106,7 @@ namespace TED
                     return true;
 
                 case Opcode.Constant:
-                    case Opcode.Read:
+                case Opcode.Read:
                     return ValueCell.Match(target);
 
                 case Opcode.Ignore:

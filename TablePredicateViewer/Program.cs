@@ -109,7 +109,8 @@ namespace TablePredicateViewer
 
         private static void UpdateCycle(TablePredicate<string, string, int, string, string, Status> person)
         {
-            Simulation.UpdateAsync().Wait();
+            var t = Simulation.UpdateAsync();
+            t.Wait();
             PredicateViewer.UpdateAll();
         }
     }

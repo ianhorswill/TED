@@ -176,7 +176,7 @@ namespace TED
 
         private Task[]? UpdateTasks;
 
-        public async Task UpdateAsync()
+        public Task UpdateAsync()
         {
             if (UpdateTasks == null)
             {
@@ -191,7 +191,8 @@ namespace TED
             {
                 UpdateTasks[i++] = t.UpdateTask;
             }
-            await Task.WhenAll(UpdateTasks);
+
+            return Task.WhenAll(UpdateTasks);
         }
     }
 }

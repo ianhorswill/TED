@@ -67,7 +67,7 @@ namespace TED.Interpreter
         /// Object used to test equality of two objects of type T
         /// We need this because C# generics don't allow you to use ==
         /// </summary>
-        private static readonly EqualityComparer<T> Equal = EqualityComparer<T>.Default;
+        internal static readonly EqualityComparer<T> Equal = EqualityComparer<T>.Default;
 
         /// <summary>
         /// Table of ValueCells used for different constants of type T
