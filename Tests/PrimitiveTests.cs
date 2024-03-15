@@ -229,6 +229,38 @@ namespace Tests
         }
 
         [TestMethod]
+        public void FirstOfTest()
+        {
+            var n = (Var<int>)"n";
+            var tag = (Var<string>)"tag";
+
+            var num = Predicate("num", new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+            var odd = Predicate("odd", new[] { 1, 3, 5, 7, 9 });
+            var div3 = Predicate("div3", new[] { 0, 3, 6, 9 });
+
+            var tagOf = Predicate("tagOf", n, tag)
+                .If(num[n],
+                    FirstOf[And[div3[n], tag=="div3"],
+                            And[odd[n], tag == "odd"],
+                            tag == "even"]);
+            CollectionAssert.AreEqual(
+                new (int,string)[]
+                {
+                    (0, "div3"),
+                    (1, "odd"),
+                    (2, "even"),
+                    (3, "div3"),
+                    (4, "even"),
+                    (5, "odd"),
+                    (6, "div3"),
+                    (7, "odd"),
+                    (8, "even"),
+                    (9, "div3")
+                },
+                tagOf.ToArray());
+        }
+
+        [TestMethod]
         public void NegatedDefinitionTest()
         {
             var n = (Var<int>)"n";

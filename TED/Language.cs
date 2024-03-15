@@ -37,6 +37,11 @@ namespace TED
         public static readonly OrPrimitive Or = OrPrimitive.Singleton;
 
         /// <summary>
+        /// True if any argument goals are true
+        /// </summary>
+        public static readonly FirstOfPrimitive FirstOf = FirstOfPrimitive.Singleton;
+
+        /// <summary>
         /// Predicate that always fails
         /// </summary>
         public static readonly PrimitiveTest False = new PrimitiveTest("False", () => false);
