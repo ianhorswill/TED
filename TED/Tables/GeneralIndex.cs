@@ -415,6 +415,10 @@ namespace TED.Tables
         internal override void Clear()
         {
             Array.Fill(buckets!, (default(TColumn), Table.NoRow, 0));
+            Array.Fill(nextRow, Table.NoRow);
+            if (previousRow != null) {
+                Array.Fill(previousRow, Table.NoRow);
+            }
         }
 
         /// <summary>
