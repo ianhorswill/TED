@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TED.Interpreter
 {
@@ -23,6 +24,11 @@ namespace TED.Interpreter
         /// Name, for debugging purposes
         /// </summary>
         public string Name => (Variable == null)?ConstantName:Variable.VariableName;
+
+        /// <summary>
+        /// Returns the type of data stored in the cell
+        /// </summary>
+        public abstract Type Type { get; }
 
         /// <summary>
         /// Make a cell with the specified v (v used only for debugging)
@@ -62,6 +68,9 @@ namespace TED.Interpreter
 
         /// <inheritdoc />
         public override object? BoxedValue => Value;
+
+        /// <inheritdoc />
+        public override Type Type => typeof(T);
 
         /// <summary>
         /// Object used to test equality of two objects of type T

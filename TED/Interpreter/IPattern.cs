@@ -23,5 +23,10 @@
         /// <param name="index"></param>
         /// <returns></returns>
         ValueCell ArgumentCell(int index);
+
+        /// <summary>
+        /// The MatchOperation[T] operations for each of the arguments in the pattern.
+        /// </summary>
+        public IMatchOperation[] Arguments { get; }
     }
 }

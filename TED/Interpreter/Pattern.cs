@@ -24,6 +24,9 @@ namespace TED
         public override string ToString() => "[No pattern]";
 
         private string DebuggerDisplay => ToString();
+
+        /// <inheritdoc />
+        public IMatchOperation[] Arguments => Array.Empty<IMatchOperation>();
     }
 
     /// <summary>
@@ -93,6 +96,9 @@ namespace TED
         public override string ToString() => $"[{Arg1}]";
 
         private string DebuggerDisplay => ToString();
+
+        /// <inheritdoc />
+        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1 };
     }
 
     /// <summary>
@@ -171,6 +177,9 @@ namespace TED
         public override string ToString() => $"[{Arg1},{Arg2}]";
 
         private string DebuggerDisplay => ToString();
+
+        /// <inheritdoc />
+        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2 };
     }
 
     /// <summary>
@@ -259,6 +268,9 @@ namespace TED
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3}]";
 
         private string DebuggerDisplay => ToString();
+
+        /// <inheritdoc />
+        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3 };
     }
 
     /// <summary>
@@ -358,6 +370,9 @@ namespace TED
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3},{Arg4}]";
 
         private string DebuggerDisplay => ToString();
+
+        /// <inheritdoc />
+        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3, (IMatchOperation)Arg4 };
     }
 
     /// <summary>
@@ -465,6 +480,9 @@ namespace TED
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3},{Arg4},{Arg5}]";
 
         private string DebuggerDisplay => ToString();
+
+        /// <inheritdoc />
+        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3, (IMatchOperation)Arg4, (IMatchOperation)Arg5 };
     }
 
     /// <summary>
@@ -592,6 +610,9 @@ namespace TED
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3},{Arg4},{Arg5},{Arg6}]";
 
         private string DebuggerDisplay => ToString();
+
+        /// <inheritdoc />
+        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3, (IMatchOperation)Arg4, (IMatchOperation)Arg5, (IMatchOperation)Arg6 };
     }
 
     /// <summary>
@@ -726,6 +747,10 @@ namespace TED
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3},{Arg4},{Arg5},{Arg6},{Arg7}]";
 
         private string DebuggerDisplay => ToString();
+
+        /// <inheritdoc />
+        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3, (IMatchOperation)Arg4,
+            (IMatchOperation)Arg5, (IMatchOperation)Arg6, (IMatchOperation)Arg7 };
     }
 
     /// <summary>
@@ -871,6 +896,10 @@ namespace TED
         public override string ToString() => $"[{Arg1},{Arg2},{Arg3},{Arg4},{Arg5},{Arg6},{Arg7},{Arg8}]";
 
         private string DebuggerDisplay => ToString();
+
+        /// <inheritdoc />
+        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3, (IMatchOperation)Arg4,
+            (IMatchOperation)Arg5, (IMatchOperation)Arg6, (IMatchOperation)Arg7, (IMatchOperation)Arg8 };
     }
 
     //[DebuggerDisplay("{DebuggerDisplay}")]

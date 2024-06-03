@@ -2,10 +2,56 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
-using TED.Interpreter;
 
-namespace TED
+namespace TED.Interpreter
 {
+    /// <summary>
+    /// Base interface for the generic MatchOperation[T] type.
+    /// </summary>
+    public interface IMatchOperation
+    {
+        /// <summary>
+        /// ValueCell that holds the data to be matched
+        /// </summary>
+        public ValueCell Cell { get; }
+
+        /// <summary>
+        /// Type of the cell
+        /// </summary>
+        public Type Type { get; }
+
+        /// <summary>
+        /// Matching mode (opcode) used by the match, e.g. read, write, ignore.
+        /// </summary>
+        public Opcode Opcode { get; }
+    }
+
+    
+    /// <summary>
+    /// How to match this formal argument in a pattern to the value in a table row.
+    /// </summary>
+    public enum Opcode
+    {
+        /// <summary>
+        /// The argument is a variable and it's already been bound to a value by a previous call.
+        /// So match the value of the variable's ValueCell to the value.
+        /// </summary>
+        Read,
+        /// <summary>
+        /// The argument is a variable that has not yet been bound to a variable.
+        /// So write the value into the variable's ValueCell
+        /// </summary>
+        Write,
+        /// <summary>
+        /// The value is a constant stored in a ValueCell, so match the value passed to the one in the ValueCell
+        /// </summary>
+        Constant,
+        /// <summary>
+        /// The argument is a variable that isn't used anywhere else.  So don't bother doing anything.
+        /// </summary>
+        Ignore
+    };
+
     /// <summary>
     /// Represents an instance of an argument being passed to a predicate
     /// Represents:
@@ -17,32 +63,8 @@ namespace TED
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [DebuggerDisplay("{DebuggerDisplay}")]
-    public readonly struct MatchOperation<T>
+    public readonly struct MatchOperation<T> : IMatchOperation
     {
-        /// <summary>
-        /// How to match this formal argument in a pattern to the value in a table row.
-        /// </summary>
-        enum Opcode
-        {
-            /// <summary>
-            /// The argument is a variable and it's already been bound to a value by a previous call.
-            /// So match the value of the variable's ValueCell to the value.
-            /// </summary>
-            Read,
-            /// <summary>
-            /// The argument is a variable that has not yet been bound to a variable.
-            /// So write the value into the variable's ValueCell
-            /// </summary>
-            Write,
-            /// <summary>
-            /// The value is a constant stored in a ValueCell, so match the value passed to the one in the ValueCell
-            /// </summary>
-            Constant,
-            /// <summary>
-            /// The argument is a variable that isn't used anywhere else.  So don't bother doing anything.
-            /// </summary>
-            Ignore
-        };
 
         /// <summary>
         /// Whether we are reading, writing or ignoring the argument
@@ -160,5 +182,14 @@ namespace TED
         }
 
         private string DebuggerDisplay => ToString();
+
+        /// <inheritdoc />
+        public ValueCell Cell => ValueCell;
+
+        /// <inheritdoc />
+        public Type Type => typeof(T);
+
+        /// <inheritdoc />
+        public Opcode Opcode => opcode;
     }
 }
