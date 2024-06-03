@@ -145,6 +145,57 @@ namespace Tests
             }
         }
 
+        [TestMethod]
+        public void GeneralIndexSamTest()
+        {
+            var s = new Simulation(nameof(GeneralIndexSamTest));
+            s.BeginPredicates();
+            var location = (Var<string>)"location";
+            var actionType = (Var<int>)"actionType";
+            var person = (Var<string>)"person";
+            var count = (Var<int>)"count";
+            var state = (Var<bool>)"state";
+
+            var Names = Predicate("Names", person);
+            Names.AddRows(new [] {"Sam", "Ian", "Rob", "Jacob", "Mercedes", "Sofia", "Suri"});
+            var Locations = Predicate("Locations", location);
+            Locations.AddRows(new [] {"Store", "Park", "Ride"});
+            var LocationActionType = Predicate("LocationActionType", location.Key, actionType.Indexed);
+            LocationActionType.AddRows(new [] {("Store", 1), ("Park", 2), ("Ride", 3)});
+            var ActionTypeInteractionTime = Predicate("ActionTypeInteractionTime", actionType.Key, count);
+            ActionTypeInteractionTime.AddRows(new [] {(1, 60), (2, 30), (3, 40)});
+
+            var NewPerson = Predicate("NewPerson", person).If(Prob[0.5f], RandomElement(Names, person));
+            var People = Predicate("People", person);
+            People.Add.If(NewPerson);
+
+            var PersonActionAt = Predicate("PersonActionAt", person.Key, actionType.Indexed, location.Indexed);
+            PersonActionAt.Overwrite = true;
+            PersonActionAt.Add[person, 0, location].If(NewPerson, RandomElement(Locations, location));
+
+            var PersonMovingTo = Predicate("PersonMoving", person.Key, location.Indexed)
+                .If(PersonActionAt[person, 0, location]);
+            var ArrivedAtDestination = Predicate("ArrivedAtDestination", person)
+                .If(PersonMovingTo[person, location]);
+
+            var Decr = new Function<int, int>("Decr", i => i - 1);
+
+            var ActionTimer = Predicate("ActionTimer", person.Key, count, state.Indexed);
+            ActionTimer.Overwrite = true;
+            ActionTimer.Add[person, count, true].If(ArrivedAtDestination, PersonMovingTo, LocationActionType, ActionTypeInteractionTime[actionType, count]);
+
+            ActionTimer.Set(person, count, Decr[count]).If(ActionTimer, count >= 0);
+            ActionTimer.Set(person, state, false).If(ActionTimer[person, 0, true]);
+
+            var NotDoingAction = Definition("NotDoingAction", person).Is(!ActionTimer[person, __, true]);
+
+            var ReadyToSelectAction = Predicate("ReadyToSelectAction", person).If(People[person], !PersonMovingTo[person, __], NotDoingAction[person]);
+            var Running = Predicate("Running", person).If(ActionTimer[person, __, true]);
+            s.EndPredicates();
+            for (var i = 0; i < 400; i++)
+                s.Update();
+        }
+
         enum DayOfWeek
         {
             // ReSharper disable UnusedMember.Local
