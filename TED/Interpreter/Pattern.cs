@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using TED.Interpreter;
 
-namespace TED
+namespace TED.Interpreter
 {
     /// <summary>
     /// Describes how to match or write the value of the arguments in a Goal
@@ -179,7 +178,7 @@ namespace TED
         private string DebuggerDisplay => ToString();
 
         /// <inheritdoc />
-        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2 };
+        public IMatchOperation[] Arguments => new[] { Arg1, (IMatchOperation)Arg2 };
     }
 
     /// <summary>
@@ -270,7 +269,7 @@ namespace TED
         private string DebuggerDisplay => ToString();
 
         /// <inheritdoc />
-        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3 };
+        public IMatchOperation[] Arguments => new[] { Arg1, Arg2, (IMatchOperation)Arg3 };
     }
 
     /// <summary>
@@ -372,7 +371,7 @@ namespace TED
         private string DebuggerDisplay => ToString();
 
         /// <inheritdoc />
-        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3, (IMatchOperation)Arg4 };
+        public IMatchOperation[] Arguments => new[] { Arg1, Arg2, Arg3, (IMatchOperation)Arg4 };
     }
 
     /// <summary>
@@ -482,7 +481,7 @@ namespace TED
         private string DebuggerDisplay => ToString();
 
         /// <inheritdoc />
-        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3, (IMatchOperation)Arg4, (IMatchOperation)Arg5 };
+        public IMatchOperation[] Arguments => new[] { Arg1, Arg2, Arg3, Arg4, (IMatchOperation)Arg5 };
     }
 
     /// <summary>
@@ -612,7 +611,7 @@ namespace TED
         private string DebuggerDisplay => ToString();
 
         /// <inheritdoc />
-        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3, (IMatchOperation)Arg4, (IMatchOperation)Arg5, (IMatchOperation)Arg6 };
+        public IMatchOperation[] Arguments => new[] { Arg1, Arg2, Arg3, Arg4, Arg5, (IMatchOperation)Arg6 };
     }
 
     /// <summary>
@@ -749,8 +748,8 @@ namespace TED
         private string DebuggerDisplay => ToString();
 
         /// <inheritdoc />
-        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3, (IMatchOperation)Arg4,
-            (IMatchOperation)Arg5, (IMatchOperation)Arg6, (IMatchOperation)Arg7 };
+        public IMatchOperation[] Arguments => new[] { Arg1, Arg2, Arg3, Arg4,
+            Arg5, Arg6, (IMatchOperation)Arg7 };
     }
 
     /// <summary>
@@ -898,8 +897,8 @@ namespace TED
         private string DebuggerDisplay => ToString();
 
         /// <inheritdoc />
-        public IMatchOperation[] Arguments => new[] { (IMatchOperation)Arg1, (IMatchOperation)Arg2, (IMatchOperation)Arg3, (IMatchOperation)Arg4,
-            (IMatchOperation)Arg5, (IMatchOperation)Arg6, (IMatchOperation)Arg7, (IMatchOperation)Arg8 };
+        public IMatchOperation[] Arguments => new[] { Arg1, Arg2, Arg3, Arg4,
+            Arg5, Arg6, Arg7, (IMatchOperation)Arg8 };
     }
 
     //[DebuggerDisplay("{DebuggerDisplay}")]
