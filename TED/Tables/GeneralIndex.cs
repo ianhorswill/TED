@@ -320,8 +320,8 @@ namespace TED.Tables
             if (completeDeletions > buckets.Length / 4)
             {
                 Clear();
-                // The length of the table has not yet been incremented, so this won't add the new row yet.
                 Reindex();
+                return; // Reindex calls Add, so we don't want to fall through to Add after finishing reindexing
             }
 
             // Add the new row
@@ -415,6 +415,10 @@ namespace TED.Tables
         internal override void Clear()
         {
             Array.Fill(buckets!, (default(TColumn), Table.NoRow, 0));
+            Array.Fill(nextRow, Table.NoRow);
+            if (previousRow != null) {
+                Array.Fill(previousRow, Table.NoRow);
+            }
         }
 
         /// <summary>

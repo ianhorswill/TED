@@ -29,7 +29,6 @@ namespace TED.Utilities
                 }
             };
 
-
             g.AddReachableFrom(p.Tables.Where(t => t.IsDynamic), Dependencies);
             return g;
         }
