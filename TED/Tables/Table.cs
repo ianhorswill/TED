@@ -137,7 +137,7 @@ namespace TED.Tables
     /// A list of rows that hold the extension of a predicate
     /// </summary>
     /// <typeparam name="T">Type of the rows of the table (a tuple of the predicate arguments)</typeparam>
-    internal class Table<T> : Table, IEnumerable<T>
+    public class Table<T> : Table, IEnumerable<T>
     {
         public Table()
         {

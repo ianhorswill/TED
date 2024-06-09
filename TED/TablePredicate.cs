@@ -96,7 +96,7 @@ namespace TED {
                 }
             }
 
-            this.updateProc = updateProc;
+            this.operatorUpdateProc = updateProc;
             UpdateMode = updateProc == null?UpdateMode.BaseTable:UpdateMode.Operator;
             if (UpdateMode != UpdateMode.BaseTable)
                 MustRecompute = true;
@@ -211,7 +211,6 @@ namespace TED {
         public TableIndex IndexBy<TColumn1, TColumn2>(Var<TColumn1> c1, Var<TColumn2> c2)
             => AddIndex(c1, c2, false);
 
-
         private TableIndex AddIndex(IVariable t, bool keyIndex) {
             var index = ColumnPositionOfDefaultVariable(t);
             return AddIndex(index, keyIndex);
@@ -277,7 +276,6 @@ namespace TED {
         /// Add a joint index to the predicate's table
         /// </summary>
         protected abstract TableIndex AddIndex(int column1Index, int column2Index, bool keyIndex);
-
         internal (int Column1, int Column2) JointOrderCheck(int column1Index, int column2Index, bool keyIndex) {
             if (column1Index < column2Index) return (column1Index, column2Index);
             if (column1Index != column2Index) return (column2Index, column1Index);
@@ -326,7 +324,15 @@ namespace TED {
         /// </summary>
         public List<Rule>? Rules;
 
-        private readonly Action<Table>? updateProc;
+        /// <summary>
+        /// Updater procedure for results of table operators
+        /// </summary>
+        private readonly Action<Table>? operatorUpdateProc;
+
+        /// <summary>
+        /// Compiled version of rules, if any
+        /// </summary>
+        internal Action? CompiledRules;
 
         /// <summary>
         /// For tables that are the results of operators.  The tables the operator takes as inputs.
@@ -399,14 +405,17 @@ namespace TED {
             Clear();
             switch (UpdateMode) {
                 case UpdateMode.Rules:
-                    foreach (var r in Rules!)
-                        r.AddAllSolutions();
+                    if (CompiledRules != null)
+                        CompiledRules();
+                    else
+                        foreach (var r in Rules!)
+                            r.AddAllSolutions();
                     break;
 
                 case UpdateMode.Operator:
                     foreach (var t in OperatorDependencies)
                         t.EnsureUpToDate();
-                    updateProc!(TableUntyped);
+                    operatorUpdateProc!(TableUntyped);
                     break;
             }
             MustRecompute = false;
@@ -854,7 +863,7 @@ namespace TED {
                     break;
                 case UpdateMode.Operator:
                     Clear();
-                    updateProc!(TableUntyped);
+                    operatorUpdateProc!(TableUntyped);
                     break;
                 default:
                     throw new NotImplementedException($"Unknown update mode {UpdateMode}");

@@ -13,7 +13,7 @@ namespace TED.Tables
         /// <summary>
         /// TablePredicate corresponding to the table
         /// </summary>
-        protected TablePredicate Predicate;
+        public TablePredicate Predicate;
 
         /// <summary>
         /// Position of the column: 0=first column, 1=second, etc.

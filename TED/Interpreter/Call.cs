@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using TED.Compiler;
 
 namespace TED.Interpreter
 {
@@ -50,5 +52,17 @@ namespace TED.Interpreter
         public override string ToString() => $"{Table.Name}{ArgumentPattern}";
 
         private string DebugString => ToString();
+
+        /// <summary>
+        /// Generate C# source code for executing this call.
+        /// </summary>
+        /// <param name="compiler">Compiler object generating the source code</param>
+        /// <param name="fail">Continuation to invoke if the call fails.</param>
+        /// <param name="identifierSuffix">Suffix unique to this call that can be added to identifiers in output source to prevent conflicts</param>
+        /// <returns>Continuation the next call in the rule should invoke upon failure</returns>
+        public virtual Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

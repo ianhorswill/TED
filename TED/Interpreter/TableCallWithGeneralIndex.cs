@@ -1,4 +1,7 @@
-﻿using TED.Tables;
+﻿using System;
+using System.Reflection.Emit;
+using TED.Compiler;
+using TED.Tables;
 
 namespace TED.Interpreter
 {
@@ -18,7 +21,29 @@ namespace TED.Interpreter
         protected bool Primed;
         protected uint Row;
 
+        public abstract TableIndex Index { get; }
+        public abstract ValueCell Cell { get; }
+
         public override void Reset() => Primed = true;
+
+        /// <inheritdoc />
+        public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+        {
+            var restart = new Continuation($"restart{identifierSuffix}");
+            var match = new Continuation($"match{identifierSuffix}");
+            var rowNumber = $"row{identifierSuffix}";
+            var rowData = $"data{identifierSuffix}";
+            compiler.Indented($"var {rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.FirstRowWithValue(in {Cell.Name});");
+            compiler.Indented($"if ({rowNumber} != Table.NoRow) {match.Invoke};");
+            compiler.Indented(fail.Invoke);
+            compiler.Label(restart);
+            compiler.Indented($"var {rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.NextRowWithValue({rowNumber});");
+            compiler.Indented($"if ({rowNumber} == Table.NoRow) {fail.Invoke};");
+            compiler.Label(match);
+            compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");
+            compiler.CompilePatternMatch(rowData, ArgumentPattern, restart);
+            return restart;
+        }
     }
 
     internal class TableCallWithGeneralIndex<TKey, T1, T2> : TableCallWithGeneralIndex
@@ -27,6 +52,9 @@ namespace TED.Interpreter
         private readonly Pattern<T1, T2> pattern;
         private readonly GeneralIndex<(T1, T2), TKey> index;
         private readonly ValueCell<TKey> keyCell;
+
+        public override TableIndex Index => index;
+        public override ValueCell Cell => keyCell;
 
         public TableCallWithGeneralIndex(TablePredicate<T1, T2> tablePredicate, Pattern<T1, T2> pattern, GeneralIndex<(T1, T2), TKey> index, ValueCell<TKey> keyCell) : base(tablePredicate)
         {
@@ -57,6 +85,9 @@ namespace TED.Interpreter
         private readonly GeneralIndex<(T1, T2, T3), TKey> index;
         private readonly ValueCell<TKey> keyCell;
 
+        public override TableIndex Index => index;
+        public override ValueCell Cell => keyCell;
+
         public TableCallWithGeneralIndex(TablePredicate<T1, T2, T3> tablePredicate, Pattern<T1, T2, T3> pattern, GeneralIndex<(T1, T2, T3), TKey> index, ValueCell<TKey> keyCell) : base(tablePredicate)
         {
             predicate = tablePredicate;
@@ -85,6 +116,9 @@ namespace TED.Interpreter
         private readonly Pattern<T1, T2, T3, T4> pattern;
         private readonly GeneralIndex<(T1, T2, T3, T4), TKey> index;
         private readonly ValueCell<TKey> keyCell;
+
+        public override TableIndex Index => index;
+        public override ValueCell Cell => keyCell;
 
         public TableCallWithGeneralIndex(TablePredicate<T1, T2, T3, T4> tablePredicate, Pattern<T1, T2, T3, T4> pattern, GeneralIndex<(T1, T2, T3, T4), TKey> index, ValueCell<TKey> keyCell) : base(tablePredicate)
         {
@@ -115,6 +149,9 @@ namespace TED.Interpreter
         private readonly GeneralIndex<(T1, T2, T3, T4, T5), TKey> index;
         private readonly ValueCell<TKey> keyCell;
 
+        public override TableIndex Index => index;
+        public override ValueCell Cell => keyCell;
+
         public TableCallWithGeneralIndex(TablePredicate<T1, T2, T3, T4, T5> tablePredicate, Pattern<T1, T2, T3, T4, T5> pattern, GeneralIndex<(T1, T2, T3, T4, T5), TKey> index, ValueCell<TKey> keyCell) : base(tablePredicate)
         {
             predicate = tablePredicate;
@@ -143,6 +180,9 @@ namespace TED.Interpreter
         private readonly Pattern<T1, T2, T3, T4, T5, T6> pattern;
         private readonly GeneralIndex<(T1, T2, T3, T4, T5, T6), TKey> index;
         private readonly ValueCell<TKey> keyCell;
+
+        public override TableIndex Index => index;
+        public override ValueCell Cell => keyCell;
 
         public TableCallWithGeneralIndex(TablePredicate<T1, T2, T3, T4, T5, T6> tablePredicate, Pattern<T1, T2, T3, T4, T5, T6> pattern, GeneralIndex<(T1, T2, T3, T4, T5, T6), TKey> index, ValueCell<TKey> keyCell) : base(tablePredicate)
         {
@@ -173,6 +213,9 @@ namespace TED.Interpreter
         private readonly GeneralIndex<(T1, T2, T3, T4, T5, T6, T7), TKey> index;
         private readonly ValueCell<TKey> keyCell;
 
+        public override TableIndex Index => index;
+        public override ValueCell Cell => keyCell;
+
         public TableCallWithGeneralIndex(TablePredicate<T1, T2, T3, T4, T5, T6, T7> tablePredicate, Pattern<T1, T2, T3, T4, T5, T6, T7> pattern, GeneralIndex<(T1, T2, T3, T4, T5, T6, T7), TKey> index, ValueCell<TKey> keyCell) : base(tablePredicate)
         {
             predicate = tablePredicate;
@@ -201,6 +244,9 @@ namespace TED.Interpreter
         private readonly Pattern<T1, T2, T3, T4, T5, T6, T7, T8> pattern;
         private readonly GeneralIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey> index;
         private readonly ValueCell<TKey> keyCell;
+
+        public override TableIndex Index => index;
+        public override ValueCell Cell => keyCell;
 
         public TableCallWithGeneralIndex(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> tablePredicate, Pattern<T1, T2, T3, T4, T5, T6, T7, T8> pattern, GeneralIndex<(T1, T2, T3, T4, T5, T6, T7, T8), TKey> index, ValueCell<TKey> keyCell) : base(tablePredicate)
         {

@@ -1,4 +1,5 @@
-﻿using TED.Tables;
+﻿using TED.Compiler;
+using TED.Tables;
 
 namespace TED.Interpreter
 {
@@ -10,7 +11,19 @@ namespace TED.Interpreter
     // This will not be used if it's possible to use TableCallWithKey or TableCallUsingRowSet, which are preferable.
     //
 
-    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3> : TableCallWithGeneralIndex
+    internal abstract class TableCallWithDoubleGeneralIndex : Call
+    {
+        protected TableCallWithDoubleGeneralIndex(TablePredicate p) : base(p)
+        { }
+
+        protected bool Primed;
+        protected uint Row;
+
+        public override void Reset() => Primed = true;
+
+    }
+
+    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3> : TableCallWithDoubleGeneralIndex
     {
         private readonly TablePredicate<T1, T2, T3> predicate;
         private readonly Pattern<T1, T2, T3> pattern;
@@ -39,7 +52,7 @@ namespace TED.Interpreter
         }
     }
 
-    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3, T4> : TableCallWithGeneralIndex
+    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3, T4> : TableCallWithDoubleGeneralIndex
     {
         private readonly TablePredicate<T1, T2, T3, T4> predicate;
         private readonly Pattern<T1, T2, T3, T4> pattern;
@@ -68,7 +81,7 @@ namespace TED.Interpreter
         }
     }
 
-    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3, T4, T5> : TableCallWithGeneralIndex
+    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3, T4, T5> : TableCallWithDoubleGeneralIndex
     {
         private readonly TablePredicate<T1, T2, T3, T4, T5> predicate;
         private readonly Pattern<T1, T2, T3, T4, T5> pattern;
@@ -97,7 +110,7 @@ namespace TED.Interpreter
         }
     }
 
-    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3, T4, T5, T6> : TableCallWithGeneralIndex
+    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3, T4, T5, T6> : TableCallWithDoubleGeneralIndex
     {
         private readonly TablePredicate<T1, T2, T3, T4, T5, T6> predicate;
         private readonly Pattern<T1, T2, T3, T4, T5, T6> pattern;
@@ -126,7 +139,7 @@ namespace TED.Interpreter
         }
     }
 
-    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3, T4, T5, T6, T7> : TableCallWithGeneralIndex
+    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3, T4, T5, T6, T7> : TableCallWithDoubleGeneralIndex
     {
         private readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate;
         private readonly Pattern<T1, T2, T3, T4, T5, T6, T7> pattern;
@@ -155,7 +168,7 @@ namespace TED.Interpreter
         }
     }
 
-    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3, T4, T5, T6, T7, T8> : TableCallWithGeneralIndex
+    internal class TableCallWithDoubleGeneralIndex<TKey1,  TKey2, T1, T2, T3, T4, T5, T6, T7, T8> : TableCallWithDoubleGeneralIndex
     {
         private readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate;
         private readonly Pattern<T1, T2, T3, T4, T5, T6, T7, T8> pattern;

@@ -1,4 +1,6 @@
-﻿namespace TED.Interpreter
+﻿using TED.Compiler;
+
+namespace TED.Interpreter
 {
     /// <summary>
     /// Untyped base class for calls to TablePredicates whose arguments are satisfiable by at most one row,

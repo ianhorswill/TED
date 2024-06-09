@@ -1,4 +1,6 @@
-﻿namespace TED.Interpreter
+﻿using TED.Compiler;
+
+namespace TED.Interpreter
 {
     /// <summary>
     /// The iterator that handles calls to a TablePredicate that cannot be accelerated using a hash table
@@ -19,6 +21,20 @@
 
         protected TableCallExhaustive(Predicate predicate) : base(predicate)
         {
+        }
+
+        /// <inheritdoc />
+        public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+        {
+            var restart = new Continuation($"restart{identifierSuffix}");
+            var rowNumber = $"row{identifierSuffix}";
+            var rowData = $"data{identifierSuffix}";
+            compiler.Indented($"var {rowNumber} = unchecked((uint)-1);");
+            compiler.Label(restart);
+            compiler.Indented($"if (++{rowNumber} == {Table.Name}.Length) {fail.Invoke};");
+            compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");
+            compiler.CompilePatternMatch(rowData, ArgumentPattern, restart);
+            return restart;
         }
     }
 
