@@ -1,4 +1,5 @@
 ﻿using System;
+using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
 
@@ -57,6 +58,32 @@ namespace TED.Primitives
                 if (!restarted) return false;
                 restarted = false;
                 return matcher.Match(expressionEvaluator());
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                var arg1 = originalGoal.Arg1.ToSourceExpression();
+                var arg2 = originalGoal.Arg2.ToSourceExpression();
+                switch (matcher.Opcode)
+                {
+                    case Opcode.Write:
+                        compiler.Indented($"{arg1} = {arg2};");
+                        break;
+
+                    case Opcode.Read:
+                    case Opcode.Constant:
+                        compiler.Indented($"if ({arg1} != {arg2}) {fail.Invoke};");
+                        break;
+
+                    case Opcode.Ignore:
+                        break;
+
+                    default:
+                        throw new NotImplementedException(
+                            $"Can't compile Emit with first argument of opcode {matcher.Opcode}");
+                }
+
+                return fail;
             }
 
             public override string ToString() => $"{originalGoal.Arg1} == {originalGoal.Arg2}";

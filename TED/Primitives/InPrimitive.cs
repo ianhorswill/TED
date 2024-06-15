@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
 
@@ -61,6 +62,17 @@ namespace TED.Primitives
                 element.Value = enumerator.Current;
                 return true;
             }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                var enumeratorVar = $"enumerator{identifierSuffix}";
+                compiler.Indented($"var {enumeratorVar} = ((IEnumerable<{compiler.FormatType(ArgumentPattern.Arguments[0].Type)}>)({compiler.ArgumentExpression(ArgumentPattern.Arguments[1])})).GetEnumerator();");
+                var restart = new Continuation($"in_restart_" + identifierSuffix);
+                compiler.Label(restart);
+                compiler.Indented($"if (!{enumeratorVar}.MoveNext()) {fail.Invoke};");
+                compiler.Indented($"{ArgumentPattern.Arguments[0].Cell.Name} = {enumeratorVar}.Current;");
+                return restart;
+            }
         }
 
         internal class InCallTestMode : Call
@@ -90,6 +102,12 @@ namespace TED.Primitives
                 var success = primed && collection.Value.Contains(element.Value);
                 primed = false;
                 return success;
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                compiler.Indented($"if (!{compiler.ArgumentExpression(ArgumentPattern.Arguments[1])}.Contains({compiler.ArgumentExpression(ArgumentPattern.Arguments[0])})) {fail.Invoke};");
+                return fail;
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
 
@@ -54,6 +55,15 @@ namespace TED.Primitives
                 restarted = false;
                 call.Reset();
                 return !call.NextSolution();
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                var success = new Continuation($"not{identifierSuffix}");
+                call.Compile(compiler, success, identifierSuffix + "_");
+                compiler.Indented(fail.Invoke+";");
+                compiler.Indented(success.Label +": ;");
+                return fail;
             }
         }
     }

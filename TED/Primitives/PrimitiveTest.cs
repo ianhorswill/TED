@@ -1,8 +1,32 @@
 ﻿using System;
+using System.Linq;
+using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
 
 namespace TED.Primitives {
+    internal abstract class PrimitiveTestCall : Interpreter.Call
+    {
+        protected PrimitiveTestCall(Predicate predicate) : base(predicate)
+        {
+        }
+
+        private string CompilationName
+        {
+            get
+            {
+                var predicate = (PrimitivePredicateBase)Table;
+                return Table.Name;
+            }
+        }
+
+        public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+        {
+            compiler.Indented($"if (!{((PrimitivePredicateBase)Table).CompilationName}({compiler.ArgumentExpressionsWithCommas(ArgumentPattern)})) {fail.Invoke};");
+            return fail;
+        }
+    }
+
     /// <summary>
     /// A primitive that tests for truth using a C# function.
     /// </summary>
@@ -24,13 +48,15 @@ namespace TED.Primitives {
         {
             Implementation = implementation;
             IsPure = isPure;
+            CompilationName = $"{implementation.Method.DeclaringType!.FullName}.{implementation.Method.Name}";
         }
+
         // This has no arguments, so should never be constant folded.
 
         /// <inheritdoc />
         public override Interpreter.Call MakeCall(Goal g, GoalAnalyzer tc) => new Call(this);
 
-        private class Call : Interpreter.Call {
+        private class Call : PrimitiveTestCall {
             private readonly PrimitiveTest predicate;
             private bool ready;
 
@@ -68,6 +94,7 @@ namespace TED.Primitives {
             IsPure = isPure;
             if (isPure)
                 ConstantFolder = Implementation;
+            CompilationName = $"{implementation.Method.DeclaringType!.FullName}.{implementation.Method.Name}";
         }
 
         /// <inheritdoc />
@@ -78,7 +105,7 @@ namespace TED.Primitives {
             return new Call(this, i.ValueCell);
         }
 
-        private class Call : Interpreter.Call {
+        private class Call : PrimitiveTestCall {
             private readonly PrimitiveTest<T1> predicate;
             private readonly ValueCell<T1> arg;
             private bool ready;
@@ -124,6 +151,7 @@ namespace TED.Primitives {
             IsPure = isPure;
             if (isPure)
                 ConstantFolder = Implementation;
+            CompilationName = $"{implementation.Method.DeclaringType!.FullName}.{implementation.Method.Name}";
         }
 
         /// <inheritdoc />
@@ -137,7 +165,7 @@ namespace TED.Primitives {
             return new Call(this, i1.ValueCell, i2.ValueCell);
         }
 
-        private class Call : Interpreter.Call {
+        private class Call : PrimitiveTestCall {
             private readonly PrimitiveTest<T1, T2> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
@@ -187,6 +215,7 @@ namespace TED.Primitives {
             IsPure = isPure;
             if (isPure)
                 ConstantFolder = Implementation;
+            CompilationName = $"{implementation.Method.DeclaringType!.FullName}.{implementation.Method.Name}";
         }
 
         /// <inheritdoc />
@@ -203,7 +232,7 @@ namespace TED.Primitives {
             return new Call(this, i1.ValueCell, i2.ValueCell, i3.ValueCell);
         }
 
-        private class Call : Interpreter.Call {
+        private class Call : PrimitiveTestCall {
             private readonly PrimitiveTest<T1, T2, T3> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
@@ -256,6 +285,7 @@ namespace TED.Primitives {
             IsPure = isPure;
             if (isPure)
                 ConstantFolder = Implementation;
+            CompilationName = $"{implementation.Method.DeclaringType!.FullName}.{implementation.Method.Name}";
         }
 
         /// <inheritdoc />
@@ -275,7 +305,7 @@ namespace TED.Primitives {
             return new Call(this, i1.ValueCell, i2.ValueCell, i3.ValueCell, i4.ValueCell);
         }
 
-        private class Call : Interpreter.Call {
+        private class Call : PrimitiveTestCall {
             private readonly PrimitiveTest<T1, T2, T3, T4> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
@@ -331,6 +361,7 @@ namespace TED.Primitives {
             IsPure = isPure;
             if (isPure)
                 ConstantFolder = Implementation;
+            CompilationName = $"{implementation.Method.DeclaringType!.FullName}.{implementation.Method.Name}";
         }
 
         /// <inheritdoc />
@@ -353,7 +384,7 @@ namespace TED.Primitives {
             return new Call(this, i1.ValueCell, i2.ValueCell, i3.ValueCell, i4.ValueCell, i5.ValueCell);
         }
 
-        private class Call : Interpreter.Call {
+        private class Call : PrimitiveTestCall {
             private readonly PrimitiveTest<T1, T2, T3, T4, T5> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
@@ -412,6 +443,7 @@ namespace TED.Primitives {
             IsPure = isPure;
             if (isPure)
                 ConstantFolder = Implementation;
+            CompilationName = $"{implementation.Method.DeclaringType!.FullName}.{implementation.Method.Name}";
         }
 
         /// <inheritdoc />
@@ -437,7 +469,7 @@ namespace TED.Primitives {
             return new Call(this, i1.ValueCell, i2.ValueCell, i3.ValueCell, i4.ValueCell, i5.ValueCell, i6.ValueCell);
         }
 
-        private class Call : Interpreter.Call {
+        private class Call : PrimitiveTestCall {
             private readonly PrimitiveTest<T1, T2, T3, T4, T5, T6> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
@@ -499,6 +531,7 @@ namespace TED.Primitives {
             IsPure = isPure;
             if (isPure)
                 ConstantFolder = Implementation;
+            CompilationName = $"{implementation.Method.DeclaringType!.FullName}.{implementation.Method.Name}";
         }
 
         /// <inheritdoc />
@@ -527,7 +560,7 @@ namespace TED.Primitives {
             return new Call(this, i1.ValueCell, i2.ValueCell, i3.ValueCell, i4.ValueCell, i5.ValueCell, i6.ValueCell, i7.ValueCell);
         }
 
-        private class Call : Interpreter.Call {
+        private class Call : PrimitiveTestCall {
             private readonly PrimitiveTest<T1, T2, T3, T4, T5, T6, T7> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;
@@ -592,6 +625,7 @@ namespace TED.Primitives {
             IsPure = isPure;
             if (isPure)
                 ConstantFolder = Implementation;
+            CompilationName = $"{implementation.Method.DeclaringType!.FullName}.{implementation.Method.Name}";
         }
 
         /// <inheritdoc />
@@ -623,7 +657,7 @@ namespace TED.Primitives {
             return new Call(this, i1.ValueCell, i2.ValueCell, i3.ValueCell, i4.ValueCell, i5.ValueCell, i6.ValueCell, i7.ValueCell, i8.ValueCell);
         }
 
-        private class Call : Interpreter.Call {
+        private class Call : PrimitiveTestCall {
             private readonly PrimitiveTest<T1, T2, T3, T4, T5, T6, T7, T8> predicate;
             private readonly ValueCell<T1> arg1;
             private readonly ValueCell<T2> arg2;

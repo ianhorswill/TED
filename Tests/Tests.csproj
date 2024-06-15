@@ -26,4 +26,8 @@
     <ProjectReference Include="..\TED\TED.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CompilerOutput\" />
+  </ItemGroup>
+
 </Project>

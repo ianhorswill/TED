@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
 
 namespace TED.Primitives
 {
     /// <summary>
-    /// Implements conjunctions as a primitive predicate.  That is, And[g1, g2, ...] is true when all the gi are true.
-    /// Procedurally, this means find solutions to g1, then g2, etc., backtracking in the normal manner.
+    /// Succeeds with the first goal of the 
     /// </summary>
     public sealed class FirstOfPrimitive : Predicate
     {
@@ -117,6 +117,28 @@ namespace TED.Primitives
                 }
 
                 return false;
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                var success = new Continuation("firstOfSuccess" + identifierSuffix);
+                Continuation? nextLabel = null;
+                for (var i = 0; i < Body.Length; i++)
+                {
+                    if (nextLabel != null)
+                    {
+                        compiler.NewLine();
+                        compiler.Label(nextLabel);
+                    }
+                    nextLabel = i == Body.Length - 1
+                        ? fail
+                        : new Continuation($"firstOFBranch{i + 1}{identifierSuffix}");
+                    compiler.CompileGoal(Body[i], nextLabel, $"{identifierSuffix}_{i}");
+                    compiler.Indented(success.Invoke+";");
+                }
+                compiler.NewLine();
+                compiler.Label(success, true);
+                return fail;
             }
         }
     }

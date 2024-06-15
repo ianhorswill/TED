@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
 
@@ -108,6 +109,11 @@ namespace TED.Primitives
                         currentCallIndex--;
                 }
                 return false;
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                return compiler.CompileBody(Body, fail, identifierSuffix);
             }
         }
     }

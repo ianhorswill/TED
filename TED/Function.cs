@@ -14,6 +14,8 @@ namespace TED {
         /// </summary>
         public readonly string Name;
 
+        public virtual string NameForCompilation => Name;
+
         private readonly bool isPure;
 
         /// <summary>

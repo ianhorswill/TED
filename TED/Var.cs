@@ -116,5 +116,8 @@ namespace TED
         /// For use as a formal argument in a definition; this argument must be a literal constant.
         /// </summary>
         public ModeConstrainedArgument<T> Constant => new ModeConstrainedArgument<T>(this, InstantiationConstraint.Constant);
+
+        /// <inheritdoc />
+        public override string ToSourceExpression() => Name;
     }
 }

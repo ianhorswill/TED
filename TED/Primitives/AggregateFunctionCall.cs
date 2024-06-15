@@ -67,5 +67,10 @@ namespace TED.Primitives
         internal override Term<T> RecursivelySubstitute(Substitution s)
             => new AggregateFunctionCall<T>(Generator.RenameArguments(s), s.Substitute(AggregationTerm), InitialValue,
                 Aggregator);
+
+        public override string ToSourceExpression()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

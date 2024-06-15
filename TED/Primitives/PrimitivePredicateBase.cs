@@ -14,9 +14,15 @@ namespace TED.Primitives
         /// <summary>
         /// Make a primitive predicate with the specified name
         /// </summary>
-        protected PrimitivePredicateBase(string name) : base(name) { }
+        protected PrimitivePredicateBase(string name) : base(name)
+        { }
 
         internal Delegate? ConstantFolder;
+
+        /// <summary>
+        /// Name of C# procedure to call to implement this primitive, when compiling.
+        /// </summary>
+        public string? CompilationName;
         
         internal Interpreter.Goal FoldConstant(Interpreter.Goal goal)
         {

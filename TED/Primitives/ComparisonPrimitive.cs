@@ -1,4 +1,5 @@
 ﻿using System;
+using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
 using TED.Utilities;
@@ -34,7 +35,7 @@ namespace TED.Primitives
                 throw new InstantiationException(this, g.Arg1);
             if (!i2.IsInstantiated)
                 throw new InstantiationException(this, g.Arg2);
-            return new Call(this, i1.ValueCell, i2.ValueCell, comparison);
+            return new Call(g, this, i1.ValueCell, i2.ValueCell, comparison);
         }
 
         private class Call : Interpreter.Call
@@ -43,15 +44,17 @@ namespace TED.Primitives
             private readonly ValueCell<T> arg2;
             private readonly Func<T, T, bool> test;
             private bool ready;
+            private readonly Goal Goal;
 
             public override IPattern ArgumentPattern =>
                 new Pattern<T, T>(MatchOperation<T>.Read(arg1), MatchOperation<T>.Read(arg2));
 
-            public Call(ComparisonPrimitive<T> predicate, ValueCell<T> arg1, ValueCell<T> arg2, Func<T, T, bool> test) : base(predicate)
+            public Call(Goal goal, ComparisonPrimitive<T> predicate, ValueCell<T> arg1, ValueCell<T> arg2, Func<T, T, bool> test) : base(predicate)
             {
                 this.arg1 = arg1;
                 this.arg2 = arg2;
                 this.test = test;
+                Goal = goal;
             }
 
             public override void Reset()
@@ -64,6 +67,12 @@ namespace TED.Primitives
                 if (!ready) return false;
                 ready = false;
                 return test(arg1.Value, arg2.Value);
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                compiler.Indented($"if (!({Goal.Arg1.ToSourceExpressionParenthesized()}{Goal.Predicate.Name}{Goal.Arg2.ToSourceExpressionParenthesized()})) {fail.Invoke};");
+                return fail;
             }
         }
     }

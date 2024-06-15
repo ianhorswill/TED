@@ -55,4 +55,7 @@ namespace TED
         {
             return t is Constant<T> c && Equals(Value, c.Value);
         }
+
+        /// <inheritdoc />
+        public override string ToSourceExpression() => Compiler.Compiler.ToSourceLiteral(Value);
     }}

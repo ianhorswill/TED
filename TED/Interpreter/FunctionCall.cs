@@ -30,6 +30,9 @@ namespace TED.Interpreter
         /// <inheritdoc />
         public override string ToString() => Function.Name;
 
+        /// <inheritdoc />
+        public override string ToSourceExpression() => $"{Function.NameForCompilation}()";
+
         internal override Term<TOut> RecursivelySubstitute(Substitution s) => this;
     }
 
@@ -73,6 +76,11 @@ namespace TED.Interpreter
 
         /// <inheritdoc />
         public override string ToString() => Function.RenderAsOperator ? $"{Function.Name}{Arg1}" : $"{Function.Name}({Arg1})";
+
+        /// <inheritdoc />
+        public override string ToSourceExpression() => Function.RenderAsOperator ?
+            $"{Function.Name}{Arg1.ToSourceExpressionParenthesized()}"
+            : $"{Function.NameForCompilation}({Arg1.ToSourceExpressionParenthesized()})";
     }
 
     /// <summary>
@@ -122,6 +130,11 @@ namespace TED.Interpreter
 
         /// <inheritdoc />
         public override string ToString() => Function.RenderAsOperator ? $"{Arg1}{Function.Name}{Arg2}" : $"{Function.Name}({Arg1}, {Arg2})";
+
+        /// <inheritdoc />
+        public override string ToSourceExpression() => Function.RenderAsOperator ?
+            $"{Arg1.ToSourceExpressionParenthesized()}{Function.Name}{Arg2.ToSourceExpressionParenthesized()}"
+            : $"{Function.NameForCompilation}({Arg1.ToSourceExpressionParenthesized()}, {Arg2.ToSourceExpressionParenthesized()})";
     }
 
     /// <summary>
@@ -179,6 +192,10 @@ namespace TED.Interpreter
         // NOTE: No render as operator options for 3+ input args
         /// <inheritdoc />
         public override string ToString() => $"{Function.Name}({Arg1}, {Arg2}, {Arg3})";
+
+        /// <inheritdoc />
+        public override string ToSourceExpression() =>
+            $"{Function.NameForCompilation}({Arg1.ToSourceExpressionParenthesized()}, {Arg2.ToSourceExpressionParenthesized()}, {Arg3.ToSourceExpressionParenthesized()})";
     }
 
     /// <summary>
@@ -243,6 +260,10 @@ namespace TED.Interpreter
         // NOTE: No render as operator options for 3+ input args
         /// <inheritdoc />
         public override string ToString() => $"{Function.Name}({Arg1}, {Arg2}, {Arg3}, {Arg4})";
+
+        /// <inheritdoc />
+        public override string ToSourceExpression() =>
+            $"{Function.NameForCompilation}({Arg1.ToSourceExpressionParenthesized()}, {Arg2.ToSourceExpressionParenthesized()}, {Arg3.ToSourceExpressionParenthesized()}, {Arg4.ToSourceExpressionParenthesized()})";
     }
 
     /// <summary>
@@ -314,6 +335,10 @@ namespace TED.Interpreter
         // NOTE: No render as operator options for 3+ input args
         /// <inheritdoc />
         public override string ToString() => $"{Function.Name}({Arg1}, {Arg2}, {Arg3}, {Arg4}, {Arg5})";
+
+        /// <inheritdoc />
+        public override string ToSourceExpression() =>
+            $"{Function.NameForCompilation}({Arg1.ToSourceExpressionParenthesized()}, {Arg2.ToSourceExpressionParenthesized()}, {Arg3.ToSourceExpressionParenthesized()}, {Arg4.ToSourceExpressionParenthesized()}, {Arg5.ToSourceExpressionParenthesized()})";
     }
 
     /// <summary>
@@ -392,6 +417,10 @@ namespace TED.Interpreter
         // NOTE: No render as operator options for 3+ input args
         /// <inheritdoc />
         public override string ToString() => $"{Function.Name}({Arg1}, {Arg2}, {Arg3}, {Arg4}, {Arg5}, {Arg6})";
+
+        /// <inheritdoc />
+        public override string ToSourceExpression() =>
+            $"{Function.NameForCompilation}({Arg1.ToSourceExpressionParenthesized()}, {Arg2.ToSourceExpressionParenthesized()}, {Arg3.ToSourceExpressionParenthesized()}, {Arg4.ToSourceExpressionParenthesized()}, {Arg5.ToSourceExpressionParenthesized()}, {Arg6.ToSourceExpressionParenthesized()})";
     }
 
     /// <summary>
@@ -477,5 +506,9 @@ namespace TED.Interpreter
         // NOTE: No render as operator options for 3+ input args
         /// <inheritdoc />
         public override string ToString() => $"{Function.Name}({Arg1}, {Arg2}, {Arg3}, {Arg4}, {Arg5}, {Arg6}, {Arg7})";
+
+        /// <inheritdoc />
+        public override string ToSourceExpression() =>
+            $"{Function.NameForCompilation}({Arg1.ToSourceExpressionParenthesized()}, {Arg2.ToSourceExpressionParenthesized()}, {Arg3.ToSourceExpressionParenthesized()}, {Arg4.ToSourceExpressionParenthesized()}, {Arg5.ToSourceExpressionParenthesized()}, {Arg6.ToSourceExpressionParenthesized()}, {Arg7.ToSourceExpressionParenthesized()})";
     }
 }

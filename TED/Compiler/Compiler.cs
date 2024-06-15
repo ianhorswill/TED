@@ -5,14 +5,16 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading.Tasks;
 using TED.Interpreter;
 using TED.Tables;
 
 namespace TED.Compiler
 {
-    public class Compiler
+    public class Compiler : IDisposable, IAsyncDisposable
     {
         public readonly Program Program;
 
@@ -22,8 +24,10 @@ namespace TED.Compiler
 
         public readonly TextWriter Output;
 
+        private static string DefaultClassName(string programName) => $"{programName}__Compiled";
+
         public Compiler(Program program, string namespaceName, string dirPath)
-            : this(program, namespaceName, $"{program.Name}Helpers", new StreamWriter(Path.Combine(dirPath, $"{program.Name}Helpers.cs")))
+            : this(program, namespaceName, DefaultClassName(program.Name), new StreamWriter(Path.Combine(dirPath, $"{DefaultClassName(program.Name)}.cs")))
         { }
 
         public Compiler(Program program, string namespaceName, string className, TextWriter output)
@@ -34,24 +38,36 @@ namespace TED.Compiler
             NamespaceName = namespaceName;
         }
 
+        #region Top level
         public void GenerateSource()
         {
-            Output.WriteLine("using TED;");
-            Output.WriteLine("using TED.Interpreter;");
-            Output.WriteLine("using TED.Compiler;");
-            Output.WriteLine("using TED.Tables;");
-            NewLine();
-            Output.WriteLine($"namespace {NamespaceName};");
-            NewLine();
-            Output.WriteLine("#pragma warning disable 0164,8618");
-            NewLine();
-            Output.WriteLine($"[CompiledHelpersFor(\"{Program.Name}\")]");
-            Output.WriteLine($"public static class {ClassName}");
-            Output.WriteLine("{");
-            CompileProgram();
-            Output.WriteLine("}");
-            Output.WriteLine("#pragma warning restore 0164,8618");
-            Output.Close();
+            try
+            {
+                Output.WriteLine("// ReSharper disable InconsistentNaming");
+                Output.WriteLine("// ReSharper disable JoinDeclarationAndInitializer");
+                Output.WriteLine("// ReSharper disable RedundantUsingDirective");
+
+                Output.WriteLine("using TED;");
+                Output.WriteLine("using TED.Interpreter;");
+                Output.WriteLine("using TED.Compiler;");
+                Output.WriteLine("using TED.Tables;");
+                
+                NewLine();
+                Output.WriteLine("// ReSharper disable once CheckNamespace");
+                Output.WriteLine($"namespace {NamespaceName};");
+                NewLine();
+                Output.WriteLine("#pragma warning disable 0164,8618");
+                NewLine();
+                Output.WriteLine($"[CompiledHelpersFor(\"{Program.Name}\")]");
+                Output.WriteLine($"public static class {ClassName}");
+                CurlyBraceBlock(CompileProgram);
+                Output.WriteLine();
+                Output.WriteLine("#pragma warning restore 0164,8618");
+            }
+            finally
+            {
+                Output.Close();
+            }
         }
 
         private void CompileProgram()
@@ -59,12 +75,10 @@ namespace TED.Compiler
             foreach (var predicate in Program.Tables)
             {
                 var table = predicate.TableUntyped;
-                Output.WriteLine($"    [LinkToTable(\"{predicate.Name}\")]");
-                Output.WriteLine($"    public static {FormatType(table.GetType())} {table.Name};");
-                foreach (var index in table.Indices)
-                {
-                    Output.WriteLine($"    public static {FormatType(index.GetType())} {VariableNameForIndex(index)};");
-                }
+                Indented($"[LinkToTable(\"{predicate.Name}\")]");
+                Indented($"public static {FormatType(table.GetType())} {table.Name};");
+                foreach (var index in table.Indices) 
+                    Indented($"public static {FormatType(index.GetType())} {VariableNameForIndex(index)};");
             }
             Output.WriteLine();
 
@@ -110,83 +124,121 @@ namespace TED.Compiler
 
         private void CompileTable(TablePredicate table)
         {
-            Output.WriteLine($"    [CompiledRulesFor(\"{table.Name}\")]");
-            Output.WriteLine($"    public static void {table.Name}__CompiledUpdate()");
-            Output.WriteLine("    {");
-            foreach (var rule in table.Rules!)
-                CompileRule(rule);
-            Output.WriteLine("    }");
+            Indented($"[CompiledRulesFor(\"{table.Name}\")]");
+            Indented($"public static void {table.Name}__CompiledUpdate()");
+            var nextRule = new Continuation(table.Rules!.Count > 1 ? "rule2" : EndLabel);
+            CurlyBraceBlock(() =>
+            {
+                for (var ruleNumber = 1; ruleNumber <= table.Rules!.Count; ruleNumber++)
+                {
+                    CompileRule(table.Rules![ruleNumber-1], nextRule);
+                    Label(nextRule); 
+                    if (nextRule.Label != EndLabel)
+                        Output.WriteLine(";");
+                    nextRule = new Continuation(ruleNumber+2 > table.Rules!.Count ? EndLabel:$"rule{ruleNumber+2}");
+                }
+                Output.Write(';');
+            });
         }
 
-        private void CompileRule(Rule rule)
+        private void CompileRule(Rule rule, Continuation end)
         {
             var predicate = rule.Predicate;
             var ruleNumber = predicate.Rules!.IndexOf(rule)+1;
-            var start = new Continuation($"start{ruleNumber}");
-            var end = new Continuation($"end{ruleNumber}");
-            Output.Write("        {");
-            Label(start);
+            
             Indented($"// {rule}");
 
+            CurlyBraceBlock(() =>
+            {
+                // Declare locals
+                foreach (var c in rule.ValueCells)
+                    Indented($"{FormatType(c.Type)} {c.Name};");
 
-            // Declare locals
-            foreach (var c in rule.ValueCells) 
-                Indented($"{FormatType(c.Type)} {c.Name};");
+                var fail = end;
 
-            var fail = end;
+                // Compile subgoals
+                fail = CompileBody(rule.Body, fail, $"_");
 
-            var i = 0;
-            // Compile subgoals
-            foreach (var call in rule.Body)
-                fail = CompileGoal(call, fail, i++);
-            var argsToStore = GenerateWriteMode(rule.Head.Arguments);
-            Indented($"{rule.Predicate.Name}.Add({argsToStore});");
+                Output.WriteLine();
+                Indented($"// Write {rule.Head}");
+                var argsToStore = GenerateWriteMode(rule.Head.Arguments);
+                Indented($"{rule.Predicate.Name}.Add({argsToStore});");
 
-            Indented(fail.Invoke+";");
-            Label(end);
-            Output.WriteLine(" ;");  // Can't have a label at the end without an empty statement.
-            Output.Write("        }");
+                Indented(fail.Invoke + ";");
+            });
             Output.WriteLine();
         }
-        
-        private string GenerateWriteMode(IMatchOperation[] headArguments)
+        #endregion
+
+        #region Utilities for compiling common expression types
+        /// <summary>
+        /// Compile a series of goals (basically a conjunction)
+        /// </summary>
+        /// <param name="body">Goals to compile</param>
+        /// <param name="fail">Where to fail to if the body fails</param>
+        /// <param name="identifierSuffix">String that if placed after an identifier will guarantee the identifier is unique</param>
+        /// <returns>Continuation that will restart this body</returns>
+        public Continuation CompileBody(IEnumerable<Call> body, Continuation fail, string identifierSuffix)
         {
-            string ArgText(IMatchOperation op)
+            var currentFail = fail;
+            int goalNumber = 0;
+            foreach (var call in body)
             {
-                switch (op.Opcode)
-                {
-                    case Opcode.Constant:
-                        return ToSourceLiteral(op.Cell.BoxedValue);
-
-                    default:
-                        return op.Cell.Name;
-                }
+                Output.WriteLine();
+                currentFail = CompileGoal(call, currentFail, $"{identifierSuffix}_{goalNumber++}");
             }
-            var text = string.Join(",", headArguments.Select(ArgText));
-            return headArguments.Length == 1 ? text : $"({text})";
-        }
 
-        private Continuation CompileGoal(Call call, Continuation fail, int index)
+            return currentFail;
+        }
+        
+        /// <summary>
+        /// Compile a single goal
+        /// </summary>
+        /// <param name="call">Goal to compile</param>
+        /// <param name="fail">Where this goal should fail to if it fials</param>
+        /// <param name="identifierSuffix">String that if placed after an identifier will guarantee the identifier is unique</param>
+        /// <returns>Continuation that will restart this goal</returns>
+        public Continuation CompileGoal(Call call, Continuation fail, string identifierSuffix)
         {
             Indented($"// {call}");
-            return call.Compile(this, fail, $"__{index}");
+            return call.Compile(this, fail, identifierSuffix);
         }
 
+        /// <summary>
+        /// Returns a string that, when executed will give you the value of the specified pattern.
+        /// </summary>
+        /// <param name="pattern">Pattern to get the value of </param>
+        /// <returns>Expression that computes the vlaue of the pattern (usually a tuple)</returns>
+        /// <exception cref="InvalidOperationException">If pattern is not fully instantiated</exception>
         public string PatternValueExpression(IPattern pattern)
-        {
-            string Expression(IMatchOperation arg) => arg.Opcode switch
+            => pattern.Arguments.Length switch
             {
-                Opcode.Constant => ToSourceLiteral(arg.Cell.BoxedValue),
-                Opcode.Read => arg.Cell.Name,
-                _ => throw new InvalidOperationException(
-                    $"Can't compile {arg} to a value expression because it's not read or constant mode")
+                1 => ArgumentExpression(pattern.Arguments[0]),
+                _ => $"({ArgumentExpressionsWithCommas(pattern)})"
             };
-            var args = pattern.Arguments;
-            if (args.Length == 1)
-                return Expression(args[0]);
-            return $"({string.Join(",", args.Select(Expression))})";
-        }
 
+        public string ArgumentExpression(IMatchOperation arg) => arg.Opcode switch
+        {
+            Opcode.Constant => ToSourceLiteral(arg.Cell.BoxedValue),
+            Opcode.Read => arg.Cell.Name,
+            _ => throw new InvalidOperationException(
+                $"Can't compile {arg} to a value expression because it's not read or constant mode")
+        };
+
+        public IEnumerable<string> ArgumentExpressions(IPattern p) => ArgumentExpressions(p.Arguments); 
+
+        public IEnumerable<string> ArgumentExpressions(IEnumerable<IMatchOperation> args) =>
+            args.Select(ArgumentExpression);
+
+        public string ArgumentExpressionsWithCommas(IPattern p) => string.Join(", ", ArgumentExpressions(p));
+
+        /// <summary>
+        /// Emit code to match tupleVar to the specified pattern.
+        /// This will update variables or compare them to tuple values, depending on the read/write modes of the pattern's arguments.
+        /// </summary>
+        /// <param name="tupleVar">Name of the variable containing the tuple</param>
+        /// <param name="p">Pattern to match the tuple to</param>
+        /// <param name="fail">Where to branch to if the match fails (falls through for success)</param>
         public void CompilePatternMatch(string tupleVar, IPattern p, Continuation fail)
         {
             var patternArgs = p.Arguments;
@@ -195,6 +247,13 @@ namespace TED.Compiler
                 CompileMatch(singleColumn?tupleVar:$"{tupleVar}.Item{i+1}", patternArgs[i], fail);
         }
 
+        /// <summary>
+        /// Emit code to match item to the specified pattern argument (variable+read/write mode or constant).
+        /// This will update variables or compare them to tuple values, depending on the read/write modes of the pattern's arguments.
+        /// </summary>
+        /// <param name="item">Code for expression containing the item</param>
+        /// <param name="patternArg">Match operation</param>
+        /// <param name="fail">Target to branch to upon failure (falls through for success)</param>
         public void CompileMatch(string item, IMatchOperation patternArg, Continuation fail)
         {
             switch (patternArg.Opcode)
@@ -216,6 +275,40 @@ namespace TED.Compiler
             }
         }
 
+        private string GenerateWriteMode(IMatchOperation[] headArguments)
+        {
+            string ArgText(IMatchOperation op)
+            {
+                switch (op.Opcode)
+                {
+                    case Opcode.Constant:
+                        return ToSourceLiteral(op.Cell.BoxedValue);
+
+                    default:
+                        return op.Cell.Name;
+                }
+            }
+            var text = string.Join(",", headArguments.Select(ArgText));
+            return headArguments.Length == 1 ? text : $"({text})";
+        }
+
+        /// <summary>
+        /// Emits code to branch to the controlExpression'th label in targets.
+        /// </summary>
+        /// <param name="controlExpression">Integer variable containing the number of the target to branch to</param>
+        /// <param name="targets">The targets, in order</param>
+        public void CompileJumpTable(string controlExpression, IEnumerable<Continuation> targets)
+        {
+            Indented($"switch ({controlExpression})");
+            CurlyBraceBlock(() =>
+            {
+                var i = 0;
+                foreach (var target in targets)
+                    Indented($"case {i++}: {target.Invoke};");
+            });
+        }
+        #endregion
+
         #region Low-level output
         public static string ToSourceLiteral(object? o)
         {
@@ -233,32 +326,77 @@ namespace TED.Compiler
                 case string s:
                     return $"\"{s}\"";
 
+                case int[] intArray:
+                {
+                    var b = new StringBuilder();
+                    b.Append("new [] { ");
+                    foreach (var e in intArray)
+                    {
+                        b.Append(e);
+                        b.Append(", ");
+                    }
+
+                    b.Append("}");
+                    return b.ToString();
+                }
+ 
                 default:
                     return o.ToString();
             }
         }
 
-        public void Label(Continuation k) => Indented($"{k.Label}:");
+        public void Label(Continuation k, bool includeEmptyStatement = false)
+        {
+            Indented($"{k.Label}:");
+            if (includeEmptyStatement)
+                Output.Write(" ;");
+        }
 
         public void NewLine() => Output.WriteLine();
 
-        public void NewLineIndented() => Output.Write("\n            ");
+        private int indentLevel;
+        private const string EndLabel = "end";
+
+        public void NewLineIndented()
+        {
+            Output.Write(Output.NewLine);
+            for (int i = 0; i < indentLevel*4;i++) Output.Write(' ');
+        }
 
         public void Indented(string text)
         {
             NewLineIndented();
             Output.Write(text);
         }
+
+        public void FurtherIndented(Action code)
+        {
+            indentLevel++;
+            try
+            {
+                code();
+            }
+            finally
+            {
+                indentLevel--;
+            }
+        }
+
+        public void CurlyBraceBlock(Action code)
+        {
+            Indented("{");
+            FurtherIndented(code);
+            Indented("}");
+        }
         #endregion
 
         #region Linking
-
         public static void Link(Program p, bool failOnTypeMissing = false, Type? helper = null)
         {
             if (helper == null)
             {
                 var assembly = new StackTrace().GetFrames()[1].GetMethod().DeclaringType.Assembly;
-                var helpName = $"{p.Name}Helpers";
+                var helpName = DefaultClassName(p.Name);
                 helper = assembly.GetTypes().FirstOrDefault(t =>
                 {
                     var a = t.GetCustomAttributes(typeof(CompiledHelpersForAttribute), false);
@@ -297,5 +435,15 @@ namespace TED.Compiler
             }
         }
         #endregion
+
+        public void Dispose()
+        {
+            Output.Dispose();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await Output.DisposeAsync();
+        }
     }
 }
