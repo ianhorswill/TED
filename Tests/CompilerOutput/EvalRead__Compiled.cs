@@ -9,18 +9,13 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests;
 
-#pragma warning disable 0164,8618
+#pragma warning disable 0164,8618,8600,8620
 
 [CompiledHelpersFor("EvalRead")]
-public static class EvalRead__Compiled
+public class EvalRead__Compiled : TED.Compiler.CompiledTEDProgram
 
 {
-    [LinkToTable("P")]
-    public static Table<ValueTuple<int,int>> P;
-    [LinkToTable("Q")]
-    public static Table<int> Q;
 
-    [CompiledRulesFor("Q")]
     public static void Q__CompiledUpdate()
     {
         // Q[in i].If(P[out i,out j], i == j+1)
@@ -46,5 +41,15 @@ public static class EvalRead__Compiled
 
         end:;
     }
+
+    public override void Link(TED.Program program)
+    {
+        program["Q"].CompiledRules = (Action)Q__CompiledUpdate;
+        P = (Table<ValueTuple<int,int>>)program["P"].TableUntyped;
+        Q = (Table<int>)program["Q"].TableUntyped;
+    }
+
+    public static Table<ValueTuple<int,int>> P;
+    public static Table<int> Q;
 }
-#pragma warning restore 0164,8618
+#pragma warning restore 0164,8618,8600,8620

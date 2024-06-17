@@ -9,20 +9,13 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests;
 
-#pragma warning disable 0164,8618
+#pragma warning disable 0164,8618,8600,8620
 
 [CompiledHelpersFor("Not")]
-public static class Not__Compiled
+public class Not__Compiled : TED.Compiler.CompiledTEDProgram
 
 {
-    [LinkToTable("P")]
-    public static Table<int> P;
-    [LinkToTable("Q")]
-    public static Table<int> Q;
-    [LinkToTable("R")]
-    public static Table<int> R;
 
-    [CompiledRulesFor("R")]
     public static void R__CompiledUpdate()
     {
         // R[in a].If(P[out a], Not[Q[in a]])
@@ -52,5 +45,17 @@ public static class Not__Compiled
 
         end:;
     }
+
+    public override void Link(TED.Program program)
+    {
+        program["R"].CompiledRules = (Action)R__CompiledUpdate;
+        P = (Table<int>)program["P"].TableUntyped;
+        Q = (Table<int>)program["Q"].TableUntyped;
+        R = (Table<int>)program["R"].TableUntyped;
+    }
+
+    public static Table<int> P;
+    public static Table<int> Q;
+    public static Table<int> R;
 }
-#pragma warning restore 0164,8618
+#pragma warning restore 0164,8618,8600,8620

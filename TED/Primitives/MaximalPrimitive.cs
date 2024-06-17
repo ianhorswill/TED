@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
 
@@ -99,6 +100,45 @@ namespace TED.Primitives
                 argCell.Value = bestArg;
                 utilityCell.Value = bestUtil;
                 return gotOne;
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                var gotOne = $"gotOne{identifierSuffix}";
+                var bestArg = $"best{arg.Cell.Name}{identifierSuffix}";
+                var bestUtility = $"best{utility.Cell.Name}{identifierSuffix}";
+                var comparison = predicate.multiplier > 0 ? ">" : "<";
+
+                // Initialize state variables
+                compiler.Indented($"var {gotOne} = false;");
+                compiler.Indented($"var {bestArg} = default({compiler.FormatType(arg.Type)});");
+                compiler.Indented($"var {bestUtility} = default({compiler.FormatType(utility.Type)});");
+                var done = new Continuation($"maxDone{identifierSuffix}");
+
+                // Find a solution
+                var nextSolution = compiler.CompileGoal(goal, done, identifierSuffix + "_maxLoop");
+
+                compiler.NewLine();
+
+                // Update if it's a better solution
+                compiler.Indented($"if (!{gotOne} || {utility.Cell.Name} {comparison} {bestUtility})");
+                compiler.CurlyBraceBlock(() =>
+                {
+                    compiler.Indented($"{gotOne} = true;");
+                    compiler.Indented($"{bestArg} = {arg.Cell.Name};");
+                    compiler.Indented($"{bestUtility} = {utility.Cell.Name};");
+                });
+                // Get next solution
+                compiler.Indented(nextSolution.Invoke+";");
+
+                compiler.NewLine();
+
+                // Done
+                compiler.Label(done);
+                compiler.Indented($"if (!{gotOne}) {fail.Invoke};");  // Complete failure
+                compiler.Indented($"{arg.Cell.Name} = {bestArg};");
+                compiler.Indented($"{utility.Cell.Name} = {bestUtility};");
+                return fail;
             }
         }
     }
@@ -210,6 +250,49 @@ namespace TED.Primitives
                 arg2Cell.Value = bestArg2;
                 utilityCell.Value = bestUtil;
                 return gotOne;
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                var gotOne = $"gotOne{identifierSuffix}";
+                var bestArg1 = $"best{arg1.Cell.Name}{identifierSuffix}";
+                var bestArg2 = $"best{arg2.Cell.Name}{identifierSuffix}";
+                var bestUtility = $"best{utility.Cell.Name}{identifierSuffix}";
+                var comparison = predicate.multiplier > 0 ? ">" : "<";
+
+                // Initialize state variables
+                compiler.Indented($"var {gotOne} = false;");
+                compiler.Indented($"var {bestArg1} = default({compiler.FormatType(arg1.Type)});");
+                compiler.Indented($"var {bestArg2} = default({compiler.FormatType(arg2.Type)});");
+                compiler.Indented($"var {bestUtility} = default({compiler.FormatType(utility.Type)});");
+                var done = new Continuation($"maxDone{identifierSuffix}");
+
+                // Find a solution
+                var nextSolution = compiler.CompileGoal(goal, done, identifierSuffix + "_maxLoop");
+
+                compiler.NewLine();
+
+                // Update if it's a better solution
+                compiler.Indented($"if (!{gotOne} || {utility.Cell.Name} {comparison} {bestUtility})");
+                compiler.CurlyBraceBlock(() =>
+                {
+                    compiler.Indented($"{gotOne} = true;");
+                    compiler.Indented($"{bestArg1} = {arg1.Cell.Name};");
+                    compiler.Indented($"{bestArg2} = {arg2.Cell.Name};");
+                    compiler.Indented($"{bestUtility} = {utility.Cell.Name};");
+                });
+                // Get next solution
+                compiler.Indented(nextSolution.Invoke+";");
+
+                compiler.NewLine();
+
+                // Done
+                compiler.Label(done);
+                compiler.Indented($"if (!{gotOne}) {fail.Invoke};");  // Complete failure
+                compiler.Indented($"{arg1.Cell.Name} = {bestArg1};");
+                compiler.Indented($"{arg2.Cell.Name} = {bestArg2};");
+                compiler.Indented($"{utility.Cell.Name} = {bestUtility};");
+                return fail;
             }
         }
     }
@@ -336,6 +419,53 @@ namespace TED.Primitives
                 arg3Cell.Value = bestArg3;
                 utilityCell.Value = bestUtil;
                 return gotOne;
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                var gotOne = $"gotOne{identifierSuffix}";
+                var bestArg1 = $"best{arg1.Cell.Name}{identifierSuffix}";
+                var bestArg2 = $"best{arg2.Cell.Name}{identifierSuffix}";
+                var bestArg3 = $"best{arg3.Cell.Name}{identifierSuffix}";
+                var bestUtility = $"best{utility.Cell.Name}{identifierSuffix}";
+                var comparison = predicate.multiplier > 0 ? ">" : "<";
+
+                // Initialize state variables
+                compiler.Indented($"var {gotOne} = false;");
+                compiler.Indented($"var {bestArg1} = default({compiler.FormatType(arg1.Type)});");
+                compiler.Indented($"var {bestArg2} = default({compiler.FormatType(arg2.Type)});");
+                compiler.Indented($"var {bestArg3} = default({compiler.FormatType(arg3.Type)});");
+                compiler.Indented($"var {bestUtility} = default({compiler.FormatType(utility.Type)});");
+                var done = new Continuation($"maxDone{identifierSuffix}");
+
+                // Find a solution
+                var nextSolution = compiler.CompileGoal(goal, done, identifierSuffix + "_maxLoop");
+
+                compiler.NewLine();
+
+                // Update if it's a better solution
+                compiler.Indented($"if (!{gotOne} || {utility.Cell.Name} {comparison} {bestUtility})");
+                compiler.CurlyBraceBlock(() =>
+                {
+                    compiler.Indented($"{gotOne} = true;");
+                    compiler.Indented($"{bestArg1} = {arg1.Cell.Name};");
+                    compiler.Indented($"{bestArg2} = {arg2.Cell.Name};");
+                    compiler.Indented($"{bestArg3} = {arg3.Cell.Name};");
+                    compiler.Indented($"{bestUtility} = {utility.Cell.Name};");
+                });
+                // Get next solution
+                compiler.Indented(nextSolution.Invoke+";");
+
+                compiler.NewLine();
+
+                // Done
+                compiler.Label(done);
+                compiler.Indented($"if (!{gotOne}) {fail.Invoke};");  // Complete failure
+                compiler.Indented($"{arg1.Cell.Name} = {bestArg1};");
+                compiler.Indented($"{arg2.Cell.Name} = {bestArg2};");
+                compiler.Indented($"{arg3.Cell.Name} = {bestArg3};");
+                compiler.Indented($"{utility.Cell.Name} = {bestUtility};");
+                return fail;
             }
         }
     }

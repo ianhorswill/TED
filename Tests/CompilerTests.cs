@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using TED;
 using TED.Compiler;
 using static TED.Language;
@@ -89,7 +90,7 @@ namespace Tests
             var j = (Var<int>)"j";
             var program = new Simulation(nameof(GeneralIndexed));
             program.BeginPredicates();
-            var P = Predicate("P", i, j);
+            var P = Predicate("P", i.Indexed, j);
             for (int a = 0; a < 10; a++)
             for (int b = 0; b < 20; b += 2)
                 P.AddRow(a, b);
@@ -302,7 +303,7 @@ namespace Tests
         [TestMethod]
         public void OnceTest()
         {
-            var program = new Program(nameof(OnceTest));
+            var program = new Program(ThisMethodName());
             program.BeginPredicates();
             var p = Predicate("p", new[] { 1, 2, 3 });
             var x = (Var<int>)"x";
@@ -317,6 +318,91 @@ namespace Tests
             CollectionAssert.AreEqual(interpreted, compiled);
         }
 
+        [TestMethod]
+        public void MaximalTest()
+        {
+            var name = (Var<string>)"name";
+            var age = (Var<int>)"age";
+
+            var program = new Program(ThisMethodName());
+            program.BeginPredicates();
+            var t = TablePredicate<string, int>.FromCsv("test", "../../../TestTable.csv", name, age);
+
+            var floatAge = (Var<float>)"floatAge";
+            var M = Predicate("M", name, floatAge).If(Maximal(name, floatAge, And[t[name, age], floatAge == Float[age]]));
+            program.EndPredicates();
+            var interpreted = M.ToArray();
+            CollectionAssert.AreEqual(new [] { ("Jenny", 12f) }, interpreted);
+            var rows = M.ToArray();
+            Assert.AreEqual(1,rows.Length);
+            Assert.AreEqual(("Jenny", 12.0f), rows[0]);
+            new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
+            Compiler.Link(program);
+            M.ForceRecompute();
+            var compiled = M.ToArray();
+            CollectionAssert.AreEqual(interpreted, compiled);
+        }
+
+        [TestMethod]
+        public void OrTest()
+        {
+            var x = (Var<int>)"x";
+            var y = (Var<int>)"y";
+
+            var program = new Program(ThisMethodName());
+            program.BeginPredicates();
+            var t = new TablePredicate<int, int>("t", x, y);
+            for (var i = 0; i < 10; i++)
+            for (var j = 0; j < 10; j++)
+                t.AddRow(i, j);
+
+            var u = new TablePredicate<int>("u", x);
+            u.AddRow(2);
+            u.AddRow(4);
+            u.AddRow(6);
+
+            var s = new TablePredicate<int>("s", x);
+
+            s[x].If(And[t[x,x], And[u[x]]]);
+
+            var v = Predicate("v", new[] { 8, 10 });
+
+            var w = Predicate("w", x).If(Or[s[x], v[x]]);
+            program.EndPredicates();
+            var interpreted = w.ToArray();
+            CollectionAssert.AreEqual(new[] { 2, 4, 6, 8, 10 }, interpreted);
+            new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
+            Compiler.Link(program);
+            w.ForceRecompute();
+            var compiled = w.ToArray();
+            CollectionAssert.AreEqual(interpreted, compiled);
+        }
+
+        [TestMethod]
+        public void PickRandomlyTest()
+        {
+            var n = (Var<int>)"n";
+            var program = new Program(ThisMethodName());
+            program.BeginPredicates();
+            var P = Predicate("P", n).If(PickRandomly(n, 0, 1, 2, 3, 4));
+            program.EndPredicates();
+            new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
+            Compiler.Link(program);
+            var counters = new int[5];
+            for (var i = 0; i < 100; i++)
+            {
+                P.ForceRecompute();
+                counters[P.ToArray()[0]]++;
+            }
+            // Every element of counter should be around 20.
+            foreach (var counter in counters)
+                Assert.IsTrue(counter is > 10 and < 40);
+        }
+
+        #region Utilities
         string CompilerOutputFolder([CallerFilePath] string caller = null!) => Path.Combine(Path.GetDirectoryName(caller)!, "CompilerOutput");
+
+        string ThisMethodName([CallerMemberName] string caller = null!) => caller;
+        #endregion
     }
 }

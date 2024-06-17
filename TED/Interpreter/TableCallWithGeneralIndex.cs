@@ -31,13 +31,13 @@ namespace TED.Interpreter
         {
             var restart = new Continuation($"restart{identifierSuffix}");
             var match = new Continuation($"match{identifierSuffix}");
-            var rowNumber = $"row{identifierSuffix}";
             var rowData = $"data{identifierSuffix}";
-            compiler.Indented($"var {rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.FirstRowWithValue(in {Cell.Name});");
+
+            var rowNumber = compiler.LocalVariable($"row{identifierSuffix}", typeof(uint), $"{Compiler.Compiler.VariableNameForIndex(Index)}.FirstRowWithValue(in {Cell.Name})");
             compiler.Indented($"if ({rowNumber} != Table.NoRow) {match.Invoke};");
-            compiler.Indented(fail.Invoke);
+            compiler.Indented(fail.Invoke+";");
             compiler.Label(restart);
-            compiler.Indented($"var {rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.NextRowWithValue({rowNumber});");
+            compiler.Indented($"{rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.NextRowWithValue({rowNumber});");
             compiler.Indented($"if ({rowNumber} == Table.NoRow) {fail.Invoke};");
             compiler.Label(match);
             compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");

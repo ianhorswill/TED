@@ -9,22 +9,13 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests;
 
-#pragma warning disable 0164,8618
+#pragma warning disable 0164,8618,8600,8620
 
 [CompiledHelpersFor("KeyIndexed")]
-public static class KeyIndexed__Compiled
+public class KeyIndexed__Compiled : TED.Compiler.CompiledTEDProgram
 
 {
-    [LinkToTable("Day")]
-    public static Table<string> Day;
-    [LinkToTable("NextDay")]
-    public static Table<ValueTuple<string,string>> NextDay;
-    public static KeyIndex<ValueTuple<string,string>,string> NextDay__0;
-    public static GeneralIndex<ValueTuple<string,string>,string> NextDay__1;
-    [LinkToTable("Mapped")]
-    public static Table<ValueTuple<string,string>> Mapped;
 
-    [CompiledRulesFor("Mapped")]
     public static void Mapped__CompiledUpdate()
     {
         // Mapped[in d,in n].If(Day[out d], NextDay[in d,out n])
@@ -53,5 +44,21 @@ public static class KeyIndexed__Compiled
 
         end:;
     }
+
+    public override void Link(TED.Program program)
+    {
+        program["Mapped"].CompiledRules = (Action)Mapped__CompiledUpdate;
+        Day = (Table<string>)program["Day"].TableUntyped;
+        NextDay = (Table<ValueTuple<string,string>>)program["NextDay"].TableUntyped;
+        NextDay__0 = (KeyIndex<ValueTuple<string,string>,string>)NextDay.IndexFor(0);
+        NextDay__1 = (GeneralIndex<ValueTuple<string,string>,string>)NextDay.IndexFor(1);
+        Mapped = (Table<ValueTuple<string,string>>)program["Mapped"].TableUntyped;
+    }
+
+    public static Table<string> Day;
+    public static Table<ValueTuple<string,string>> NextDay;
+    public static KeyIndex<ValueTuple<string,string>,string> NextDay__0;
+    public static GeneralIndex<ValueTuple<string,string>,string> NextDay__1;
+    public static Table<ValueTuple<string,string>> Mapped;
 }
-#pragma warning restore 0164,8618
+#pragma warning restore 0164,8618,8600,8620

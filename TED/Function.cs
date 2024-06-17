@@ -14,7 +14,7 @@ namespace TED {
         /// </summary>
         public readonly string Name;
 
-        public virtual string NameForCompilation => Name;
+        public string NameForCompilation;
 
         private readonly bool isPure;
 
@@ -25,6 +25,7 @@ namespace TED {
         {
             Name = name;
             this.isPure = isPure;
+            NameForCompilation = name;
         }
         
         /// <inheritdoc />

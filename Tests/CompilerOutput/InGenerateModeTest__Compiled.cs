@@ -9,16 +9,13 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests;
 
-#pragma warning disable 0164,8618
+#pragma warning disable 0164,8618,8600,8620
 
 [CompiledHelpersFor("InGenerateModeTest")]
-public static class InGenerateModeTest__Compiled
+public class InGenerateModeTest__Compiled : TED.Compiler.CompiledTEDProgram
 
 {
-    [LinkToTable("Test")]
-    public static Table<int> Test;
 
-    [CompiledRulesFor("Test")]
     public static void Test__CompiledUpdate()
     {
         // Test[in n].If(In[out n,System.Int32[]])
@@ -26,7 +23,7 @@ public static class InGenerateModeTest__Compiled
             int n;
 
             // In[out n,System.Int32[]]
-            var enumerator__0 = ((IEnumerable<int>)(new [] { 1, 2, 3, 4, 5, })).GetEnumerator();
+            var enumerator__0 = ((IEnumerable<int>)(new [] { 1, 2, 3, 4, 5, })).GetEnumerator();;
             in_restart___0:
             if (!enumerator__0.MoveNext()) goto end;
             n = enumerator__0.Current;
@@ -38,5 +35,13 @@ public static class InGenerateModeTest__Compiled
 
         end:;
     }
+
+    public override void Link(TED.Program program)
+    {
+        program["Test"].CompiledRules = (Action)Test__CompiledUpdate;
+        Test = (Table<int>)program["Test"].TableUntyped;
+    }
+
+    public static Table<int> Test;
 }
-#pragma warning restore 0164,8618
+#pragma warning restore 0164,8618,8600,8620

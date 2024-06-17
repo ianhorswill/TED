@@ -1,4 +1,5 @@
-﻿using TED.Interpreter;
+﻿using TED.Compiler;
+using TED.Interpreter;
 using TED.Preprocessing;
 using TED.Utilities;
 
@@ -48,6 +49,20 @@ namespace TED.Primitives
                 finished = true;
                 outputArg.Match(choices[(uint)rng.InRangeExclusive(0, len)]);
                 return true;
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                var rng = compiler.MakeRng();
+                var array = compiler.FieldUniqueName($"PickRandomlyArray", typeof(T[]),
+                    Compiler.Compiler.ToSourceLiteral(choices));
+                if (choices.Length == 0)
+                    compiler.Indented($"{fail.Invoke};");
+                else if (outputArg.IsInstantiated)
+                    compiler.Indented($"if ({compiler.ArgumentExpression(outputArg)} != {array}[{rng}.InRangeExclusive(0,{choices.Length})]) {fail.Invoke};");
+                else
+                    compiler.Indented($"{outputArg.Cell.Name} = {array}[{rng}.Next()%{choices.Length}];");
+                return fail;
             }
         }
     }

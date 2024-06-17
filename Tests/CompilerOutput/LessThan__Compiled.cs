@@ -9,18 +9,13 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests;
 
-#pragma warning disable 0164,8618
+#pragma warning disable 0164,8618,8600,8620
 
 [CompiledHelpersFor("LessThan")]
-public static class LessThan__Compiled
+public class LessThan__Compiled : TED.Compiler.CompiledTEDProgram
 
 {
-    [LinkToTable("P")]
-    public static Table<ValueTuple<int,int>> P;
-    [LinkToTable("Q")]
-    public static Table<int> Q;
 
-    [CompiledRulesFor("Q")]
     public static void Q__CompiledUpdate()
     {
         // Q[in i].If(P[out i,out j], <[in i,in j])
@@ -46,5 +41,15 @@ public static class LessThan__Compiled
 
         end:;
     }
+
+    public override void Link(TED.Program program)
+    {
+        program["Q"].CompiledRules = (Action)Q__CompiledUpdate;
+        P = (Table<ValueTuple<int,int>>)program["P"].TableUntyped;
+        Q = (Table<int>)program["Q"].TableUntyped;
+    }
+
+    public static Table<ValueTuple<int,int>> P;
+    public static Table<int> Q;
 }
-#pragma warning restore 0164,8618
+#pragma warning restore 0164,8618,8600,8620

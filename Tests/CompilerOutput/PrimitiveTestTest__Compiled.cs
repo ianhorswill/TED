@@ -9,18 +9,13 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests;
 
-#pragma warning disable 0164,8618
+#pragma warning disable 0164,8618,8600,8620
 
 [CompiledHelpersFor("PrimitiveTestTest")]
-public static class PrimitiveTestTest__Compiled
+public class PrimitiveTestTest__Compiled : TED.Compiler.CompiledTEDProgram
 
 {
-    [LinkToTable("P")]
-    public static Table<int> P;
-    [LinkToTable("Q")]
-    public static Table<int> Q;
 
-    [CompiledRulesFor("Q")]
     public static void Q__CompiledUpdate()
     {
         // Q[in a].If(P[out a], Odd[in a])
@@ -44,5 +39,15 @@ public static class PrimitiveTestTest__Compiled
 
         end:;
     }
+
+    public override void Link(TED.Program program)
+    {
+        program["Q"].CompiledRules = (Action)Q__CompiledUpdate;
+        P = (Table<int>)program["P"].TableUntyped;
+        Q = (Table<int>)program["Q"].TableUntyped;
+    }
+
+    public static Table<int> P;
+    public static Table<int> Q;
 }
-#pragma warning restore 0164,8618
+#pragma warning restore 0164,8618,8600,8620

@@ -22,7 +22,9 @@ namespace TED.Compiler
 
         public readonly string ClassName;
 
-        public readonly TextWriter Output;
+        public readonly Stack<TextWriter> OutputStack = new Stack<TextWriter>();
+
+        public TextWriter Output => OutputStack.Peek();
 
         private static string DefaultClassName(string programName) => $"{programName}__Compiled";
 
@@ -34,7 +36,7 @@ namespace TED.Compiler
         {
             Program = program;
             ClassName = className;
-            Output = output;
+            OutputStack.Push(output);
             NamespaceName = namespaceName;
         }
 
@@ -56,13 +58,15 @@ namespace TED.Compiler
                 Output.WriteLine("// ReSharper disable once CheckNamespace");
                 Output.WriteLine($"namespace {NamespaceName};");
                 NewLine();
-                Output.WriteLine("#pragma warning disable 0164,8618");
+                Output.WriteLine("#pragma warning disable 0164,8618,8600,8620");
                 NewLine();
+                
                 Output.WriteLine($"[CompiledHelpersFor(\"{Program.Name}\")]");
-                Output.WriteLine($"public static class {ClassName}");
+                Output.WriteLine($"public class {ClassName} : TED.Compiler.CompiledTEDProgram");
                 CurlyBraceBlock(CompileProgram);
                 Output.WriteLine();
-                Output.WriteLine("#pragma warning restore 0164,8618");
+
+                Output.WriteLine("#pragma warning restore 0164,8618,8600,8620");
             }
             finally
             {
@@ -75,10 +79,21 @@ namespace TED.Compiler
             foreach (var predicate in Program.Tables)
             {
                 var table = predicate.TableUntyped;
-                Indented($"[LinkToTable(\"{predicate.Name}\")]");
-                Indented($"public static {FormatType(table.GetType())} {table.Name};");
-                foreach (var index in table.Indices) 
-                    Indented($"public static {FormatType(index.GetType())} {VariableNameForIndex(index)};");
+                //Indented($"[LinkToTable(\"{predicate.Name}\")]");
+                //Indented($"public static {FormatType(table.GetType())} {table.Name};");
+
+                var tableType = table.GetType();
+                Field(predicate.Name,
+                    tableType,
+                    $"({FormatType(tableType)})program[\"{predicate.Name}\"].TableUntyped");
+
+                foreach (var index in table.Indices)
+                {
+                    var indexType = index.GetType();
+                    Field(VariableNameForIndex(index), indexType,
+                        $"({FormatType(indexType)}){predicate.Name}.IndexFor({string.Join(", ", index.ColumnNumbers.Select(n => n.ToString()))})");
+                }
+                //    Indented($"public static {FormatType(index.GetType())} {VariableNameForIndex(index)};");
             }
             Output.WriteLine();
 
@@ -89,6 +104,22 @@ namespace TED.Compiler
                     CompileTable(table);
                 }
             }
+
+            Output.WriteLine();
+            Indented("public override void Link(TED.Program program)");
+            CurlyBraceBlock(CompileInitializers);
+            NewLine();
+
+            foreach (var field in Fields)
+                Indented($"public static {FormatType(field.Type)} {field.Name};");
+        }
+
+        private void CompileInitializers()
+        {
+            foreach (var u in tableUpdaters)
+                Indented($"program[\"{u.TableName}\"].CompiledRules = (Action){u.Updater};");
+            foreach (var f in Fields)
+                Indented($"{f.Name} = {f.Initializer};");
         }
 
         public static string VariableNameForIndex(TableIndex index)
@@ -106,10 +137,14 @@ namespace TED.Compiler
 
         public string FormatType(Type t)
         {
+            if (t.IsArray)
+                return $"{FormatType(t.GetElementType()!)}[]";
             if (!t.IsGenericType)
             {
                 if (t == typeof(int))
                     return "int";
+                if (t == typeof(uint))
+                    return "uint";
                 if (t == typeof(float))
                     return "float";
                 if (t == typeof(bool))
@@ -122,10 +157,15 @@ namespace TED.Compiler
                 $"{t.Name.Substring(0, t.Name.IndexOf("`"))}<{string.Join(",", t.GetGenericArguments().Select(FormatType))}>";
         }
 
+        private List<(string TableName, string Updater)> tableUpdaters = new List<(string TableName, string Updater)>(); 
+
         private void CompileTable(TablePredicate table)
         {
-            Indented($"[CompiledRulesFor(\"{table.Name}\")]");
-            Indented($"public static void {table.Name}__CompiledUpdate()");
+            var tableName = table.Name;
+            var updaterName = $"{tableName}__CompiledUpdate";
+            tableUpdaters.Add((tableName, updaterName));
+
+            Indented($"public static void {updaterName}()");
             var nextRule = new Continuation(table.Rules!.Count > 1 ? "rule2" : EndLabel);
             CurlyBraceBlock(() =>
             {
@@ -168,6 +208,103 @@ namespace TED.Compiler
             });
             Output.WriteLine();
         }
+        #endregion
+
+        /// <summary>
+        /// Compile the code compiled by generator, but move any variables it declares using LocalVariable to the beginning.
+        /// This is needed because some parts of the state machine generated by the compiler have data dependencies that the
+        /// C# compiler's control flow analyzer can't follow and so a direct translation of the output generates bogus CS0165
+        /// errors complaining that local variables are used before they're initialized.  Wrapping code in this forces the
+        /// variables to be initialized early.  You only need to use this if you use CompileJumpTable to create jumps into the
+        /// middle of the block generated by this.  As of this writing, the only use case for this is the Or[] primitive.
+        /// </summary>
+        public void WithLiftedScope(Action generator)
+        {
+            if (liftedVariables != null)
+                // Already lifting
+                generator();
+            else
+            {
+                liftedVariables = new List<(string VariableName, Type Type)>();
+                try
+                {
+                    var compiledText = CompileToString(generator);
+
+                    foreach (var v in liftedVariables)
+                    {
+                        var type = FormatType(v.Type);
+                        Indented($"{type} {v.VariableName} = default({type});");
+                    }
+
+                    NewLine();
+                    Output.Write(compiledText);
+                }
+                finally
+                {
+                    liftedVariables = null;
+                }
+            }
+        }
+
+        #region Declaration handling
+        private List<(string VariableName, Type Type)>? liftedVariables;
+
+        /// <summary>
+        /// Generates the code necessary to have a local variable here with the specified name, type, and initializer.
+        /// This is usually just a var name = initializer statement, but if we have lifted scope, the declaration will
+        /// be moved earlier and the line generated here will just assign the value.
+        /// </summary>
+        /// <param name="name">Name to give to the variable</param>
+        /// <param name="type">type to give to the variable</param>
+        /// <param name="initializer">text of expression for its initial value</param>
+        /// <param name="liftIfNecessary">If false, never lift.</param>
+        /// <returns>name</returns>
+        public string LocalVariable(string name, Type type, string initializer, bool liftIfNecessary = true)
+        {
+            if (liftedVariables != null)
+            {
+                liftedVariables.Add((name, type));
+                Indented($"{name} = {initializer};");
+            }
+            else
+                Indented($"var {name} = {initializer};");
+
+            return name;
+        }
+
+        private List<(string Name, Type Type, string Initializer)> Fields = new List<(string fieldName, Type Type, string initializer)>();
+
+        /// <summary>
+        /// Add the specified field with the specified type an initializer to the class containing the compiled code.
+        /// This can be used to link to outside data (e.g. tables) or to retain state from update to update (e.g. RNGs).
+        /// </summary>
+        /// <param name="name">Name to give to the field</param>
+        /// <param name="type">date type for the field</param>
+        /// <param name="initializer">Expression for an initial value.  This is assigned during linking.</param>
+        /// <returns>The name</returns>
+        public string Field(string name, Type type, string initializer)
+        {
+            Fields.Add((name, type, initializer));
+            return name;
+        }
+
+        private Dictionary<string, int> fieldCounters = new Dictionary<string, int>();
+
+        public string FieldUniqueName(string name, Type type, string initializer)
+        {
+            int uid;
+            if (fieldCounters.TryGetValue(name, out var counter))
+            {
+                fieldCounters[name] = uid = counter + 1;
+            }
+            else
+                uid = 0;
+
+            return Field($"{name}__{uid}", type, initializer);
+        }
+
+        private int RngCounter;
+        public string MakeRng() => Field($"_Rng{RngCounter++}", typeof(Random), "MakeRng()");
         #endregion
 
         #region Utilities for compiling common expression types
@@ -388,6 +525,22 @@ namespace TED.Compiler
             FurtherIndented(code);
             Indented("}");
         }
+
+        private string CompileToString(Action generator)
+        {
+            OutputStack.Push(new StringWriter());
+            string results;
+            try
+            {
+                generator();
+            }
+            finally
+            {
+                results = OutputStack.Pop().ToString();
+            }
+
+            return results;
+        }
         #endregion
 
         #region Linking
@@ -410,29 +563,9 @@ namespace TED.Compiler
                     return;
                 }
             }
-
-            // Fill in the static fields of helper with the Table objects of the predicates it references
-            foreach (var field in helper.GetFields()
-                         .Where(f => f.GetCustomAttributes(typeof(LinkToTableAttribute), false).Length > 0))
-            {
-                var tableName =
-                    ((LinkToTableAttribute)field.GetCustomAttributes(typeof(LinkToTableAttribute), false)[0])
-                    .TableName;
-                var table = p[tableName].TableUntyped;
-                field.SetValue(null, table);
-                foreach (var i in table.Indices) 
-                    helper.GetField(VariableNameForIndex(i)).SetValue(null, i);
-            }
-
-            foreach (var method in helper.GetMethods()
-                         .Where(m => m.GetCustomAttributes(typeof(CompiledRulesForAttribute), false).Length > 0))
-            {
-                var tableName =
-                    ((CompiledRulesForAttribute)method.GetCustomAttributes(typeof(CompiledRulesForAttribute), false)[0])
-                    .TableName;
-                var table = p[tableName];
-                table.CompiledRules = (Action)Delegate.CreateDelegate(typeof(Action), method);
-            }
+            
+            ((CompiledTEDProgram)helper.InvokeMember(null, BindingFlags.CreateInstance, null, null,
+                    Array.Empty<object>())).Link(p);
         }
         #endregion
 

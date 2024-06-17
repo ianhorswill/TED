@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Xml.Schema;
 using TED.Interpreter;
 using TED.Primitives;
 using TED.Tables;
@@ -460,142 +459,142 @@ namespace TED
         /// The largest of two arguments
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<int, int, int> MaxInt = new Function<int, int, int>("Max", Math.Max);
+        public static readonly Function<int, int, int> MaxInt = new Function<int, int, int>("Max", Math.Max) { NameForCompilation = "Math.Max"};
         /// <summary>
         /// The largest of two arguments
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float, float> MaxFloat = new Function<float, float, float>("Max", Math.Max);
+        public static readonly Function<float, float, float> MaxFloat = new Function<float, float, float>("Max", Math.Max) { NameForCompilation = "Math.Max"};
         
         /// <summary>
         /// The smaller of two arguments
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<int, int, int> MinInt = new Function<int, int, int>("Min", Math.Min);
+        public static readonly Function<int, int, int> MinInt = new Function<int, int, int>("Min", Math.Min) { NameForCompilation = "Math.Min"};
         /// <summary>
         /// The smaller of two arguments
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float, float> MinFloat = new Function<float, float, float>("Min", Math.Min);
+        public static readonly Function<float, float, float> MinFloat = new Function<float, float, float>("Min", Math.Min) { NameForCompilation = "Math.Min"};
 
         /// <summary>
         /// The absolute value of a number
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<int, int> AbsInt = new Function<int, int>("Abs", Math.Abs);
+        public static readonly Function<int, int> AbsInt = new Function<int, int>("Abs", Math.Abs) { NameForCompilation = "Math.Abs"};
         /// <summary>
         /// The absolute value of a number
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float> AbsFloat = new Function<float, float>("Abs", MathF.Abs);
+        public static readonly Function<float, float> AbsFloat = new Function<float, float>("Abs", MathF.Abs) { NameForCompilation = "Math.Abs"};
 
         /// <summary>
         /// Sign number (1, 0, or -1) of x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<int, int> SignInt = new Function<int, int>("Sign", Math.Sign);
+        public static readonly Function<int, int> SignInt = new Function<int, int>("Sign", Math.Sign) { NameForCompilation = "Math.Sign"};
         /// <summary>
         /// Sign number (1, 0, or -1) of x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, int> SignFloat = new Function<float, int>("Sign", MathF.Sign);
+        public static readonly Function<float, int> SignFloat = new Function<float, int>("Sign", MathF.Sign) { NameForCompilation = "Math.Sign"};
 
 
         /// <summary>
         /// The square root of a float
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float> Sqrt = new Function<float, float>("Sqrt", MathF.Sqrt);
+        public static readonly Function<float, float> Sqrt = new Function<float, float>("Sqrt", MathF.Sqrt) { NameForCompilation = "Math.Sqrt"};
 
         /// <summary>
         /// The natural log of a float
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float> Log = new Function<float, float>("Log", MathF.Log);
+        public static readonly Function<float, float> Log = new Function<float, float>("Log", MathF.Log) { NameForCompilation = "Math.Log" };
         
         /// <summary>
         /// e^x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float> Exp = new Function<float, float>("Exp", MathF.Exp);
+        public static readonly Function<float, float> Exp = new Function<float, float>("Exp", MathF.Exp) { NameForCompilation = "Math.Exp"};
 
         /// <summary>
         /// x^y
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float, float> Pow = new Function<float, float, float>("Pow", MathF.Pow);
+        public static readonly Function<float, float, float> Pow = new Function<float, float, float>("Pow", MathF.Pow) { NameForCompilation = "Math.Pow"};
 
         /// <summary>
         /// Sin x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float> Sin = new Function<float, float>("Sin", MathF.Sin);
+        public static readonly Function<float, float> Sin = new Function<float, float>("Sin", MathF.Sin) { NameForCompilation = "Math.Sin"};
         
         /// <summary>
         /// Cos x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float> Cos = new Function<float, float>("Cos", MathF.Cos);
+        public static readonly Function<float, float> Cos = new Function<float, float>("Cos", MathF.Cos) { NameForCompilation = "Math.Cos"};
         
         /// <summary>
         /// Tan x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float> Tan = new Function<float, float>("Tan", MathF.Tan);
+        public static readonly Function<float, float> Tan = new Function<float, float>("Tan", MathF.Tan) { NameForCompilation = "Math.Tan"};
 
         /// <summary>
         /// Arc Sin x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float> Asin = new Function<float, float>("Asin", MathF.Asin);
+        public static readonly Function<float, float> Asin = new Function<float, float>("Asin", MathF.Asin) { NameForCompilation = "Math.Asin"};
         
         /// <summary>
         /// Arc Cos x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float> ACos = new Function<float, float>("Acos", MathF.Acos);
+        public static readonly Function<float, float> ACos = new Function<float, float>("Acos", MathF.Acos) { NameForCompilation = "Math.Acos"};
         
         /// <summary>
         /// Arc Tan x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float> Atan = new Function<float, float>("Atan", MathF.Atan);
+        public static readonly Function<float, float> Atan = new Function<float, float>("Atan", MathF.Atan) { NameForCompilation = "Math.Atan"};
         
         /// <summary>
         /// Arc Tan x/y
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, float, float> Atan2 = new Function<float, float, float>("Atan2", MathF.Atan2);
+        public static readonly Function<float, float, float> Atan2 = new Function<float, float, float>("Atan2", MathF.Atan2) { NameForCompilation = "Math.Atan2"};
 
         /// <summary>
         /// Returns (int)x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, int> Int = new Function<float, int>("Int", x => (int)x);
+        public static readonly Function<float, int> Int = new Function<float, int>("Int", x => (int)x) { NameForCompilation = "(int)"};
         
         /// <summary>
         /// Returns (float)x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<int, float> Float = new Function<int, float>("Float", x => x);
+        public static readonly Function<int, float> Float = new Function<int, float>("Float", x => x) { NameForCompilation = "(float)"};
 
         /// <summary>
         /// Smallest integer larger than x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, int> Ceiling = new Function<float, int>("Ceiling", x => (int)MathF.Ceiling(x));
+        public static readonly Function<float, int> Ceiling = new Function<float, int>("Ceiling", x => (int)MathF.Ceiling(x)) { NameForCompilation = "(int)MathF.Ceiling"};
         
         /// <summary>
         /// Largest integer less than x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, int> Floor = new Function<float, int>("Floor", x => (int)MathF.Floor(x));
+        public static readonly Function<float, int> Floor = new Function<float, int>("Floor", x => (int)MathF.Floor(x)) { NameForCompilation = "(int)MathF.Floor"};
         
         /// <summary>
         /// The nearest integer to x
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public static readonly Function<float, int> Round = new Function<float, int>("Round", x => (int)MathF.Round(x));
+        public static readonly Function<float, int> Round = new Function<float, int>("Round", x => (int)MathF.Round(x)) { NameForCompilation = "(int)MathF.Round"};
 
 
         #endregion
@@ -2366,7 +2365,7 @@ namespace TED
         {
             var representatives = new RepInfo<T>[32];
             var position = new Dictionary<T, int>();
-            var itemCount = 0;
+            int itemCount;
 
             int PositionOf(T value)
             {
@@ -2386,12 +2385,12 @@ namespace TED
 
             }
 
-            int Find(int position)
+            int Find(int pos)
             {
-                if (representatives[position].Representative == position) 
-                    return position;
-                var rep = Find(representatives[position].Representative);
-                representatives[position].SetRepresentative(rep);
+                if (representatives[pos].Representative == pos) 
+                    return pos;
+                var rep = Find(representatives[pos].Representative);
+                representatives[pos].SetRepresentative(rep);
                 return rep;
             }
 

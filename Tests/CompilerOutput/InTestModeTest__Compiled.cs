@@ -9,16 +9,13 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests;
 
-#pragma warning disable 0164,8618
+#pragma warning disable 0164,8618,8600,8620
 
 [CompiledHelpersFor("InTestModeTest")]
-public static class InTestModeTest__Compiled
+public class InTestModeTest__Compiled : TED.Compiler.CompiledTEDProgram
 
 {
-    [LinkToTable("Test")]
-    public static Table<int> Test;
 
-    [CompiledRulesFor("Test")]
     public static void Test__CompiledUpdate()
     {
         // Test[0].If(In[0,System.Int32[]])
@@ -47,5 +44,13 @@ public static class InTestModeTest__Compiled
 
         end:;
     }
+
+    public override void Link(TED.Program program)
+    {
+        program["Test"].CompiledRules = (Action)Test__CompiledUpdate;
+        Test = (Table<int>)program["Test"].TableUntyped;
+    }
+
+    public static Table<int> Test;
 }
-#pragma warning restore 0164,8618
+#pragma warning restore 0164,8618,8600,8620

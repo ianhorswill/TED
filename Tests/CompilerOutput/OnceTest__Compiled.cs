@@ -9,18 +9,13 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests;
 
-#pragma warning disable 0164,8618
+#pragma warning disable 0164,8618,8600,8620
 
 [CompiledHelpersFor("OnceTest")]
-public static class OnceTest__Compiled
+public class OnceTest__Compiled : TED.Compiler.CompiledTEDProgram
 
 {
-    [LinkToTable("p")]
-    public static Table<int> p;
-    [LinkToTable("q")]
-    public static Table<int> q;
 
-    [CompiledRulesFor("q")]
     public static void q__CompiledUpdate()
     {
         // q[in x].If(Not[p[out x]])
@@ -42,5 +37,15 @@ public static class OnceTest__Compiled
 
         end:;
     }
+
+    public override void Link(TED.Program program)
+    {
+        program["q"].CompiledRules = (Action)q__CompiledUpdate;
+        p = (Table<int>)program["p"].TableUntyped;
+        q = (Table<int>)program["q"].TableUntyped;
+    }
+
+    public static Table<int> p;
+    public static Table<int> q;
 }
-#pragma warning restore 0164,8618
+#pragma warning restore 0164,8618,8600,8620

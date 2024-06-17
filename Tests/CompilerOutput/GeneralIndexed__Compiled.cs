@@ -9,18 +9,13 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests;
 
-#pragma warning disable 0164,8618
+#pragma warning disable 0164,8618,8600,8620
 
 [CompiledHelpersFor("GeneralIndexed")]
-public static class GeneralIndexed__Compiled
+public class GeneralIndexed__Compiled : TED.Compiler.CompiledTEDProgram
 
 {
-    [LinkToTable("P")]
-    public static Table<ValueTuple<int,int>> P;
-    [LinkToTable("Q")]
-    public static Table<ValueTuple<int,int>> Q;
 
-    [CompiledRulesFor("Q")]
     public static void Q__CompiledUpdate()
     {
         // Q[in i,in j].If(P[out i,out j], P[in j,in i])
@@ -37,9 +32,13 @@ public static class GeneralIndexed__Compiled
             j = data__0.Item2;
 
             // P[in j,in i]
-            var row__1 = unchecked((uint)-1);
+            var row__1 = P__0.FirstRowWithValue(in j);
+            if (row__1 != Table.NoRow) goto match__1;
+            goto restart__0;
             restart__1:
-            if (++row__1 == P.Length) goto restart__0;
+            row__1 = P__0.NextRowWithValue(row__1);
+            if (row__1 == Table.NoRow) goto restart__0;
+            match__1:
             ref var data__1 = ref P.Data[row__1];
             if (data__1.Item1 != j) goto restart__1;
             if (data__1.Item2 != i) goto restart__1;
@@ -51,5 +50,17 @@ public static class GeneralIndexed__Compiled
 
         end:;
     }
+
+    public override void Link(TED.Program program)
+    {
+        program["Q"].CompiledRules = (Action)Q__CompiledUpdate;
+        P = (Table<ValueTuple<int,int>>)program["P"].TableUntyped;
+        P__0 = (GeneralIndex<ValueTuple<int,int>,int>)P.IndexFor(0);
+        Q = (Table<ValueTuple<int,int>>)program["Q"].TableUntyped;
+    }
+
+    public static Table<ValueTuple<int,int>> P;
+    public static GeneralIndex<ValueTuple<int,int>,int> P__0;
+    public static Table<ValueTuple<int,int>> Q;
 }
-#pragma warning restore 0164,8618
+#pragma warning restore 0164,8618,8600,8620

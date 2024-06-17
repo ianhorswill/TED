@@ -27,9 +27,8 @@ namespace TED.Interpreter
         public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
         {
             var restart = new Continuation($"restart{identifierSuffix}");
-            var rowNumber = $"row{identifierSuffix}";
+            var rowNumber = compiler.LocalVariable($"row{identifierSuffix}", typeof(uint), "unchecked((uint)-1)");
             var rowData = $"data{identifierSuffix}";
-            compiler.Indented($"var {rowNumber} = unchecked((uint)-1);");
             compiler.Label(restart);
             compiler.Indented($"if (++{rowNumber} == {Table.Name}.Length) {fail.Invoke};");
             compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");

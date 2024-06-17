@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
 
@@ -114,6 +115,45 @@ namespace TED.Primitives
                 }
 
                 return false;
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                var branch = $"branch{identifierSuffix}";
+                var restartDispatch = new Continuation($"restartDispatch{identifierSuffix}");
+                var starts = Enumerable.Range(0, Body.Length)
+                    .Select(branchNumber => new Continuation($"start{branchNumber}{identifierSuffix}")).ToArray();
+                var restarts = new Continuation[Body.Length];
+                //var restarts = Enumerable.Range(0, Body.Length)
+                //    .Select(branchNumber => new Continuation($"restart{branchNumber}{identifierSuffix}")).ToArray();
+                var success = new Continuation($"orSuccess{identifierSuffix}");
+
+                // WithLiftedScope is a kluge we need to get around spurious compilation errors produced when the jump table jumps between
+                // a declaration of a variable and its first use.  The compiler's control flow analysis can't prove that the variable
+                // will always be initialized when used, even though it will.  So we kluge it by just literally moving all the declarations
+                // before the compiled block of code.
+                compiler.WithLiftedScope(() =>
+                {
+                    compiler.Indented($"int {branch};");
+                    compiler.NewLine();
+                    for (var i = 0; i < Body.Length; i++)
+                    {
+                        compiler.Label(starts[i]);
+                        compiler.Indented($"{branch} = {i};");
+                        //compiler.Label(restarts[i]);
+                        restarts[i] = compiler.CompileGoal(Body[i], i == Body.Length - 1 ? fail : starts[i + 1],
+                            $"{identifierSuffix}_{i}");
+                        compiler.Indented($"{success.Invoke};");
+                    }
+
+                    compiler.NewLine();
+                    compiler.NewLine();
+                    compiler.Label(restartDispatch);
+                    compiler.CompileJumpTable(branch, restarts);
+                    compiler.NewLine();
+                    compiler.Label(success, true);
+                });
+                return restartDispatch;
             }
         }
     }

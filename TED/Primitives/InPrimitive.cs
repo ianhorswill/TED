@@ -65,8 +65,12 @@ namespace TED.Primitives
 
             public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
             {
-                var enumeratorVar = $"enumerator{identifierSuffix}";
-                compiler.Indented($"var {enumeratorVar} = ((IEnumerable<{compiler.FormatType(ArgumentPattern.Arguments[0].Type)}>)({compiler.ArgumentExpression(ArgumentPattern.Arguments[1])})).GetEnumerator();");
+                var itemType = ArgumentPattern.Arguments[0].Type;
+                var enumeratorType = typeof(IEnumerator<>).MakeGenericType(itemType);
+                var enumeratorVar = compiler.LocalVariable(
+                    $"enumerator{identifierSuffix}", 
+                    enumeratorType, 
+                    $"((IEnumerable<{compiler.FormatType(itemType)}>)({compiler.ArgumentExpression(ArgumentPattern.Arguments[1])})).GetEnumerator();");
                 var restart = new Continuation($"in_restart_" + identifierSuffix);
                 compiler.Label(restart);
                 compiler.Indented($"if (!{enumeratorVar}.MoveNext()) {fail.Invoke};");

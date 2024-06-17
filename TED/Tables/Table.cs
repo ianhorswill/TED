@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace TED.Tables
@@ -104,6 +105,11 @@ namespace TED.Tables
             Indices.Sort();
             return i;
         }
+
+        /// <summary>
+        /// Find the index for the specified columns
+        /// </summary>
+        public TableIndex IndexFor(params int[] columns) => Indices.FirstOrDefault(i => i.ColumnNumbers.SequenceEqual(columns))??throw new InvalidOperationException($"No index found for specified column(s) of table {Name}");
 
         protected abstract void SetKeyIndex(TableIndex tableIndex);
 
