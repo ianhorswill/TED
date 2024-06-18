@@ -22,7 +22,7 @@ public class InTestModeTest__Compiled : TED.Compiler.CompiledTEDProgram
         {
 
             // In[0,System.Int32[]]
-            if (!new [] { 1, 2, 3, 4, 5, }.Contains(0)) goto rule2;
+            if (!new int[] {1, 2, 3, 4, 5, }.Contains(0)) goto rule2;
 
             // Write [0]
             Test.Add(0);
@@ -35,7 +35,7 @@ public class InTestModeTest__Compiled : TED.Compiler.CompiledTEDProgram
         {
 
             // In[4,System.Int32[]]
-            if (!new [] { 1, 2, 3, 4, 5, }.Contains(4)) goto end;
+            if (!new int[] {1, 2, 3, 4, 5, }.Contains(4)) goto end;
 
             // Write [1]
             Test.Add(1);

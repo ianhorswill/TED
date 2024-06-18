@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
+using static TED.Compiler.Compiler;
 
 namespace TED.Primitives
 {
@@ -111,8 +112,8 @@ namespace TED.Primitives
 
                 // Initialize state variables
                 compiler.Indented($"var {gotOne} = false;");
-                compiler.Indented($"var {bestArg} = default({compiler.FormatType(arg.Type)});");
-                compiler.Indented($"var {bestUtility} = default({compiler.FormatType(utility.Type)});");
+                compiler.Indented($"var {bestArg} = default({FormatType(arg.Type)});");
+                compiler.Indented($"var {bestUtility} = default({FormatType(utility.Type)});");
                 var done = new Continuation($"maxDone{identifierSuffix}");
 
                 // Find a solution
@@ -262,9 +263,9 @@ namespace TED.Primitives
 
                 // Initialize state variables
                 compiler.Indented($"var {gotOne} = false;");
-                compiler.Indented($"var {bestArg1} = default({compiler.FormatType(arg1.Type)});");
-                compiler.Indented($"var {bestArg2} = default({compiler.FormatType(arg2.Type)});");
-                compiler.Indented($"var {bestUtility} = default({compiler.FormatType(utility.Type)});");
+                compiler.Indented($"var {bestArg1} = default({FormatType(arg1.Type)});");
+                compiler.Indented($"var {bestArg2} = default({FormatType(arg2.Type)});");
+                compiler.Indented($"var {bestUtility} = default({FormatType(utility.Type)});");
                 var done = new Continuation($"maxDone{identifierSuffix}");
 
                 // Find a solution
@@ -432,10 +433,10 @@ namespace TED.Primitives
 
                 // Initialize state variables
                 compiler.Indented($"var {gotOne} = false;");
-                compiler.Indented($"var {bestArg1} = default({compiler.FormatType(arg1.Type)});");
-                compiler.Indented($"var {bestArg2} = default({compiler.FormatType(arg2.Type)});");
-                compiler.Indented($"var {bestArg3} = default({compiler.FormatType(arg3.Type)});");
-                compiler.Indented($"var {bestUtility} = default({compiler.FormatType(utility.Type)});");
+                compiler.Indented($"var {bestArg1} = default({FormatType(arg1.Type)});");
+                compiler.Indented($"var {bestArg2} = default({FormatType(arg2.Type)});");
+                compiler.Indented($"var {bestArg3} = default({FormatType(arg3.Type)});");
+                compiler.Indented($"var {bestUtility} = default({FormatType(utility.Type)});");
                 var done = new Continuation($"maxDone{identifierSuffix}");
 
                 // Find a solution

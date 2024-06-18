@@ -11,19 +11,21 @@ namespace CompilerTests;
 
 #pragma warning disable 0164,8618,8600,8620
 
-[CompiledHelpersFor("PickRandomlyTest")]
-public class PickRandomlyTest__Compiled : TED.Compiler.CompiledTEDProgram
+[CompiledHelpersFor("RandomElementTest")]
+public class RandomElementTest__Compiled : TED.Compiler.CompiledTEDProgram
 
 {
 
     public static void P__CompiledUpdate()
     {
-        // P[in n].If(PickRandomly[out n])
+        // P[in n].If(RandomElement[out n])
         {
             int n;
 
-            // PickRandomly[out n]
-            n = PickRandomlyArray__0[_Rng0.Next()%5];
+            // RandomElement[out n]
+            if (Source.Length == 0) goto end;
+            ref var row___0 = ref Source.Data[_Rng0.Next()%Source.Length];
+            n = row___0;
 
             // Write [in n]
             P.Add(n);
@@ -36,13 +38,13 @@ public class PickRandomlyTest__Compiled : TED.Compiler.CompiledTEDProgram
     public override void Link(TED.Program program)
     {
         program["P"].CompiledRules = (Action)P__CompiledUpdate;
+        Source = (Table<int>)program["Source"].TableUntyped;
         P = (Table<int>)program["P"].TableUntyped;
         _Rng0 = MakeRng();
-        PickRandomlyArray__0 = new int[] {0, 1, 2, 3, 4, };
     }
 
+    public static Table<int> Source;
     public static Table<int> P;
     public static Random _Rng0;
-    public static int[] PickRandomlyArray__0;
 }
 #pragma warning restore 0164,8618,8600,8620

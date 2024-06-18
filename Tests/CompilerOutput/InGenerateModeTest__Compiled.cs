@@ -23,7 +23,7 @@ public class InGenerateModeTest__Compiled : TED.Compiler.CompiledTEDProgram
             int n;
 
             // In[out n,System.Int32[]]
-            var enumerator__0 = ((IEnumerable<int>)(new [] { 1, 2, 3, 4, 5, })).GetEnumerator();;
+            var enumerator__0 = ((IEnumerable<int>)(new int[] {1, 2, 3, 4, 5, })).GetEnumerator();;
             in_restart___0:
             if (!enumerator__0.MoveNext()) goto end;
             n = enumerator__0.Current;

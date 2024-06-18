@@ -1,4 +1,5 @@
-﻿using TED.Interpreter;
+﻿using TED.Compiler;
+using TED.Interpreter;
 using TED.Preprocessing;
 using TED.Utilities;
 
@@ -53,6 +54,17 @@ namespace TED.Primitives
                 finished = true;
                 outputArg.Match(table.Table[(uint)rng.InRangeExclusive(0, (int)len)]);
                 return true;
+            }
+
+            public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
+            {
+                var rng = compiler.MakeRng();
+                var rowVar = $"row_{identifierSuffix}";
+                var tableName = table.Name;
+                compiler.Indented($"if ({tableName}.Length == 0) {fail.Invoke};");
+                compiler.Indented($"ref var {rowVar} = ref {tableName}.Data[{rng}.Next()%{tableName}.Length];");
+                compiler.CompileMatch(rowVar, outputArg, fail);
+                return fail;
             }
         }
     }

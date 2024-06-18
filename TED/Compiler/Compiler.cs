@@ -135,7 +135,7 @@ namespace TED.Compiler
             return b.ToString();
         }
 
-        public string FormatType(Type t)
+        public static string FormatType(Type t)
         {
             if (t.IsArray)
                 return $"{FormatType(t.GetElementType()!)}[]";
@@ -463,17 +463,21 @@ namespace TED.Compiler
                 case string s:
                     return $"\"{s}\"";
 
-                case int[] intArray:
+                case Type t:
+                    return $"typeof({FormatType(t)})";
+
+                case Array a:
                 {
                     var b = new StringBuilder();
-                    b.Append("new [] { ");
-                    foreach (var e in intArray)
+                    b.Append($"new {FormatType(o.GetType())} ");
+                    b.Append('{');
+                    foreach (var e in a)
                     {
-                        b.Append(e);
+                        b.Append(ToSourceLiteral(e));
                         b.Append(", ");
                     }
 
-                    b.Append("}");
+                    b.Append('}');
                     return b.ToString();
                 }
  

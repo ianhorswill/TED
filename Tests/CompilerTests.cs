@@ -399,6 +399,28 @@ namespace Tests
                 Assert.IsTrue(counter is > 10 and < 40);
         }
 
+        [TestMethod]
+        public void RandomElementTest()
+        {
+            var n = (Var<int>)"n";
+            var program = new Program(ThisMethodName());
+            program.BeginPredicates();
+            var Source = Predicate<int>("Source", new[] { 0, 1, 2, 3, 4 }, "n");
+            var P = Predicate("P", n).If(RandomElement(Source, n));
+            program.EndPredicates();
+            new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
+            Compiler.Link(program);
+            var counters = new int[5];
+            for (var i = 0; i < 100; i++)
+            {
+                P.ForceRecompute();
+                counters[P.ToArray()[0]]++;
+            }
+            // Every element of counter should be around 20.
+            foreach (var counter in counters)
+                Assert.IsTrue(counter is > 10 and < 40);
+        }
+
         #region Utilities
         string CompilerOutputFolder([CallerFilePath] string caller = null!) => Path.Combine(Path.GetDirectoryName(caller)!, "CompilerOutput");
 

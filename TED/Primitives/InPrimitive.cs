@@ -70,7 +70,7 @@ namespace TED.Primitives
                 var enumeratorVar = compiler.LocalVariable(
                     $"enumerator{identifierSuffix}", 
                     enumeratorType, 
-                    $"((IEnumerable<{compiler.FormatType(itemType)}>)({compiler.ArgumentExpression(ArgumentPattern.Arguments[1])})).GetEnumerator();");
+                    $"((IEnumerable<{Compiler.Compiler.FormatType(itemType)}>)({compiler.ArgumentExpression(ArgumentPattern.Arguments[1])})).GetEnumerator();");
                 var restart = new Continuation($"in_restart_" + identifierSuffix);
                 compiler.Label(restart);
                 compiler.Indented($"if (!{enumeratorVar}.MoveNext()) {fail.Invoke};");
