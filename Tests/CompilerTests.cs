@@ -421,6 +421,29 @@ namespace Tests
                 Assert.IsTrue(counter is > 10 and < 40);
         }
 
+        [TestMethod]
+        public void Summation()
+        {
+            var n = (Var<int>)"n";
+            var m = (Var<int>)"m";
+            
+            var program = new Program(ThisMethodName());
+            program.BeginPredicates();
+            var P = Predicate("P", new[] { 1, 2, 3, 4, 5, 6 }, n);
+            var Q = Predicate("Q", n).If(n == SumInt(m, And[P[m], m%2 == Constant(0)]));
+            program.EndPredicates();
+
+            var interpreted = Q.ToArray();
+            Assert.AreEqual(1, interpreted.Length);
+            Assert.AreEqual(12, interpreted[0]);
+
+            new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
+            Compiler.Link(program);
+            Q.ForceRecompute();
+            var compiled = Q.ToArray();
+            CollectionAssert.AreEqual(interpreted, compiled);
+        }
+
         #region Utilities
         string CompilerOutputFolder([CallerFilePath] string caller = null!) => Path.Combine(Path.GetDirectoryName(caller)!, "CompilerOutput");
 

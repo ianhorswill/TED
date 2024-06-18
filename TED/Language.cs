@@ -149,7 +149,7 @@ namespace TED
         /// The number of solutions to goal.
         /// </summary>
         public static AggregateFunctionCall<int> Count(Goal g)
-            => new AggregateFunctionCall<int>(g, 1, 0, (a, b) => a + b);
+            => new AggregateFunctionCall<int>(g, 1, 0, (a, b) => a + b, (a, b) => $"({a})+({b})");
 
         /// <summary>
         /// Aggregates value of variable from all the solutions to goal.
@@ -158,23 +158,24 @@ namespace TED
         /// <param name="g">Goal to find the solutions of</param>
         /// <param name="initialValue">Value to return if g has no solutions</param>
         /// <param name="aggregator">Function mapping the current total and a new value of the variable to a new total</param>
+        /// <param name="compiler">Generates c# text for a new value of the accumulator from the text for the accumulator and the most recent result from the goal</param>
         /// <returns>The aggregate value</returns>
         // ReSharper disable once UnusedMember.Global
         public static AggregateFunctionCall<T> Aggregate<T>(Var<T> v, Goal g, T initialValue,
-            Func<T, T, T> aggregator)
-            => new AggregateFunctionCall<T>(g, v, initialValue, aggregator);
+            Func<T, T, T> aggregator, Func<string, string, string> compiler)
+            => new AggregateFunctionCall<T>(g, v, initialValue, aggregator, compiler);
 
         /// <summary>
         /// Return the sum of the specified variable from every solution to the goal
         /// </summary>
         public static AggregateFunctionCall<int> SumInt(Var<int> v, Goal g)
-            => new AggregateFunctionCall<int>(g, v, 0, (a, b) => a + b);
+            => new AggregateFunctionCall<int>(g, v, 0, (a, b) => a + b, (a, b) => $"({a})+({b})");
         /// <summary>
         /// Return the sum of the specified variable from every solution to the goal
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public static AggregateFunctionCall<float> SumFloat(Var<float> v, Goal g)
-            => new AggregateFunctionCall<float>(g, v, 0, (a, b) => a + b);
+            => new AggregateFunctionCall<float>(g, v, 0, (a, b) => a + b,(a, b) => $"({a})+({b})");
         #endregion
 
         #region Optimization predicates

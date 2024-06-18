@@ -1,4 +1,5 @@
 ﻿using System;
+using TED.Compiler;
 using TED.Interpreter;
 using TED.Preprocessing;
 
@@ -17,6 +18,8 @@ namespace TED.Primitives
         /// Function used to add a new value to the accumulator
         /// </summary>
         public readonly Func<T, T, T> Aggregator;
+
+        public readonly Func<string, string, string> AggregatorCompiledText;
         /// <summary>
         /// Goal that generates values for the AggregationTerm
         /// </summary>
@@ -25,6 +28,9 @@ namespace TED.Primitives
         /// Term to be aggregated (summed, multiplied, etc.) over the solutions to the Generator.
         /// </summary>
         public readonly Term<T> AggregationTerm;
+
+        private Call generatorCall;
+        private ValueCell<T> termCell;
 
         /// <summary>
         /// Make a new function that aggregates over all the solutions to a goal.
@@ -36,12 +42,16 @@ namespace TED.Primitives
         /// <param name="aggregationTerm">Value to take from each solution; the values from all solutions will be aggregated together</param>
         /// <param name="initialValue">Initial value to start from when aggregating</param>
         /// <param name="aggregator">C# function mapping two values to an aggregate value</param>
-        public AggregateFunctionCall(Goal generator, Term<T> aggregationTerm, T initialValue, Func<T, T, T> aggregator)
+        /// <param name="compiler">Generates c# text for a new value of the accumulator from the text for the accumulator and the most recent result from the goal</param>
+        public AggregateFunctionCall(Goal generator, Term<T> aggregationTerm, T initialValue, Func<T, T, T> aggregator, Func<string, string, string> compiler)
         {
             InitialValue = initialValue;
             Aggregator = aggregator;
             AggregationTerm = aggregationTerm;
             Generator = generator;
+            AggregatorCompiledText = compiler;
+            generatorCall = null!;
+            termCell = null!;
         }
 
 
@@ -54,23 +64,34 @@ namespace TED.Primitives
                 throw new InstantiationException(
                     $"Value to aggregate, {AggregationTerm} is not instantiated after the call");
             var cell = term.ValueCell;
+            generatorCall = call;
+            termCell = cell;
+
             return () =>
             {
                 T result = InitialValue;
-                call.Reset();
+                generatorCall.Reset();
                 while (call.NextSolution())
-                    result = Aggregator(result, cell.Value);
+                    result = Aggregator(result, termCell.Value);
                 return result;
             };
         }
 
         internal override Term<T> RecursivelySubstitute(Substitution s)
-            => new AggregateFunctionCall<T>(Generator.RenameArguments(s), s.Substitute(AggregationTerm), InitialValue,
-                Aggregator);
+            => new AggregateFunctionCall<T>(Generator.RenameArguments(s), s.Substitute(AggregationTerm), InitialValue, 
+                Aggregator, AggregatorCompiledText);
 
         public override string ToSourceExpression(Compiler.Compiler compiler)
         {
-            throw new NotImplementedException();
+            var suffix = compiler.Gensym("__aggregator");
+            var accumulator = $"accumulator{suffix}";
+            var done = new Continuation($"end{suffix}");
+            compiler.Indented($"var {accumulator} = {Compiler.Compiler.ToSourceLiteral(InitialValue)};");
+            var loop = compiler.CompileGoal(generatorCall, done, suffix);
+            compiler.Indented($"{accumulator} = {AggregatorCompiledText(accumulator, termCell.Name)};");
+            compiler.Indented($"{loop.Invoke};");
+            compiler.Label(done, true);
+            return accumulator;
         }
     }
 }

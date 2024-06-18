@@ -573,6 +573,19 @@ namespace TED.Compiler
         }
         #endregion
 
+        #region Gensym
+        private Dictionary<string, int> gensymCounters = new Dictionary<string, int>();
+
+        public string Gensym(string name = "gensym")
+        {
+            var uid = 0;
+            if (gensymCounters.TryGetValue(name, out var counter))
+                uid = counter + 1;
+            gensymCounters[name] = uid;
+            return $"{name}{uid}";
+        }
+        #endregion
+    
         public void Dispose()
         {
             Output.Dispose();
