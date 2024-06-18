@@ -63,7 +63,16 @@ namespace TED
             get
             {
                 var r = Random.MakeRng();
-                return new PrimitiveTest<float>("Prob", (prob) => r.Roll(prob), false);
+                return new PrimitiveTest<float>("Prob", (prob) => r.Roll(prob), false)
+                {
+                    CustomCompiler = (call, compiler, fail, suffix) =>
+                    {
+                        var rng = compiler.MakeRng();
+                        compiler.Indented(
+                            $"if ({rng}.NextDouble() > {compiler.ArgumentExpression(call.ArgumentPattern.Arguments[0])}) {fail.Invoke};");
+                        return fail;
+                    }
+                };
             }
         }
 
@@ -2460,6 +2469,19 @@ namespace TED
                 if (Rank == childRank) 
                     Rank++;
             }
+        }
+        #endregion
+
+        #region Gensym
+        private static Dictionary<string, int> gensymCounters = new Dictionary<string, int>();
+
+        public static string Gensym(string name = "gensym")
+        {
+            var uid = 0;
+            if (gensymCounters.TryGetValue(name, out var counter))
+                uid = counter + 1;
+            gensymCounters[name] = uid;
+            return $"{name}{uid}";
         }
         #endregion
     }

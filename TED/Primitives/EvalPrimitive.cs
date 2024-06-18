@@ -62,8 +62,8 @@ namespace TED.Primitives
 
             public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
             {
-                var arg1 = originalGoal.Arg1.ToSourceExpression();
-                var arg2 = originalGoal.Arg2.ToSourceExpression();
+                var arg1 = originalGoal.Arg1.ToSourceExpression(compiler);
+                var arg2 = originalGoal.Arg2.ToSourceExpression(compiler);
                 switch (matcher.Opcode)
                 {
                     case Opcode.Write:

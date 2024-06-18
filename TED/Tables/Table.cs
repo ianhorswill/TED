@@ -172,7 +172,7 @@ namespace TED.Tables
         /// Array holding the rows
         /// Elements 0 .. data.Length-1 hold the elements
         /// </summary>
-        internal T[] Data;
+        public T[] Data;
 
         /// <summary>
         /// True if there's space to add another row before having to grow the table

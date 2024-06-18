@@ -68,7 +68,7 @@ namespace TED.Primitives
             => new AggregateFunctionCall<T>(Generator.RenameArguments(s), s.Substitute(AggregationTerm), InitialValue,
                 Aggregator);
 
-        public override string ToSourceExpression()
+        public override string ToSourceExpression(Compiler.Compiler compiler)
         {
             throw new NotImplementedException();
         }

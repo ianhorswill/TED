@@ -71,7 +71,7 @@ namespace TED.Primitives
 
             public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
             {
-                compiler.Indented($"if (!({Goal.Arg1.ToSourceExpressionParenthesized()}{Goal.Predicate.Name}{Goal.Arg2.ToSourceExpressionParenthesized()})) {fail.Invoke};");
+                compiler.Indented($"if (!({Goal.Arg1.ToSourceExpressionParenthesized(compiler)}{Goal.Predicate.Name}{Goal.Arg2.ToSourceExpressionParenthesized(compiler)})) {fail.Invoke};");
                 return fail;
             }
         }

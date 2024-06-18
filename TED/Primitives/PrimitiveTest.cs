@@ -22,9 +22,16 @@ namespace TED.Primitives {
 
         public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
         {
-            compiler.Indented($"if (!{((PrimitivePredicateBase)Table).CompilationName}({compiler.ArgumentExpressionsWithCommas(ArgumentPattern)})) {fail.Invoke};");
+            var predicate = (PrimitivePredicateBase)Table;
+            if (predicate.CustomCompiler != null)
+                return predicate.CustomCompiler(this, compiler, fail, identifierSuffix);
+
+            compiler.Indented($"if (!{predicate.CompilationName}({compiler.ArgumentExpressionsWithCommas(ArgumentPattern)})) {fail.Invoke};");
             return fail;
         }
+
+        protected static MatchOperation<T> ToMatchOp<T>(ValueCell<T> arg) =>
+            arg.IsVariable ? MatchOperation<T>.Read(arg) : MatchOperation<T>.Constant(arg.Value);
     }
 
     /// <summary>
@@ -110,7 +117,7 @@ namespace TED.Primitives {
             private readonly ValueCell<T1> arg;
             private bool ready;
 
-            public override IPattern ArgumentPattern => new Pattern<T1>(MatchOperation<T1>.Read(arg));
+            public override IPattern ArgumentPattern => new Pattern<T1>(ToMatchOp(arg));
 
             public Call(PrimitiveTest<T1> predicate, ValueCell<T1> arg) : base(predicate) {
                 this.predicate = predicate;
@@ -172,7 +179,7 @@ namespace TED.Primitives {
             private bool ready;
 
             public override IPattern ArgumentPattern =>
-                new Pattern<T1, T2>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2));
+                new Pattern<T1, T2>(ToMatchOp(arg1), ToMatchOp(arg2));
 
             public Call(PrimitiveTest<T1, T2> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2) : base(predicate) {
                 this.predicate = predicate;
@@ -240,7 +247,7 @@ namespace TED.Primitives {
             private bool ready;
 
             public override IPattern ArgumentPattern =>
-                new Pattern<T1, T2, T3>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3));
+                new Pattern<T1, T2, T3>(ToMatchOp(arg1), ToMatchOp(arg2), ToMatchOp(arg3));
 
             public Call(PrimitiveTest<T1, T2, T3> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3) : base(predicate) {
                 this.predicate = predicate;
@@ -314,7 +321,7 @@ namespace TED.Primitives {
             private bool ready;
 
             public override IPattern ArgumentPattern =>
-                new Pattern<T1, T2, T3, T4>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3), MatchOperation<T4>.Read(arg4));
+                new Pattern<T1, T2, T3, T4>(ToMatchOp(arg1), ToMatchOp(arg2), ToMatchOp(arg3), ToMatchOp(arg4));
 
             public Call(PrimitiveTest<T1, T2, T3, T4> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3, ValueCell<T4> arg4) : base(predicate) {
                 this.predicate = predicate;
@@ -394,7 +401,7 @@ namespace TED.Primitives {
             private bool ready;
 
             public override IPattern ArgumentPattern =>
-                new Pattern<T1, T2, T3, T4, T5>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3), MatchOperation<T4>.Read(arg4), MatchOperation<T5>.Read(arg5));
+                new Pattern<T1, T2, T3, T4, T5>(ToMatchOp(arg1), ToMatchOp(arg2), ToMatchOp(arg3), ToMatchOp(arg4), ToMatchOp(arg5));
 
             public Call(PrimitiveTest<T1, T2, T3, T4, T5> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3, ValueCell<T4> arg4, ValueCell<T5> arg5) : base(predicate) {
                 this.predicate = predicate;
@@ -480,7 +487,7 @@ namespace TED.Primitives {
             private bool ready;
 
             public override IPattern ArgumentPattern =>
-                new Pattern<T1, T2, T3, T4, T5, T6>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3), MatchOperation<T4>.Read(arg4), MatchOperation<T5>.Read(arg5), MatchOperation<T6>.Read(arg6));
+                new Pattern<T1, T2, T3, T4, T5, T6>(ToMatchOp(arg1), ToMatchOp(arg2), ToMatchOp(arg3), ToMatchOp(arg4), ToMatchOp(arg5), MatchOperation<T6>.Read(arg6));
 
             public Call(PrimitiveTest<T1, T2, T3, T4, T5, T6> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3, ValueCell<T4> arg4, ValueCell<T5> arg5, ValueCell<T6> arg6) : base(predicate) {
                 this.predicate = predicate;
@@ -572,7 +579,7 @@ namespace TED.Primitives {
             private bool ready;
 
             public override IPattern ArgumentPattern =>
-                new Pattern<T1, T2, T3, T4, T5, T6, T7>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3), MatchOperation<T4>.Read(arg4), MatchOperation<T5>.Read(arg5), MatchOperation<T6>.Read(arg6), MatchOperation<T7>.Read(arg7));
+                new Pattern<T1, T2, T3, T4, T5, T6, T7>(ToMatchOp(arg1), ToMatchOp(arg2), ToMatchOp(arg3), ToMatchOp(arg4), ToMatchOp(arg5), MatchOperation<T6>.Read(arg6), ToMatchOp(arg7));
 
             public Call(PrimitiveTest<T1, T2, T3, T4, T5, T6, T7> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3, ValueCell<T4> arg4, ValueCell<T5> arg5, ValueCell<T6> arg6, ValueCell<T7> arg7) : base(predicate) {
                 this.predicate = predicate;
@@ -670,7 +677,7 @@ namespace TED.Primitives {
             private bool ready;
 
             public override IPattern ArgumentPattern =>
-                new Pattern<T1, T2, T3, T4, T5, T6, T7, T8>(MatchOperation<T1>.Read(arg1), MatchOperation<T2>.Read(arg2), MatchOperation<T3>.Read(arg3), MatchOperation<T4>.Read(arg4), MatchOperation<T5>.Read(arg5), MatchOperation<T6>.Read(arg6), MatchOperation<T7>.Read(arg7), MatchOperation<T8>.Read(arg8));
+                new Pattern<T1, T2, T3, T4, T5, T6, T7, T8>(ToMatchOp(arg1), ToMatchOp(arg2), ToMatchOp(arg3), ToMatchOp(arg4), ToMatchOp(arg5), MatchOperation<T6>.Read(arg6), ToMatchOp(arg7), ToMatchOp(arg8));
 
             public Call(PrimitiveTest<T1, T2, T3, T4, T5, T6, T7, T8> predicate, ValueCell<T1> arg1, ValueCell<T2> arg2, ValueCell<T3> arg3, ValueCell<T4> arg4, ValueCell<T5> arg5, ValueCell<T6> arg6, ValueCell<T7> arg7, ValueCell<T8> arg8) : base(predicate) {
                 this.predicate = predicate;

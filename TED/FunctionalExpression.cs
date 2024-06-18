@@ -11,7 +11,7 @@ namespace TED
         /// <inheritdoc />
         public (Term Expression, Term Var, Goal EvalGoal) HoistInfo()
         {
-            var v = new Var<T>("temp");
+            var v = new Var<T>(Language.Gensym("temp"));
             return (this, v, Language.Eval(v, this));
         }
 

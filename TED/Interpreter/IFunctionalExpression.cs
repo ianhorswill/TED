@@ -5,7 +5,7 @@ namespace TED.Interpreter
     /// <summary>
     /// Functions as an untyped base class for FunctionalExpression[T]
     /// </summary>
-    internal interface IFunctionalExpression
+    public interface IFunctionalExpression
     {
         /// <summary>
         /// Return the information necessary to hoist a FunctionalExpression from a goal.

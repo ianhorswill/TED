@@ -118,6 +118,6 @@ namespace TED
         public ModeConstrainedArgument<T> Constant => new ModeConstrainedArgument<T>(this, InstantiationConstraint.Constant);
 
         /// <inheritdoc />
-        public override string ToSourceExpression() => Name;
+        public override string ToSourceExpression(Compiler.Compiler _) => Name;
     }
 }

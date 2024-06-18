@@ -122,7 +122,7 @@ namespace TED {
         /// </summary>
         public bool InitializationOnly;
 
-        internal abstract Table TableUntyped { get; }
+        public abstract Table TableUntyped { get; }
 
         /// <summary>
         /// If true, the underlying table enforces uniqueness of row/tuples by indexing them with a hashtable.
@@ -332,7 +332,7 @@ namespace TED {
         /// <summary>
         /// Compiled version of rules, if any
         /// </summary>
-        internal Action? CompiledRules;
+        public Action? CompiledRules;
 
         /// <summary>
         /// For tables that are the results of operators.  The tables the operator takes as inputs.
@@ -858,8 +858,11 @@ namespace TED {
                     break;
                 case UpdateMode.Rules:
                     Clear();
-                    foreach (var r in Rules!)
-                        r.AddAllSolutions();
+                    if (CompiledRules != null)
+                        CompiledRules();
+                    else
+                        foreach (var r in Rules!)
+                            r.AddAllSolutions();
                     break;
                 case UpdateMode.Operator:
                     Clear();
@@ -1025,7 +1028,7 @@ namespace TED {
             }
         }
 
-        internal override Table TableUntyped => _table;
+        public override Table TableUntyped => _table;
 
         /// <summary>
         /// Number of rows/items in the table/extension of the predicate
@@ -1265,7 +1268,7 @@ namespace TED {
             }
         }
 
-        internal override Table TableUntyped => _table;
+        public override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -1745,7 +1748,7 @@ namespace TED {
             }
         }
 
-        internal override Table TableUntyped => _table;
+        public override Table TableUntyped => _table;
         
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -2216,7 +2219,7 @@ namespace TED {
             }
         }
 
-        internal override Table TableUntyped => _table;
+        public override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -2720,7 +2723,7 @@ namespace TED {
             }
         }
 
-        internal override Table TableUntyped => _table;
+        public override Table TableUntyped => _table;
         
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -3258,7 +3261,7 @@ namespace TED {
             }
         }
 
-        internal override Table TableUntyped => _table;
+        public override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -3829,7 +3832,7 @@ namespace TED {
             }
         }
 
-        internal override Table TableUntyped => _table;
+        public override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
@@ -4441,7 +4444,7 @@ namespace TED {
             }
         }
 
-        internal override Table TableUntyped => _table;
+        public override Table TableUntyped => _table;
 
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)

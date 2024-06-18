@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TED.Compiler;
 using TED.Interpreter;
 
 namespace TED.Primitives
@@ -30,5 +31,9 @@ namespace TED.Primitives
             var argValues = goal.Arguments.Select(a => ((IConstant)a).ValueUntyped).ToArray();
             return (Goal)(bool)ConstantFolder.DynamicInvoke(argValues);
         }
+
+        public delegate Continuation CustomTestCompiler(Call c, Compiler.Compiler compiler, Continuation fail, string identifierSuffix);
+
+        public CustomTestCompiler? CustomCompiler;
     }
 }

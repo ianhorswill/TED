@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using TED.Interpreter;
 using TED.Primitives;
 
@@ -164,6 +166,19 @@ namespace TED
             foreach (var t in Tables)
             foreach (var d in t.RuleDependencies.Concat(t.ImperativeDependencies).Concat(t.OperatorDependencies))
                 d.Dependents.Add(t);
+        }
+
+        public void Compile(string namespaceName, string? dir = null, [CallerFilePath] string callerFile = null!)
+        {
+            if (dir == null)
+                dir = Path.GetDirectoryName(callerFile);
+            var compiler = new Compiler.Compiler(this, namespaceName, dir);
+            compiler.GenerateSource();
+        }
+
+        public void Link()
+        {
+            Compiler.Compiler.Link(this);
         }
     }
 }

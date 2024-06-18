@@ -1,18 +1,20 @@
 using TED;
+using TED.Compiler;
 using TED.Utilities;
 using static TED.Language;
 
 namespace TablePredicateViewer
 {
+    public enum Status
+    {
+        Alive,
+        Dead
+    };
     internal static class Program
     {
         public static Simulation Simulation = null!;
 
-        enum Status
-        {
-            Alive,
-            Dead
-        };
+        
 
         /// <summary>
         ///  The main entry point for the application.
@@ -70,6 +72,8 @@ namespace TablePredicateViewer
 
             // ReSharper restore InconsistentNaming
             Simulation.EndPredicates();
+            Simulation.Compile("TablePredicateViewer");
+            TED.Compiler.Compiler.Link(Simulation);
 
             void MakeGraph()
             {

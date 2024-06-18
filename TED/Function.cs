@@ -40,6 +40,13 @@ namespace TED {
         /// True if the function always returns the same value for the same inputs, and has no side-effects.
         /// </summary>
         public virtual bool IsPure => isPure;
+
+        public delegate string CustomCompiler(Compiler.Compiler compiler, IFunctionalExpression exp, params Term[] arguments);
+
+        /// <summary>
+        /// Custom delegate for generating expression strings for this function given strings for its arguments
+        /// </summary>
+        public CustomCompiler? CustomExpressionCompiler;
     }
 
     /// <summary>
