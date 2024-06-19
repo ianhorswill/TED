@@ -202,7 +202,7 @@ namespace TED.Tables
         /// nextRow[i], its successor in nextRow[nextRow[i]], etc.  The end of the list is indicated by a nextRow
         /// value of AnyTable.NoRow.
         /// </summary>
-        private uint[] nextRow;
+        public uint[] NextRow;
 
         /// <summary>
         /// Previous row in a doubly-linked list of rows in a given bucket
@@ -242,8 +242,8 @@ namespace TED.Tables
             var capacity = t.Data.Length * 2;
             buckets = new (TColumn columnValue, uint firstRow, int count)[enumeratedTypeColumn?Enum.GetValues(columnType).Cast<int>().Max()+1:capacity];
             Array.Fill(buckets!, (default(TColumn), Table.NoRow, 0));
-            nextRow = new uint[t.Data.Length];
-            Array.Fill(nextRow, Table.NoRow);
+            NextRow = new uint[t.Data.Length];
+            Array.Fill(NextRow, Table.NoRow);
             if (enumeratedTypeColumn)
                 mask = uint.MaxValue;
             else
@@ -262,7 +262,7 @@ namespace TED.Tables
         {
             if (previousRow != null)
                 return;
-            previousRow = new uint[nextRow.Length];
+            previousRow = new uint[NextRow.Length];
             Clear();
             Reindex();
         }
@@ -303,7 +303,7 @@ namespace TED.Tables
         /// <summary>
         /// Return the next row after the specified row in the link list of rows with a given column value.
         /// </summary>
-        public uint NextRowWithValue(uint currentRow) => nextRow[currentRow];
+        public uint NextRowWithValue(uint currentRow) => NextRow[currentRow];
 
         /// <summary>
         /// This is not a key index
@@ -343,7 +343,7 @@ namespace TED.Tables
             // Insert row at the beginning of the list for this value;
             buckets[b].firstRow = row;
             buckets[b].count++;
-            nextRow[row] = oldFirstRow;
+            NextRow[row] = oldFirstRow;
 
 
             // Update back-pointers, if this table supports removal
@@ -366,11 +366,11 @@ namespace TED.Tables
             buckets[b].count--;
 
             var previous = previousRow![row];
-            var next = nextRow[row];
+            var next = NextRow[row];
             if (previous != Table.NoRow)
             {
                 // It's not the head of the list, so just splice it out of the list.
-                nextRow[previous] = next;
+                NextRow[previous] = next;
                 if (next != Table.NoRow)
                     previousRow[next] = previous;
                 return;
@@ -402,10 +402,10 @@ namespace TED.Tables
                 mask = (uint)(buckets.Length - 1);
             }
             Array.Fill(buckets!, (default(TColumn), Table.NoRow,0));
-            nextRow = new uint[nextRow.Length * 2];
-            Array.Fill(nextRow, Table.NoRow);
+            NextRow = new uint[NextRow.Length * 2];
+            Array.Fill(NextRow, Table.NoRow);
             if (previousRow != null)
-                previousRow = new uint[nextRow.Length];
+                previousRow = new uint[NextRow.Length];
             Reindex();
         }
 
@@ -415,7 +415,7 @@ namespace TED.Tables
         internal override void Clear()
         {
             Array.Fill(buckets!, (default(TColumn), Table.NoRow, 0));
-            Array.Fill(nextRow, Table.NoRow);
+            Array.Fill(NextRow, Table.NoRow);
             if (previousRow != null) {
                 Array.Fill(previousRow, Table.NoRow);
             }

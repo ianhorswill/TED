@@ -132,6 +132,9 @@ namespace TED.Compiler
                 b.Append('_');
                 b.Append(c);
             }
+
+            if (index.IsKey)
+                b.Append("_key");
             return b.ToString();
         }
 

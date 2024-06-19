@@ -444,6 +444,43 @@ namespace Tests
             CollectionAssert.AreEqual(interpreted, compiled);
         }
 
+        [TestMethod]
+        public void DoubleIndexedCallTest()
+        {
+            var person = (Var<string>)"person";
+            var other = (Var<string>)"other";
+            var relationship = (Var<string>)"relationship";
+            var program = new Program(ThisMethodName());
+            program.BeginPredicates();
+            var Person = Predicate("Person",
+                new[] { "Joe", "Billy", "Sara", "Jenny", "Rachel" }, person);
+            var Relation = Predicate("Relation",
+                new[]
+                {
+                    ("Joe", "Sara", "sibling"),
+                    ("Sara", "Rachel", "coworker"),
+                    ("Joe", "Bill", "coworker"),
+                    ("Rachel", "Billy", "sibling")
+                }, 
+                person, other, relationship);
+            Relation.IndexBy(other);
+            Relation.IndexByKey(person, other);
+            var Mapped = Predicate("Mapped", relationship).If(Relation["Sara", "Rachel", relationship]);
+            program.EndPredicates();
+
+            var rule = Mapped.Rules![0];
+            Assert.IsInstanceOfType(rule.Body[0], typeof(TableCallWithDoubleKey<string, string, string, string, string>));
+
+            var interpreted = Mapped.ToArray();
+            CollectionAssert.AreEqual(new [] { "coworker" }, interpreted);
+
+            new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
+            Compiler.Link(program);
+            Mapped.ForceRecompute();
+            var compiled = Mapped.ToArray();
+            CollectionAssert.AreEqual(interpreted, compiled);
+        }
+
         #region Utilities
         string CompilerOutputFolder([CallerFilePath] string caller = null!) => Path.Combine(Path.GetDirectoryName(caller)!, "CompilerOutput");
 

@@ -40,7 +40,7 @@ namespace TED.Interpreter
             compiler.Indented($"if ({rowNumber} != Table.NoRow) {match.Invoke};");
             compiler.Indented(fail.Invoke+";");
             compiler.Label(restart);
-            compiler.Indented($"{rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.NextRowWithValue({rowNumber});");
+            compiler.Indented($"{rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.NextRow[{rowNumber}];");
             compiler.Indented($"if ({rowNumber} == Table.NoRow) {fail.Invoke};");
             compiler.Label(match);
             compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");

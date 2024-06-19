@@ -36,7 +36,7 @@ public class GeneralIndexed__Compiled : TED.Compiler.CompiledTEDProgram
             if (row__1 != Table.NoRow) goto match__1;
             goto restart__0;
             restart__1:
-            row__1 = P__0.NextRowWithValue(row__1);
+            row__1 = P__0.NextRow[row__1];
             if (row__1 == Table.NoRow) goto restart__0;
             match__1:
             ref var data__1 = ref P.Data[row__1];

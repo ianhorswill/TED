@@ -48,6 +48,11 @@ namespace TED.Interpreter
         /// Value stored in the cell, typed as object
         /// </summary>
         public abstract object? BoxedValue { get; }
+
+        /// <summary>
+        /// Expression to use when reading from this in compiled code.  This will either be a variable name or, for a constant, a C# literal.
+        /// </summary>
+        public string ReadExpression => IsVariable ? Name : Compiler.Compiler.ToSourceLiteral(BoxedValue);
     }
 
     /// <summary>

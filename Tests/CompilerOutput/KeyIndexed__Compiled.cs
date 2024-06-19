@@ -31,7 +31,7 @@ public class KeyIndexed__Compiled : TED.Compiler.CompiledTEDProgram
             d = data__0;
 
             // NextDay[in d,out n]
-            var row__1 = NextDay__0.RowWithKey(in d);
+            var row__1 = NextDay__0_key.RowWithKey(in d);
             if (row__1 == Table.NoRow) goto restart__0;
             ref var data__1 = ref NextDay.Data[row__1];
             if (data__1.Item1 != d) goto restart__0;
@@ -50,14 +50,14 @@ public class KeyIndexed__Compiled : TED.Compiler.CompiledTEDProgram
         program["Mapped"].CompiledRules = (Action)Mapped__CompiledUpdate;
         Day = (Table<string>)program["Day"].TableUntyped;
         NextDay = (Table<ValueTuple<string,string>>)program["NextDay"].TableUntyped;
-        NextDay__0 = (KeyIndex<ValueTuple<string,string>,string>)NextDay.IndexFor(0);
+        NextDay__0_key = (KeyIndex<ValueTuple<string,string>,string>)NextDay.IndexFor(0);
         NextDay__1 = (GeneralIndex<ValueTuple<string,string>,string>)NextDay.IndexFor(1);
         Mapped = (Table<ValueTuple<string,string>>)program["Mapped"].TableUntyped;
     }
 
     public static Table<string> Day;
     public static Table<ValueTuple<string,string>> NextDay;
-    public static KeyIndex<ValueTuple<string,string>,string> NextDay__0;
+    public static KeyIndex<ValueTuple<string,string>,string> NextDay__0_key;
     public static GeneralIndex<ValueTuple<string,string>,string> NextDay__1;
     public static Table<ValueTuple<string,string>> Mapped;
 }
