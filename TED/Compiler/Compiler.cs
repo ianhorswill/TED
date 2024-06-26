@@ -70,8 +70,8 @@ namespace TED.Compiler
                 Output.WriteLine($"namespace {NamespaceName}");
                 CurlyBraceBlock(() =>
                 {
-                    Output.WriteLine($"[CompiledHelpersFor(\"{Program.Name}\")]");
-                    Output.WriteLine($"public class {ClassName} : TED.Compiler.CompiledTEDProgram");
+                    Indented($"[CompiledHelpersFor(\"{Program.Name}\")]");
+                    Indented($"public class {ClassName} : TED.Compiler.CompiledTEDProgram");
                     CurlyBraceBlock(CompileProgram);
                     Output.WriteLine();
                 });

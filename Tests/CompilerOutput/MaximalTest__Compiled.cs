@@ -12,9 +12,9 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests
 
-{[CompiledHelpersFor("MaximalTest")]
-public class MaximalTest__Compiled : TED.Compiler.CompiledTEDProgram
-
+{
+    [CompiledHelpersFor("MaximalTest")]
+    public class MaximalTest__Compiled : TED.Compiler.CompiledTEDProgram
     {
 
         public static void M__CompiledUpdate()

@@ -12,9 +12,9 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests
 
-{[CompiledHelpersFor("GeneralIndexed")]
-public class GeneralIndexed__Compiled : TED.Compiler.CompiledTEDProgram
-
+{
+    [CompiledHelpersFor("GeneralIndexed")]
+    public class GeneralIndexed__Compiled : TED.Compiler.CompiledTEDProgram
     {
 
         public static void Q__CompiledUpdate()

@@ -12,9 +12,9 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests
 
-{[CompiledHelpersFor("DualRule")]
-public class DualRule__Compiled : TED.Compiler.CompiledTEDProgram
-
+{
+    [CompiledHelpersFor("DualRule")]
+    public class DualRule__Compiled : TED.Compiler.CompiledTEDProgram
     {
 
         public static void R__CompiledUpdate()

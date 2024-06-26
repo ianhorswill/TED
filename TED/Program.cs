@@ -168,11 +168,11 @@ namespace TED
                 d.Dependents.Add(t);
         }
 
-        public void Compile(string namespaceName, string? dir = null, [CallerFilePath] string callerFile = null!)
+        public void Compile(string namespaceName, string[]? additionalDeclarations = null, string? dir = null, [CallerFilePath] string callerFile = null!)
         {
             if (dir == null)
                 dir = Path.GetDirectoryName(callerFile);
-            var compiler = new Compiler.Compiler(this, namespaceName, dir);
+            var compiler = new Compiler.Compiler(this, namespaceName, dir) { AdditionalDeclarations = additionalDeclarations };
             compiler.GenerateSource();
         }
 

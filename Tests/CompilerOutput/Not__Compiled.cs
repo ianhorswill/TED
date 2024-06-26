@@ -12,9 +12,9 @@ using TED.Tables;
 // ReSharper disable once CheckNamespace
 namespace CompilerTests
 
-{[CompiledHelpersFor("Not")]
-public class Not__Compiled : TED.Compiler.CompiledTEDProgram
-
+{
+    [CompiledHelpersFor("Not")]
+    public class Not__Compiled : TED.Compiler.CompiledTEDProgram
     {
 
         public static void R__CompiledUpdate()

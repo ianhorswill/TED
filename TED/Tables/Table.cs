@@ -336,6 +336,9 @@ namespace TED.Tables
             var row = KeyIndex!.RowWithKey(in item);
             if (row == Table.NoRow)
                 Add(item);
+            else if (Indices.Count == 1)
+                // Fast path: KeyIndex is the only index so we don't need to add/remove from rows.
+                Data[row] = item;
             else
                 ReplaceRow(row, item);
         }
