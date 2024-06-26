@@ -24,6 +24,11 @@ namespace TED.Compiler
 
         public readonly Stack<TextWriter> OutputStack = new Stack<TextWriter>();
 
+        /// <summary>
+        /// Any additional "using X;", "using static X;", etc. declarations you want to include
+        /// </summary>
+        public string[]? AdditionalDeclarations;
+
         public TextWriter Output => OutputStack.Peek();
 
         private static string DefaultClassName(string programName) => $"{programName}__Compiled";
@@ -49,21 +54,27 @@ namespace TED.Compiler
                 Output.WriteLine("// ReSharper disable JoinDeclarationAndInitializer");
                 Output.WriteLine("// ReSharper disable RedundantUsingDirective");
 
+                Output.WriteLine("using System;");
                 Output.WriteLine("using TED;");
                 Output.WriteLine("using TED.Interpreter;");
                 Output.WriteLine("using TED.Compiler;");
                 Output.WriteLine("using TED.Tables;");
-                
-                NewLine();
-                Output.WriteLine("// ReSharper disable once CheckNamespace");
-                Output.WriteLine($"namespace {NamespaceName};");
+                if (AdditionalDeclarations != null)
+                    foreach (var declaration in AdditionalDeclarations)
+                        Output.WriteLine(declaration);
                 NewLine();
                 Output.WriteLine("#pragma warning disable 0164,8618,8600,8620");
                 NewLine();
-                
-                Output.WriteLine($"[CompiledHelpersFor(\"{Program.Name}\")]");
-                Output.WriteLine($"public class {ClassName} : TED.Compiler.CompiledTEDProgram");
-                CurlyBraceBlock(CompileProgram);
+
+                Output.WriteLine("// ReSharper disable once CheckNamespace");
+                Output.WriteLine($"namespace {NamespaceName}");
+                CurlyBraceBlock(() =>
+                {
+                    Output.WriteLine($"[CompiledHelpersFor(\"{Program.Name}\")]");
+                    Output.WriteLine($"public class {ClassName} : TED.Compiler.CompiledTEDProgram");
+                    CurlyBraceBlock(CompileProgram);
+                    Output.WriteLine();
+                });
                 Output.WriteLine();
 
                 Output.WriteLine("#pragma warning restore 0164,8618,8600,8620");
@@ -459,6 +470,9 @@ namespace TED.Compiler
 
                 case float f:
                     return $"{f}f";
+
+                case bool b:
+                    return b ? "true" : "false";
 
                 case Enum e:
                     return $"{e.GetType().Name}.{e}";

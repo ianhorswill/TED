@@ -88,7 +88,7 @@ namespace TED.Tables
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        internal uint RowWithKey(in TKey value)
+        public uint RowWithKey(in TKey value)
         {
             for (var b = HashInternal(value, mask); buckets[b].row != Table.NoRow; b = b + 1 & mask)
                 if (Comparer.Equals(buckets[b].key, value))

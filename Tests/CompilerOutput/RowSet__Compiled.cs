@@ -1,55 +1,58 @@
 // ReSharper disable InconsistentNaming
 // ReSharper disable JoinDeclarationAndInitializer
 // ReSharper disable RedundantUsingDirective
+using System;
 using TED;
 using TED.Interpreter;
 using TED.Compiler;
 using TED.Tables;
 
-// ReSharper disable once CheckNamespace
-namespace CompilerTests;
-
 #pragma warning disable 0164,8618,8600,8620
 
-[CompiledHelpersFor("RowSet")]
+// ReSharper disable once CheckNamespace
+namespace CompilerTests
+
+{[CompiledHelpersFor("RowSet")]
 public class RowSet__Compiled : TED.Compiler.CompiledTEDProgram
 
-{
-
-    public static void R__CompiledUpdate()
     {
-        // R[in a].If(P[out a], Q[in a])
+
+        public static void R__CompiledUpdate()
         {
-            int a;
+            // R[in a].If(P[out a], Q[in a])
+            {
+                int a;
 
-            // P[out a]
-            var row__0 = unchecked((uint)-1);
-            restart__0:
-            if (++row__0 == P.Length) goto end;
-            ref var data__0 = ref P.Data[row__0];
-            a = data__0;
+                // P[out a]
+                var row__0 = unchecked((uint)-1);
+                restart__0:
+                if (++row__0 == P.Length) goto end;
+                ref var data__0 = ref P.Data[row__0];
+                a = data__0;
 
-            // Q[in a]
-            if (!Q.ContainsRowUsingRowSet(a)) goto restart__0;
+                // Q[in a]
+                if (!Q.ContainsRowUsingRowSet(a)) goto restart__0;
 
-            // Write [in a]
-            R.Add(a);
-            goto restart__0;
+                // Write [in a]
+                R.Add(a);
+                goto restart__0;
+            }
+
+            end:;
         }
 
-        end:;
+        public override void Link(TED.Program program)
+        {
+            program["R"].CompiledRules = (Action)R__CompiledUpdate;
+            P = (Table<int>)program["P"].TableUntyped;
+            Q = (Table<int>)program["Q"].TableUntyped;
+            R = (Table<int>)program["R"].TableUntyped;
+        }
+
+        public static Table<int> P;
+        public static Table<int> Q;
+        public static Table<int> R;
     }
 
-    public override void Link(TED.Program program)
-    {
-        program["R"].CompiledRules = (Action)R__CompiledUpdate;
-        P = (Table<int>)program["P"].TableUntyped;
-        Q = (Table<int>)program["Q"].TableUntyped;
-        R = (Table<int>)program["R"].TableUntyped;
-    }
-
-    public static Table<int> P;
-    public static Table<int> Q;
-    public static Table<int> R;
 }
 #pragma warning restore 0164,8618,8600,8620
