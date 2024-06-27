@@ -40,6 +40,8 @@ namespace TED.Interpreter
         /// </summary>
         public readonly ValueCell[] ValueCells;
 
+        public readonly IVariable[] SingletonVariables;
+
         /// <summary>
         /// True if the rule only calls pure predicates.
         /// </summary>
@@ -68,13 +70,14 @@ namespace TED.Interpreter
 #endif
 
 #pragma warning disable CS1591
-        protected Rule(TablePredicate predicate, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
+        protected Rule(TablePredicate predicate, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells, IVariable[] singletons)
 #pragma warning restore CS1591
         {
             Predicate = predicate;
             Body = body;
             Dependencies = dependencies;
             ValueCells = valueCells;
+            SingletonVariables = singletons;
         }
 
         /// <summary>
@@ -175,8 +178,8 @@ namespace TED.Interpreter
 
         public override IPattern Head => HeadPattern;
 
-        public Rule(TablePredicate<T1> predicate, Pattern<T1> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
-            : base(predicate, body, dependencies, valueCells)
+        public Rule(TablePredicate<T1> predicate, Pattern<T1> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells, IVariable[] singletons)
+            : base(predicate, body, dependencies, valueCells, singletons)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -201,8 +204,8 @@ namespace TED.Interpreter
         public readonly Pattern<T1, T2> HeadPattern;
         public override IPattern Head => HeadPattern;
 
-        public Rule(TablePredicate<T1, T2> predicate, Pattern<T1, T2> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
-            : base(predicate, body, dependencies, valueCells)
+        public Rule(TablePredicate<T1, T2> predicate, Pattern<T1, T2> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells, IVariable[] singletons)
+            : base(predicate, body, dependencies, valueCells, singletons)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -228,8 +231,8 @@ namespace TED.Interpreter
         public readonly Pattern<T1, T2, T3> HeadPattern;
         public override IPattern Head => HeadPattern;
 
-        public Rule(TablePredicate<T1, T2, T3> predicate, Pattern<T1, T2, T3> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
-            : base(predicate, body, dependencies, valueCells)
+        public Rule(TablePredicate<T1, T2, T3> predicate, Pattern<T1, T2, T3> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells, IVariable[] singletons)
+            : base(predicate, body, dependencies, valueCells, singletons)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -256,8 +259,8 @@ namespace TED.Interpreter
         public readonly Pattern<T1, T2, T3, T4> HeadPattern;
         public override IPattern Head => HeadPattern;
 
-        public Rule(TablePredicate<T1, T2, T3, T4> predicate, Pattern<T1, T2, T3, T4> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
-            : base(predicate, body, dependencies, valueCells)
+        public Rule(TablePredicate<T1, T2, T3, T4> predicate, Pattern<T1, T2, T3, T4> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells, IVariable[] singletons)
+            : base(predicate, body, dependencies, valueCells, singletons)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -285,8 +288,8 @@ namespace TED.Interpreter
         public readonly Pattern<T1, T2, T3, T4, T5> HeadPattern;
         public override IPattern Head => HeadPattern;
 
-        public Rule(TablePredicate<T1, T2, T3, T4, T5> predicate, Pattern<T1, T2, T3, T4, T5> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
-            : base(predicate, body, dependencies, valueCells)
+        public Rule(TablePredicate<T1, T2, T3, T4, T5> predicate, Pattern<T1, T2, T3, T4, T5> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells, IVariable[] singletons)
+            : base(predicate, body, dependencies, valueCells, singletons)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -315,8 +318,8 @@ namespace TED.Interpreter
         public readonly Pattern<T1, T2, T3, T4, T5, T6> HeadPattern;
         public override IPattern Head => HeadPattern;
 
-        public Rule(TablePredicate<T1, T2, T3, T4, T5, T6> predicate, Pattern<T1, T2, T3, T4, T5, T6> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
-            : base(predicate, body, dependencies, valueCells)
+        public Rule(TablePredicate<T1, T2, T3, T4, T5, T6> predicate, Pattern<T1, T2, T3, T4, T5, T6> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells, IVariable[] singletons)
+            : base(predicate, body, dependencies, valueCells, singletons)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -346,8 +349,8 @@ namespace TED.Interpreter
         public readonly Pattern<T1, T2, T3, T4, T5, T6, T7> HeadPattern;
         public override IPattern Head => HeadPattern;
 
-        public Rule(TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, Pattern<T1, T2, T3, T4, T5, T6, T7> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
-            : base(predicate, body, dependencies, valueCells)
+        public Rule(TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, Pattern<T1, T2, T3, T4, T5, T6, T7> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells, IVariable[] singletons)
+            : base(predicate, body, dependencies, valueCells, singletons)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;
@@ -378,8 +381,8 @@ namespace TED.Interpreter
         public readonly Pattern<T1, T2, T3, T4, T5, T6, T7, T8> HeadPattern;
         public override IPattern Head => HeadPattern;
 
-        public Rule(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, Pattern<T1, T2, T3, T4, T5, T6, T7, T8> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells)
-            : base(predicate, body, dependencies, valueCells)
+        public Rule(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, Pattern<T1, T2, T3, T4, T5, T6, T7, T8> headPattern, Call[] body, TablePredicate[] dependencies, ValueCell[] valueCells, IVariable[] singletons)
+            : base(predicate, body, dependencies, valueCells, singletons)
         {
             HeadPattern = headPattern;
             TablePredicate = predicate;

@@ -99,7 +99,7 @@ namespace TED.Interpreter
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var (head, body) = Preprocessor.GenerateCalls(tc, this, subgoals);
-            TablePredicate.AddRule(new Rule<T1>((TablePredicate<T1>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells()));
+            TablePredicate.AddRule(new Rule<T1>((TablePredicate<T1>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells(), tc.Singletons));
         }
     }
 
@@ -164,7 +164,7 @@ namespace TED.Interpreter
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var (head, body) = Preprocessor.GenerateCalls(tc, this, subgoals);
-            TablePredicate.AddRule(new Rule<T1, T2>((TablePredicate<T1, T2>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells()));
+            TablePredicate.AddRule(new Rule<T1, T2>((TablePredicate<T1, T2>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells(), tc.Singletons));
         }
     }
 
@@ -236,7 +236,7 @@ namespace TED.Interpreter
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var (head, body) = Preprocessor.GenerateCalls(tc, this, subgoals);
-            TablePredicate.AddRule(new Rule<T1, T2, T3>((TablePredicate<T1, T2, T3>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells()));
+            TablePredicate.AddRule(new Rule<T1, T2, T3>((TablePredicate<T1, T2, T3>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells(), tc.Singletons));
         }
     }
 
@@ -314,7 +314,7 @@ namespace TED.Interpreter
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var (head, body) = Preprocessor.GenerateCalls(tc, this, subgoals);
-            TablePredicate.AddRule(new Rule<T1, T2, T3, T4>((TablePredicate<T1, T2, T3, T4>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells()));
+            TablePredicate.AddRule(new Rule<T1, T2, T3, T4>((TablePredicate<T1, T2, T3, T4>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells(), tc.Singletons));
         }
     }
 
@@ -399,7 +399,7 @@ namespace TED.Interpreter
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var (head, body) = Preprocessor.GenerateCalls(tc, this, subgoals);
-            TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5>((TablePredicate<T1, T2, T3, T4, T5>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells()));
+            TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5>((TablePredicate<T1, T2, T3, T4, T5>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells(), tc.Singletons));
         }
     }
 
@@ -491,7 +491,7 @@ namespace TED.Interpreter
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var (head, body) = Preprocessor.GenerateCalls(tc, this, subgoals);
-            TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5, T6>((TablePredicate<T1, T2, T3, T4, T5, T6>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells()));
+            TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5, T6>((TablePredicate<T1, T2, T3, T4, T5, T6>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells(), tc.Singletons));
         }
     }
 
@@ -589,7 +589,7 @@ namespace TED.Interpreter
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var (head, body) = Preprocessor.GenerateCalls(tc, this, subgoals);
-            TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5, T6, T7>((TablePredicate<T1, T2, T3, T4, T5, T6, T7>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells()));
+            TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5, T6, T7>((TablePredicate<T1, T2, T3, T4, T5, T6, T7>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells(), tc.Singletons));
         }
     }
 
@@ -693,7 +693,7 @@ namespace TED.Interpreter
             var tc = new GoalAnalyzer();
             // We have to compile this first because the first occurrences of variables have to be in the body
             var (head, body) = Preprocessor.GenerateCalls(tc, this, subgoals);
-            TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5, T6, T7, T8>((TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells()));
+            TablePredicate.AddRule(new Rule<T1, T2, T3, T4, T5, T6, T7, T8>((TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8>)TablePredicate, head.MakePattern(tc), body, tc.Dependencies, tc.VariableValueCells(), tc.Singletons));
         }
     }
 }

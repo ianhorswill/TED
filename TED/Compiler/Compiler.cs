@@ -195,10 +195,18 @@ namespace TED.Compiler
             });
         }
 
+        private Rule currentRule = null!;
+
+        /// <summary>
+        /// True if there is only reference to the specified variable.  That means it can be ignored.
+        /// </summary>
+        private bool IsSingleton(IVariable t) => currentRule.SingletonVariables.Contains(t);
+
         private void CompileRule(Rule rule, Continuation end)
         {
             var predicate = rule.Predicate;
             var ruleNumber = predicate.Rules!.IndexOf(rule)+1;
+            currentRule = rule;
             
             Indented($"// {rule}");
 
@@ -206,7 +214,8 @@ namespace TED.Compiler
             {
                 // Declare locals
                 foreach (var c in rule.ValueCells)
-                    Indented($"{FormatType(c.Type)} {c.Name};");
+                    if (!IsSingleton(c.Variable!))
+                        Indented($"{FormatType(c.Type)} {c.Name};");
 
                 var fail = end;
 
@@ -420,7 +429,8 @@ namespace TED.Compiler
                     break;
 
                 case Opcode.Write:
-                    Indented($"{patternArg.Cell.Name} = {item};");
+                    if (!IsSingleton(patternArg.Cell.Variable!))
+                        Indented($"{patternArg.Cell.Name} = {item};");
                     break;
 
                 case Opcode.Ignore:

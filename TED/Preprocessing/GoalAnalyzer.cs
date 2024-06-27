@@ -14,15 +14,16 @@ namespace TED.Preprocessing
     /// </summary>
     public class GoalAnalyzer
     {
-        private GoalAnalyzer(Dictionary<Term, ValueCell> variableCells, HashSet<Term>? boundVars, HashSet<TablePredicate> dependencies)
+        private GoalAnalyzer(Dictionary<Term, ValueCell> variableCells,  Dictionary<IVariable, int> refCounts, HashSet<Term>? boundVars, HashSet<TablePredicate> dependencies)
         {
             variableValueCells = variableCells;
+            referenceCounts = refCounts;
             if (boundVars != null)
                 BoundVariables.UnionWith(boundVars);
             tableDependencies = dependencies;
         }
 
-        internal GoalAnalyzer() : this(new Dictionary<Term, ValueCell>(), null, new HashSet<TablePredicate>())
+        internal GoalAnalyzer() : this(new Dictionary<Term, ValueCell>(),  new Dictionary<IVariable, int>(), null, new HashSet<TablePredicate>())
         { }
 
         /// <summary>
@@ -30,7 +31,7 @@ namespace TED.Preprocessing
         /// Dependencies will be added, however.
         /// </summary>
         public GoalAnalyzer MakeChild()
-            => new GoalAnalyzer(variableValueCells, BoundVariables, tableDependencies);
+            => new GoalAnalyzer(variableValueCells, referenceCounts, BoundVariables, tableDependencies);
 
         /// <summary>
         /// Maps Var objects, which are the abstract syntax tree representation for a TED variable,
@@ -39,6 +40,21 @@ namespace TED.Preprocessing
         /// is also a generic type, and so AnyTerm is the most immediate ancestor that's a parent to all Vars.
         /// </summary>
         private readonly Dictionary<Term, ValueCell> variableValueCells;
+
+        private readonly Dictionary<IVariable, int> referenceCounts;
+
+        /// <summary>
+        /// Number of uses of the specified variable in this rule.
+        /// </summary>
+        public int ReferenceCount(IVariable v) => referenceCounts.GetValueOrDefault(v, 0);
+
+        private void IncrementReferenceCount(IVariable v) => referenceCounts[v] = ReferenceCount(v) + 1;
+
+        /// <summary>
+        /// Set of singleton variables (variables used only once) in the rule.
+        /// These can be safely ignored in matching since their values will never be used.
+        /// </summary>
+        public IVariable[] Singletons => referenceCounts.Where(p => p.Value == 1).Select(p => p.Key).ToArray();
 
         /// <summary>
         /// Variables that are currently bound to values
@@ -74,6 +90,7 @@ namespace TED.Preprocessing
             // it's a variable
             if (!(term is Var<T> v))
                 throw new InvalidOperationException($"{term} cannot be used as an argument to a predicate because it is not a constant or a variable");
+            IncrementReferenceCount(v);
             if (BoundVariables.Contains(v))
                 return MatchOperation<T>.Read((ValueCell<T>)variableValueCells[v]);
             if (!variableValueCells.ContainsKey(v))
@@ -86,12 +103,12 @@ namespace TED.Preprocessing
             return MatchOperation<T>.Write((ValueCell<T>)variableValueCells[v]);
         }
 
-        /// <summary>
-        /// Forcibly make a MatchOperation that will write v, even when v is already instantiated.
-        /// Used for iteration constructs like Maximize.
-        /// </summary>
-        // ReSharper disable once UnusedMember.Global
-        public MatchOperation<T> MakeWrite<T>(Var<T> v) => MatchOperation<T>.Write((ValueCell<T>)variableValueCells[v]);
+        ///// <summary>
+        ///// Forcibly make a MatchOperation that will write v, even when v is already instantiated.
+        ///// Used for iteration constructs like Maximize.
+        ///// </summary>
+        //// ReSharper disable once UnusedMember.Global
+        //public MatchOperation<T> MakeWrite<T>(Var<T> v) => MatchOperation<T>.Write((ValueCell<T>)variableValueCells[v]);
 
         /// <summary>
         /// ValueCells for all the variables in the rule

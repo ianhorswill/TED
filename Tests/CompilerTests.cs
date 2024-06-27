@@ -481,6 +481,29 @@ namespace Tests
             CollectionAssert.AreEqual(interpreted, compiled);
         }
 
+        [TestMethod]
+        public void Singleton()
+        {
+            var i = (Var<int>)"i";
+            var j = (Var<int>)"j";
+            var k = (Var<int>)"k";
+            var program = new Simulation(ThisMethodName());
+            program.BeginPredicates();
+            var P = Predicate("P", i, j);
+            for (int a = 0; a < 10; a++)
+            for (int b = 0; b < 20; b += 2)
+                P.AddRow(a, b);
+            var Q = Predicate("Q", i).If(P[i, __]);
+            program.EndPredicates();
+            program.Update();
+            var interpreted = Q.ToArray();
+            new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
+            Compiler.Link(program);
+            Q.ForceRecompute();
+            var compiled = Q.ToArray();
+            CollectionAssert.AreEqual(interpreted, compiled);
+        }
+
         #region Utilities
         string CompilerOutputFolder([CallerFilePath] string caller = null!) => Path.Combine(Path.GetDirectoryName(caller)!, "CompilerOutput");
 
