@@ -42,7 +42,7 @@ namespace TED.Interpreter
             compiler.Indented($"if ({rowNumber} == Table.NoRow) {fail.Invoke};");
             compiler.Label(match);
             compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");
-            compiler.CompilePatternMatch(rowData, ArgumentPattern, restart);
+            compiler.CompilePatternMatch(rowData, ArgumentPattern, restart, Index.ColumnNumbers);
             return restart;
         }
 

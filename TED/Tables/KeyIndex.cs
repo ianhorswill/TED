@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace TED.Tables
 {
@@ -27,14 +28,16 @@ namespace TED.Tables
         //
 
         /// <summary>
+        /// INTERNAL: Do not use; exposed only for the benefit of compiled code
         /// Hash table buckets mapping key values to row numbers
         /// </summary>
-        private (TKey key, uint row)[] buckets;
+        public (TKey key, uint row)[] Buckets;
 
         /// <summary>
+        /// INTERNAL: Do not use; exposed only for the benefit of compiled code
         /// Mask to and with a hash to get a bucket number
         /// </summary>
-        private uint mask;
+        public uint Mask;
 
         /// <summary>
         /// Underlying table we're indexing
@@ -50,17 +53,18 @@ namespace TED.Tables
         {
             table = t;
             var capacity = t.Data.Length * 2;
-            buckets = new (TKey key, uint row)[capacity];
-            Array.Fill(buckets!, (default(TKey), Table.NoRow));
-            mask = (uint)(capacity - 1);
-            Debug.Assert((mask & capacity) == 0, "Capacity must be a power of 2");
+            Buckets = new (TKey key, uint row)[capacity];
+            Array.Fill(Buckets!, (default(TKey), Table.NoRow));
+            Mask = (uint)(capacity - 1);
+            Debug.Assert((Mask & capacity) == 0, "Capacity must be a power of 2");
             Reindex();
         }
 
         /// <summary>
         /// Hash functions mapping a key value and a mask to a bucket number
         /// </summary>
-        private static uint HashInternal(TKey value, uint mask) => (uint)Comparer.GetHashCode(value) & mask;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint HashInternal(TKey value, uint mask) => unchecked((uint)Comparer.GetHashCode(value)) & mask;
 
         /// <summary>
         /// Return a reference to the row with the specified key.
@@ -88,14 +92,16 @@ namespace TED.Tables
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public uint RowWithKey(in TKey value)
         {
-            for (var b = HashInternal(value, mask); buckets[b].row != Table.NoRow; b = b + 1 & mask)
-                if (Comparer.Equals(buckets[b].key, value))
-                    return buckets[b].row;
+            for (var b = HashInternal(value, Mask); Buckets[b].row != Table.NoRow; b = b + 1 & Mask)
+                if (Comparer.Equals(Buckets[b].key, value))
+                    return Buckets[b].row;
             return Table.NoRow;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override uint RowWithKey(in TRow rowData) => RowWithKey(projection(in rowData));
 
         /// <summary>
@@ -123,18 +129,18 @@ namespace TED.Tables
         {
             uint b;
             var key = projection(table.Data[row]);
-            for (b = HashInternal(key, mask); buckets[b].row != Table.NoRow; b = b + 1 & mask)
+            for (b = HashInternal(key, Mask); Buckets[b].row != Table.NoRow; b = b + 1 & Mask)
             {
 #if PROFILER
                 probes++;
 #endif
-                if (Comparer.Equals(key, buckets[b].key))
+                if (Comparer.Equals(key, Buckets[b].key))
                     // It's already there
                     throw new DuplicateKeyException(Predicate, key!);
             }
 
             // It's not there, but b is a free bucket, so store it there
-            buckets[b] = (key, row);
+            Buckets[b] = (key, row);
 #if PROFILER
             insertions++;
 #endif
@@ -146,9 +152,9 @@ namespace TED.Tables
         /// </summary>
         internal override void Expand()
         {
-            buckets = new (TKey key, uint row)[buckets.Length * 2];
-            Array.Fill(buckets!, (default(TKey), Table.NoRow));
-            mask = (uint)(buckets.Length - 1);
+            Buckets = new (TKey key, uint row)[Buckets.Length * 2];
+            Array.Fill(Buckets!, (default(TKey), Table.NoRow));
+            Mask = (uint)(Buckets.Length - 1);
             Reindex();
         }
 
@@ -157,7 +163,7 @@ namespace TED.Tables
         /// </summary>
         internal override void Clear()
         {
-            Array.Fill(buckets!, (default(TKey), Table.NoRow));
+            Array.Fill(Buckets!, (default(TKey), Table.NoRow));
         }
 
         /// <summary>

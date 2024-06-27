@@ -24,11 +24,16 @@ namespace CompilerTests
                 string relationship;
 
                 // Relation[Sara,Rachel,out relationship]
-                var row__0 = Relation__0_1_key.RowWithKey(("Sara", "Rachel"));
+                var key__0 = ("Sara", "Rachel");
+                var row__0 = Table.NoRow;
+                for (var bucket__0=key__0.GetHashCode()&Relation__0_1_key.Mask; Relation__0_1_key.Buckets[bucket__0].row != Table.NoRow; bucket__0 = (bucket__0+1)&Relation__0_1_key.Mask)
+                    if (Relation__0_1_key.Buckets[bucket__0].key == key__0)
+                    {
+                        row__0 = Relation__0_1_key.Buckets[bucket__0].row;
+                        break;
+                    }
                 if (row__0 == Table.NoRow) goto end;
                 ref var data__0 = ref Relation.Data[row__0];
-                if (data__0.Item1 != "Sara") goto end;
-                if (data__0.Item2 != "Rachel") goto end;
                 relationship = data__0.Item3;
 
                 // Write [in relationship]

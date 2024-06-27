@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using TED.Interpreter;
+using System.Runtime.CompilerServices;
 
 namespace TED.Tables
 {
@@ -61,7 +62,7 @@ namespace TED.Tables
 
             public KeyEnumerator(GeneralIndex<TRow,TColumn> index)
             {
-                this.buckets = index.buckets;
+                this.buckets = index.Buckets;
                 bucket = -1;
             }
 
@@ -112,7 +113,7 @@ namespace TED.Tables
 
             public KeyCountEnumerator(GeneralIndex<TRow,TColumn> index)
             {
-                this.buckets = index.buckets;
+                this.buckets = index.Buckets;
                 bucket = -1;
             }
 
@@ -163,7 +164,7 @@ namespace TED.Tables
 
             public KeyInfoEnumerator(GeneralIndex<TRow,TColumn> index)
             {
-                this.buckets = index.buckets;
+                this.buckets = index.Buckets;
                 bucket = -1;
             }
 
@@ -187,15 +188,17 @@ namespace TED.Tables
         }
 
         /// <summary>
+        /// INTERNAL: Do not use; exposed only for the benefit of compiled code
         /// Buckets for the hash table.  These contain a column value and the index of the first row in the
         /// linked list of rows having that column value.  The row after it is stored in nextRow[firstRow].
         /// Empty buckets have firstRow == AnyTable.NoRow.
         /// </summary>
-        private (TColumn columnValue, uint firstRow, int count)[] buckets;
+        public (TColumn columnValue, uint firstRow, int count)[] Buckets;
 
         private readonly bool enumeratedTypeColumn;
 
         /// <summary>
+        /// INTERNAL: Do not use; exposed only for the benefit of compiled code
         /// Next cells in the linked lists.
         /// All the rows with a given column value are stored in a linked list, starting with the row indicated
         /// in the firstRow field of the hashtable bucket for the column value.  The successor to row i is stored in
@@ -217,10 +220,11 @@ namespace TED.Tables
         private int completeDeletions;
 
         /// <summary>
+        /// INTERNAL: Do not use; exposed only for the benefit of compiled code
         /// The length of the buckets array is always a power of 2.  Mask is the length-1, so we can easily
         /// project a hash value into a bucket number by and'ing the hash value with the mask.
         /// </summary>
-        private uint mask;
+        public uint Mask;
 
         /// <summary>
         /// The Table object this is indexing.
@@ -240,16 +244,16 @@ namespace TED.Tables
             var columnType = typeof(TColumn);
             enumeratedTypeColumn = columnType.IsEnum;
             var capacity = t.Data.Length * 2;
-            buckets = new (TColumn columnValue, uint firstRow, int count)[enumeratedTypeColumn?Enum.GetValues(columnType).Cast<int>().Max()+1:capacity];
-            Array.Fill(buckets!, (default(TColumn), Table.NoRow, 0));
+            Buckets = new (TColumn columnValue, uint firstRow, int count)[enumeratedTypeColumn?Enum.GetValues(columnType).Cast<int>().Max()+1:capacity];
+            Array.Fill(Buckets!, (default(TColumn), Table.NoRow, 0));
             NextRow = new uint[t.Data.Length];
             Array.Fill(NextRow, Table.NoRow);
             if (enumeratedTypeColumn)
-                mask = uint.MaxValue;
+                Mask = uint.MaxValue;
             else
             {
-                mask = (uint)(capacity - 1);
-                Debug.Assert((mask & capacity) == 0, "Capacity must be a power of 2");
+                Mask = (uint)(capacity - 1);
+                Debug.Assert((Mask & capacity) == 0, "Capacity must be a power of 2");
             }
 
             if (p.Overwrite)
@@ -273,7 +277,8 @@ namespace TED.Tables
         /// <param name="value">Column value</param>
         /// <param name="mask">Mask to AND with to generate a bucket number</param>
         /// <returns></returns>
-        private static uint HashInternal(TColumn value, uint mask) => (uint)Comparer.GetHashCode(value) & mask;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static uint HashInternal(TColumn value, uint mask) => unchecked((uint)Comparer.GetHashCode(value)) & mask;
 
         /// <summary>
         /// Search the table for the start of the linked list of rows with the specified column value
@@ -281,10 +286,10 @@ namespace TED.Tables
         /// </summary>
         public uint FirstRowWithValue(in TColumn value)
         {
-            for (var b = HashInternal(value, mask); buckets[b].firstRow != Table.NoRow; b = b + 1 & mask)
-                if (Comparer.Equals(buckets[b].columnValue, value))
+            for (var b = HashInternal(value, Mask); Buckets[b].firstRow != Table.NoRow; b = b + 1 & Mask)
+                if (Comparer.Equals(Buckets[b].columnValue, value))
                 {
-                    var first = buckets[b].firstRow;
+                    var first = Buckets[b].firstRow;
                     if (first == Table.DeletedRow)
                         return Table.NoRow;
                     return first;
@@ -294,8 +299,8 @@ namespace TED.Tables
 
         private uint? BucketWithValue(in TColumn value)
         {
-            for (var b = HashInternal(value, mask); buckets[b].firstRow != Table.NoRow; b = b + 1 & mask)
-                if (Comparer.Equals(buckets[b].columnValue, value))
+            for (var b = HashInternal(value, Mask); Buckets[b].firstRow != Table.NoRow; b = b + 1 & Mask)
+                if (Comparer.Equals(Buckets[b].columnValue, value))
                     return b;
             return null;
         }
@@ -317,7 +322,7 @@ namespace TED.Tables
         /// <param name="row">Row number of the row we're adding</param>
         internal override void Add(uint row)
         {
-            if (completeDeletions > buckets.Length / 4)
+            if (completeDeletions > Buckets.Length / 4)
             {
                 Clear();
                 Reindex();
@@ -328,21 +333,21 @@ namespace TED.Tables
             uint b;
             var value = projection(table.Data[row]);
             // Find the first bucket which either has this value, or which is empty
-            for (b = HashInternal(value, mask); buckets[b].firstRow != Table.NoRow && !Comparer.Equals(value, buckets[b].columnValue); b = b + 1 & mask)
+            for (b = HashInternal(value, Mask); Buckets[b].firstRow != Table.NoRow && !Comparer.Equals(value, Buckets[b].columnValue); b = b + 1 & Mask)
             { }
 
-            var oldFirstRow = buckets[b].firstRow;
+            var oldFirstRow = Buckets[b].firstRow;
             if (oldFirstRow == Table.DeletedRow) 
                 oldFirstRow = Table.NoRow;
             if (oldFirstRow == Table.NoRow)
             {
-                buckets[b].columnValue = value;
-                buckets[b].count = 0;
+                Buckets[b].columnValue = value;
+                Buckets[b].count = 0;
             }
 
             // Insert row at the beginning of the list for this value;
-            buckets[b].firstRow = row;
-            buckets[b].count++;
+            Buckets[b].firstRow = row;
+            Buckets[b].count++;
             NextRow[row] = oldFirstRow;
 
 
@@ -360,10 +365,10 @@ namespace TED.Tables
             uint b;
             var value = projection(table.Data[row]);
             // Find the bucket that has this value
-            for (b = HashInternal(value, mask); !Comparer.Equals(value, buckets[b].columnValue); b = b + 1 & mask)
+            for (b = HashInternal(value, Mask); !Comparer.Equals(value, Buckets[b].columnValue); b = b + 1 & Mask)
             { }
 
-            buckets[b].count--;
+            Buckets[b].count--;
 
             var previous = previousRow![row];
             var next = NextRow[row];
@@ -380,12 +385,12 @@ namespace TED.Tables
             if (next == Table.NoRow)
             {
                 // It was the only row in the list
-                buckets[b].firstRow = Table.DeletedRow;
+                Buckets[b].firstRow = Table.DeletedRow;
                 completeDeletions++;
             }
             else
             {
-                buckets[b].firstRow = next;
+                Buckets[b].firstRow = next;
                 previousRow[next] = Table.NoRow;
             }
         }
@@ -398,10 +403,10 @@ namespace TED.Tables
         {
             if (!enumeratedTypeColumn)
             {
-                buckets = new (TColumn columnValue, uint firstRow, int count)[buckets.Length * 2];
-                mask = (uint)(buckets.Length - 1);
+                Buckets = new (TColumn columnValue, uint firstRow, int count)[Buckets.Length * 2];
+                Mask = (uint)(Buckets.Length - 1);
             }
-            Array.Fill(buckets!, (default(TColumn), Table.NoRow,0));
+            Array.Fill(Buckets!, (default(TColumn), Table.NoRow,0));
             NextRow = new uint[NextRow.Length * 2];
             Array.Fill(NextRow, Table.NoRow);
             if (previousRow != null)
@@ -414,7 +419,7 @@ namespace TED.Tables
         /// </summary>
         internal override void Clear()
         {
-            Array.Fill(buckets!, (default(TColumn), Table.NoRow, 0));
+            Array.Fill(Buckets!, (default(TColumn), Table.NoRow, 0));
             Array.Fill(NextRow, Table.NoRow);
             if (previousRow != null) {
                 Array.Fill(previousRow, Table.NoRow);
@@ -450,7 +455,7 @@ namespace TED.Tables
         public int RowsMatchingCount(TColumn value)
         {
             var b = BucketWithValue(value);
-            return b == null ? 0 : buckets[b.Value].count;
+            return b == null ? 0 : Buckets[b.Value].count;
         }
     }
 

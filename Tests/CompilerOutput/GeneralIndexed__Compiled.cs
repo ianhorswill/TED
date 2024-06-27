@@ -41,7 +41,6 @@ namespace CompilerTests
                 if (row__1 == Table.NoRow) goto restart__0;
                 match__1:
                 ref var data__1 = ref P.Data[row__1];
-                if (data__1.Item1 != j) goto restart__1;
                 if (data__1.Item2 != i) goto restart__1;
 
                 // Write [in i,in j]

@@ -16,11 +16,25 @@ namespace TED.Interpreter
         {
             var rowNumber = $"row{identifierSuffix}";
             var rowData = $"data{identifierSuffix}";
+            var key = $"key{identifierSuffix}";
+            var index = Compiler.Compiler.VariableNameForIndex(Index);
 
-            compiler.Indented($"var {rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.RowWithKey(({Cell1.ReadExpression}, {Cell2.ReadExpression}));");
-            compiler.Indented($"if ({rowNumber} == Table.NoRow) {fail.Invoke};");
+            //compiler.Indented($"var {rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.RowWithKey(({Cell1.ReadExpression}, {Cell2.ReadExpression}));");
+
+            compiler.Indented($"var {key} = ({Cell1.ReadExpression}, {Cell2.ReadExpression});");
+            TableIndex.CompileIndexLookup(compiler, fail, identifierSuffix, rowNumber, key, index, "row");
             compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");
-            compiler.CompilePatternMatch(rowData, ArgumentPattern, fail);
+            compiler.CompilePatternMatch(rowData, ArgumentPattern, fail, Index.ColumnNumbers);
+
+            //var row__2_maxLoop_1_0 = Table.NoRow;
+            //var key = (person, other);
+            //for (var b = key.GetHashCode()&Affinity__0_1_key.mask; Affinity__0_1_key.buckets[b].row != Table.NoRow; b = b + 1 & Affinity__0_1_key.mask)
+            //    if (Affinity__0_1_key.buckets[b].key == key)
+            //    {
+            //        row__2_maxLoop_1_0 = Affinity__0_1_key.buckets[b].row;
+            //    }
+
+
             return fail;
         }
     }

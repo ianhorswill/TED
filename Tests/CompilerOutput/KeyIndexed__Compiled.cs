@@ -32,10 +32,15 @@ namespace CompilerTests
                 d = data__0;
 
                 // NextDay[in d,out n]
-                var row__1 = NextDay__0_key.RowWithKey(in d);
+                var row__1 = Table.NoRow;
+                for (var bucket__1=d.GetHashCode()&NextDay__0_key.Mask; NextDay__0_key.Buckets[bucket__1].row != Table.NoRow; bucket__1 = (bucket__1+1)&NextDay__0_key.Mask)
+                    if (NextDay__0_key.Buckets[bucket__1].key == d)
+                    {
+                        row__1 = NextDay__0_key.Buckets[bucket__1].row;
+                        break;
+                    }
                 if (row__1 == Table.NoRow) goto restart__0;
                 ref var data__1 = ref NextDay.Data[row__1];
-                if (data__1.Item1 != d) goto restart__0;
                 n = data__1.Item2;
 
                 // Write [in d,in n]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using TED.Compiler;
 using TED.Interpreter;
 
 namespace TED.Tables
@@ -125,6 +126,24 @@ namespace TED.Tables
         internal virtual void EnableMutation()
         {
             throw new InvalidOperationException("Mutation is not supported on this type of index");
+        }
+
+        internal static void CompileIndexLookup(Compiler.Compiler compiler, Continuation fail, string identifierSuffix, string rowNumber, 
+            string key, string index, string rowField)
+        {
+            var bucket = $"bucket{identifierSuffix}";
+            compiler.Indented($"var {rowNumber} = Table.NoRow;");
+            compiler.Indented($"for (var {bucket}={key}.GetHashCode()&{index}.Mask; {index}.Buckets[{bucket}].row != Table.NoRow; {bucket} = ({bucket}+1)&{index}.Mask)");
+            compiler.FurtherIndented(() =>
+            {
+                compiler.Indented($"if ({index}.Buckets[{bucket}].key == {key})");
+                compiler.CurlyBraceBlock(() =>
+                {
+                    compiler.Indented($"{rowNumber} = {index}.Buckets[{bucket}].{rowField};");
+                    compiler.Indented("break;");
+                });
+            });
+            compiler.Indented($"if ({rowNumber} == Table.NoRow) {fail.Invoke};");
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using TED.Compiler;
+﻿using System;
+using TED.Compiler;
 using TED.Tables;
 
 namespace TED.Interpreter
@@ -15,12 +16,11 @@ namespace TED.Interpreter
         {
             var rowNumber = $"row{identifierSuffix}";
             var rowData = $"data{identifierSuffix}";
-
-            var indexedValue = Cell.IsVariable?$"in {Cell.Name}":Compiler.Compiler.ToSourceLiteral(Cell.BoxedValue);
-            compiler.Indented($"var {rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.RowWithKey({indexedValue});");
-            compiler.Indented($"if ({rowNumber} == Table.NoRow) {fail.Invoke};");
+            var index = Compiler.Compiler.VariableNameForIndex(Index);
+            var indexedValue = Cell.IsVariable?Cell.Name:Compiler.Compiler.ToSourceLiteral(Cell.BoxedValue);
+            TableIndex.CompileIndexLookup(compiler, fail, identifierSuffix, rowNumber, indexedValue, index, "row");
             compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");
-            compiler.CompilePatternMatch(rowData, ArgumentPattern, fail);
+            compiler.CompilePatternMatch(rowData, ArgumentPattern, fail, Index.ColumnNumbers);
             return fail;
         }
     }

@@ -390,12 +390,14 @@ namespace TED.Compiler
         /// <param name="tupleVar">Name of the variable containing the tuple</param>
         /// <param name="p">Pattern to match the tuple to</param>
         /// <param name="fail">Where to branch to if the match fails (falls through for success)</param>
-        public void CompilePatternMatch(string tupleVar, IPattern p, Continuation fail)
+        /// <param name="ignoreColumns">Columns not to generate matching/storing code for</param>
+        public void CompilePatternMatch(string tupleVar, IPattern p, Continuation fail, int[]? ignoreColumns = null)
         {
             var patternArgs = p.Arguments;
             var singleColumn = patternArgs.Length == 1;
             for (var i = 0; i < patternArgs.Length; i++) 
-                CompileMatch(singleColumn?tupleVar:$"{tupleVar}.Item{i+1}", patternArgs[i], fail);
+                if (ignoreColumns == null || !ignoreColumns.Contains(i))
+                    CompileMatch(singleColumn?tupleVar:$"{tupleVar}.Item{i+1}", patternArgs[i], fail);
         }
 
         /// <summary>
