@@ -216,7 +216,7 @@ namespace TED.Tables
         /// If not, make a new array that's twice as big and copy over the data.
         /// </summary>
         /// <param name="extra"></param>
-        private void EnsureSpace(int extra)
+        public void EnsureSpace(int extra)
         {
             if (Length + extra > Data.Length)
             {

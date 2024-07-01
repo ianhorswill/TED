@@ -1021,7 +1021,7 @@ namespace TED {
         // ReSharper disable once InconsistentNaming
         internal readonly Table<T1> _table = new Table<T1>();
 
-        internal Table<T1> Table  {
+        public Table<T1> Table  {
             get {
                 EnsureUpToDate();
                 return _table;
@@ -1261,7 +1261,7 @@ namespace TED {
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2)> _table = new Table<(T1, T2)>();
 
-        internal Table<(T1, T2)> Table  {
+        public Table<(T1, T2)> Table  {
             get {
                 EnsureUpToDate();
                 return _table;
@@ -1741,7 +1741,7 @@ namespace TED {
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3)> _table = new Table<(T1, T2, T3)>();
 
-        internal Table<(T1, T2, T3)> Table  {
+        public Table<(T1, T2, T3)> Table  {
             get {
                 EnsureUpToDate();
                 return _table;
@@ -2212,7 +2212,7 @@ namespace TED {
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3, T4)> _table = new Table<(T1, T2, T3, T4)>();
 
-        internal Table<(T1, T2, T3, T4)> Table  {
+        public Table<(T1, T2, T3, T4)> Table  {
             get {
                 EnsureUpToDate();
                 return _table;
@@ -2716,7 +2716,7 @@ namespace TED {
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3, T4, T5)> _table = new Table<(T1, T2, T3, T4, T5)>();
 
-        internal Table<(T1, T2, T3, T4, T5)> Table  {
+        public Table<(T1, T2, T3, T4, T5)> Table  {
             get {
                 EnsureUpToDate();
                 return _table;
@@ -3254,7 +3254,7 @@ namespace TED {
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1,T2, T3, T4, T5, T6)> _table = new Table<(T1, T2, T3, T4, T5, T6)>();
 
-        internal Table<(T1, T2, T3, T4, T5, T6)> Table {
+        public Table<(T1, T2, T3, T4, T5, T6)> Table {
             get {
                 EnsureUpToDate();
                 return _table;
@@ -3825,7 +3825,7 @@ namespace TED {
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1, T2, T3, T4, T5, T6, T7)> _table = new Table<(T1, T2, T3, T4, T5, T6, T7)>();
 
-        internal Table<(T1, T2, T3, T4, T5, T6, T7)> Table {
+        public Table<(T1, T2, T3, T4, T5, T6, T7)> Table {
             get {
                 EnsureUpToDate();
                 return _table;
@@ -4437,7 +4437,7 @@ namespace TED {
         // ReSharper disable once InconsistentNaming
         internal readonly Table<(T1, T2, T3, T4, T5, T6, T7, T8)> _table = new Table<(T1, T2, T3, T4, T5, T6, T7, T8)>();
 
-        internal Table<(T1, T2, T3, T4, T5, T6, T7, T8)> Table {
+        public Table<(T1, T2, T3, T4, T5, T6, T7, T8)> Table {
             get {
                 EnsureUpToDate();
                 return _table;
