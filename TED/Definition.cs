@@ -161,7 +161,7 @@ namespace TED
     /// A one-argument predicate defined by a single rule.
     /// Calls to the predicate are always inlined, so the predicate doesn't have to have a finite extension.
     /// </summary>
-    public class Definition<T1> : Definition
+    public class Definition<T1> : Definition, IPredicate<T1>
     {
         /// <summary>
         /// Make a one-argument predicate defined by a single rule.
@@ -171,6 +171,11 @@ namespace TED
         {
             Arg1 = arg1;
         }
+
+        string IPredicate<T1>.Name => this.Name;
+        Interpreter.Goal IPredicate<T1>.this[Term<T1> arg1] => this[arg1];
+
+        public Interpreter.Goal this[T1 arg1] => this[(Constant<T1>)arg1];
 
         /// <summary>
         /// First argument
@@ -233,7 +238,7 @@ namespace TED
     /// Calls to the predicate are always inlined, so the predicate doesn't have to have a finite extension.
     /// </summary>
 
-    public sealed class Definition<T1, T2> : Definition
+    public sealed class Definition<T1, T2> : Definition, IPredicate<T1,T2>
     {
         /// <summary>
         /// Make a two-argument predicate defined by a single rule.
@@ -244,6 +249,9 @@ namespace TED
             Arg1 = arg1;
             Arg2 = arg2;
         }
+
+        string IPredicate<T1,T2>.Name => this.Name;
+        Interpreter.Goal IPredicate<T1,T2>.this[Term<T1> arg1, Term<T2> arg2] => this[arg1, arg2];
 
         /// <summary>
         /// First Argument
@@ -322,7 +330,7 @@ namespace TED
     /// A three-argument predicate defined by a single rule.
     /// Calls to the predicate are always inlined, so the predicate doesn't have to have a finite extension.
     /// </summary>
-    public class Definition<T1, T2, T3> : Definition
+    public class Definition<T1, T2, T3> : Definition, IPredicate<T1,T2,T3>
     {
         /// <summary>
         /// Make a three-argument predicate defined by a single rule.
@@ -334,6 +342,9 @@ namespace TED
             Arg2 = arg2;
             Arg3 = arg3;
         }
+
+        string IPredicate<T1,T2,T3>.Name => this.Name;
+        Interpreter.Goal IPredicate<T1,T2,T3>.this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] => this[arg1, arg2, arg3];
 
         /// <summary>
         /// First Argument
@@ -423,7 +434,7 @@ namespace TED
     /// A four-argument predicate defined by a single rule.
     /// Calls to the predicate are always inlined, so the predicate doesn't have to have a finite extension.
     /// </summary>
-    public class Definition<T1, T2, T3, T4> : Definition
+    public class Definition<T1, T2, T3, T4> : Definition,IPredicate<T1,T2,T3,T4>
     {
         /// <summary>
         /// Make a four-argument predicate defined by a single rule.
@@ -436,6 +447,9 @@ namespace TED
             Arg3 = arg3;
             Arg4 = arg4;
         }
+
+        string IPredicate<T1,T2,T3,T4>.Name => this.Name;
+        Interpreter.Goal IPredicate<T1,T2,T3,T4>.this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4] => this[arg1, arg2, arg3, arg4];
 
         /// <summary>
         /// First Argument
@@ -538,7 +552,7 @@ namespace TED
     /// A five-argument predicate defined by a single rule.
     /// Calls to the predicate are always inlined, so the predicate doesn't have to have a finite extension.
     /// </summary>
-    public class Definition<T1,T2,T3,T4,T5> : Definition
+    public class Definition<T1,T2,T3,T4,T5> : Definition, IPredicate<T1,T2,T3,T4,T5>
     {
         /// <summary>
         /// Make a five-argument predicate defined by a single rule.
@@ -552,6 +566,11 @@ namespace TED
             Arg4 = arg4;
             Arg5 = arg5;
         }
+
+        string IPredicate<T1,T2,T3,T4,T5>.Name => this.Name;
+
+        Interpreter.Goal IPredicate<T1, T2, T3, T4,T5>.this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5] =>
+            this[arg1, arg2, arg3, arg4, arg5];
 
         /// <summary>
         /// First Argument
@@ -663,7 +682,7 @@ namespace TED
     /// A six-argument predicate defined by a single rule.
     /// Calls to the predicate are always inlined, so the predicate doesn't have to have a finite extension.
     /// </summary>
-    public class Definition<T1,T2,T3,T4,T5,T6> : Definition
+    public class Definition<T1,T2,T3,T4,T5,T6> : Definition, IPredicate<T1, T2, T3, T4,T5,T6>
     {
         /// <summary>
         /// Make a six-argument predicate defined by a single rule.
@@ -678,6 +697,11 @@ namespace TED
             Arg5 = arg5;
             Arg6 = arg6;
         }
+
+        string IPredicate<T1,T2,T3,T4,T5,T6>.Name => this.Name;
+
+        Interpreter.Goal IPredicate<T1, T2, T3, T4,T5,T6>.this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6] =>
+            this[arg1, arg2, arg3, arg4, arg5, arg6];
 
         /// <summary>
         /// First Argument

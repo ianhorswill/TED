@@ -86,9 +86,9 @@ namespace Tests
         [TestMethod]
         public void RuleTest()
         {
-            void TestExpansion(Definition.DefinitionGoal g, string expected)
+            void TestExpansion(Goal g, string expected)
             {
-                var expansion = g.Expand().ToArray();
+                var expansion = ((Definition.DefinitionGoal)g).Expand().ToArray();
                 Assert.AreEqual(1, expansion.Length);
                 Assert.AreEqual(expected, expansion[0].ToString());
             }

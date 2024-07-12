@@ -933,7 +933,12 @@ namespace TED {
     /// A 1-argument TablePredicate
     /// </summary>
     /// <typeparam name="T1">Type of the predicate's argument</typeparam>
-    public class TablePredicate<T1> : TablePredicate, IEnumerable<T1> {
+    public class TablePredicate<T1> : TablePredicate, IEnumerable<T1>, IPredicate<T1>
+    {
+        string IPredicate<T1>.Name => Name;
+
+        Goal IPredicate<T1>.this[Term<T1> arg1] => this[arg1];
+
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
@@ -1212,8 +1217,13 @@ namespace TED {
     /// </summary>
     /// <typeparam name="T1">Type of the predicate's 1st argument</typeparam>
     /// <typeparam name="T2">Type of the predicate's 2nd argument</typeparam>
-    public class TablePredicate<T1, T2> : TablePredicate, IEnumerable<(T1,T2)>
+    public class TablePredicate<T1, T2> : TablePredicate, IPredicate<T1, T2>, IEnumerable<(T1,T2)>
     {
+        string IPredicate<T1,T2>.Name => this.Name;
+
+        Interpreter.Goal IPredicate<T1, T2>.this[Term<T1> arg1, Term<T2> arg2] =>
+            this[arg1, arg2];
+
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
@@ -1590,7 +1600,12 @@ namespace TED {
     /// <typeparam name="T1">Type of the predicate's 1st argument</typeparam>
     /// <typeparam name="T2">Type of the predicate's 2nd argument</typeparam>
     /// <typeparam name="T3">Type of the predicate's 3rd argument</typeparam>
-    public class TablePredicate<T1, T2, T3> : TablePredicate, IEnumerable<(T1,T2,T3)> {
+    public class TablePredicate<T1, T2, T3> : TablePredicate, IPredicate<T1,T2,T3>, IEnumerable<(T1,T2,T3)> { 
+        string IPredicate<T1,T2,T3>.Name => this.Name;
+
+        Goal IPredicate<T1,T2,T3>.this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] =>
+            this[arg1, arg2, arg3];
+
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
@@ -2052,7 +2067,12 @@ namespace TED {
     /// <typeparam name="T2">Type of the predicate's 2nd argument</typeparam>
     /// <typeparam name="T3">Type of the predicate's 3rd argument</typeparam>
     /// <typeparam name="T4">Type of the predicate's 4th argument</typeparam>
-    public class TablePredicate<T1, T2, T3, T4> : TablePredicate, IEnumerable<(T1,T2,T3,T4)> {
+    public class TablePredicate<T1, T2, T3, T4> : TablePredicate, IPredicate<T1,T2,T3,T4>, IEnumerable<(T1,T2,T3,T4)> {
+        string IPredicate<T1,T2,T3,T4>.Name => this.Name;
+
+        Goal IPredicate<T1,T2,T3,T4>.this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4] =>
+            this[arg1, arg2, arg3, arg4];
+
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
@@ -2545,7 +2565,12 @@ namespace TED {
     /// <typeparam name="T3">Type of the predicate's 3rd argument</typeparam>
     /// <typeparam name="T4">Type of the predicate's 4th argument</typeparam>
     /// <typeparam name="T5">Type of the predicate's 5th argument</typeparam>
-    public class TablePredicate<T1, T2, T3, T4, T5> : TablePredicate, IEnumerable<(T1,T2,T3,T4,T5)> {
+    public class TablePredicate<T1, T2, T3, T4, T5> : TablePredicate, IPredicate<T1,T2,T3,T4,T5>, IEnumerable<(T1,T2,T3,T4,T5)> {
+        string IPredicate<T1,T2,T3,T4,T5>.Name => this.Name;
+
+        Goal IPredicate<T1,T2,T3,T4,T5>.this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5] =>
+            this[arg1, arg2, arg3, arg4, arg5];
+
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
@@ -3068,7 +3093,12 @@ namespace TED {
     /// <typeparam name="T4">Type of the predicate's 4th argument</typeparam>
     /// <typeparam name="T5">Type of the predicate's 5th argument</typeparam>
     /// <typeparam name="T6">Type of the predicate's 6th argument</typeparam>
-    public class TablePredicate<T1, T2, T3, T4, T5, T6> : TablePredicate, IEnumerable<(T1,T2,T3,T4,T5,T6)> {
+    public class TablePredicate<T1, T2, T3, T4, T5, T6> : TablePredicate, IPredicate<T1,T2,T3,T4,T5,T6>, IEnumerable<(T1,T2,T3,T4,T5,T6)> {
+        string IPredicate<T1,T2,T3,T4,T5,T6>.Name => this.Name;
+
+        Goal IPredicate<T1,T2,T3,T4,T5,T6>.this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6] =>
+            this[arg1, arg2, arg3, arg4, arg5, arg6];
+
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
@@ -3624,7 +3654,12 @@ namespace TED {
     /// <typeparam name="T5">Type of the predicate's 5th argument</typeparam>
     /// <typeparam name="T6">Type of the predicate's 6th argument</typeparam>
     /// <typeparam name="T7">Type of the predicate's 7th argument</typeparam>
-    public class TablePredicate<T1, T2, T3, T4, T5, T6, T7> : TablePredicate, IEnumerable<(T1, T2, T3, T4, T5, T6, T7)> {
+    public class TablePredicate<T1, T2, T3, T4, T5, T6, T7> : TablePredicate, IPredicate<T1,T2,T3,T4,T5,T6,T7>, IEnumerable<(T1, T2, T3, T4, T5, T6, T7)> {
+        string IPredicate<T1,T2,T3,T4,T5,T6,T7>.Name => this.Name;
+
+        Goal IPredicate<T1,T2,T3,T4,T5,T6,T7>.this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7] =>
+            this[arg1, arg2, arg3, arg4, arg5, arg6, arg7];
+
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
@@ -4215,7 +4250,12 @@ namespace TED {
     /// <typeparam name="T6">Type of the predicate's 6th argument</typeparam>
     /// <typeparam name="T7">Type of the predicate's 7th argument</typeparam>
     /// <typeparam name="T8">Type of the predicate's 8th argument</typeparam>
-    public class TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> : TablePredicate, IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8)> {
+    public class TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> : TablePredicate, IPredicate<T1,T2,T3,T4,T5,T6,T7,T8>, IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8)> {
+        string IPredicate<T1,T2,T3,T4,T5,T6,T7,T8>.Name => this.Name;
+
+        Goal IPredicate<T1,T2,T3,T4,T5,T6,T7,T8>.this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7, Term<T8> arg8] =>
+            this[arg1, arg2, arg3, arg4, arg5, arg6, arg7,arg8];
+
         /// <summary>
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
