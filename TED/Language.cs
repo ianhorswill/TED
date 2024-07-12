@@ -2477,30 +2477,30 @@ namespace TED
         /// <summary>
         /// Makes an anonymous definition
         /// </summary>
-        public static Definition<T1> Lambda<T1>(Var<T1> arg1, Goal body) => Definition("lambda", arg1).Is(body);
+        public static Definition<T1> Lambda<T1>(Var<T1> arg1, params Goal[] body) => Definition("lambda", arg1).Is(body);
         /// <summary>
         /// Makes an anonymous definition
         /// </summary>
-        public static Definition<T1,T2> Lambda<T1,T2>(Var<T1> arg1, Var<T2> arg2, Goal body) => Definition("lambda", arg1, arg2).Is(body);
+        public static Definition<T1,T2> Lambda<T1,T2>(Var<T1> arg1, Var<T2> arg2, params Goal[] body) => Definition("lambda", arg1, arg2).Is(body);
         /// <summary>
         /// Makes an anonymous definition
         /// </summary>
-        public static Definition<T1,T2,T3> Lambda<T1,T2,T3>(Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Goal body) => Definition("lambda", arg1, arg2, arg3).Is(body);
+        public static Definition<T1,T2,T3> Lambda<T1,T2,T3>(Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, params Goal[] body) => Definition("lambda", arg1, arg2, arg3).Is(body);
         /// <summary>
         /// Makes an anonymous definition
         /// </summary>
-        public static Definition<T1,T2,T3,T4> Lambda<T1,T2,T3,T4>(Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Goal body) =>
+        public static Definition<T1,T2,T3,T4> Lambda<T1,T2,T3,T4>(Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, params Goal[] body) =>
             Definition("lambda", arg1, arg2, arg3, arg4).Is(body);
         /// <summary>
         /// Makes an anonymous definition
         /// </summary>
-        public static Definition<T1,T2,T3,T4,T5> Lambda<T1,T2,T3,T4,T5>(Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5, Goal body) =>
+        public static Definition<T1,T2,T3,T4,T5> Lambda<T1,T2,T3,T4,T5>(Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5, params Goal[] body) =>
             Definition("lambda", arg1, arg2, arg3, arg4, arg5).Is(body);
 
         /// <summary>
         /// Makes an anonymous definition
         /// </summary>
-        public static Definition<T1,T2,T3,T4,T5,T6> Lambda<T1,T2,T3,T4,T5,T6>(Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5, Var<T6> arg6, Goal body) =>
+        public static Definition<T1,T2,T3,T4,T5,T6> Lambda<T1,T2,T3,T4,T5,T6>(Var<T1> arg1, Var<T2> arg2, Var<T3> arg3, Var<T4> arg4, Var<T5> arg5, Var<T6> arg6, params Goal[] body) =>
             Definition("lambda", arg1, arg2, arg3, arg4, arg5, arg6).Is(body);
         #endregion
 
