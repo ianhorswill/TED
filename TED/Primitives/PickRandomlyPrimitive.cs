@@ -55,7 +55,7 @@ namespace TED.Primitives
             {
                 var rng = compiler.MakeRng();
                 var array = compiler.FieldUniqueName($"PickRandomlyArray", typeof(T[]),
-                    Compiler.Compiler.ToSourceLiteral(choices));
+                    compiler.ToSourceExpression(choices));
                 if (choices.Length == 0)
                     compiler.Indented($"{fail.Invoke};");
                 else if (outputArg.IsInstantiated)

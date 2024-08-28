@@ -21,7 +21,7 @@ namespace TED.Interpreter
 
             //compiler.Indented($"var {rowNumber} = {Compiler.Compiler.VariableNameForIndex(Index)}.RowWithKey(({Cell1.ReadExpression}, {Cell2.ReadExpression}));");
 
-            compiler.Indented($"var {key} = ({Cell1.ReadExpression}, {Cell2.ReadExpression});");
+            compiler.Indented($"var {key} = ({Cell1.ReadExpression(compiler)}, {Cell2.ReadExpression(compiler)});");
             TableIndex.CompileIndexLookup(compiler, fail, identifierSuffix, rowNumber, key, index, "row");
             compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");
             compiler.CompilePatternMatch(rowData, ArgumentPattern, fail, Index.ColumnNumbers);

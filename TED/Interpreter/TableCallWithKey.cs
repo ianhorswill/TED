@@ -17,7 +17,7 @@ namespace TED.Interpreter
             var rowNumber = $"row{identifierSuffix}";
             var rowData = $"data{identifierSuffix}";
             var index = Compiler.Compiler.VariableNameForIndex(Index);
-            var indexedValue = Cell.IsVariable?Cell.Name:Compiler.Compiler.ToSourceLiteral(Cell.BoxedValue);
+            var indexedValue = Cell.IsVariable?Cell.Name:compiler.ToSourceExpression(Cell.BoxedValue);
             TableIndex.CompileIndexLookup(compiler, fail, identifierSuffix, rowNumber, indexedValue, index, "row");
             compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");
             compiler.CompilePatternMatch(rowData, ArgumentPattern, fail, Index.ColumnNumbers);

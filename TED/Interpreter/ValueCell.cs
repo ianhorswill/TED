@@ -52,7 +52,7 @@ namespace TED.Interpreter
         /// <summary>
         /// Expression to use when reading from this in compiled code.  This will either be a variable name or, for a constant, a C# literal.
         /// </summary>
-        public string ReadExpression => IsVariable ? Name : Compiler.Compiler.ToSourceLiteral(BoxedValue);
+        public string ReadExpression(Compiler.Compiler c) => IsVariable ? Name : c.ToSourceExpression(BoxedValue);
     }
 
     /// <summary>

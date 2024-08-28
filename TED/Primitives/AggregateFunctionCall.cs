@@ -86,7 +86,7 @@ namespace TED.Primitives
             var suffix = compiler.Gensym("__aggregator");
             var accumulator = $"accumulator{suffix}";
             var done = new Continuation($"end{suffix}");
-            compiler.Indented($"var {accumulator} = {Compiler.Compiler.ToSourceLiteral(InitialValue)};");
+            compiler.Indented($"var {accumulator} = {compiler.ToSourceExpression(InitialValue)};");
             var loop = compiler.CompileGoal(generatorCall, done, suffix);
             compiler.Indented($"{accumulator} = {AggregatorCompiledText(accumulator, termCell.Name)};");
             compiler.Indented($"{loop.Invoke};");

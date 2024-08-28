@@ -57,5 +57,5 @@ namespace TED
         }
 
         /// <inheritdoc />
-        public override string ToSourceExpression(Compiler.Compiler _) => Compiler.Compiler.ToSourceLiteral(Value);
+        public override string ToSourceExpression(Compiler.Compiler c) => c.ToSourceExpression(Value);
     }}

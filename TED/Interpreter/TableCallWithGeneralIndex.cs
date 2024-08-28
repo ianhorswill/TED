@@ -34,7 +34,7 @@ namespace TED.Interpreter
             var rowData = $"data{identifierSuffix}";
 
             var cellName = Cell.Name;
-            var indexedValue = Cell.IsVariable?$"in {cellName}":Compiler.Compiler.ToSourceLiteral(Cell.BoxedValue);
+            var indexedValue = Cell.IsVariable?$"in {cellName}":compiler.ToSourceExpression(Cell.BoxedValue);
 
             var rowNumber = compiler.LocalVariable($"row{identifierSuffix}", typeof(uint), $"{Compiler.Compiler.VariableNameForIndex(Index)}.FirstRowWithValue({indexedValue})");
             compiler.Indented($"if ({rowNumber} != Table.NoRow) {match.Invoke};");

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using TED.Interpreter;
@@ -298,7 +295,7 @@ namespace TED.Compiler
         private List<(string Name, Type Type, string Initializer)> Fields = new List<(string fieldName, Type Type, string initializer)>();
 
         /// <summary>
-        /// Add the specified field with the specified type an initializer to the class containing the compiled code.
+        /// Add the specified field with the specified type and initializer to the class containing the compiled code.
         /// This can be used to link to outside data (e.g. tables) or to retain state from update to update (e.g. RNGs).
         /// </summary>
         /// <param name="name">Name to give to the field</param>
@@ -379,7 +376,7 @@ namespace TED.Compiler
 
         public string ArgumentExpression(IMatchOperation arg) => arg.Opcode switch
         {
-            Opcode.Constant => ToSourceLiteral(arg.Cell.BoxedValue),
+            Opcode.Constant => ToSourceExpression(arg.Cell.BoxedValue),
             Opcode.Read => arg.Cell.Name,
             _ => throw new InvalidOperationException(
                 $"Can't compile {arg} to a value expression because it's not read or constant mode")
@@ -421,7 +418,7 @@ namespace TED.Compiler
             switch (patternArg.Opcode)
             {
                 case Opcode.Constant:
-                    Indented($"if ({item} != {ToSourceLiteral(patternArg.Cell.BoxedValue)}) {fail.Invoke};");
+                    Indented($"if ({item} != {ToSourceExpression(patternArg.Cell.BoxedValue)}) {fail.Invoke};");
                     break;
 
                 case Opcode.Read:
@@ -445,7 +442,7 @@ namespace TED.Compiler
                 switch (op.Opcode)
                 {
                     case Opcode.Constant:
-                        return ToSourceLiteral(op.Cell.BoxedValue);
+                        return ToSourceExpression(op.Cell.BoxedValue);
 
                     default:
                         return op.Cell.Name;
@@ -473,7 +470,12 @@ namespace TED.Compiler
         #endregion
 
         #region Low-level output
-        public static string ToSourceLiteral(object? o)
+        /// <summary>
+        /// Counter used to add uids to fields used to cache results of ToSourceExpression.
+        /// </summary>
+        private int nextConstantUid = 0;
+
+        public string ToSourceExpression(object? o)
         {
             switch (o)
             {
@@ -502,7 +504,7 @@ namespace TED.Compiler
                     b.Append('{');
                     foreach (var e in a)
                     {
-                        b.Append(ToSourceLiteral(e));
+                        b.Append(ToSourceExpression(e));
                         b.Append(", ");
                     }
 
@@ -511,9 +513,34 @@ namespace TED.Compiler
                 }
  
                 default:
-                    return o.ToString();
+                    var constantType = o.GetType();
+                    if (ExpressionGenerator.TryGetValue(constantType, out var generator))
+                    {
+                        var (expression, name) = generator(o, this);
+                        if (ReferenceEquals(name,null))
+                            return expression;
+                        else
+                        {
+                            var fieldName = $"Constant{nextConstantUid++}{name}";
+                            Field(fieldName, constantType, expression);
+                            return fieldName;
+                        }
+                    }
+                    else
+                        return o.ToString();
             }
         }
+
+        private static readonly Dictionary<Type, Func<object, Compiler, (string source, string nameForCache)>> ExpressionGenerator = new();
+
+        /// <summary>
+        /// Specify method to use to translate run-time data objects into source code.  This doesn't need to generate a C#
+        /// literal.  It can be any C# source code.
+        /// </summary>
+        /// <param name="type">Data type to specify the generator for</param>
+        /// <param name="generator">Method to generate source code that will evaluate to the specified object, together with the name for a field to hold the cached value of this expression.  If the name is null, it will not be cached.</param>
+        public static void DeclareExpressionGeneratorForType(Type type, Func<object, Compiler, (string expression, string nameForCache)> generator) =>
+            ExpressionGenerator[type] = generator;
 
         public void Label(Continuation k, bool includeEmptyStatement = false)
         {

@@ -34,7 +34,10 @@ namespace TED.Interpreter
             var match = new Continuation($"match{identifierSuffix}");
             var rowData = $"data{identifierSuffix}";
 
-            var rowNumber = compiler.LocalVariable($"row{identifierSuffix}", typeof(uint), $"{Compiler.Compiler.VariableNameForIndex(Index)}.FirstRowWithValue(({Cell1.ReadExpression},{Cell2.ReadExpression}))");
+            var rowNumber =
+                compiler.LocalVariable($"row{identifierSuffix}",
+                    typeof(uint), 
+                    $"{Compiler.Compiler.VariableNameForIndex(Index)}.FirstRowWithValue(({Cell1.ReadExpression(compiler)},{Cell2.ReadExpression(compiler)}))");
             compiler.Indented($"if ({rowNumber} != Table.NoRow) {match.Invoke};");
             compiler.Indented(fail.Invoke+";");
             compiler.Label(restart);
