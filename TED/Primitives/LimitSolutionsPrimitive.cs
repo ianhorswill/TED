@@ -64,17 +64,17 @@ namespace TED.Primitives
 
             public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
             {
-                var restartLS = new Continuation($"restart{identifierSuffix}");
+                var restart = new Continuation($"restart{identifierSuffix}");
                 var success = new Continuation($"success{identifierSuffix}");
                 var solutionCount = compiler.LocalVariable($"count{identifierSuffix}", typeof(int), "0");
                 var restartGoal = compiler.CompileGoal(call, fail, identifierSuffix+"__ls");
                 compiler.Indented($"{solutionCount}++;");
                 compiler.Indented(success.Invoke+";");
-                compiler.Label(restartLS);
+                compiler.Label(restart);
                 compiler.Indented($"if ({solutionCount} >= {maxCount}) {fail.Invoke};");
                 compiler.Indented(restartGoal.Invoke+";");
                 compiler.Label(success);
-                return restartLS;
+                return restart;
             }
         }
     }

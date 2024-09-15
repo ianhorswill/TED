@@ -14,6 +14,9 @@ namespace TED {
         /// </summary>
         public readonly string Name;
 
+        /// <summary>
+        /// If defined, when compiling calls to this, the generated C# code will be a call to the C# function with this name.
+        /// </summary>
         public string NameForCompilation;
 
         private readonly bool isPure;
@@ -41,7 +44,7 @@ namespace TED {
         /// </summary>
         public virtual bool IsPure => isPure;
 
-        public delegate string CustomCompiler(Compiler.Compiler compiler, IFunctionalExpression exp, params Term[] arguments);
+        public delegate string CustomCompiler(Compiler.Compiler compiler, IFunctionalExpression exp);
 
         /// <summary>
         /// Custom delegate for generating expression strings for this function given strings for its arguments
