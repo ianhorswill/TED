@@ -122,6 +122,15 @@ namespace Tests
         }
 
         [TestMethod]
+        public void LimitSolutionsTest()
+        {
+            var p = Predicate("p", new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+            var x = (Var<int>)"x";
+            var q = Predicate("q", x).If(LimitSolutions[5, p[x]]);
+            CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5 }, q.ToArray());
+        }
+
+        [TestMethod]
         public void AndTest()
         {
             var x = (Var<int>)"x";

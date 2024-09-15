@@ -6,16 +6,16 @@ using TED.Preprocessing;
 namespace TED.Primitives
 {
     /// <summary>
-    /// Implements negation of a goal
+    /// Generates only the first solution of a goal
     /// </summary>
     public sealed class OncePrimitive : PrimitivePredicate<Goal>
     {
         /// <summary>
-        /// The object implementing Not
+        /// The object implementing Once
         /// </summary>
         public static OncePrimitive Singleton = new OncePrimitive();
 
-        private OncePrimitive() : base("Not")
+        private OncePrimitive() : base("Once")
         {
         }
 
@@ -37,7 +37,7 @@ namespace TED.Primitives
             private readonly Call call;
             private bool restarted;
 
-            public OnceCall(Call call) : base(Language.Not)
+            public OnceCall(Call call) : base(Language.Once)
             {
                 this.call = call;
             }

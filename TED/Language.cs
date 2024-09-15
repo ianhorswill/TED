@@ -21,6 +21,11 @@ namespace TED
         public static readonly OncePrimitive Once = OncePrimitive.Singleton;
 
         /// <summary>
+        /// Solves goal argument, but gives up after a specified number of solutions
+        /// </summary>
+        public static readonly LimitSolutionsPrimitive LimitSolutions = LimitSolutionsPrimitive.Singleton;
+
+        /// <summary>
         /// True if its argument is false
         /// </summary>
         public static readonly NotPrimitive Not = NotPrimitive.Singleton;

@@ -13,27 +13,34 @@ using TED.Tables;
 namespace CompilerTests
 
 {
-    [CompiledHelpersFor("OnceTest")]
-    public class OnceTest__Compiled : TED.Compiler.CompiledTEDProgram
+    [CompiledHelpersFor("LimitSolutionsTest")]
+    public class LimitSolutionsTest__Compiled : TED.Compiler.CompiledTEDProgram
     {
 
         public static void q__CompiledUpdate()
         {
-            // q[in x].If(Once[p[out x]])
+            // q[in x].If(LimitSolutions[p[out x]])
             {
                 int x;
 
-                // Once[p[out x]]
+                // LimitSolutions[p[out x]]
+                var count__0 = 0;
                 // p[out x]
-                var row__0 = unchecked((uint)-1);
+                var row__0__ls = unchecked((uint)-1);
+                restart__0__ls:
+                if (++row__0__ls == p.Length) goto end;
+                ref var data__0__ls = ref p.Data[row__0__ls];
+                x = data__0__ls;
+                count__0++;
+                goto success__0;
                 restart__0:
-                if (++row__0 == p.Length) goto end;
-                ref var data__0 = ref p.Data[row__0];
-                x = data__0;
+                if (count__0 >= 5) goto end;
+                goto restart__0__ls;
+                success__0:
 
                 // Write [in x]
                 q.Add(x);
-                goto end;
+                goto restart__0;
             }
 
             end:;

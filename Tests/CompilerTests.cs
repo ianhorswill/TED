@@ -319,6 +319,24 @@ namespace Tests
         }
 
         [TestMethod]
+        public void LimitSolutionsTest()
+        {
+            var program = new Program(ThisMethodName());
+            program.BeginPredicates();
+            var p = Predicate("p", new[] { 1, 2, 3,4, 5, 6, 7, 8, 9 });
+            var x = (Var<int>)"x";
+            var q = Predicate("q", x).If(LimitSolutions[5, p[x]]);
+            program.EndPredicates();
+            var interpreted = q.ToArray();
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5 }, interpreted);
+            new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
+            Compiler.Link(program);
+            q.ForceRecompute();
+            var compiled = q.ToArray();
+            CollectionAssert.AreEqual(interpreted, compiled);
+        }
+
+        [TestMethod]
         public void MaximalTest()
         {
             var name = (Var<string>)"name";

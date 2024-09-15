@@ -19,11 +19,11 @@ namespace CompilerTests
 
         public static void Q__CompiledUpdate()
         {
-            // Q[in i].If(P[out i,out _Int320])
+            // Q[in i].If(P[out i,out _Int322])
             {
                 int i;
 
-                // P[out i,out _Int320]
+                // P[out i,out _Int322]
                 var row__0 = unchecked((uint)-1);
                 restart__0:
                 if (++row__0 == P.Length) goto end;
