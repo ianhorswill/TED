@@ -99,14 +99,14 @@ namespace Tests
             Assert.AreEqual(Table.NoRow, index.RowWithKey(-1));
         }
 
-        [TestMethod, ExpectedException(typeof(DuplicateKeyException))]
+        [TestMethod]
         public void DuplicateKeyTest()
         {
             var t = new Table<int>();
             var index = new KeyIndex<int, int>(null!, t, new [] { 0 }, (in int n)=>n);
             t.AddIndex(index);
             t.Add(0);
-            t.Add(0);
+            Assert.Throws<DuplicateKeyException>(() => t.Add(0));
         }
 
         [TestMethod]

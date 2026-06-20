@@ -86,14 +86,14 @@ namespace Tests
             Assert.AreEqual(new Vector2Int(1,1), r[0]);
         }
 
-        [TestMethod, ExpectedException(typeof(MissingMethodException))]
+        [TestMethod]
         public void CustomClassMissingOperator()
         {
             var n = (Var<Vector2Int>)"n";
-            var T = Predicate("t", n).If(n == Constant(Vector2Int.UnitX) * Constant(Vector2Int.UnitY));
-            var r = T.ToArray();
-            Assert.AreEqual(1, r.Length);
-            Assert.AreEqual(new Vector2Int(1,1), r[0]);
+            var T = Assert.Throws<MissingMethodException>(() => Predicate("t", n).If(n == Constant(Vector2Int.UnitX) * Constant(Vector2Int.UnitY)));
+            //var r = T.ToArray();
+            //Assert.AreEqual(1, r.Length);
+            //Assert.AreEqual(new Vector2Int(1,1), r[0]);
         }
 
         [TestMethod]

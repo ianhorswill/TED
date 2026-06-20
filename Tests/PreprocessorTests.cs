@@ -84,12 +84,12 @@ namespace Tests
             CollectionAssert.AreEqual(new [] { 2, 3, 4, 5, 6 }, Next.ToArray());
         }
 
-        [TestMethod, ExpectedException(typeof(Exception))]
+        [TestMethod]
         public void UnsatisfiableRule()
         {
             var n = (Var<int>)"n";
             var p = Predicate("P", n);
-            p.If(Or[False]);
+            Assert.Throws<Exception>(() => p.If(Or[False]));
         }
     }
 }

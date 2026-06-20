@@ -65,12 +65,12 @@ namespace Tests
             Assert.AreEqual(6, hits[2]);
         }
 
-        [TestMethod, ExpectedException(typeof(InstantiationException))]
+        [TestMethod]
         public void UninstantiatedRuleTest()
         {
             var n = (Var<int>)"n";
             var p = new TablePredicate<int>("test", n);
-            p[n].Fact();
+            Assert.Throws<InstantiationException>(() => p[n].Fact());
         }
 
         [TestMethod]
@@ -161,7 +161,7 @@ namespace Tests
             CollectionAssert.AreEqual(new [] { "coworker" }, Mapped.ToArray());
         }
 
-        [TestMethod,ExpectedException(typeof(DuplicateKeyException))]
+        [TestMethod]
         public void DoubleIndexedDuplicateKeyTest()
         {
             var person = (Var<string>)"person";
@@ -181,11 +181,11 @@ namespace Tests
                 person, other, relationship);
             Relation.IndexBy(person, other);
             Relation.IndexBy(other);
-            Relation.IndexByKey(person, other);
-            var Mapped = Predicate("Mapped", relationship).If(Relation["Sara", "Rachel", relationship]);
-            var rule = Mapped.Rules![0];
-            Assert.IsInstanceOfType(rule.Body[0], typeof(TableCallWithDoubleKey<string, string, string, string, string>));
-            CollectionAssert.AreEqual(new [] { "coworker" }, Mapped.ToArray());
+            Assert.Throws<DuplicateKeyException>(() => Relation.IndexByKey(person, other));
+            //var Mapped = Predicate("Mapped", relationship).If(Relation["Sara", "Rachel", relationship]);
+            //var rule = Mapped.Rules![0];
+            //Assert.IsInstanceOfType(rule.Body[0], typeof(TableCallWithDoubleKey<string, string, string, string, string>));
+            //CollectionAssert.AreEqual(new [] { "coworker" }, Mapped.ToArray());
         }
 
         [TestMethod]
@@ -216,7 +216,7 @@ namespace Tests
             CollectionAssert.AreEqual(new [] { "sibling", "coworker" }, result);
         }
 
-        [TestMethod, ExpectedException(typeof(RuleExecutionException))]
+        [TestMethod]
         public void RuleExecutionExceptionTest()
         {
             var x = (Var<int>)"x";
@@ -224,7 +224,7 @@ namespace Tests
 
             var Number = Predicate("Number", new [] { 1, 2, 3, 0, 4, 5, 6 }, x);
             var Reciprocal = Predicate("Reciprocal", y).If(Number[x], y == 100 / x);
-            Console.WriteLine(Reciprocal.ToArray());
+            Assert.Throws<RuleExecutionException>(() => Console.WriteLine(Reciprocal.ToArray()));
         }
 
         [TestMethod]
@@ -269,7 +269,7 @@ namespace Tests
             Assert.AreEqual("Too large", problem.Item2);
         }
 
-        [TestMethod, ExpectedException(typeof(InvalidProgramException))]
+        [TestMethod]
         public void RecursionDetectionTest()
         {
             var p = new Program(nameof(RecursionDetectionTest));
@@ -278,7 +278,7 @@ namespace Tests
             var P = Predicate("P", n);
             var Q = Predicate("Q", n).If(P[n]);
             P[n].If(Q[n]);
-            p.EndPredicates();
+            Assert.Throws<InvalidProgramException>(() => p.EndPredicates());
         }
     }
 }

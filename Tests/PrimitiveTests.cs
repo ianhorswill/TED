@@ -210,7 +210,7 @@ namespace Tests
             CollectionAssert.AreEqual(new[] { 2, 4, 6, 8, 10 }, w.ToArray());
         }
 
-        [TestMethod, ExpectedException(typeof(InstantiationException))]
+        [TestMethod]
         public void OrUninstantiated()
         {
             var x = (Var<int>)"x";
@@ -232,9 +232,9 @@ namespace Tests
 
             var v = Predicate("v", new[] { 8, 10 });
 
-            var w = Predicate("w", x).If(Or[s[x], v[1]]);
+            var w = Assert.Throws<InstantiationException>(() => Predicate("w", x).If(Or[s[x], v[1]]));
 
-            CollectionAssert.AreEqual(new[] { 2, 4, 6, 8, 10 }, w.ToArray());
+            //CollectionAssert.AreEqual(new[] { 2, 4, 6, 8, 10 }, w.ToArray());
         }
 
         [TestMethod]
@@ -415,18 +415,18 @@ namespace Tests
             Predicate("test", n).If(n == 1, AssertIn(n, "Should be in"));
         }
 
-        [TestMethod, ExpectedException(typeof(InstantiationException))]
+        [TestMethod]
         public void AssertInOut()
         {
             var n = (Var<int>)"n";
-            Predicate("test", n).If(AssertIn(n, "Should be in"), n==1);
+            Assert.Throws<InstantiationException>(() => Predicate("test", n).If(AssertIn(n, "Should be in"), n==1));
         }
 
-        [TestMethod, ExpectedException(typeof(InstantiationException))]
+        [TestMethod]
         public void AssertOuIn()
         {
             var n = (Var<int>)"n";
-            Predicate("test", n).If(n == 1, AssertOut(n, "Should be out"));
+            Assert.Throws<InstantiationException>(() => Predicate("test", n).If(n == 1, AssertOut(n, "Should be out")));
         }
 
         [TestMethod]
