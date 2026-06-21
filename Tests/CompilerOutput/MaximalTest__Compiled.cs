@@ -56,7 +56,7 @@ namespace CompilerTests
                 floatAge = bestfloatAge__0;
 
                 // Write [in name,in floatAge]
-                M.Add((name,floatAge));
+                M.UnsafeAddNoIndices((name,floatAge));
                 goto end;
             }
 

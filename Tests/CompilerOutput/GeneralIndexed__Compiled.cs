@@ -44,7 +44,7 @@ namespace CompilerTests
                 if (data__1.Item2 != i) goto restart__1;
 
                 // Write [in i,in j]
-                Q.Add((i,j));
+                Q.UnsafeAddNoIndices((i,j));
                 goto restart__1;
             }
 

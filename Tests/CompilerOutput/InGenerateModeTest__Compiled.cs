@@ -30,7 +30,7 @@ namespace CompilerTests
                 n = enumerator__0.Current;
 
                 // Write [in n]
-                Test.Add(n);
+                Test.UnsafeAddNoIndices(n);
                 goto in_restart___0;
             }
 

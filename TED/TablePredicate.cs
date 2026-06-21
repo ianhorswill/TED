@@ -925,12 +925,6 @@ namespace TED {
             TableUntyped.SetReclamationRowTest(ColumnTest(ColumnPositionOfDefaultVariable(column), value!));
             TableUntyped.PostCompactionTargetLoad = targetLoad;
         }
-
-        /// <summary>
-        /// Force deletion of rows indicated by a previous call to ReclaimRowsWithColumnValue.
-        /// This will not expand the underlying array for the table.
-        /// </summary>
-        public void Reclaim() => TableUntyped.Reclaim();
     }
 
     /// <summary>

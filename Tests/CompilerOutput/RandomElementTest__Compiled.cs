@@ -29,7 +29,7 @@ namespace CompilerTests
                 n = row___0;
 
                 // Write [in n]
-                P.Add(n);
+                P.UnsafeAddNoIndices(n);
                 goto end;
             }
 

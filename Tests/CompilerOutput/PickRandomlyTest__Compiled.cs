@@ -27,7 +27,7 @@ namespace CompilerTests
                 n = PickRandomlyArray__0[_Rng0.Next()%5];
 
                 // Write [in n]
-                P.Add(n);
+                P.UnsafeAddNoIndices(n);
                 goto end;
             }
 

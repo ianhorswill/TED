@@ -43,7 +43,7 @@ namespace CompilerTests
                 n = accumulator__aggregator0;
 
                 // Write [in n]
-                Q.Add(n);
+                Q.UnsafeAddNoIndices(n);
                 goto end;
             }
 

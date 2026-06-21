@@ -39,7 +39,7 @@ namespace CompilerTests
                 success__0:
 
                 // Write [in x]
-                q.Add(x);
+                q.UnsafeAddNoIndices(x);
                 goto restart__0;
             }
 

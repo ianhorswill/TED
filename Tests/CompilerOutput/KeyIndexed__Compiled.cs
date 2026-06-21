@@ -44,7 +44,7 @@ namespace CompilerTests
                 n = data__1.Item2;
 
                 // Write [in d,in n]
-                Mapped.Add((d,n));
+                Mapped.UnsafeAddNoIndices((d,n));
                 goto restart__0;
             }
 

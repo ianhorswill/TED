@@ -38,7 +38,7 @@ namespace CompilerTests
                 if (data__1 != a) goto restart__1;
 
                 // Write [in a]
-                R.Add(a);
+                R.UnsafeAddNoIndices(a);
                 goto restart__1;
             }
 

@@ -26,7 +26,7 @@ namespace CompilerTests
                 if (!new int[] {1, 2, 3, 4, 5, }.Contains(0)) goto rule2;
 
                 // Write [0]
-                Test.Add(0);
+                Test.UnsafeAddNoIndices(0);
                 goto rule2;
             }
 
@@ -39,7 +39,7 @@ namespace CompilerTests
                 if (!new int[] {1, 2, 3, 4, 5, }.Contains(4)) goto end;
 
                 // Write [1]
-                Test.Add(1);
+                Test.UnsafeAddNoIndices(1);
                 goto end;
             }
 

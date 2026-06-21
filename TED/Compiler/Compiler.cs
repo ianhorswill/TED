@@ -222,7 +222,7 @@ namespace TED.Compiler
                 Output.WriteLine();
                 Indented($"// Write {rule.Head}");
                 var argsToStore = GenerateWriteMode(rule.Head.Arguments);
-                Indented($"{rule.Predicate.Name}.Add({argsToStore});");
+                Indented($"{rule.Predicate.Name}.{predicate.TableUntyped.AddMethodForCompiledCode}({argsToStore});");
 
                 Indented(fail.Invoke + ";");
             });

@@ -34,7 +34,7 @@ namespace CompilerTests
                 if (!Q.ContainsRowUsingRowSet(a)) goto restart__0;
 
                 // Write [in a]
-                R.Add(a);
+                R.UnsafeAddNoIndices(a);
                 goto restart__0;
             }
 

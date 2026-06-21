@@ -31,7 +31,7 @@ namespace CompilerTests
                 i = data__0.Item1;
 
                 // Write [in i]
-                Q.Add(i);
+                Q.UnsafeAddNoIndices(i);
                 goto restart__0;
             }
 

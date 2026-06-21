@@ -49,7 +49,7 @@ namespace CompilerTests
                 firstOfSuccess__1: ;
 
                 // Write [in b]
-                Q.Add(b);
+                Q.UnsafeAddNoIndices(b);
                 goto restart__0;
             }
 

@@ -381,7 +381,7 @@ namespace Tests
                 counter += 2;
             }
             // Now force compact the rest
-            t.Reclaim();
+            t.UnsafeReclaim();
             Assert.AreEqual(50u, t.Length);
             counter = 0;
             foreach (var pair in t)
@@ -390,7 +390,7 @@ namespace Tests
                 counter += 2;
             }
             // Now just to be paranoid, make sure that reclaiming a table with no reclaimable rows doesn't do anything bad.
-            t.Reclaim();
+            t.UnsafeReclaim();
             Assert.AreEqual(50u, t.Length);
             counter = 0;
             foreach (var pair in t)

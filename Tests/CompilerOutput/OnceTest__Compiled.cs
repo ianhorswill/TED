@@ -32,7 +32,7 @@ namespace CompilerTests
                 x = data__0;
 
                 // Write [in x]
-                q.Add(x);
+                q.UnsafeAddNoIndices(x);
                 goto end;
             }
 

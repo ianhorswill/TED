@@ -107,6 +107,14 @@ namespace TED.Tables
         }
 
         /// <summary>
+        /// The fastest add method that is safe to use with this table.
+        /// </summary>
+        internal string AddMethodForCompiledCode =>
+            Indices.Count == 0 && !Unique?
+                nameof(Table<string>.UnsafeAddNoIndices)
+                : nameof(Table<string>.Add);
+
+        /// <summary>
         /// Find the index for the specified columns
         /// </summary>
         public TableIndex IndexFor(params int[] columns) => Indices.FirstOrDefault(i => i.ColumnNumbers.SequenceEqual(columns))??throw new InvalidOperationException($"No index found for specified column(s) of table {Name}");
@@ -130,7 +138,7 @@ namespace TED.Tables
         /// Force deletion of reclaimable rows.
         /// This will not grow the underlying array.
         /// </summary>
-        public abstract void Reclaim();
+        internal abstract void UnsafeReclaim();
 
         /// <summary>
         /// For use with tables that support compaction. Target fraction of space that should be used after compaction.
@@ -212,42 +220,56 @@ namespace TED.Tables
         }
 
         /// <summary>
-        /// Make sure there's space for more rows
-        /// If not, make a new array that's twice as big and copy over the data.
+        /// Make sure there's space for one more row.
+        /// If not, find more space
         /// </summary>
-        /// <param name="extra"></param>
-        public void EnsureSpace(int extra)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void EnsureSpace()
         {
-            if (Length + extra > Data.Length)
-            {
-                if (ReclaimRowTest == null)
-                {
-                    // Easy case: copy everything over as a block
-                    var newArray = new T[Data.Length * 2];
-                    Array.Copy(Data, newArray, Data.Length);
-                    Data = newArray;
-                }
-                else 
-                    // Hard case: copy only the unreclaimed rows
-                    ReclaimRows();
-
-                rowSet?.Expand();
-                foreach (var i in Indices) i.Expand();
-            }
+            if (Length == Data.Length) FindSpace();
         }
 
+        /// <summary>
+        /// Find more space, either by reclaiming rows or by growing the underlying array.
+        /// </summary>
+        private void FindSpace()
+        {
+            if (ReclaimRowTest == null)
+            {
+                // Easy case: copy everything over as a block
+                var newArray = new T[Data.Length * 2];
+                Array.Copy(Data, newArray, Data.Length);
+                Data = newArray;
+            }
+            else 
+                // Hard case: copy only the unreclaimed rows
+                ReclaimRows();
+
+            rowSet?.Expand();
+            foreach (var i in Indices) i.Expand();
+        }
+
+        /// <summary>
+        /// Attempt to reclaim space by deleting rows that satisfy the ReclaimRowTest predicate.
+        /// If this fails to free up enough space, expand the underlying array but copy only the unreclaimed rows.
+        /// </summary>
         private void ReclaimRows()
         {
             var liveRows = MakeCompactionMap();
             var loadFactor = ((float)liveRows)/Data.Length;
-            var destination = Data;
-            if (loadFactor > PostCompactionTargetLoad)
-                destination = new T[Data.Length * 2];
+            var destination = loadFactor < PostCompactionTargetLoad ? Data : new T[Data.Length * 2];
             CopyUsingCompactionMap(destination);
         }
 
+        /// <summary>
+        /// Scratch buffer for compaction.  Holds runs of live rows, as pairs of (start index, length).
+        /// </summary>
         private List<(int start, int length)>? compactionMap;
 
+        /// <summary>
+        /// Update the compactionMap.
+        /// </summary>
+        /// <returns>Number of live rows</returns>
         private int MakeCompactionMap()
         {
             if (compactionMap == null)
@@ -281,6 +303,10 @@ namespace TED.Tables
             return length;
         }
 
+        /// <summary>
+        /// Copy subset of Data specified by compactionMap to array, compacting it in the process.
+        /// This is safe to with array == Data, in which case the compaction is done in-place.
+        /// </summary>
         private void CopyUsingCompactionMap(T[] array)
         {
             var dest = 0;
@@ -294,7 +320,12 @@ namespace TED.Tables
             Length = (uint)dest;
         }
 
-        public override void Reclaim()
+        /// <summary>
+        /// For testing purposes only.
+        /// Force immediate removal of rows satisfying the ReclaimRowTest predicate, and compact the table to remove gaps.
+        /// This is unsafe because it doesn't reindex the table.
+        /// </summary>
+        internal override void UnsafeReclaim()
         {
             MakeCompactionMap();
             CopyUsingCompactionMap(Data);
@@ -306,7 +337,7 @@ namespace TED.Tables
         /// <param name="item">The row to add</param>
         public void Add(in T item)
         {
-            EnsureSpace(1);
+            EnsureSpace();
             // Write the data into the next free slot
             Data[Length] = item;
             // That same row might already be in the table
@@ -318,6 +349,18 @@ namespace TED.Tables
                     i.Add(Length);
                 Length++;
             }
+        }
+
+        /// <summary>
+        /// Add a row without updating the rowSet or any indices.
+        /// Unsafe: the caller is responsible for knowing not to use this when the table is indexed
+        /// or has uniqueness constraints.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void UnsafeAddNoIndices(in T item)
+        {
+            EnsureSpace();
+            Data[Length++] = item;
         }
 
         internal void ReplaceRow(uint row, in T item)

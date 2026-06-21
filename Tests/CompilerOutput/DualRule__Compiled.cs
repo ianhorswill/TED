@@ -40,7 +40,7 @@ namespace CompilerTests
                 not__1: ;
 
                 // Write [in a]
-                R.Add(a);
+                R.UnsafeAddNoIndices(a);
                 goto restart__0;
             }
 
@@ -67,7 +67,7 @@ namespace CompilerTests
                 not__1: ;
 
                 // Write [in a]
-                R.Add(a);
+                R.UnsafeAddNoIndices(a);
                 goto restart__0;
             }
 

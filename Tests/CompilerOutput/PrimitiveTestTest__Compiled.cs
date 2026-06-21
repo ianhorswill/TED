@@ -34,7 +34,7 @@ namespace CompilerTests
                 if (!Tests.CompilerTests.Odd(a)) goto restart__0;
 
                 // Write [in a]
-                Q.Add(a);
+                Q.UnsafeAddNoIndices(a);
                 goto restart__0;
             }
 

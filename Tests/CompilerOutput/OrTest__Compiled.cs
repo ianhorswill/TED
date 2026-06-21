@@ -41,7 +41,7 @@ namespace CompilerTests
                 if (data__0_1 != x) goto restart__0_1;
 
                 // Write [in x]
-                s.Add(x);
+                s.UnsafeAddNoIndices(x);
                 goto restart__0_1;
             }
 
@@ -89,7 +89,7 @@ namespace CompilerTests
                 orSuccess__0: ;
 
                 // Write [in x]
-                w.Add(x);
+                w.UnsafeAddNoIndices(x);
                 goto restartDispatch__0;
             }
 

@@ -37,7 +37,7 @@ namespace CompilerTests
                 relationship = data__0.Item3;
 
                 // Write [in relationship]
-                Mapped.Add(relationship);
+                Mapped.UnsafeAddNoIndices(relationship);
                 goto end;
             }
 

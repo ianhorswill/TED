@@ -37,7 +37,7 @@ namespace CompilerTests
                 k = i+j;
 
                 // Write [in k]
-                Q.Add(k);
+                Q.UnsafeAddNoIndices(k);
                 goto restart__0;
             }
 
