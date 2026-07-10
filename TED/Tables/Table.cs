@@ -14,6 +14,30 @@ namespace TED.Tables
     /// </summary>
     public abstract class Table
     {
+        #region Row numbers
+        /// <summary>
+        /// Row index to return when not no matching row is found
+        /// Also used to mark the end of a linked list of rows
+        /// </summary>
+        public const uint NoRow = uint.MaxValue;
+
+        /// <summary>
+        /// Used to mark linked lists for hash buckets that are allocated but have empty lists
+        /// This happens when something is added to an index but then all rows with that value are removed.
+        /// </summary>
+        public const uint DeletedRow = NoRow - 1;
+
+        /// <summary>
+        /// True when the row number is neither NoRow (end of a linked list of rows)
+        /// nor DeletedRow (marks a hash bucket that's allocated but has an empty list in it).
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ValidRow(uint row) => row < DeletedRow;
+        #endregion
+
+        #region Instance fields and properties
         /// <summary>
         /// Name of table for debugging purposes
         /// </summary>
@@ -24,6 +48,34 @@ namespace TED.Tables
         /// <inheritdoc />
         public override string ToString() => $"Table<{Name}>";
 
+        /// <summary>
+        /// Number of rows in the table, regardless of the size of the underlying array.
+        /// </summary>
+        public uint Length { get; protected set; }
+
+        /// <summary>
+        /// For use with tables that support compaction. Target fraction of space that should be used after compaction.
+        /// If more than this fraction of space is in use, the table will expand its space.  Default is 0.5 (50%).
+        /// </summary>
+        public float PostCompactionTargetLoad = 0.5f;
+
+        /// <summary>
+        /// If true, the rows of the table are required to be different from one another.
+        /// In other words, this is a set rather than a bag.  Unique tables keep a hash table
+        /// of all the rows (using a RowSet object) and use this to suppress adding duplicate rows.
+        /// In addition, their TablePredicates can be queries in constant time rather than linear time
+        /// when the call has all its arguments instantiated.
+        /// </summary>
+        public abstract bool Unique { get; set; }
+
+        /// <summary>
+        /// List of all the Indices into the table, be they KeyIndex or GeneralIndex.
+        /// These are kept sorted in order of decreasing desirability of use.  So first KeyIndices, then GeneralIndices.
+        /// </summary>
+        internal readonly List<TableIndex> Indices = new List<TableIndex>();
+        #endregion
+
+        #region Column projection and mutation
         /// <summary>
         /// Returns the key value given the row
         /// </summary>
@@ -48,52 +100,24 @@ namespace TED.Tables
         /// <param name="row">The row to modify (in place)</param>
         /// <param name="newValue">New value for the column</param>
         public delegate void Mutator<TRow, TColumn>(ref TRow row, in TColumn newValue);
+        #endregion
 
-        /// <summary>
-        /// Row index to return when not no matching row is found
-        /// Also used to mark the end of a linked list of rows
-        /// </summary>
-        public const uint NoRow = uint.MaxValue;
-
-        /// <summary>
-        /// Used to mark linked lists for hash buckets that are allocated but have empty lists
-        /// This happens when something is added to an index but then all rows with that value are removed.
-        /// </summary>
-        public const uint DeletedRow = NoRow - 1;
-
-        /// <summary>
-        /// True when the row number is neither NoRow (end of a linked list of rows)
-        /// nor DeletedRow (marks a hash bucket that's allocated but has an empty list in it).
-        /// </summary>
-        /// <param name="row"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ValidRow(uint row) => row < DeletedRow;
-
-        /// <summary>
-        /// Number of rows in the table, regardless of the size of the underlying array.
-        /// </summary>
-        public uint Length { get; protected set; }
-
+        #region Row update
         /// <summary>
         /// Remove all rows from the table
         /// </summary>
         public abstract void Clear();
 
         /// <summary>
-        /// List of all the Indices into the table, be they KeyIndex or GeneralIndex.
+        /// The fastest add method that is safe to use with this table.
         /// </summary>
-        internal readonly List<TableIndex> Indices = new List<TableIndex>();
-        
-        /// <summary>
-        /// If true, the rows of the table are required to be different from one another.
-        /// In other words, this is a set rather than a bag.  Unique tables keep a hash table
-        /// of all the rows (using a RowSet object) and use this to suppress adding duplicate rows.
-        /// In addition, their TablePredicates can be queries in constant time rather than linear time
-        /// when the call has all its arguments instantiated.
-        /// </summary>
-        public abstract bool Unique { get; set; }
+        internal string AddMethodForCompiledCode =>
+            Indices.Count == 0 && !Unique ?
+                nameof(Table<string>.UnsafeAddNoIndices)
+                : nameof(Table<string>.Add);
+        #endregion
 
+        #region Index management
         /// <summary>
         /// Add an index to the table.
         /// This will not test for a duplicate index on the same column.
@@ -105,27 +129,32 @@ namespace TED.Tables
             Indices.Sort();
             return i;
         }
-
-        /// <summary>
-        /// The fastest add method that is safe to use with this table.
-        /// </summary>
-        internal string AddMethodForCompiledCode =>
-            Indices.Count == 0 && !Unique?
-                nameof(Table<string>.UnsafeAddNoIndices)
-                : nameof(Table<string>.Add);
-
+        
         /// <summary>
         /// Find the index for the specified columns
         /// </summary>
         public TableIndex IndexFor(params int[] columns) => Indices.FirstOrDefault(i => i.ColumnNumbers.SequenceEqual(columns))??throw new InvalidOperationException($"No index found for specified column(s) of table {Name}");
 
+        /// <summary>
+        /// Designate this index as the index to use when finding rows for AddOrReplace.
+        /// It doesn't matter which key index is used for this purpose, but it must be a KeyIndex.
+        /// </summary>
+        /// <param name="tableIndex"></param>
         protected abstract void SetKeyIndex(TableIndex tableIndex);
 
+        /// <summary>
+        /// Re-sort the list of indices in order of decreasing desirability of use.
+        /// </summary>
         internal void UpdateIndexOrdering()
         {
             Indices.Sort();
         }
+        #endregion
 
+        #region Space management
+        /// <summary>
+        /// Predicate over a table row.  Used for user-defined row reclamation policies.
+        /// </summary>
         public delegate bool RowTest<T>(in T row);
 
         /// <summary>
@@ -139,12 +168,7 @@ namespace TED.Tables
         /// This will not grow the underlying array.
         /// </summary>
         internal abstract void UnsafeReclaim();
-
-        /// <summary>
-        /// For use with tables that support compaction. Target fraction of space that should be used after compaction.
-        /// If more than this fraction of space is in use, the table will expand its space.  Default is 0.5 (50%).
-        /// </summary>
-        public float PostCompactionTargetLoad = 0.5f;
+        #endregion
     }
 
     /// <summary>
@@ -153,11 +177,15 @@ namespace TED.Tables
     /// <typeparam name="T">Type of the rows of the table (a tuple of the predicate arguments)</typeparam>
     public class Table<T> : Table, IEnumerable<T>
     {
+        /// <summary>
+        /// Make a new, empty table with no indices and no rows.
+        /// </summary>
         public Table()
         {
             Data = new T[InitialSize];
         }
 
+        #region Instance fields
         /// <summary>
         /// If true, enforce that rows of the table are unique, by making a hashtable of them
         /// </summary>
@@ -173,28 +201,27 @@ namespace TED.Tables
             }
         }
 
-        // Must be a power of 2
-        private const int InitialSize = 16;
-
         /// <summary>
         /// Array holding the rows
         /// Elements 0 .. data.Length-1 hold the elements
+        /// IMPORTANT: Data.Length must be a power of 2.
         /// </summary>
         public T[] Data;
 
         /// <summary>
-        /// True if there's space to add another row before having to grow the table
+        /// HashSet of Rows in the table, if Unique is true.  Otherwise, null.
         /// </summary>
-        //bool SpaceRemaining => Length < data.Length;
-
         private RowSet? rowSet;
 
-        
         /// <summary>
-        /// The key index for this table, if any.
+        /// The canonical key index for this table, if any.
+        /// This is used by AddOrReplace to find the row it's replacing.
+        /// If there are multiple key indices, this is one of them, but it doesn't matter which.
+        /// If there are no key indices, this is null.
         /// </summary>
         internal TableIndex<T>? KeyIndex;
 
+        /// <inheritdoc/>
         protected override void SetKeyIndex(TableIndex tableIndex)
         {
             KeyIndex = (TableIndex<T>)tableIndex;
@@ -205,19 +232,21 @@ namespace TED.Tables
         /// </summary>
         public RowTest<T>? ReclaimRowTest;
 
+        /// <summary>
+        /// Declares that the table may (but need not) reclaim rows for which the specified
+        /// predicate returns true
+        /// </summary>
         public override void SetReclamationRowTest(Delegate t)
         {
             ReclaimRowTest = (RowTest<T>)t;
         }
+        #endregion
 
-        public override void Clear()
-
-        {
-            Length = 0;
-            rowSet?.Clear();
-            foreach (var i in Indices)
-                i.Clear();
-        }
+        #region Space management
+        /// <summary>
+        /// Initial size of the Data array.  Must be a power of 2, since Data's length must always be a power of 2.
+        /// </summary>
+        private const int InitialSize = 16;
 
         /// <summary>
         /// Make sure there's space for one more row.
@@ -234,6 +263,9 @@ namespace TED.Tables
         /// </summary>
         private void FindSpace()
         {
+            // Length must be a power of 2
+            Debug.Assert((Data.Length & (Data.Length-1)) == 0);
+
             if (ReclaimRowTest == null)
             {
                 // Easy case: copy everything over as a block
@@ -330,7 +362,36 @@ namespace TED.Tables
             MakeCompactionMap();
             CopyUsingCompactionMap(Data);
         }
+        #endregion
+        
+        #region Row access
+        /// <summary>
+        /// The data of the index'th row
+        /// </summary>
+        /// <param name="index">Position in the table to retrieve the row</param>
+        /// <returns>Row data</returns>
+        public T this[uint index] => Data[index];
 
+        /// <summary>
+        /// Return a reference (pointer) to the row at the specified position
+        /// This lets the row to be passed to another method without copying
+        /// </summary>
+        public ref T PositionReference(uint index) => ref Data[index];
+        #endregion
+
+        #region Update
+        /// <summary>
+        /// Remove all rows from the table
+        /// </summary>
+        public override void Clear()
+
+        {
+            Length = 0;
+            rowSet?.Clear();
+            foreach (var i in Indices)
+                i.Clear();
+        }
+        
         /// <summary>
         /// Add a row
         /// </summary>
@@ -363,49 +424,51 @@ namespace TED.Tables
             Data[Length++] = item;
         }
 
+        /// <summary>
+        /// Overwrite the row at the specified position with new data.  Update general indices accordingly.
+        /// Note that this must not change the keys!
+        /// </summary>
         internal void ReplaceRow(uint row, in T item)
         {
             foreach (var i in Indices)
-                if (!i.IsKey)
+                if (!i.IsKey)  // Don't update indices that are keys, because the key value is not changing
                     i.Remove(row);
             Data[row] = item;
             foreach (var i in Indices)
-                if (!i.IsKey)
+                if (!i.IsKey)  // Don't update the indices that are keys
                     i.Add(row);
         }
 
-        internal void AddOrReplace(in T item)
+        /// <summary>
+        /// If no row has the key in the specified rowData, add the row to the table.
+        /// Otherwise, replace the existing row with this data.
+        /// If the table has multiple keys, this must not change the key values, or it will break the table indices.
+        /// </summary>
+        internal void AddOrReplace(in T rowData)
         {
-            var row = KeyIndex!.RowWithKey(in item);
+            var row = KeyIndex!.RowWithKey(in rowData);
             if (row == Table.NoRow)
-                Add(item);
+                Add(rowData);
             else if (Indices.Count == 1)
                 // Fast path: KeyIndex is the only index so we don't need to add/remove from rows.
-                Data[row] = item;
+                Data[row] = rowData;
             else
-                ReplaceRow(row, item);
+                ReplaceRow(row, rowData);
         }
+        #endregion
 
+        #region Rowsets
         /// <summary>
-        /// The data of the index'th row
+        /// Check if the row is already contained in the table.
+        /// Assumes rowSet is bound and contains the set of rows already in the table.
         /// </summary>
-        /// <param name="index">Position in the table to retrieve the row</param>
-        /// <returns>Row data</returns>
-        public T this[uint index] => Data[index];
-
-        /// <summary>
-        /// Return a reference (pointer) to the row at the specified position
-        /// This lets the row to be passed to another method without copying
-        /// </summary>
-        public ref T PositionReference(uint index) => ref Data[index];
-
         public bool ContainsRowUsingRowSet(in T row) => rowSet!.ContainsRow(row);
 
         /// <summary>
         /// Report back all the rows, in order
         /// This allocates storage, so it shouldn't be used in inner loops.
         /// </summary>
-        public class RowSet
+        internal class RowSet
         {
             private uint[] buckets;
             private uint mask;
@@ -479,8 +542,10 @@ namespace TED.Tables
                 Array.Fill(buckets, Empty);
             }
         }
+        #endregion
 
-        public class TableEnumerator : IEnumerator<T>
+        #region Table enumeration
+        internal class TableEnumerator : IEnumerator<T>
         {
             private readonly T[] array;
             private readonly int limit;
@@ -508,8 +573,10 @@ namespace TED.Tables
             { }
         }
 
+        /// <inheritdoc />
         public IEnumerator<T> GetEnumerator() => new TableEnumerator(Data, (int)Length);
 
         IEnumerator IEnumerable.GetEnumerator() => new TableEnumerator(Data, (int)Length);
+        #endregion
     }
 }
