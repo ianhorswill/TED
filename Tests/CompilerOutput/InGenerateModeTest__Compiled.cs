@@ -19,22 +19,30 @@ namespace CompilerTests
 
         public static void Test__CompiledUpdate()
         {
-            // Test[in n].If(In[out n,System.Int32[]])
+            Test.BeginRebuild();
+            try
             {
-                int n;
+                // Test[in n].If(In[out n,System.Int32[]])
+                {
+                    int n;
 
-                // In[out n,System.Int32[]]
-                var enumerator__0 = ((IEnumerable<int>)(new int[] {1, 2, 3, 4, 5, })).GetEnumerator();;
-                in_restart___0:
-                if (!enumerator__0.MoveNext()) goto end;
-                n = enumerator__0.Current;
+                    // In[out n,System.Int32[]]
+                    var enumerator__0 = ((IEnumerable<int>)(new int[] {1, 2, 3, 4, 5, })).GetEnumerator();;
+                    in_restart___0:
+                    if (!enumerator__0.MoveNext()) goto end;
+                    n = enumerator__0.Current;
 
-                // Write [in n]
-                Test.UnsafeAddNoIndices(n);
-                goto in_restart___0;
+                    // Write [in n]
+                    Test.RebuildRowNonUnique(n);
+                    goto in_restart___0;
+                }
+
+                end:;
             }
-
-            end:;
+            finally
+            {
+                Test.EndRebuild();
+            }
         }
 
         public override void Link(TED.Program program)

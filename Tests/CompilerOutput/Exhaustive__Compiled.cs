@@ -19,30 +19,38 @@ namespace CompilerTests
 
         public static void R__CompiledUpdate()
         {
-            // R[in a].If(P[out a], Q[in a])
+            R.BeginRebuild();
+            try
             {
-                int a;
+                // R[in a].If(P[out a], Q[in a])
+                {
+                    int a;
 
-                // P[out a]
-                var row__0 = unchecked((uint)-1);
-                restart__0:
-                if (++row__0 == P.Length) goto end;
-                ref var data__0 = ref P.Data[row__0];
-                a = data__0;
+                    // P[out a]
+                    var row__0 = unchecked((uint)-1);
+                    restart__0:
+                    if (++row__0 == P.Length) goto end;
+                    ref var data__0 = ref P.Data[row__0];
+                    a = data__0;
 
-                // Q[in a]
-                var row__1 = unchecked((uint)-1);
-                restart__1:
-                if (++row__1 == Q.Length) goto restart__0;
-                ref var data__1 = ref Q.Data[row__1];
-                if (data__1 != a) goto restart__1;
+                    // Q[in a]
+                    var row__1 = unchecked((uint)-1);
+                    restart__1:
+                    if (++row__1 == Q.Length) goto restart__0;
+                    ref var data__1 = ref Q.Data[row__1];
+                    if (data__1 != a) goto restart__1;
 
-                // Write [in a]
-                R.UnsafeAddNoIndices(a);
-                goto restart__1;
+                    // Write [in a]
+                    R.RebuildRowNonUnique(a);
+                    goto restart__1;
+                }
+
+                end:;
             }
-
-            end:;
+            finally
+            {
+                R.EndRebuild();
+            }
         }
 
         public override void Link(TED.Program program)

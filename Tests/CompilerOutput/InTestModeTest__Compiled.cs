@@ -19,31 +19,39 @@ namespace CompilerTests
 
         public static void Test__CompiledUpdate()
         {
-            // Test[0].If(In[0,System.Int32[]])
+            Test.BeginRebuild();
+            try
             {
+                // Test[0].If(In[0,System.Int32[]])
+                {
 
-                // In[0,System.Int32[]]
-                if (!new int[] {1, 2, 3, 4, 5, }.Contains(0)) goto rule2;
+                    // In[0,System.Int32[]]
+                    if (!new int[] {1, 2, 3, 4, 5, }.Contains(0)) goto rule2;
 
-                // Write [0]
-                Test.UnsafeAddNoIndices(0);
-                goto rule2;
+                    // Write [0]
+                    Test.RebuildRowNonUnique(0);
+                    goto rule2;
+                }
+
+                rule2:;
+
+                // Test[1].If(In[4,System.Int32[]])
+                {
+
+                    // In[4,System.Int32[]]
+                    if (!new int[] {1, 2, 3, 4, 5, }.Contains(4)) goto end;
+
+                    // Write [1]
+                    Test.RebuildRowNonUnique(1);
+                    goto end;
+                }
+
+                end:;
             }
-
-            rule2:;
-
-            // Test[1].If(In[4,System.Int32[]])
+            finally
             {
-
-                // In[4,System.Int32[]]
-                if (!new int[] {1, 2, 3, 4, 5, }.Contains(4)) goto end;
-
-                // Write [1]
-                Test.UnsafeAddNoIndices(1);
-                goto end;
+                Test.EndRebuild();
             }
-
-            end:;
         }
 
         public override void Link(TED.Program program)

@@ -19,32 +19,40 @@ namespace CompilerTests
 
         public static void R__CompiledUpdate()
         {
-            // R[in a].If(P[out a], Not[Q[in a]])
+            R.BeginRebuild();
+            try
             {
-                int a;
+                // R[in a].If(P[out a], Not[Q[in a]])
+                {
+                    int a;
 
-                // P[out a]
-                var row__0 = unchecked((uint)-1);
-                restart__0:
-                if (++row__0 == P.Length) goto end;
-                ref var data__0 = ref P.Data[row__0];
-                a = data__0;
+                    // P[out a]
+                    var row__0 = unchecked((uint)-1);
+                    restart__0:
+                    if (++row__0 == P.Length) goto end;
+                    ref var data__0 = ref P.Data[row__0];
+                    a = data__0;
 
-                // Not[Q[in a]]
-                var row__1_ = unchecked((uint)-1);
-                restart__1_:
-                if (++row__1_ == Q.Length) goto not__1;
-                ref var data__1_ = ref Q.Data[row__1_];
-                if (data__1_ != a) goto restart__1_;
-                goto restart__0;
-                not__1: ;
+                    // Not[Q[in a]]
+                    var row__1_ = unchecked((uint)-1);
+                    restart__1_:
+                    if (++row__1_ == Q.Length) goto not__1;
+                    ref var data__1_ = ref Q.Data[row__1_];
+                    if (data__1_ != a) goto restart__1_;
+                    goto restart__0;
+                    not__1: ;
 
-                // Write [in a]
-                R.UnsafeAddNoIndices(a);
-                goto restart__0;
+                    // Write [in a]
+                    R.RebuildRowNonUnique(a);
+                    goto restart__0;
+                }
+
+                end:;
             }
-
-            end:;
+            finally
+            {
+                R.EndRebuild();
+            }
         }
 
         public override void Link(TED.Program program)

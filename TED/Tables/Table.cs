@@ -113,8 +113,8 @@ namespace TED.Tables
         /// </summary>
         internal string AddMethodForCompiledCode =>
             Indices.Count == 0 && !Unique ?
-                nameof(Table<string>.UnsafeAddNoIndices)
-                : nameof(Table<string>.Add);
+                nameof(Table<string>.RebuildRowNonUnique)
+                : nameof(Table<string>.RebuildRowUnique);
         #endregion
 
         #region Index management
@@ -175,7 +175,7 @@ namespace TED.Tables
     /// A list of rows that hold the extension of a predicate
     /// </summary>
     /// <typeparam name="T">Type of the rows of the table (a tuple of the predicate arguments)</typeparam>
-    public class Table<T> : Table, IEnumerable<T>
+    public sealed class Table<T> : Table, IEnumerable<T>
     {
         /// <summary>
         /// Make a new, empty table with no indices and no rows.
@@ -239,6 +239,57 @@ namespace TED.Tables
         public override void SetReclamationRowTest(Delegate t)
         {
             ReclaimRowTest = (RowTest<T>)t;
+        }
+        #endregion
+
+        #region Rebuild interface
+        /// <summary>
+        /// Prepare for rebuilding all the data in the table.
+        /// This clears the data in the table and any RowSet is might have, but does not clear indices;
+        /// those are batch rebuilt in EndRebuild().  This is safe because rules for a table cannot reference
+        /// the table itself.
+        /// </summary>
+        public void BeginRebuild()
+        {
+            Length = 0;
+            rowSet?.Clear();
+        }
+
+        /// <summary>
+        /// Add a row to a table for which Unique == false.
+        /// Does not update indices.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void RebuildRowNonUnique(in T item)
+        {
+            EnsureSpace();
+            Data[Length++] = item;
+        }
+
+        /// <summary>
+        /// Adda row to a table for which Unique==true.
+        /// Does not update indices.
+        /// </summary>
+        /// <param name="row"></param>
+        public void RebuildRowUnique(T row)
+        {
+            EnsureSpace();
+            // Write the data into the next free slot
+            Data[Length] = row;
+            // That same row might already be in the table
+            // So check if it's already there.  If so, don't both incrementing Length.
+            // Otherwise, add it to the rowSet and increment length.
+            if (rowSet!.MaybeAddRow(Length))
+                Length++;
+        }
+
+        /// <summary>
+        /// Finish rebuilding the table.  Rebuild all indices.
+        /// </summary>
+        public void EndRebuild()
+        {
+            // Batch rebuild all indices
+            foreach (var i in Indices) i.Reindex();
         }
         #endregion
 
@@ -413,18 +464,6 @@ namespace TED.Tables
         }
 
         /// <summary>
-        /// Add a row without updating the rowSet or any indices.
-        /// Unsafe: the caller is responsible for knowing not to use this when the table is indexed
-        /// or has uniqueness constraints.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void UnsafeAddNoIndices(in T item)
-        {
-            EnsureSpace();
-            Data[Length++] = item;
-        }
-
-        /// <summary>
         /// Overwrite the row at the specified position with new data.  Update general indices accordingly.
         /// Note that this must not change the keys!
         /// </summary>
@@ -462,6 +501,7 @@ namespace TED.Tables
         /// Check if the row is already contained in the table.
         /// Assumes rowSet is bound and contains the set of rows already in the table.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] 
         public bool ContainsRowUsingRowSet(in T row) => rowSet!.ContainsRow(row);
 
         /// <summary>

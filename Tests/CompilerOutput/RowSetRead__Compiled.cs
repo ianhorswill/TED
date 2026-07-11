@@ -13,32 +13,40 @@ using TED.Tables;
 namespace CompilerTests
 
 {
-    [CompiledHelpersFor("RowSet")]
-    public class RowSet__Compiled : TED.Compiler.CompiledTEDProgram
+    [CompiledHelpersFor("RowSetRead")]
+    public class RowSetRead__Compiled : TED.Compiler.CompiledTEDProgram
     {
 
         public static void R__CompiledUpdate()
         {
-            // R[in a].If(P[out a], Q[in a])
+            R.BeginRebuild();
+            try
             {
-                int a;
+                // R[in a].If(P[out a], Q[in a])
+                {
+                    int a;
 
-                // P[out a]
-                var row__0 = unchecked((uint)-1);
-                restart__0:
-                if (++row__0 == P.Length) goto end;
-                ref var data__0 = ref P.Data[row__0];
-                a = data__0;
+                    // P[out a]
+                    var row__0 = unchecked((uint)-1);
+                    restart__0:
+                    if (++row__0 == P.Length) goto end;
+                    ref var data__0 = ref P.Data[row__0];
+                    a = data__0;
 
-                // Q[in a]
-                if (!Q.ContainsRowUsingRowSet(a)) goto restart__0;
+                    // Q[in a]
+                    if (!Q.ContainsRowUsingRowSet(a)) goto restart__0;
 
-                // Write [in a]
-                R.UnsafeAddNoIndices(a);
-                goto restart__0;
+                    // Write [in a]
+                    R.RebuildRowNonUnique(a);
+                    goto restart__0;
+                }
+
+                end:;
             }
-
-            end:;
+            finally
+            {
+                R.EndRebuild();
+            }
         }
 
         public override void Link(TED.Program program)

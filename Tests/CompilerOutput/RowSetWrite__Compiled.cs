@@ -13,16 +13,16 @@ using TED.Tables;
 namespace CompilerTests
 
 {
-    [CompiledHelpersFor("PrimitiveTestTest")]
-    public class PrimitiveTestTest__Compiled : TED.Compiler.CompiledTEDProgram
+    [CompiledHelpersFor("RowSetWrite")]
+    public class RowSetWrite__Compiled : TED.Compiler.CompiledTEDProgram
     {
 
-        public static void Q__CompiledUpdate()
+        public static void R__CompiledUpdate()
         {
-            Q.BeginRebuild();
+            R.BeginRebuild();
             try
             {
-                // Q[in a].If(P[out a], Odd[in a])
+                // R[in a].If(P[out a], Q[in a])
                 {
                     int a;
 
@@ -33,31 +33,37 @@ namespace CompilerTests
                     ref var data__0 = ref P.Data[row__0];
                     a = data__0;
 
-                    // Odd[in a]
-                    if (!Tests.CompilerTests.Odd(a)) goto restart__0;
+                    // Q[in a]
+                    var row__1 = unchecked((uint)-1);
+                    restart__1:
+                    if (++row__1 == Q.Length) goto restart__0;
+                    ref var data__1 = ref Q.Data[row__1];
+                    if (data__1 != a) goto restart__1;
 
                     // Write [in a]
-                    Q.RebuildRowNonUnique(a);
-                    goto restart__0;
+                    R.RebuildRowUnique(a);
+                    goto restart__1;
                 }
 
                 end:;
             }
             finally
             {
-                Q.EndRebuild();
+                R.EndRebuild();
             }
         }
 
         public override void Link(TED.Program program)
         {
-            program["Q"].CompiledRules = (Action)Q__CompiledUpdate;
+            program["R"].CompiledRules = (Action)R__CompiledUpdate;
             P = (Table<int>)program["P"].TableUntyped;
             Q = (Table<int>)program["Q"].TableUntyped;
+            R = (Table<int>)program["R"].TableUntyped;
         }
 
         public static Table<int> P;
         public static Table<int> Q;
+        public static Table<int> R;
     }
 
 }

@@ -180,15 +180,24 @@ namespace TED.Compiler
             var nextRule = new Continuation(table.Rules!.Count > 1 ? "rule2" : EndLabel);
             CurlyBraceBlock(() =>
             {
-                for (var ruleNumber = 1; ruleNumber <= table.Rules!.Count; ruleNumber++)
-                {
-                    CompileRule(table.Rules![ruleNumber-1], nextRule);
-                    Label(nextRule); 
-                    if (nextRule.Label != EndLabel)
-                        Output.WriteLine(";");
-                    nextRule = new Continuation(ruleNumber+2 > table.Rules!.Count ? EndLabel:$"rule{ruleNumber+2}");
-                }
-                Output.Write(';');
+                Indented($"{tableName}.BeginRebuild();");
+                Indented("try");
+                CurlyBraceBlock( () => {
+                    for (var ruleNumber = 1; ruleNumber <= table.Rules!.Count; ruleNumber++)
+                    {
+                        CompileRule(table.Rules![ruleNumber - 1], nextRule);
+                        Label(nextRule);
+                        if (nextRule.Label != EndLabel)
+                            Output.WriteLine(";");
+                        nextRule = new Continuation(ruleNumber + 2 > table.Rules!.Count
+                            ? EndLabel
+                            : $"rule{ruleNumber + 2}");
+                    }
+
+                    Output.Write(';');
+                });
+                Indented("finally");
+                CurlyBraceBlock(() => Indented($"{tableName}.EndRebuild();"));
             });
         }
 

@@ -19,29 +19,37 @@ namespace CompilerTests
 
         public static void Mapped__CompiledUpdate()
         {
-            // Mapped[in relationship].If(Relation[Sara,Rachel,out relationship])
+            Mapped.BeginRebuild();
+            try
             {
-                string relationship;
+                // Mapped[in relationship].If(Relation[Sara,Rachel,out relationship])
+                {
+                    string relationship;
 
-                // Relation[Sara,Rachel,out relationship]
-                var key__0 = ("Sara", "Rachel");
-                var row__0 = Table.NoRow;
-                for (var bucket__0=key__0.GetHashCode()&Relation__0_1_key.Mask; Relation__0_1_key.Buckets[bucket__0].row != Table.NoRow; bucket__0 = (bucket__0+1)&Relation__0_1_key.Mask)
-                    if (Relation__0_1_key.Buckets[bucket__0].key == key__0)
-                    {
-                        row__0 = Relation__0_1_key.Buckets[bucket__0].row;
-                        break;
-                    }
-                if (row__0 == Table.NoRow) goto end;
-                ref var data__0 = ref Relation.Data[row__0];
-                relationship = data__0.Item3;
+                    // Relation[Sara,Rachel,out relationship]
+                    var key__0 = ("Sara", "Rachel");
+                    var row__0 = Table.NoRow;
+                    for (var bucket__0=key__0.GetHashCode()&Relation__0_1_key.Mask; Relation__0_1_key.Buckets[bucket__0].row != Table.NoRow; bucket__0 = (bucket__0+1)&Relation__0_1_key.Mask)
+                        if (Relation__0_1_key.Buckets[bucket__0].key == key__0)
+                        {
+                            row__0 = Relation__0_1_key.Buckets[bucket__0].row;
+                            break;
+                        }
+                    if (row__0 == Table.NoRow) goto end;
+                    ref var data__0 = ref Relation.Data[row__0];
+                    relationship = data__0.Item3;
 
-                // Write [in relationship]
-                Mapped.UnsafeAddNoIndices(relationship);
-                goto end;
+                    // Write [in relationship]
+                    Mapped.RebuildRowNonUnique(relationship);
+                    goto end;
+                }
+
+                end:;
             }
-
-            end:;
+            finally
+            {
+                Mapped.EndRebuild();
+            }
         }
 
         public override void Link(TED.Program program)

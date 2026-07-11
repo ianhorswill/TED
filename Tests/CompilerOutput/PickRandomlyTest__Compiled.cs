@@ -19,19 +19,27 @@ namespace CompilerTests
 
         public static void P__CompiledUpdate()
         {
-            // P[in n].If(PickRandomly[out n])
+            P.BeginRebuild();
+            try
             {
-                int n;
+                // P[in n].If(PickRandomly[out n])
+                {
+                    int n;
 
-                // PickRandomly[out n]
-                n = PickRandomlyArray__0[_Rng0.Next()%5];
+                    // PickRandomly[out n]
+                    n = PickRandomlyArray__0[_Rng0.Next()%5];
 
-                // Write [in n]
-                P.UnsafeAddNoIndices(n);
-                goto end;
+                    // Write [in n]
+                    P.RebuildRowNonUnique(n);
+                    goto end;
+                }
+
+                end:;
             }
-
-            end:;
+            finally
+            {
+                P.EndRebuild();
+            }
         }
 
         public override void Link(TED.Program program)

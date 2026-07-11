@@ -19,81 +19,97 @@ namespace CompilerTests
 
         public static void s__CompiledUpdate()
         {
-            // s[in x].If(And[TED.Interpreter.Goal[]])
+            s.BeginRebuild();
+            try
             {
-                int x;
+                // s[in x].If(And[TED.Interpreter.Goal[]])
+                {
+                    int x;
 
-                // And[TED.Interpreter.Goal[]]
+                    // And[TED.Interpreter.Goal[]]
 
-                // t[out x,in x]
-                var row__0_0 = unchecked((uint)-1);
-                restart__0_0:
-                if (++row__0_0 == t.Length) goto end;
-                ref var data__0_0 = ref t.Data[row__0_0];
-                x = data__0_0.Item1;
-                if (data__0_0.Item2 != x) goto restart__0_0;
+                    // t[out x,in x]
+                    var row__0_0 = unchecked((uint)-1);
+                    restart__0_0:
+                    if (++row__0_0 == t.Length) goto end;
+                    ref var data__0_0 = ref t.Data[row__0_0];
+                    x = data__0_0.Item1;
+                    if (data__0_0.Item2 != x) goto restart__0_0;
 
-                // u[in x]
-                var row__0_1 = unchecked((uint)-1);
-                restart__0_1:
-                if (++row__0_1 == u.Length) goto restart__0_0;
-                ref var data__0_1 = ref u.Data[row__0_1];
-                if (data__0_1 != x) goto restart__0_1;
+                    // u[in x]
+                    var row__0_1 = unchecked((uint)-1);
+                    restart__0_1:
+                    if (++row__0_1 == u.Length) goto restart__0_0;
+                    ref var data__0_1 = ref u.Data[row__0_1];
+                    if (data__0_1 != x) goto restart__0_1;
 
-                // Write [in x]
-                s.UnsafeAddNoIndices(x);
-                goto restart__0_1;
+                    // Write [in x]
+                    s.RebuildRowNonUnique(x);
+                    goto restart__0_1;
+                }
+
+                end:;
             }
-
-            end:;
+            finally
+            {
+                s.EndRebuild();
+            }
         }
         public static void w__CompiledUpdate()
         {
-            // w[in x].If(Or[TED.Interpreter.Goal[]])
+            w.BeginRebuild();
+            try
             {
-                int x;
-
-                // Or[TED.Interpreter.Goal[]]
-                uint row__0_0 = default(uint);
-                uint row__0_1 = default(uint);
-
-                int branch__0;
-
-                start0__0:
-                branch__0 = 0;
-                // s[out x]
-                row__0_0 = unchecked((uint)-1);
-                restart__0_0:
-                if (++row__0_0 == s.Length) goto start1__0;
-                ref var data__0_0 = ref s.Data[row__0_0];
-                x = data__0_0;
-                goto orSuccess__0;
-                start1__0:
-                branch__0 = 1;
-                // v[out x]
-                row__0_1 = unchecked((uint)-1);
-                restart__0_1:
-                if (++row__0_1 == v.Length) goto end;
-                ref var data__0_1 = ref v.Data[row__0_1];
-                x = data__0_1;
-                goto orSuccess__0;
-
-
-                restartDispatch__0:
-                switch (branch__0)
+                // w[in x].If(Or[TED.Interpreter.Goal[]])
                 {
-                    case 0: goto restart__0_0;
-                    case 1: goto restart__0_1;
+                    int x;
+
+                    // Or[TED.Interpreter.Goal[]]
+                    uint row__0_0 = default(uint);
+                    uint row__0_1 = default(uint);
+
+                    int branch__0;
+
+                    start0__0:
+                    branch__0 = 0;
+                    // s[out x]
+                    row__0_0 = unchecked((uint)-1);
+                    restart__0_0:
+                    if (++row__0_0 == s.Length) goto start1__0;
+                    ref var data__0_0 = ref s.Data[row__0_0];
+                    x = data__0_0;
+                    goto orSuccess__0;
+                    start1__0:
+                    branch__0 = 1;
+                    // v[out x]
+                    row__0_1 = unchecked((uint)-1);
+                    restart__0_1:
+                    if (++row__0_1 == v.Length) goto end;
+                    ref var data__0_1 = ref v.Data[row__0_1];
+                    x = data__0_1;
+                    goto orSuccess__0;
+
+
+                    restartDispatch__0:
+                    switch (branch__0)
+                    {
+                        case 0: goto restart__0_0;
+                        case 1: goto restart__0_1;
+                    }
+
+                    orSuccess__0: ;
+
+                    // Write [in x]
+                    w.RebuildRowNonUnique(x);
+                    goto restartDispatch__0;
                 }
 
-                orSuccess__0: ;
-
-                // Write [in x]
-                w.UnsafeAddNoIndices(x);
-                goto restartDispatch__0;
+                end:;
             }
-
-            end:;
+            finally
+            {
+                w.EndRebuild();
+            }
         }
 
         public override void Link(TED.Program program)

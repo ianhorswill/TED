@@ -19,36 +19,44 @@ namespace CompilerTests
 
         public static void Mapped__CompiledUpdate()
         {
-            // Mapped[in d,in n].If(Day[out d], NextDay[in d,out n])
+            Mapped.BeginRebuild();
+            try
             {
-                string d;
-                string n;
+                // Mapped[in d,in n].If(Day[out d], NextDay[in d,out n])
+                {
+                    string d;
+                    string n;
 
-                // Day[out d]
-                var row__0 = unchecked((uint)-1);
-                restart__0:
-                if (++row__0 == Day.Length) goto end;
-                ref var data__0 = ref Day.Data[row__0];
-                d = data__0;
+                    // Day[out d]
+                    var row__0 = unchecked((uint)-1);
+                    restart__0:
+                    if (++row__0 == Day.Length) goto end;
+                    ref var data__0 = ref Day.Data[row__0];
+                    d = data__0;
 
-                // NextDay[in d,out n]
-                var row__1 = Table.NoRow;
-                for (var bucket__1=d.GetHashCode()&NextDay__0_key.Mask; NextDay__0_key.Buckets[bucket__1].row != Table.NoRow; bucket__1 = (bucket__1+1)&NextDay__0_key.Mask)
-                    if (NextDay__0_key.Buckets[bucket__1].key == d)
-                    {
-                        row__1 = NextDay__0_key.Buckets[bucket__1].row;
-                        break;
-                    }
-                if (row__1 == Table.NoRow) goto restart__0;
-                ref var data__1 = ref NextDay.Data[row__1];
-                n = data__1.Item2;
+                    // NextDay[in d,out n]
+                    var row__1 = Table.NoRow;
+                    for (var bucket__1=d.GetHashCode()&NextDay__0_key.Mask; NextDay__0_key.Buckets[bucket__1].row != Table.NoRow; bucket__1 = (bucket__1+1)&NextDay__0_key.Mask)
+                        if (NextDay__0_key.Buckets[bucket__1].key == d)
+                        {
+                            row__1 = NextDay__0_key.Buckets[bucket__1].row;
+                            break;
+                        }
+                    if (row__1 == Table.NoRow) goto restart__0;
+                    ref var data__1 = ref NextDay.Data[row__1];
+                    n = data__1.Item2;
 
-                // Write [in d,in n]
-                Mapped.UnsafeAddNoIndices((d,n));
-                goto restart__0;
+                    // Write [in d,in n]
+                    Mapped.RebuildRowNonUnique((d,n));
+                    goto restart__0;
+                }
+
+                end:;
             }
-
-            end:;
+            finally
+            {
+                Mapped.EndRebuild();
+            }
         }
 
         public override void Link(TED.Program program)

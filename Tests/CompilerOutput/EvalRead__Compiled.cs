@@ -19,28 +19,36 @@ namespace CompilerTests
 
         public static void Q__CompiledUpdate()
         {
-            // Q[in i].If(P[out i,out j], i == j+1)
+            Q.BeginRebuild();
+            try
             {
-                int i;
-                int j;
+                // Q[in i].If(P[out i,out j], i == j+1)
+                {
+                    int i;
+                    int j;
 
-                // P[out i,out j]
-                var row__0 = unchecked((uint)-1);
-                restart__0:
-                if (++row__0 == P.Length) goto end;
-                ref var data__0 = ref P.Data[row__0];
-                i = data__0.Item1;
-                j = data__0.Item2;
+                    // P[out i,out j]
+                    var row__0 = unchecked((uint)-1);
+                    restart__0:
+                    if (++row__0 == P.Length) goto end;
+                    ref var data__0 = ref P.Data[row__0];
+                    i = data__0.Item1;
+                    j = data__0.Item2;
 
-                // i == j+1
-                if (i != j+1) goto restart__0;
+                    // i == j+1
+                    if (i != j+1) goto restart__0;
 
-                // Write [in i]
-                Q.UnsafeAddNoIndices(i);
-                goto restart__0;
+                    // Write [in i]
+                    Q.RebuildRowNonUnique(i);
+                    goto restart__0;
+                }
+
+                end:;
             }
-
-            end:;
+            finally
+            {
+                Q.EndRebuild();
+            }
         }
 
         public override void Link(TED.Program program)

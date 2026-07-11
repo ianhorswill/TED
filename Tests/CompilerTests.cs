@@ -34,16 +34,38 @@ namespace Tests
         }
 
         [TestMethod]
-        public void RowSet()
+        public void RowSetRead()
         {
             var a = (Var<int>)"a";
             var b = (Var<int>)"b";
-            var program = new Simulation(nameof(RowSet));
+            var program = new Simulation(nameof(RowSetRead));
             program.BeginPredicates();
             var P = Predicate<int>("P", new int[] { 1, 2, 3, 4, 5, 6 }, "i");
             var Q = Predicate<int>("Q", new int[] { 2, 4, 6, 8, 10 }, "i");
             Q.Unique = true;
             var R = Predicate("R", a).If(P[a], Q[a]);
+            program.EndPredicates();
+            program.Update();
+            var interpretedResult = R.ToArray();
+            var comp = new Compiler(program, "CompilerTests", CompilerOutputFolder());
+            comp.GenerateSource();
+            Compiler.Link(program);
+            R.ForceRecompute();
+            var compiledResult = R.ToArray();
+            CollectionAssert.AreEqual(interpretedResult, compiledResult);
+        }
+
+        [TestMethod]
+        public void RowSetWrite()
+        {
+            var a = (Var<int>)"a";
+            var b = (Var<int>)"b";
+            var program = new Simulation(nameof(RowSetWrite));
+            program.BeginPredicates();
+            var P = Predicate<int>("P", new int[] { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6 }, "i");
+            var Q = Predicate<int>("Q", new int[] { 2, 4, 6, 8, 10 }, "i");
+            var R = Predicate("R", a).If(P[a], Q[a]);
+            R.Unique = true;
             program.EndPredicates();
             program.Update();
             var interpretedResult = R.ToArray();

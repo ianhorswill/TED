@@ -19,41 +19,49 @@ namespace CompilerTests
 
         public static void Q__CompiledUpdate()
         {
-            // Q[in b].If(P[out a], FirstOf[TED.Interpreter.Goal[]])
+            Q.BeginRebuild();
+            try
             {
-                int a;
-                string b;
+                // Q[in b].If(P[out a], FirstOf[TED.Interpreter.Goal[]])
+                {
+                    int a;
+                    string b;
 
-                // P[out a]
-                var row__0 = unchecked((uint)-1);
-                restart__0:
-                if (++row__0 == P.Length) goto end;
-                ref var data__0 = ref P.Data[row__0];
-                a = data__0;
+                    // P[out a]
+                    var row__0 = unchecked((uint)-1);
+                    restart__0:
+                    if (++row__0 == P.Length) goto end;
+                    ref var data__0 = ref P.Data[row__0];
+                    a = data__0;
 
-                // FirstOf[TED.Interpreter.Goal[]]
-                // And[TED.Interpreter.Goal[]]
+                    // FirstOf[TED.Interpreter.Goal[]]
+                    // And[TED.Interpreter.Goal[]]
 
-                // Odd[in a]
-                if (!Tests.CompilerTests.Odd(a)) goto firstOFBranch1__1;
+                    // Odd[in a]
+                    if (!Tests.CompilerTests.Odd(a)) goto firstOFBranch1__1;
 
-                // b == "odd"
-                b = "odd";
-                goto firstOfSuccess__1;
+                    // b == "odd"
+                    b = "odd";
+                    goto firstOfSuccess__1;
 
-                firstOFBranch1__1:
-                // b == "even"
-                b = "even";
-                goto firstOfSuccess__1;
+                    firstOFBranch1__1:
+                    // b == "even"
+                    b = "even";
+                    goto firstOfSuccess__1;
 
-                firstOfSuccess__1: ;
+                    firstOfSuccess__1: ;
 
-                // Write [in b]
-                Q.UnsafeAddNoIndices(b);
-                goto restart__0;
+                    // Write [in b]
+                    Q.RebuildRowNonUnique(b);
+                    goto restart__0;
+                }
+
+                end:;
             }
-
-            end:;
+            finally
+            {
+                Q.EndRebuild();
+            }
         }
 
         public override void Link(TED.Program program)
