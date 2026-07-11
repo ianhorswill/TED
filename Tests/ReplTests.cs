@@ -117,7 +117,7 @@ namespace Tests
                     return s.End;
                 }));
 
-            Assert.AreEqual(Foo, g.Predicate);
+            Assert.IsTrue(ReferenceEquals(Foo, g.Predicate));
             Assert.AreEqual(5, g.Arguments.Length);
 
             var t = (Var<int>)g.Arguments[0];
@@ -126,7 +126,7 @@ namespace Tests
             t = (Var<int>)g.Arguments[1];
             Assert.AreEqual("y", t.Name);
 
-            Assert.AreEqual(g.Arguments[0], g.Arguments[2]);
+            Assert.IsTrue(ReferenceEquals(g.Arguments[0], g.Arguments[2]));
 
             var t4 = (Constant<int>)g.Arguments[3];
             Assert.AreEqual(1, t4.Value);

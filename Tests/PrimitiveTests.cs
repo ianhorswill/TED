@@ -167,7 +167,7 @@ namespace Tests
             Assert.AreEqual(3, conjuncts.Length);
             for (var i = 0; i < 3; i++)
             {
-                Assert.AreEqual(p, conjuncts[i].Predicate);
+                Assert.IsTrue(ReferenceEquals(p, conjuncts[i].Predicate));
                 Assert.AreEqual(i, ((Constant<int>)conjuncts[i].Arguments[0]).Value);
             }
         }
@@ -178,9 +178,9 @@ namespace Tests
             var n = (Var<int>)"n";
             var p = Predicate("p", n);
             // p & true = p
-            Assert.AreEqual(p, (p[0] & True).Predicate);
+            Assert.IsTrue(ReferenceEquals(p, (p[0] & True).Predicate));
             // p & false = false
-            Assert.AreEqual(False, (p[0] & False).Predicate);
+            Assert.IsTrue(ReferenceEquals(False, (p[0] & False).Predicate));
         }
 
         [TestMethod]

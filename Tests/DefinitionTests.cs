@@ -36,7 +36,7 @@ namespace Tests
             var newGoal = e[0];
             Assert.AreEqual(Language.Not, newGoal.Predicate);
             var subgoal = ((Constant<Goal>)newGoal.Arguments[0]).Value;
-            Assert.AreEqual(p, subgoal.Predicate);
+            Assert.IsTrue(ReferenceEquals(p, subgoal.Predicate));
             var arg = subgoal.Arguments[0];
             Assert.AreEqual(5, ((Constant<int>)arg).Value);
         }
@@ -54,11 +54,11 @@ namespace Tests
             var newGoal = e[0];
             Assert.AreEqual(Language.Not, newGoal.Predicate);
             var subgoal = ((Constant<Goal>)newGoal.Arguments[0]).Value;
-            Assert.AreEqual(p, subgoal.Predicate);
+            Assert.IsTrue(ReferenceEquals(p, subgoal.Predicate));
             var arg = subgoal.Arguments[0];
             Assert.AreEqual(5, ((Constant<int>)arg).Value);
             newGoal = e[1];
-            Assert.AreEqual(q, newGoal.Predicate);
+            Assert.IsTrue(ReferenceEquals(q, newGoal.Predicate));
             Assert.AreEqual(5, ((Constant<int>)newGoal.Arguments[0]).Value);
         }
 
@@ -75,7 +75,7 @@ namespace Tests
             var e = g.Expand().ToArray();
             Assert.AreEqual(2, e.Length);
             var newGoal = e[1];
-            Assert.AreEqual(q, newGoal.Predicate);
+            Assert.IsTrue(ReferenceEquals(q, newGoal.Predicate));
             Assert.IsInstanceOfType(newGoal.Arguments[0], typeof(Var<int>));
             Assert.AreEqual("k", ((Var<int>)newGoal.Arguments[0]).Name);
             Assert.IsInstanceOfType(newGoal.Arguments[1], typeof(Var<int>));

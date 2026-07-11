@@ -247,8 +247,8 @@ namespace Tests
             Assert.AreEqual(1u, p.Exceptions.Length);
             var exceptionInfo = p.Exceptions.First();
             Assert.AreEqual(typeof(DivideByZeroException), exceptionInfo.Item1);
-            Assert.AreEqual(Reciprocal, exceptionInfo.Item3);
-            Assert.AreEqual(Reciprocal.Rules![0], exceptionInfo.Item4);
+            Assert.IsTrue(ReferenceEquals(Reciprocal, exceptionInfo.Item3));
+            Assert.IsTrue(ReferenceEquals(Reciprocal.Rules![0], exceptionInfo.Item4));
         }
 
         [TestMethod]
@@ -265,7 +265,7 @@ namespace Tests
             p.EndPredicates();
             Assert.AreEqual(1u, p.Problems.Length);
             var problem = p.Problems.First();
-            Assert.AreEqual(Reciprocal, problem.Item1);
+            Assert.IsTrue(ReferenceEquals(Reciprocal, problem.Item1));
             Assert.AreEqual("Too large", problem.Item2);
         }
 
