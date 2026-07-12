@@ -220,6 +220,27 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Provenance()
+        {
+            Console.WriteLine("");
+            var a = (Var<int>)"a";
+            var program = new Simulation(nameof(Provenance));
+            program.BeginPredicates();
+            var P = Predicate<int>("P", new int[] { 1, 2, 3, 4, 5, 6 }, "i").TrackProvenance();
+            P[1].Fact();
+            P[2].Fact();
+            program.EndPredicates();
+            var comp = new Compiler(program, "CompilerTests", CompilerOutputFolder());
+            comp.GenerateSource();
+            Compiler.Link(program);
+            P.ForceRecompute();
+            var compiledResult = P.ToArray();
+            CollectionAssert.AreEqual(new[] {1, 2}, compiledResult);
+            Assert.AreEqual("P[1].If()", P.Table.Provenance![0]);
+            Assert.AreEqual("P[2].If()", P.Table.Provenance![1]);
+        }
+
+        [TestMethod]
         public void LessThan()
         {
             var i = (Var<int>)"i";

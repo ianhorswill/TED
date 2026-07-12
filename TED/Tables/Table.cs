@@ -37,6 +37,11 @@ namespace TED.Tables
         public static bool ValidRow(uint row) => row < DeletedRow;
         #endregion
 
+        /// <summary>
+        /// Set this before creating tables.  If true, track provenance for all tables.
+        /// </summary>
+        public static bool TrackAllProvenance = false;
+
         #region Instance fields and properties
         /// <summary>
         /// Name of table for debugging purposes
@@ -73,6 +78,20 @@ namespace TED.Tables
         /// These are kept sorted in order of decreasing desirability of use.  So first KeyIndices, then GeneralIndices.
         /// </summary>
         internal readonly List<TableIndex> Indices = new List<TableIndex>();
+
+        /// <summary>
+        /// Parallel array to Data whose i'th element has the source code to the rule that generated row i.
+        /// </summary>
+        public string?[]? Provenance;
+
+        /// <summary>
+        /// If true, this table tracks which rule generated each row
+        /// </summary>
+        public virtual bool TrackProvenance
+        {
+            get => Provenance != null;
+            set => throw new NotImplementedException();
+        }
         #endregion
 
         #region Column projection and mutation
@@ -183,6 +202,8 @@ namespace TED.Tables
         public Table()
         {
             Data = new T[InitialSize];
+            if (TrackAllProvenance)
+                Provenance = new string?[Data.Length];
         }
 
         #region Instance fields
@@ -227,6 +248,16 @@ namespace TED.Tables
             KeyIndex = (TableIndex<T>)tableIndex;
         }
 
+        /// <inheritdoc />
+        public override bool TrackProvenance
+        {
+            set
+            {
+                if (value && Provenance == null)
+                    Provenance = new string[Data.Length];
+            }
+        }
+
         /// <summary>
         /// If defined, then when the table runs out of space, it will delete all rows satisfying this predicate
         /// </summary>
@@ -262,8 +293,8 @@ namespace TED.Tables
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RebuildRowNonUnique(in T item)
         {
-            EnsureSpace();
             Data[Length++] = item;
+            EnsureSpace();
         }
 
         /// <summary>
@@ -273,7 +304,6 @@ namespace TED.Tables
         /// <param name="row"></param>
         public void RebuildRowUnique(T row)
         {
-            EnsureSpace();
             // Write the data into the next free slot
             Data[Length] = row;
             // That same row might already be in the table
@@ -281,6 +311,7 @@ namespace TED.Tables
             // Otherwise, add it to the rowSet and increment length.
             if (rowSet!.MaybeAddRow(Length))
                 Length++;
+            EnsureSpace();
         }
 
         /// <summary>
@@ -320,9 +351,7 @@ namespace TED.Tables
             if (ReclaimRowTest == null)
             {
                 // Easy case: copy everything over as a block
-                var newArray = new T[Data.Length * 2];
-                Array.Copy(Data, newArray, Data.Length);
-                Data = newArray;
+                ExpandDataArrays();
             }
             else 
                 // Hard case: copy only the unreclaimed rows
@@ -330,6 +359,20 @@ namespace TED.Tables
 
             rowSet?.Expand();
             foreach (var i in Indices) i.Expand();
+        }
+
+        private void ExpandDataArrays()
+        {
+            Expand(ref Data);
+            if (Provenance != null)
+                Expand(ref Provenance);
+        }
+
+        private void Expand<TElement>(ref TElement[] array)
+        {
+            var newArray = new TElement[array.Length * 2];
+            Array.Copy(array, newArray, array.Length);
+            array = newArray;
         }
 
         /// <summary>
@@ -340,8 +383,20 @@ namespace TED.Tables
         {
             var liveRows = MakeCompactionMap();
             var loadFactor = ((float)liveRows)/Data.Length;
-            var destination = loadFactor < PostCompactionTargetLoad ? Data : new T[Data.Length * 2];
-            CopyUsingCompactionMap(destination);
+            T[] dataDestination;
+            string?[]? provenanceDestination = null;
+            if (loadFactor < PostCompactionTargetLoad)
+            {
+                dataDestination = Data;
+                provenanceDestination = Provenance;
+            }
+            else
+            {
+                dataDestination = new T[Data.Length * 2];
+                if (Provenance != null)
+                    provenanceDestination = new string?[Data.Length * 2];
+            }
+            CopyUsingCompactionMap(dataDestination, provenanceDestination);
         }
 
         /// <summary>
@@ -390,12 +445,14 @@ namespace TED.Tables
         /// Copy subset of Data specified by compactionMap to array, compacting it in the process.
         /// This is safe to with array == Data, in which case the compaction is done in-place.
         /// </summary>
-        private void CopyUsingCompactionMap(T[] array)
+        private void CopyUsingCompactionMap(T[] array, string?[]? provenanceArray)
         {
             var dest = 0;
             foreach (var block in compactionMap!)
             {
                 Array.Copy(Data, block.start, array, dest, block.length);
+                if (provenanceArray != null)
+                    Array.Copy(Provenance!, block.start, provenanceArray, dest, block.length);
                 dest += block.length;
             }
 
@@ -411,7 +468,7 @@ namespace TED.Tables
         internal override void UnsafeReclaim()
         {
             MakeCompactionMap();
-            CopyUsingCompactionMap(Data);
+            CopyUsingCompactionMap(Data, Provenance);
         }
         #endregion
         
@@ -483,16 +540,21 @@ namespace TED.Tables
         /// Otherwise, replace the existing row with this data.
         /// If the table has multiple keys, this must not change the key values, or it will break the table indices.
         /// </summary>
-        internal void AddOrReplace(in T rowData)
+        internal uint AddOrReplace(in T rowData)
         {
             var row = KeyIndex!.RowWithKey(in rowData);
             if (row == Table.NoRow)
+            {
+                row = Length;
                 Add(rowData);
+            }
             else if (Indices.Count == 1)
                 // Fast path: KeyIndex is the only index so we don't need to add/remove from rows.
                 Data[row] = rowData;
             else
                 ReplaceRow(row, rowData);
+
+            return row;
         }
         #endregion
 

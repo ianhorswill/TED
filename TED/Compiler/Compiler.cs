@@ -231,7 +231,10 @@ namespace TED.Compiler
                 Output.WriteLine();
                 Indented($"// Write {rule.Head}");
                 var argsToStore = GenerateWriteMode(rule.Head.Arguments);
-                Indented($"{rule.Predicate.Name}.{predicate.TableUntyped.AddMethodForCompiledCode}({argsToStore});");
+                var predicateName = rule.Predicate.Name;
+                if (rule.Predicate.TableUntyped.Provenance != null)
+                    Indented($"{predicateName}.Provenance[{predicateName}.Length] = \"{rule}\";");
+                Indented($"{predicateName}.{predicate.TableUntyped.AddMethodForCompiledCode}({argsToStore});");
 
                 Indented(fail.Invoke + ";");
             });

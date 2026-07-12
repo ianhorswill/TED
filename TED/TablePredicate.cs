@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -11,6 +12,7 @@ using TED.Interpreter;
 using TED.Primitives;
 using TED.Tables;
 using TED.Utilities;
+using Rule = TED.Interpreter.Rule;
 
 // ReSharper disable UnusedMember.Global
 
@@ -942,6 +944,24 @@ namespace TED {
         /// </summary>
         public virtual TableGoal<T1> this[Term<T1> arg1] => new TableGoal<T1>(this, arg1);
 
+        /// <summary>
+        /// Declare that duplicate rows should be discarded.
+        /// </summary>
+        public TablePredicate<T1> UniqueRows()
+        {
+            this.Table.Unique = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Declare that this predicate should track which of its rules generated each row of its table.
+        /// </summary>
+        public TablePredicate<T1> TrackProvenance()
+        {
+            this.Table.TrackProvenance = true;
+            return this;
+        }
+
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1)];
 
@@ -1226,6 +1246,24 @@ namespace TED {
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
         public virtual TableGoal<T1, T2> this[Term<T1> arg1, Term<T2> arg2] => new TableGoal<T1, T2>(this, arg1, arg2);
+
+        /// <summary>
+        /// Declare that duplicate rows should be discarded.
+        /// </summary>
+        public TablePredicate<T1,T2> UniqueRows()
+        {
+            this.Table.Unique = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Declare that this predicate should track which of its rules generated each row of its table.
+        /// </summary>
+        public TablePredicate<T1,T2> TrackProvenance()
+        {
+            this.Table.TrackProvenance = true;
+            return this;
+        }
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) => this[CastArg<T1>(args[0], 1), CastArg<T2>(args[1], 2)];
@@ -1608,6 +1646,24 @@ namespace TED {
         /// Make a Goal from this predicate with the specified argument value.
         /// </summary>
         public virtual TableGoal<T1, T2, T3> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3] => new TableGoal<T1, T2, T3>(this, arg1, arg2,arg3);
+
+        /// <summary>
+        /// Declare that duplicate rows should be discarded.
+        /// </summary>
+        public TablePredicate<T1, T2, T3> UniqueRows()
+        {
+            this.Table.Unique = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Declare that this predicate should track which of its rules generated each row of its table.
+        /// </summary>
+        public TablePredicate<T1, T2, T3> TrackProvenance()
+        {
+            this.Table.TrackProvenance = true;
+            return this;
+        }
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args) 
@@ -2076,6 +2132,24 @@ namespace TED {
         /// </summary>
         public virtual TableGoal<T1, T2, T3, T4> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4] 
             => new TableGoal<T1, T2, T3, T4>(this, arg1, arg2,arg3, arg4);
+
+        /// <summary>
+        /// Declare that duplicate rows should be discarded.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4> UniqueRows()
+        {
+            this.Table.Unique = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Declare that this predicate should track which of its rules generated each row of its table.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4> TrackProvenance()
+        {
+            this.Table.TrackProvenance = true;
+            return this;
+        }
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args)
@@ -2574,6 +2648,24 @@ namespace TED {
         /// </summary>
         public virtual TableGoal<T1, T2, T3, T4, T5> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5] 
             => new TableGoal<T1, T2, T3, T4, T5>(this, arg1, arg2,arg3, arg4, arg5);
+
+        /// <summary>
+        /// Declare that duplicate rows should be discarded.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5> UniqueRows()
+        {
+            this.Table.Unique = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Declare that this predicate should track which of its rules generated each row of its table.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5> TrackProvenance()
+        {
+            this.Table.TrackProvenance = true;
+            return this;
+        }
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args)
@@ -3102,6 +3194,24 @@ namespace TED {
         /// </summary>
         public virtual TableGoal<T1, T2, T3, T4, T5, T6> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6] 
             => new TableGoal<T1, T2, T3, T4, T5, T6>(this, arg1, arg2,arg3, arg4, arg5, arg6);
+
+        /// <summary>
+        /// Declare that duplicate rows should be discarded.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6> UniqueRows()
+        {
+            this.Table.Unique = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Declare that this predicate should track which of its rules generated each row of its table.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6> TrackProvenance()
+        {
+            this.Table.TrackProvenance = true;
+            return this;
+        }
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args)
@@ -3663,6 +3773,24 @@ namespace TED {
         /// </summary>
         public virtual TableGoal<T1, T2, T3, T4, T5, T6, T7> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7]
             => new TableGoal<T1, T2, T3, T4, T5, T6, T7>(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+
+        /// <summary>
+        /// Declare that duplicate rows should be discarded.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7> UniqueRows()
+        {
+            this.Table.Unique = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Declare that this predicate should track which of its rules generated each row of its table.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7> TrackProvenance()
+        {
+            this.Table.TrackProvenance = true;
+            return this;
+        }
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args)
@@ -4259,6 +4387,24 @@ namespace TED {
         /// </summary>
         public virtual TableGoal<T1, T2, T3, T4, T5, T6, T7, T8> this[Term<T1> arg1, Term<T2> arg2, Term<T3> arg3, Term<T4> arg4, Term<T5> arg5, Term<T6> arg6, Term<T7> arg7, Term<T8> arg8]
             => new TableGoal<T1, T2, T3, T4, T5, T6, T7, T8>(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+
+        /// <summary>
+        /// Declare that duplicate rows should be discarded.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> UniqueRows()
+        {
+            this.Table.Unique = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Declare that this predicate should track which of its rules generated each row of its table.
+        /// </summary>
+        public TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> TrackProvenance()
+        {
+            this.Table.TrackProvenance = true;
+            return this;
+        }
 
         /// <inheritdoc />
         public override TableGoal GetGoal(Term[] args)
