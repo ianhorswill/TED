@@ -105,16 +105,6 @@ namespace TED {
 
         internal abstract void AddInitialData();
 
-        /// <summary>
-        /// Remove all data from the predicate's table
-        /// </summary>
-        public void Clear()
-        {
-            TableUntyped.Clear();
-            foreach (var i in TableUntyped.Indices)
-                i.Clear();
-        }
-
         #region Instance fields and properties
         /// <summary>
         /// The Program or Simulation to which this predicate belongs
@@ -505,6 +495,16 @@ namespace TED {
         public void ForceRecompute() {
             if (IsIntensional) MustRecompute = true;
         }
+        
+        /// <summary>
+        /// Remove all data from the predicate's table
+        /// </summary>
+        public void Clear()
+        {
+            TableUntyped.Clear();
+            foreach (var i in TableUntyped.Indices)
+                i.Clear();
+        }
 
         /// <summary>
         /// Call the specified function on each row of the table, allowing it to overwrite them
@@ -603,6 +603,25 @@ namespace TED {
             for (i = 0u; i < buffer.Length && startRow + i < Length; i++)
                 RowToStrings(startRow + i, buffer[i]);
             return i;
+        }
+
+        /// <summary>
+        /// Get the RowToStrings output for the specified rows in the table starting at startRow and ending
+        /// when the outer array in the buffer is full or when the end of the table is reached. Returns the
+        /// number of rows that were added to the buffer.
+        /// </summary>
+        /// <param name="startRow">Row number within the table to start range from</param>
+        /// <param name="buffer">Buffer in which to write the string forms</param>
+        /// <param name="provenances">Buffer in which to write provenances for the different rows, or null if no provenance is recorded</param>
+        public uint RowRangeToStrings(uint startRow, string[][] buffer, string?[] provenances)
+        {
+            var count = RowRangeToStrings(startRow, buffer);
+            
+            Array.Fill(provenances, null);
+            if (TableUntyped.Provenance != null)
+                Array.Copy(TableUntyped.Provenance, startRow, provenances, 0, count);
+
+            return count;
         }
         #endregion
 
