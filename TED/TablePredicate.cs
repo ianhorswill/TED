@@ -103,6 +103,19 @@ namespace TED {
                 MustRecompute = true;
         }
 
+        internal abstract void AddInitialData();
+
+        /// <summary>
+        /// Remove all data from the predicate's table
+        /// </summary>
+        public void Clear()
+        {
+            TableUntyped.Clear();
+            foreach (var i in TableUntyped.Indices)
+                i.Clear();
+        }
+
+        #region Instance fields and properties
         /// <summary>
         /// The Program or Simulation to which this predicate belongs
         /// </summary>
@@ -149,6 +162,131 @@ namespace TED {
         public int Arity => DefaultVariables.Length;
 
         /// <summary>
+        /// All indices for the table
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public IEnumerable<TableIndex> Indices => TableUntyped.Indices;
+
+        /// <summary>
+        /// How this table should be updated, if at all
+        /// </summary>
+        public UpdateMode UpdateMode { get; private set; }
+
+        /// <summary>
+        /// Rules that can be used to prove goals involving this predicate
+        /// </summary>
+        public List<Rule>? Rules;
+
+        /// <summary>
+        /// Updater procedure for results of table operators
+        /// </summary>
+        private readonly Action<Table>? operatorUpdateProc;
+
+        /// <summary>
+        /// Compiled version of rules, if any
+        /// </summary>
+        public Action? CompiledRules;
+
+        /// <summary>
+        /// For tables that are the results of operators.  The tables the operator takes as inputs.
+        /// </summary>
+        public IEnumerable<TablePredicate> OperatorDependencies = Array.Empty<TablePredicate>();
+
+        private List<TablePredicate>? updatePrerequisites;
+        /// <summary>
+        /// Set of tables that need to already be updated before this can be updated.
+        /// </summary>
+        public List<TablePredicate> UpdatePrerequisites
+        {
+            get
+            {
+                if (updatePrerequisites == null)
+                {
+                    var dependencies = UpdateMode switch
+                    {
+                        UpdateMode.Operator => OperatorDependencies,
+                        UpdateMode.Rules => RuleDependencies,
+                        UpdateMode.BaseTable => ColumnUpdateTables.Concat(Inputs),
+                        _ => throw new NotImplementedException("Unknown update mode")
+                    };
+                    updatePrerequisites = new List<TablePredicate>(dependencies.Where(t => t.IsDynamic && t.UpdateMode != UpdateMode.BaseTable));
+                }
+                return updatePrerequisites;
+            }
+        }
+
+        /// <summary>
+        /// A TablePredicate is "intensional" if it's defined by rules.  Otherwise it's "extensional"
+        /// </summary>
+        public bool IsIntensional => UpdateMode != UpdateMode.BaseTable;
+
+        /// <summary>
+        /// A predicate is "extensional" if it is defined by directly specifying its extension (the set of it instances/rows)
+        /// using AddRow.  If it's defined by rules, it's "intensional".
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public bool IsExtensional => UpdateMode == UpdateMode.BaseTable;
+
+        /// <inheritdoc />
+        public override bool IsPure => Rules == null || Rules.All(r => r.IsPure);
+
+        /// <summary>
+        /// True if we need to recompute the predicate's table
+        /// </summary>
+        protected internal bool MustRecompute;
+
+        /// <summary>
+        /// Number of tuples (rows) in the predicates extension
+        /// </summary>
+        public abstract uint Length { get; }
+        
+        private bool overwrite;
+
+        /// <summary>
+        /// If adding a row with the same key as an existing row, overwrite the original row rather
+        /// than throwing an exception.
+        /// This requires that there be exactly one key index.
+        /// </summary>
+        public bool Overwrite
+        {
+            get => overwrite;
+            set
+            {
+                overwrite = value;
+                if (value)
+                    foreach (var i in Indices)
+                        if (!i.IsKey)
+                            i.EnableMutation();
+            }
+        }
+
+        /// <summary>
+        /// Table predicates that this table predicate accumulates, if any.
+        /// </summary>
+        public abstract IEnumerable<TablePredicate> Inputs { get; }
+
+        /// <summary>
+        /// Untyped interface to the .Add table.
+        /// </summary>
+        public abstract TablePredicate AddUntyped { get; }
+
+        /// <summary>
+        /// The table that provides initial values to this table, if any.
+        /// This is untyped, so you probably want to be using Initially instead.
+        /// </summary>
+        public abstract TablePredicate? InitialValueTable { get; }
+
+        private Dictionary<(object, IVariable), TablePredicate>? updateTables;
+
+        /// <summary>
+        /// Tables that drive updates of columns of this table
+        /// </summary>
+        public IEnumerable<TablePredicate> ColumnUpdateTables => (updateTables == null) ? Array.Empty<TablePredicate>() : updateTables.Select(p => p.Value);
+
+        #endregion
+
+        #region Goals
+        /// <summary>
         /// Returns a goal of the predicate applied to the specified arguments
         /// </summary>
         /// <param name="args">Arguments to the predicate</param>
@@ -173,7 +311,14 @@ namespace TED {
         /// A call to this predicate using it's "default" arguments
         /// </summary>
         public TableGoal DefaultGoal => GetGoal(DefaultVariables.Cast<Term>().ToArray());
+        
+        /// <summary>
+        /// If you put a predicate in a rule body without arguments, it defaults to the rule's "default" arguments.
+        /// </summary>
+        public static implicit operator Goal(TablePredicate p) => p.DefaultGoal;
+        #endregion
 
+        #region Indexing
         /// <summary>
         /// Add a key index
         /// </summary>
@@ -308,57 +453,9 @@ namespace TED {
         /// <returns>The index or null if there is not index of that type for that column</returns>
         public TableIndex? IndexFor(IVariable column, bool key) 
             => IndexFor(ColumnPositionOfDefaultVariable(column), key);
-
-        /// <summary>
-        /// All indices for the table
-        /// </summary>
-        // ReSharper disable once UnusedMember.Global
-        public IEnumerable<TableIndex> Indices => TableUntyped.Indices;
-
-        /// <summary>
-        /// How this table should be updated, if at all
-        /// </summary>
-        public UpdateMode UpdateMode { get; private set; }
-
-        /// <summary>
-        /// Rules that can be used to prove goals involving this predicate
-        /// </summary>
-        public List<Rule>? Rules;
-
-        /// <summary>
-        /// Updater procedure for results of table operators
-        /// </summary>
-        private readonly Action<Table>? operatorUpdateProc;
-
-        /// <summary>
-        /// Compiled version of rules, if any
-        /// </summary>
-        public Action? CompiledRules;
-
-        /// <summary>
-        /// For tables that are the results of operators.  The tables the operator takes as inputs.
-        /// </summary>
-        public IEnumerable<TablePredicate> OperatorDependencies = Array.Empty<TablePredicate>();
-
-        private List<TablePredicate>? updatePrerequisites;
-        /// <summary>
-        /// Set of tables that need to already be updated before this can be updated.
-        /// </summary>
-        public List<TablePredicate> UpdatePrerequisites {
-            get {
-                if (updatePrerequisites == null) {
-                    var dependencies = UpdateMode switch {
-                        UpdateMode.Operator => OperatorDependencies,
-                        UpdateMode.Rules => RuleDependencies,
-                        UpdateMode.BaseTable => ColumnUpdateTables.Concat(Inputs),
-                        _ => throw new NotImplementedException("Unknown update mode")
-                    };
-                    updatePrerequisites = new List<TablePredicate>(dependencies.Where(t => t.IsDynamic && t.UpdateMode != UpdateMode.BaseTable));
-                }
-                return updatePrerequisites;
-            }
-        }
-
+        #endregion
+        
+        #region Profiling
 #if PROFILER
         /// <summary>
         /// Combined average execution time of all the rules for this predicate.
@@ -368,40 +465,16 @@ namespace TED {
         /// Combined average execution time for each rule (regardless of predicate).
         /// </summary>
         public IEnumerable<(Rule, float)> RuleExecutionTimes => Rules == null? Array.Empty<(Rule, float)>():Rules.Select(r => (r, r.AverageExecutionTime));
-        #endif
 
+        internal readonly Stopwatch UpdateTime = new Stopwatch();
         /// <summary>
-        /// A TablePredicate is "intensional" if it's defined by rules.  Otherwise it's "extensional"
+        /// Total number of milliseconds spent updating this table predicate since the start of the program.
         /// </summary>
-        public bool IsIntensional => UpdateMode != UpdateMode.BaseTable;
-
-        /// <summary>
-        /// A predicate is "extensional" if it is defined by directly specifying its extension (the set of it instances/rows)
-        /// using AddRow.  If it's defined by rules, it's "intensional".
-        /// </summary>
-        // ReSharper disable once UnusedMember.Global
-        public bool IsExtensional => UpdateMode == UpdateMode.BaseTable;
-
-
-        /// <inheritdoc />
-        public override bool IsPure => Rules == null || Rules.All(r => r.IsPure);
-
-        internal abstract void AddInitialData();
-
-        /// <summary>
-        /// Remove all data from the predicate's table
-        /// </summary>
-        public void Clear() {
-            TableUntyped.Clear();
-            foreach (var i in TableUntyped.Indices)
-                i.Clear();
-        }
-
-        /// <summary>
-        /// True if we need to recompute the predicate's table
-        /// </summary>
-        protected internal bool MustRecompute;
-
+        public long TotalExecutionTime => UpdateTime.ElapsedMilliseconds;
+#endif
+        #endregion
+        
+        #region Update
         /// <summary>
         /// Compute the predicate's table if it hasn't already or if it's out of date
         /// </summary>
@@ -434,6 +507,32 @@ namespace TED {
         }
 
         /// <summary>
+        /// Call the specified function on each row of the table, allowing it to overwrite them
+        /// </summary>
+        /// <param name="updateFn"></param>
+        public delegate void Update<T>(ref T updateFn);
+
+        /// <summary>
+        /// Append all the rows of the tables in Inputs to this table
+        /// </summary>
+        internal abstract void AppendInputs();
+        
+        /// <summary>
+        /// List of procedures to call when the table is updated.
+        /// </summary>
+        internal event Action? OnUpdateColumns;
+
+        /// <summary>
+        /// Run any column updates for this table
+        /// </summary>
+        public void UpdateColumns()
+        {
+            OnUpdateColumns?.Invoke();
+        }
+        #endregion
+
+        #region Rules
+        /// <summary>
         /// Add a rule to an intensional predicate
         /// </summary>
         internal void AddRule(Rule r) {
@@ -452,7 +551,9 @@ namespace TED {
         /// Add a rule that concludes the default arguments of this predicate
         /// </summary>
         internal void AddRule(params Goal[] body) => DefaultGoal.If(body);
+        #endregion
 
+        #region Dependencies
         /// <summary>
         /// All TablePredicates that are used in rules for this TablePredicate, if any.
         /// </summary>
@@ -465,17 +566,45 @@ namespace TED {
         /// </summary>
         public IEnumerable<TablePredicate> ImperativeDependencies
             => Inputs.Concat(ColumnUpdateTables);
-
+        
         /// <summary>
         /// Tables that use this table as input
         /// This is computed by Program.FindDependents().
         /// </summary>
         public readonly List<TablePredicate> Dependents = new List<TablePredicate>();
+        #endregion
 
+        #region Stringification
         /// <summary>
         /// Null-tolerant version of ToString.
         /// </summary>
         protected static string Stringify<T>(in T value) => value == null ? "null" : value.ToString();
+
+        /// <inheritdoc />
+        public override string ToString() => Name;
+
+        /// <summary>
+        /// Write the columns of the specified tuple in to the specified array of strings
+        /// </summary>
+        /// <param name="rowNumber">Row number within the table</param>
+        /// <param name="buffer">Buffer in which to write the string forms</param>
+        public abstract void RowToStrings(uint rowNumber, string[] buffer);
+
+        /// <summary>
+        /// Get the RowToStrings output for the specified rows in the table starting at startRow and ending
+        /// when the outer array in the buffer is full or when the end of the table is reached. Returns the
+        /// number of rows that were added to the buffer.
+        /// </summary>
+        /// <param name="startRow">Row number within the table to start range from</param>
+        /// <param name="buffer">Buffer in which to write the string forms</param>
+        public uint RowRangeToStrings(uint startRow, string[][] buffer)
+        {
+            uint i;
+            for (i = 0u; i < buffer.Length && startRow + i < Length; i++)
+                RowToStrings(startRow + i, buffer[i]);
+            return i;
+        }
+        #endregion
 
         /// <summary>
         /// Write the columns of the specified row into the specified array
@@ -511,39 +640,7 @@ namespace TED {
             }
         }
 
-        /// <summary>
-        /// Write the columns of the specified tuple in to the specified array of strings
-        /// </summary>
-        /// <param name="rowNumber">Row number within the table</param>
-        /// <param name="buffer">Buffer in which to write the string forms</param>
-        public abstract void RowToStrings(uint rowNumber, string[] buffer);
-
-        /// <summary>
-        /// Write the columns of the specified tuple in to the specified array of strings
-        /// </summary>
-        /// <param name="rowNumber">Row number within the table</param>
-        /// <param name="buffer">Buffer in which to write the string forms</param>
-        internal abstract void RowToCsv(uint rowNumber, string[] buffer);
-
-        /// <summary>
-        /// Number of tuples (rows) in the predicates extension
-        /// </summary>
-        public abstract uint Length { get; }
-
-        /// <summary>
-        /// Get the RowToStrings output for the specified rows in the table starting at startRow and ending
-        /// when the outer array in the buffer is full or when the end of the table is reached. Returns the
-        /// number of rows that were added to the buffer.
-        /// </summary>
-        /// <param name="startRow">Row number within the table to start range from</param>
-        /// <param name="buffer">Buffer in which to write the string forms</param>
-        public uint RowRangeToStrings(uint startRow, string[][] buffer) {
-            uint i;
-            for (i = 0u; i < buffer.Length && startRow + i < Length; i++) 
-                RowToStrings(startRow + i, buffer[i]);
-            return i;
-        }
-
+        #region CSV support
         /// <summary> Writes the entire table out to the specified path </summary>
         /// <param name="path">Path to where the csv file should be written</param>
         public void ToCsv(string path) => TableToCsv(path, this);
@@ -556,58 +653,6 @@ namespace TED {
         /// <summary>Load CSV contents into the table that calls this load</summary>
         /// <param name="path">Path to the folder where the CSV file containing this tables data is (with trailing slash)</param>
         public void LoadCsv(string path) => LoadCsv(Name, path);
-
-        /// <summary>
-        /// Call the specified function on each row of the table, allowing it to overwrite them
-        /// </summary>
-        /// <param name="updateFn"></param>
-        public delegate void Update<T>(ref T updateFn);
-
-        private bool overwrite;
-
-        /// <summary>
-        /// If adding a row with the same key as an existing row, overwrite the original row rather
-        /// than throwing an exception.
-        /// This requires that there be exactly one key index.
-        /// </summary>
-        public bool Overwrite
-        {
-            get => overwrite;
-            set
-            {
-                overwrite = value;
-                if (value)
-                    foreach (var i in Indices)
-                        if (!i.IsKey)
-                            i.EnableMutation();
-            }
-        }
-        
-        /// <summary>
-        /// Append all the rows of the tables in Inputs to this table
-        /// </summary>
-        internal abstract void AppendInputs();
-
-        /// <summary>
-        /// Table predicates that this table predicate accumulates, if any.
-        /// </summary>
-        public abstract IEnumerable<TablePredicate> Inputs { get; }
-
-        /// <summary>
-        /// Untyped interface to the .Add table.
-        /// </summary>
-        public abstract TablePredicate AddUntyped { get; }
-
-        /// <summary>
-        /// The table that provides initial values to this table, if any.
-        /// This is untyped, so you probably want to be using Initially instead.
-        /// </summary>
-        public abstract TablePredicate? InitialValueTable { get; }
-
-        /// <summary>
-        /// If you put a predicate in a rule body without arguments, it defaults to the rule's "default" arguments.
-        /// </summary>
-        public static implicit operator Goal(TablePredicate p) => p.DefaultGoal;
 
         /// <summary>
         /// Verify that the header row of a CSV file matches the declared variable names
@@ -623,6 +668,14 @@ namespace TED {
         }
 
         /// <summary>
+        /// Write the columns of the specified tuple in to the specified array of strings
+        /// </summary>
+        /// <param name="rowNumber">Row number within the table</param>
+        /// <param name="buffer">Buffer in which to write the string forms</param>
+        internal abstract void RowToCsv(uint rowNumber, string[] buffer);
+        #endregion
+
+        /// <summary>
         /// Attempt to cast an untyped Term to a typed Term.  Throw an exception if it's not of the right type
         /// </summary>
         /// <param name="arg">Argument term</param>
@@ -633,6 +686,7 @@ namespace TED {
         protected Term<T> CastArg<T>(Term arg, int position) => arg as Term<T> ?? throw new ArgumentException(
             $"Argument {position} to {Name} should be of type {typeof(T).Name}");
 
+        #region Accessors and mutators
         /// <summary>
         /// Return a function that returns the value of the specified column given a row.
         /// </summary>
@@ -722,19 +776,7 @@ namespace TED {
         /// of the column given two row numbers.
         /// </summary>
         public abstract Comparison<uint> RowComparison(int columnNumber);
-
-        /// <summary>
-        /// List of procedures to call when the table is updated.
-        /// </summary>
-        internal event Action? OnUpdateColumns;
-
-        private Dictionary<(object, IVariable), TablePredicate>? updateTables;
-
-        /// <summary>
-        /// Tables that drive updates of columns of this table
-        /// </summary>
-        public IEnumerable<TablePredicate> ColumnUpdateTables => (updateTables == null)?Array.Empty<TablePredicate>():updateTables.Select(p => p.Value);
-
+        
         /// <summary>
         /// Return a table predicate to which rules can be added to update the specified column of this table predicate
         /// given a key for the row to update.
@@ -786,16 +828,7 @@ namespace TED {
         /// </summary>
         public TableGoal Set<TKey1, TKey2, TColumn>((Var<TKey1>, Var<TKey2>) keys, Var<TColumn> column, Term<TColumn> value)
             => Set((keys.Item1, keys.Item2), column)[keys.Item1, keys.Item2, value];
-
-        /// <summary>
-        /// Run any column updates for this table
-        /// </summary>
-        public void UpdateColumns() {
-            OnUpdateColumns?.Invoke();
-        }
-
-        /// <inheritdoc />
-        public override string ToString() => Name;
+        #endregion
 
         #region Meta-data
         /// <summary>
@@ -882,13 +915,6 @@ namespace TED {
         }
 
         #endregion
-        #if PROFILER
-        internal readonly Stopwatch UpdateTime = new Stopwatch();
-        /// <summary>
-        /// Total number of milliseconds spent updating this table predicate since the start of the program.
-        /// </summary>
-        public long TotalExecutionTime => UpdateTime.ElapsedMilliseconds;
-        #endif
 
         /// <summary>
         /// Used to add assertions to the Problems table for the current program.
