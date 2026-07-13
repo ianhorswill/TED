@@ -26,7 +26,7 @@ namespace CompilerTests
                 {
 
                     // Write [1]
-                    P.Provenance[P.Length] = "P[1].If()";
+                    P.Provenance![P.Length] = "P[1].If()";
                     P.RebuildRowNonUnique(1);
                     goto rule2;
                 }
@@ -37,7 +37,7 @@ namespace CompilerTests
                 {
 
                     // Write [2]
-                    P.Provenance[P.Length] = "P[2].If()";
+                    P.Provenance![P.Length] = "P[2].If()";
                     P.RebuildRowNonUnique(2);
                     goto end;
                 }

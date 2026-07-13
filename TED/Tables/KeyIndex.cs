@@ -147,12 +147,13 @@ namespace TED.Tables
         }
 
         /// <summary>
-        /// Double the size of the index's hash table and reindex.
-        /// Called after the underlying table has doubled in side.
+        /// Grow the Buckets array if needed and reindex.
+        /// Called after the underlying table is compacted and/or expanded.
         /// </summary>
-        internal override void Expand()
+        internal override void ExpandAndReindex()
         {
-            Buckets = new (TKey key, uint row)[Buckets.Length * 2];
+            var targetLength = table.Data.Length * 2;
+            if (Buckets.Length != targetLength) Buckets = new (TKey key, uint row)[targetLength];
             Array.Fill(Buckets!, (default(TKey), Table.NoRow));
             Mask = (uint)(Buckets.Length - 1);
             Reindex();

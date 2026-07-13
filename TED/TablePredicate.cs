@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -1117,9 +1116,9 @@ namespace TED {
         /// <summary>
         /// Add rows of t to rows of this predicate
         /// </summary>
-        public void Append(TablePredicate<T1> t) {
-            for (var i = 0u; i < t._table.Length; i++)
-                AddRow(t._table.PositionReference(i));
+        public void Append(TablePredicate<T1> t)
+        {
+            _table.Append(t._table, Overwrite);
         }
 
         private List<TablePredicate<T1>>? inputs;
@@ -1416,13 +1415,7 @@ namespace TED {
         /// Add rows of t to rows of this predicate
         /// </summary>
         public void Append(TablePredicate<T1, T2> t) {
-            for (var i = 0u; i < t._table.Length; i++) {
-                var row = t._table.PositionReference(i);
-                if (Overwrite)
-                    Table.AddOrReplace(row);
-                else
-                    Table.Add(row);
-            }
+            _table.Append(t._table, Overwrite);
         }
 
         /// <summary>
@@ -1926,13 +1919,7 @@ namespace TED {
         /// Add rows of t to rows of this predicate
         /// </summary>
         public void Append(TablePredicate<T1, T2, T3> t) {
-            for (var i = 0u; i < t._table.Length; i++) {
-                var row = t._table.PositionReference(i);
-                if (Overwrite)
-                    Table.AddOrReplace(row);
-                else
-                    Table.Add(row);
-            }
+            _table.Append(t._table, Overwrite);
         }
 
         /// <summary>
@@ -2427,13 +2414,7 @@ namespace TED {
         /// Add rows of t to rows of this predicate
         /// </summary>
         public void Append(TablePredicate<T1, T2, T3, T4> t) {
-            for (var i = 0u; i < t._table.Length; i++) {
-                var row = t._table.PositionReference(i);
-                if (Overwrite)
-                    Table.AddOrReplace(row);
-                else
-                    Table.Add(row);
-            }
+            _table.Append(t._table, Overwrite);
         }
 
         /// <summary>
@@ -2959,13 +2940,7 @@ namespace TED {
         /// Add rows of t to rows of this predicate
         /// </summary>
         public void Append(TablePredicate<T1, T2, T3, T4, T5> t) {
-            for (var i = 0u; i < t._table.Length; i++) {
-                var row = t._table.PositionReference(i);
-                if (Overwrite)
-                    Table.AddOrReplace(row);
-                else
-                    Table.Add(row);
-            }
+            _table.Append(t._table, Overwrite);
         }
 
         /// <summary>
@@ -3526,13 +3501,7 @@ namespace TED {
         /// Add rows of t to rows of this predicate
         /// </summary>
         public void Append(TablePredicate<T1, T2, T3, T4, T5, T6> t) {
-            for (var i = 0u; i < t._table.Length; i++) {
-                var row = t._table.PositionReference(i);
-                if (Overwrite)
-                    Table.AddOrReplace(row);
-                else
-                    Table.Add(row);
-            }
+            _table.Append(t._table, Overwrite);
         }
 
         /// <summary>
@@ -4125,13 +4094,7 @@ namespace TED {
         /// Add rows of t to rows of this predicate
         /// </summary>
         public void Append(TablePredicate<T1, T2, T3, T4, T5, T6, T7> t) {
-            for (var i = 0u; i < t._table.Length; i++) {
-                var row = t._table.PositionReference(i);
-                if (Overwrite)
-                    Table.AddOrReplace(row);
-                else
-                    Table.Add(row);
-            }
+            _table.Append(t._table, Overwrite);
         }
 
         /// <summary>
@@ -4765,13 +4728,7 @@ namespace TED {
         /// Add rows of t to rows of this predicate
         /// </summary>
         public void Append(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> t) {
-            for (var i = 0u; i < t._table.Length; i++) {
-                var row = t._table.PositionReference(i);
-                if (Overwrite)
-                    Table.AddOrReplace(row);
-                else
-                    Table.Add(row);
-            }
+            _table.Append(t._table, Overwrite);
         }
 
         /// <summary>

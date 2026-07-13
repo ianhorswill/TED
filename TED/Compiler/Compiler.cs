@@ -213,6 +213,9 @@ namespace TED.Compiler
             var predicate = rule.Predicate;
             var ruleNumber = predicate.Rules!.IndexOf(rule)+1;
             currentRule = rule;
+
+            if (predicate.Overwrite)
+                throw new Exception($"Overwrite mode is intended for base tables, but is used in inferred table {predicate.Name}");
             
             Indented($"// {rule}");
 
@@ -233,7 +236,7 @@ namespace TED.Compiler
                 var argsToStore = GenerateWriteMode(rule.Head.Arguments);
                 var predicateName = rule.Predicate.Name;
                 if (rule.Predicate.TableUntyped.Provenance != null)
-                    Indented($"{predicateName}.Provenance[{predicateName}.Length] = \"{rule}\";");
+                    Indented($"{predicateName}.Provenance![{predicateName}.Length] = \"{rule}\";");
                 Indented($"{predicateName}.{predicate.TableUntyped.AddMethodForCompiledCode}({argsToStore});");
 
                 Indented(fail.Invoke + ";");

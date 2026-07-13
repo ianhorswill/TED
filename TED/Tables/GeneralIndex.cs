@@ -399,11 +399,12 @@ namespace TED.Tables
         /// Called after the original Table is doubled in size.
         /// Double the size of this table, and reindex it.
         /// </summary>
-        internal override void Expand()
+        internal override void ExpandAndReindex()
         {
-            if (!enumeratedTypeColumn)
+            var targetLength = table.Data.Length * 2;
+            if (!enumeratedTypeColumn && Buckets.Length != targetLength)
             {
-                Buckets = new (TColumn columnValue, uint firstRow, int count)[Buckets.Length * 2];
+                Buckets = new (TColumn columnValue, uint firstRow, int count)[targetLength];
                 Mask = (uint)(Buckets.Length - 1);
             }
             Array.Fill(Buckets!, (default(TColumn), Table.NoRow,0));

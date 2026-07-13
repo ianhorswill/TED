@@ -335,42 +335,62 @@ namespace TED.Tables
         /// If not, find more space
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void EnsureSpace()
+        public void EnsureSpace(uint extraSpace = 1)
         {
-            if (Length == Data.Length) FindSpace();
+            var requiredSize = Length + extraSpace;
+            if (requiredSize >= Data.Length)
+            {
+                // Insufficient space
+                FindSpace(extraSpace);
+            }
         }
 
         /// <summary>
         /// Find more space, either by reclaiming rows or by growing the underlying array.
         /// </summary>
-        private void FindSpace()
+        private void FindSpace(uint extraSpace)
         {
-            // Length must be a power of 2
-            Debug.Assert((Data.Length & (Data.Length-1)) == 0);
 
             if (ReclaimRowTest == null)
             {
+                var requiredSize = Length + extraSpace;
                 // Easy case: copy everything over as a block
-                ExpandDataArrays();
+                ExpandDataArrays(RoundUpPowerOf2(requiredSize));
             }
             else 
                 // Hard case: copy only the unreclaimed rows
-                ReclaimRows();
+                ReclaimRows(extraSpace);
 
-            rowSet?.Expand();
-            foreach (var i in Indices) i.Expand();
+            rowSet?.ExpandAndRehash();
+            foreach (var i in Indices) i.ExpandAndReindex();
         }
 
-        private void ExpandDataArrays()
+        /// <summary>
+        /// Round number up to the nearest power of 2
+        /// </summary>
+        uint RoundUpPowerOf2(uint n)
         {
-            Expand(ref Data);
+            n |= n >> 1;
+            n |= n >> 2;
+            n |= n >> 4;
+            n |= n >> 8;
+            n |= n >> 16;
+            return n + 1;
+        }
+
+        /// IMPORTANT!
+        /// If you add more parallel arrays besides Data and Provenance, you must add code here and in ReclaimRows to
+        /// expand them when needed.
+        private void ExpandDataArrays(uint newSize)
+        {
+            Expand(ref Data, newSize);
             if (Provenance != null)
-                Expand(ref Provenance);
+                Expand(ref Provenance, newSize);
         }
 
-        private void Expand<TElement>(ref TElement[] array)
+        private void Expand<TElement>(ref TElement[] array, uint newSize)
         {
-            var newArray = new TElement[array.Length * 2];
+            var newArray = new TElement[newSize];
             Array.Copy(array, newArray, array.Length);
             array = newArray;
         }
@@ -379,22 +399,25 @@ namespace TED.Tables
         /// Attempt to reclaim space by deleting rows that satisfy the ReclaimRowTest predicate.
         /// If this fails to free up enough space, expand the underlying array but copy only the unreclaimed rows.
         /// </summary>
-        private void ReclaimRows()
+        private void ReclaimRows(uint extraSpace)
         {
             var liveRows = MakeCompactionMap();
             var loadFactor = ((float)liveRows)/Data.Length;
             T[] dataDestination;
             string?[]? provenanceDestination = null;
-            if (loadFactor < PostCompactionTargetLoad)
+            if (loadFactor < PostCompactionTargetLoad && (Data.Length-liveRows) > extraSpace)
             {
+                // Compaction was sufficient; don't grow the array, just copy the live rows to the front of the existing array
                 dataDestination = Data;
                 provenanceDestination = Provenance;
             }
             else
             {
-                dataDestination = new T[Data.Length * 2];
+                // Compaction was insufficient; grow the array and copy the live rows to the new array
+                var newSize = RoundUpPowerOf2(liveRows + extraSpace);
+                dataDestination = new T[newSize];
                 if (Provenance != null)
-                    provenanceDestination = new string?[Data.Length * 2];
+                    provenanceDestination = new string?[newSize];
             }
             CopyUsingCompactionMap(dataDestination, provenanceDestination);
         }
@@ -402,21 +425,21 @@ namespace TED.Tables
         /// <summary>
         /// Scratch buffer for compaction.  Holds runs of live rows, as pairs of (start index, length).
         /// </summary>
-        private List<(int start, int length)>? compactionMap;
+        private List<(uint start, uint length)>? compactionMap;
 
         /// <summary>
         /// Update the compactionMap.
         /// </summary>
         /// <returns>Number of live rows</returns>
-        private int MakeCompactionMap()
+        private uint MakeCompactionMap()
         {
             if (compactionMap == null)
-                compactionMap = new List<(int start, int length)>();
+                compactionMap = new List<(uint start, uint length)>();
             else
                 compactionMap.Clear();
 
-            var length = 0;
-            var blockStart = 0;
+            var length = 0u;
+            var blockStart = 0u;
             while (blockStart < Length)
             {
                 // Find the start of the next block of preserved rows
@@ -447,7 +470,7 @@ namespace TED.Tables
         /// </summary>
         private void CopyUsingCompactionMap(T[] array, string?[]? provenanceArray)
         {
-            var dest = 0;
+            var dest = 0u;
             foreach (var block in compactionMap!)
             {
                 Array.Copy(Data, block.start, array, dest, block.length);
@@ -457,7 +480,7 @@ namespace TED.Tables
             }
 
             Data = array;
-            Length = (uint)dest;
+            Length = dest;
         }
 
         /// <summary>
@@ -504,20 +527,25 @@ namespace TED.Tables
         /// Add a row
         /// </summary>
         /// <param name="item">The row to add</param>
-        public void Add(in T item)
+        /// <returns>The index of the added row, or NoRow if the row was not because Unique = true and the row is already in the table</returns>
+        public uint Add(in T item)
         {
             EnsureSpace();
+            var row = Length;
             // Write the data into the next free slot
-            Data[Length] = item;
+            Data[row] = item;
             // That same row might already be in the table
             // So check if it's already there.  If so, don't both incrementing Length.
             // Otherwise, add it to the rowSet and increment length.
-            if (rowSet == null || rowSet.MaybeAddRow(Length))
+            if (rowSet == null || rowSet.MaybeAddRow(row))
             {
                 foreach (var i in Indices)
-                    i.Add(Length);
+                    i.Add(row);
                 Length++;
+                return row;
             }
+
+            return NoRow;
         }
 
         /// <summary>
@@ -555,6 +583,48 @@ namespace TED.Tables
                 ReplaceRow(row, rowData);
 
             return row;
+        }
+
+        /// <summary>
+        /// Append all data in extra to the end of this table
+        /// Update indices, etc. accordingly.
+        /// </summary>
+        internal void Append(Table<T> extra, bool overwrite)
+        {
+            var copyProvenance = Provenance != null && extra.Provenance != null;
+
+            if (overwrite)
+            {
+                // Row by row copy using AddOrReplace
+                for (uint i = 0; i < extra.Length; i++)
+                {
+                    var row = AddOrReplace(extra.Data[i]);
+                    if (copyProvenance)
+                        Provenance![row] = extra.Provenance![i];
+                }
+            }
+            else if (rowSet != null)
+            {
+                // Need to enforce uniqueness, so copy row by row using Add (which enforces uniqueness)
+                for (uint i = 0; i < extra.Length; i++)
+                {
+                    var row = Add(extra.Data[i]);
+                    if (copyProvenance && row != NoRow)
+                        Provenance![row] = extra.Provenance![i];
+                }
+            }
+            else
+            {
+                // Fast path: bulk copy, followed by indexing
+                EnsureSpace(extra.Length);
+                Array.Copy(extra.Data, 0, Data, Length, extra.Length);
+                if (Provenance != null && extra.Provenance != null)
+                    Array.Copy(extra.Provenance, 0, Provenance, Length, extra.Length);
+                for (uint i = 0; i < extra.Length; i++)
+                    foreach (var index in Indices)
+                        index.Add(Length + i);
+                Length += extra.Length;
+            }
         }
         #endregion
 
@@ -617,26 +687,15 @@ namespace TED.Tables
                 return true;
             }
 
-            public void Expand()
+            internal void ExpandAndRehash()
             {
-                var newBuckets = new uint[buckets.Length * 2];
-                var newMask = (uint)(newBuckets.Length - 1);
-                Array.Fill(newBuckets, Empty);
-                for (var b = 0u; b < buckets.Length; b++)
-                {
-                    var row = buckets[b];
-                    if (row != Empty)
-                    {
-                        uint nb;
-                        // Find a free bucket
-                        for (nb = HashInternal(table.Data[row], newMask); newBuckets[nb] != Empty; nb = nb + 1 & newMask)
-                        { }  // Do nothing
-                        newBuckets[nb] = row;
-                    }
-                }
-
-                buckets = newBuckets;
-                mask = newMask;
+                var targetLength = table.Data.Length * 2;
+                if (buckets.Length != targetLength)
+                    buckets = new uint[targetLength];
+                mask = (uint)(buckets.Length - 1);
+                Array.Fill(buckets, Empty);
+                for (uint i = 0; i < table.Length; i++)
+                    MaybeAddRow(i);
             }
 
             public void Clear()

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using TED;
+#pragma warning disable CS0672 // Member overrides obsolete member
 
 namespace TablePredicateViewer
 {
@@ -31,7 +32,9 @@ namespace TablePredicateViewer
 
         protected override void OnClosing(CancelEventArgs e)
         {
+#pragma warning disable WFDEV004
             base.OnClosing(e);
+#pragma warning restore WFDEV004
             isClosing = true;
         }
 

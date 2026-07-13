@@ -28,6 +28,75 @@ namespace Tests
         }
 
         [TestMethod]
+        public void AddLots()
+        {
+            var counter = 0;
+            var NextCounter = Function("NextCounter", () => counter++);
+
+            var n = (Var<int>)"n";
+
+            var s = new Simulation(nameof(AddLots));
+            s.BeginPredicates();
+            var Static = Predicate("Static", n);
+            for (var i = 0; i < 100; i++)
+            {    
+                Static[i].Fact();
+            }
+            var BaseTable = Predicate("BaseTable", n);
+            BaseTable.Add[n].If(Static[n]);
+            s.EndPredicates();
+
+            s.Update();
+            s.Update();
+
+            var expected = Enumerable.Range(0, 100).Concat(Enumerable.Range(0, 100)).ToArray();
+            var actual = BaseTable.ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void AddUnique()
+        {
+            var counter = 0;
+            var NextCounter = Function("NextCounter", () => counter++ % 3);
+
+            var n = (Var<int>)"n";
+
+            var s = new Simulation(nameof(AddUnique));
+            s.BeginPredicates();
+            var BaseTable = Predicate("BaseTable", n).UniqueRows();
+            BaseTable.Add[n].If(n == NextCounter);
+            s.EndPredicates();
+
+            for (var i = 0; i < 10; i++) s.Update();
+            var collection = BaseTable.ToArray();
+            CollectionAssert.AreEqual(new[] { 0, 1, 2 }, collection);
+        }
+
+        [TestMethod]
+        public void AddOverwrite()
+        {
+            var smallCounter = 0;
+            var SmallCounter = Function("SmallCounter", () => smallCounter++ % 3);
+            var bigCounter = 0;
+            var BigCounter = Function("BigCounter", () => bigCounter++);
+
+            var n = (Var<int>)"n";
+            var m = (Var<int>)"m";
+
+            var s = new Simulation(nameof(AddUnique));
+            s.BeginPredicates();
+            var BaseTable = Predicate("BaseTable", n.Key, m);
+            BaseTable.Overwrite = true;
+            BaseTable.Add.If(n == SmallCounter, m == BigCounter);
+            s.EndPredicates();
+
+            for (var i = 0; i < 10; i++) s.Update();
+            var collection = BaseTable.ToArray();
+            CollectionAssert.AreEqual(new[] { (0,9), (1,7), (2,8) }, collection);
+        }
+
+        [TestMethod]
         public void InitializationOnly()
         {
             var s = new Simulation(nameof(InitializationOnly));

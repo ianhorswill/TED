@@ -62,7 +62,7 @@ namespace TED.Tables
         /// <summary>
         /// Double the size of the table.
         /// </summary>
-        internal abstract void Expand();
+        internal abstract void ExpandAndReindex();
 
         /// <summary>
         /// Remove all data from the index
