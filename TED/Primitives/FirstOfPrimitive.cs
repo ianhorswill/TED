@@ -7,19 +7,20 @@ using TED.Preprocessing;
 namespace TED.Primitives
 {
     /// <summary>
-    /// Succeeds with the first goal of the 
+    /// Succeeds with the first goal of the arguments that succeeds.  If none succeed, fails.
+    /// So it's like Or, but only generates one solution; it can't backtrack to find more solutions.
     /// </summary>
     public sealed class FirstOfPrimitive : Predicate
     {
         /// <summary>
-        /// The And primitive itself
+        /// The FirstOf primitive itself
         /// </summary>
         public static readonly FirstOfPrimitive Singleton = new FirstOfPrimitive();
         private FirstOfPrimitive() : base("FirstOf")
         { }
 
         /// <summary>
-        /// True when all the subgoals are true
+        /// Succeeds with the first goal of the arguments that succeeds.  If none succeed, fails.
         /// </summary>
         public Interpreter.Goal this[params Interpreter.Goal[] subgoals]
         {
