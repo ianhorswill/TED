@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // s[in x].If(And[TED.Interpreter.Goal[]])
+                try
                 {
                     int x;
 
@@ -47,6 +48,7 @@ namespace CompilerTests
                     s.RebuildRowNonUnique(x);
                     goto restart__0_1;
                 }
+                catch (Exception _ruleException) { s.ThrowDeferred(_ruleException); }
 
                 end:;
             }
@@ -61,6 +63,7 @@ namespace CompilerTests
             try
             {
                 // w[in x].If(Or[TED.Interpreter.Goal[]])
+                try
                 {
                     int x;
 
@@ -103,6 +106,7 @@ namespace CompilerTests
                     w.RebuildRowNonUnique(x);
                     goto restartDispatch__0;
                 }
+                catch (Exception _ruleException) { w.ThrowDeferred(_ruleException); }
 
                 end:;
             }

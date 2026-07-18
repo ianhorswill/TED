@@ -151,7 +151,10 @@ namespace TED
                 if (p.IsIntensional)
                     p.MustRecompute = true;
             foreach (var p in Tables)
+            {
                 p.EnsureUpToDate();
+                p.TableUntyped.ThrowPendingDeferredExceptions();
+            }
         }
 
         /// <summary>

@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // Q[in n].If(n == TED.Primitives.AggregateFunctionCall`1[System.Int32])
+                try
                 {
                     int n;
                     int m;
@@ -49,6 +50,7 @@ namespace CompilerTests
                     Q.RebuildRowNonUnique(n);
                     goto end;
                 }
+                catch (Exception _ruleException) { Q.ThrowDeferred(_ruleException); }
 
                 end:;
             }

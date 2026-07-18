@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // Q[in i].If(P[out i,out j], i == j+1)
+                try
                 {
                     int i;
                     int j;
@@ -42,6 +43,7 @@ namespace CompilerTests
                     Q.RebuildRowNonUnique(i);
                     goto restart__0;
                 }
+                catch (Exception _ruleException) { Q.ThrowDeferred(_ruleException); }
 
                 end:;
             }

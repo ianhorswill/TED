@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // M[in name,in floatAge].If(Maximal[in name,in floatAge,And[TED.Interpreter.Goal[]]])
+                try
                 {
                     string name;
                     int age;
@@ -62,6 +63,7 @@ namespace CompilerTests
                     M.RebuildRowNonUnique((name,floatAge));
                     goto end;
                 }
+                catch (Exception _ruleException) { M.ThrowDeferred(_ruleException); }
 
                 end:;
             }

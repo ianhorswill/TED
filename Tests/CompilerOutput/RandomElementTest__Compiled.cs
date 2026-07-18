@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // P[in n].If(RandomElement[out n])
+                try
                 {
                     int n;
 
@@ -35,6 +36,7 @@ namespace CompilerTests
                     P.RebuildRowNonUnique(n);
                     goto end;
                 }
+                catch (Exception _ruleException) { P.ThrowDeferred(_ruleException); }
 
                 end:;
             }

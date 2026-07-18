@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using TED;
 using TED.Compiler;
@@ -450,14 +451,14 @@ namespace Tests
             new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
             Compiler.Link(program);
             var counters = new int[5];
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 P.ForceRecompute();
                 counters[P.ToArray()[0]]++;
             }
             // Every element of counter should be around 20.
             foreach (var counter in counters)
-                Assert.IsTrue(counter is > 10 and < 40);
+                Assert.IsTrue(counter is > 100 and < 400);
         }
 
         [TestMethod]
@@ -563,6 +564,23 @@ namespace Tests
             Q.ForceRecompute();
             var compiled = Q.ToArray();
             CollectionAssert.AreEqual(interpreted, compiled);
+        }
+
+        [TestMethod]
+        public void ThrowException()
+        {
+            var i = (Var<int>)"i";
+            var j = (Var<int>)"j";
+            var k = (Var<int>)"k";
+            var program = new Simulation(ThisMethodName());
+            program.BeginPredicates();
+            var P = Predicate("P", i, j).If(i ==0, j == 0, ForceException["An error occurred"]);
+            program.EndPredicates();
+            Assert.Throws<Exception>(() => program.Update());
+            new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
+            Compiler.Link(program);
+            P.ForceRecompute();
+            Assert.Throws<Exception>(program.Update);
         }
 
         #region Utilities

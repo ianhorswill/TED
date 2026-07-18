@@ -218,7 +218,7 @@ namespace TED.Compiler
                 throw new Exception($"Overwrite mode is intended for base tables, but is used in inferred table {predicate.Name}");
             
             Indented($"// {rule}");
-
+            Indented("try");
             CurlyBraceBlock(() =>
             {
                 // Declare locals
@@ -241,6 +241,7 @@ namespace TED.Compiler
 
                 Indented(fail.Invoke + ";");
             });
+            Indented($"catch (Exception _ruleException) {{ {rule.Predicate.Name}.ThrowDeferred(_ruleException); }}");
             Output.WriteLine();
         }
         #endregion

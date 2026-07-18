@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // Test[in n].If(In[out n,System.Int32[]])
+                try
                 {
                     int n;
 
@@ -36,6 +37,7 @@ namespace CompilerTests
                     Test.RebuildRowNonUnique(n);
                     goto in_restart___0;
                 }
+                catch (Exception _ruleException) { Test.ThrowDeferred(_ruleException); }
 
                 end:;
             }

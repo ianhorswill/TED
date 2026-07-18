@@ -931,6 +931,7 @@ namespace TED {
             #if PROFILER
             UpdateTime.Stop();
             #endif
+            TableUntyped.ThrowPendingDeferredExceptions();
         }
 
         #endregion

@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // P[1].If()
+                try
                 {
 
                     // Write [1]
@@ -30,10 +31,12 @@ namespace CompilerTests
                     P.RebuildRowNonUnique(1);
                     goto rule2;
                 }
+                catch (Exception _ruleException) { P.ThrowDeferred(_ruleException); }
 
                 rule2:;
 
                 // P[2].If()
+                try
                 {
 
                     // Write [2]
@@ -41,6 +44,7 @@ namespace CompilerTests
                     P.RebuildRowNonUnique(2);
                     goto end;
                 }
+                catch (Exception _ruleException) { P.ThrowDeferred(_ruleException); }
 
                 end:;
             }

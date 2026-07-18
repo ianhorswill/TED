@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // R[in a].If(P[out a], Not[Q[in a]])
+                try
                 {
                     int a;
 
@@ -46,6 +47,7 @@ namespace CompilerTests
                     R.RebuildRowNonUnique(a);
                     goto restart__0;
                 }
+                catch (Exception _ruleException) { R.ThrowDeferred(_ruleException); }
 
                 end:;
             }

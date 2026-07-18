@@ -13,8 +13,8 @@ using TED.Tables;
 namespace CompilerTests
 
 {
-    [CompiledHelpersFor("PickRandomlyTest")]
-    public class PickRandomlyTest__Compiled : TED.Compiler.CompiledTEDProgram
+    [CompiledHelpersFor("ThrowException")]
+    public class ThrowException__Compiled : TED.Compiler.CompiledTEDProgram
     {
 
         public static void P__CompiledUpdate()
@@ -22,16 +22,23 @@ namespace CompilerTests
             P.BeginRebuild();
             try
             {
-                // P[in n].If(PickRandomly[out n])
+                // P[in i,in j].If(i == 0, j == 0, ForceException[An error occurred])
                 try
                 {
-                    int n;
+                    int i;
+                    int j;
 
-                    // PickRandomly[out n]
-                    n = PickRandomlyArray__0[_Rng0.Next()%5];
+                    // i == 0
+                    i = 0;
 
-                    // Write [in n]
-                    P.RebuildRowNonUnique(n);
+                    // j == 0
+                    j = 0;
+
+                    // ForceException[An error occurred]
+                    if (!TED.Language.ForceExceptionImplementation("An error occurred")) goto end;
+
+                    // Write [in i,in j]
+                    P.RebuildRowNonUnique((i,j));
                     goto end;
                 }
                 catch (Exception _ruleException) { P.ThrowDeferred(_ruleException); }
@@ -47,14 +54,10 @@ namespace CompilerTests
         public override void Link(TED.Program program)
         {
             program["P"].CompiledRules = (Action)P__CompiledUpdate;
-            P = (Table<int>)program["P"].TableUntyped;
-            _Rng0 = MakeRng();
-            PickRandomlyArray__0 = new int[] {0, 1, 2, 3, 4, };
+            P = (Table<ValueTuple<int,int>>)program["P"].TableUntyped;
         }
 
-        public static Table<int> P;
-        public static Random _Rng0;
-        public static int[] PickRandomlyArray__0;
+        public static Table<ValueTuple<int,int>> P;
     }
 
 }

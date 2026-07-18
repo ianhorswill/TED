@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // Test[0].If(In[0,System.Int32[]])
+                try
                 {
 
                     // In[0,System.Int32[]]
@@ -32,10 +33,12 @@ namespace CompilerTests
                     Test.RebuildRowNonUnique(0);
                     goto rule2;
                 }
+                catch (Exception _ruleException) { Test.ThrowDeferred(_ruleException); }
 
                 rule2:;
 
                 // Test[1].If(In[4,System.Int32[]])
+                try
                 {
 
                     // In[4,System.Int32[]]
@@ -45,6 +48,7 @@ namespace CompilerTests
                     Test.RebuildRowNonUnique(1);
                     goto end;
                 }
+                catch (Exception _ruleException) { Test.ThrowDeferred(_ruleException); }
 
                 end:;
             }

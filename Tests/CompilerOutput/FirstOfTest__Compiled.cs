@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // Q[in b].If(P[out a], FirstOf[TED.Interpreter.Goal[]])
+                try
                 {
                     int a;
                     string b;
@@ -55,6 +56,7 @@ namespace CompilerTests
                     Q.RebuildRowNonUnique(b);
                     goto restart__0;
                 }
+                catch (Exception _ruleException) { Q.ThrowDeferred(_ruleException); }
 
                 end:;
             }

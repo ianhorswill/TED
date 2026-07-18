@@ -93,6 +93,17 @@ namespace TED
             })[arg];
 
         /// <summary>
+        /// Throws an exception with the specified message.
+        /// </summary>
+        public static readonly PrimitiveTest<string> ForceException =
+            new PrimitiveTest<string>(nameof(ForceException), ForceExceptionImplementation, false);
+
+        /// <summary>
+        /// Internal implementation of the ForceException TED primitive.  Do not call this directly.
+        /// </summary>
+        public static bool ForceExceptionImplementation(string message) => throw new Exception(message);
+
+        /// <summary>
         /// Matches output against a random row of the table.
         /// </summary>
         public static Goal RandomElement<T>(TablePredicate<T> predicate, Term<T> output) =>

@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // Mapped[in relationship].If(Relation[Sara,Rachel,out relationship])
+                try
                 {
                     string relationship;
 
@@ -43,6 +44,7 @@ namespace CompilerTests
                     Mapped.RebuildRowNonUnique(relationship);
                     goto end;
                 }
+                catch (Exception _ruleException) { Mapped.ThrowDeferred(_ruleException); }
 
                 end:;
             }

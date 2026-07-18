@@ -92,6 +92,27 @@ namespace TED.Tables
             get => Provenance != null;
             set => throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Exceptions generated during table update but not thrown directly
+        /// Compiled code and driver methods for updating base tables write here rather than directly throwing the exception
+        /// </summary>
+        public readonly List<Exception> DeferredExceptions = new();
+
+        internal void ThrowPendingDeferredExceptions()
+        {
+            if (DeferredExceptions.Count > 0)
+            {
+                var exceptions = DeferredExceptions.ToArray();
+                DeferredExceptions.Clear();
+                throw exceptions.Length > 1 ? new AggregateException(exceptions) : exceptions[0];
+            }
+        }
+
+        internal void ThrowDeferred(Exception e)
+        {
+            DeferredExceptions.Add(e);
+        }
         #endregion
 
         #region Column projection and mutation

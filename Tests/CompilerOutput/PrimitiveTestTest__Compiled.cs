@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // Q[in a].If(P[out a], Odd[in a])
+                try
                 {
                     int a;
 
@@ -40,6 +41,7 @@ namespace CompilerTests
                     Q.RebuildRowNonUnique(a);
                     goto restart__0;
                 }
+                catch (Exception _ruleException) { Q.ThrowDeferred(_ruleException); }
 
                 end:;
             }

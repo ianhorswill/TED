@@ -23,6 +23,7 @@ namespace CompilerTests
             try
             {
                 // Mapped[in d,in n].If(Day[out d], NextDay[in d,out n])
+                try
                 {
                     string d;
                     string n;
@@ -50,6 +51,7 @@ namespace CompilerTests
                     Mapped.RebuildRowNonUnique((d,n));
                     goto restart__0;
                 }
+                catch (Exception _ruleException) { Mapped.ThrowDeferred(_ruleException); }
 
                 end:;
             }
