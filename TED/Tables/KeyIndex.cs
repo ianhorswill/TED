@@ -136,7 +136,7 @@ namespace TED.Tables
 #endif
                 if (Comparer.Equals(key, Buckets[b].key))
                     // It's already there
-                    throw new DuplicateKeyException(Predicate, key!);
+                    table.ThrowDeferred(new DuplicateKeyException(Predicate, key!));
             }
 
             // It's not there, but b is a free bucket, so store it there

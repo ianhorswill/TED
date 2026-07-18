@@ -949,6 +949,11 @@ namespace TED {
             return Program.Problems[this, message, CaptureDebugStatePrimitive.DebugState];
         }
 
+        /// <summary>
+        /// Throw an unthrown deferred exceptions for this TablePredicate.
+        /// </summary>
+        public void ThrowPendingDeferredExceptions() => TableUntyped.ThrowPendingDeferredExceptions();
+
         internal abstract Call MakeIndexCall<TKey>(TableIndex index, IPattern pattern, ValueCell<TKey> cell);
         internal abstract Call MakeIndexCall<TKey1, TKey2>(TableIndex index, IPattern pattern, ValueCell<TKey1> cell1, ValueCell<TKey2> cell2);
 

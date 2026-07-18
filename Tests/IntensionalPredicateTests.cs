@@ -181,7 +181,8 @@ namespace Tests
                 person, other, relationship);
             Relation.IndexBy(person, other);
             Relation.IndexBy(other);
-            Assert.Throws<DuplicateKeyException>(() => Relation.IndexByKey(person, other));
+            Relation.IndexByKey(person, other);
+            Assert.Throws<DuplicateKeyException>(Relation.ThrowPendingDeferredExceptions);
             //var Mapped = Predicate("Mapped", relationship).If(Relation["Sara", "Rachel", relationship]);
             //var rule = Mapped.Rules![0];
             //Assert.IsInstanceOfType(rule.Body[0], typeof(TableCallWithDoubleKey<string, string, string, string, string>));
