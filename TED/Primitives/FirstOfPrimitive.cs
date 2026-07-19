@@ -10,7 +10,7 @@ namespace TED.Primitives
     /// Succeeds with the first goal of the arguments that succeeds.  If none succeed, fails.
     /// So it's like Or, but only generates one solution; it can't backtrack to find more solutions.
     /// </summary>
-    public sealed class FirstOfPrimitive : Predicate
+    public sealed class FirstOfPrimitive : Predicate, IVariadicConnective
     {
         /// <summary>
         /// The FirstOf primitive itself

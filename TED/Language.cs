@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using TED.Interpreter;
 using TED.Primitives;
 using TED.Tables;
@@ -14,6 +15,45 @@ namespace TED
     /// </summary>
     public static class Language
     {
+        #region Syntax extensions
+        /// <summary>
+        /// Returns the first solution to the argument goals, or if they fail, to a subsequent .Or() expression.
+        /// Does not backtrack, so you only get one solution.
+        /// </summary>
+        public static ChoiceExpression Choose(params Goal[] firstBranch) => new ChoiceExpression(FirstOf, firstBranch);
+        /// <summary>
+        /// Returns the first solution to the argument goals, or if they fail, to a subsequent .Or() expression.
+        /// Allows backtracking, so you can generate multiple solutions.
+        /// </summary>
+        public static ChoiceExpression Either(params Goal[] firstBranch) => new ChoiceExpression(Or, firstBranch);
+
+        /// <summary>
+        /// Represents the syntax of a Choose().Or() ... expression.  Gets converted to a Goal on demand.
+        /// </summary>
+        public class ChoiceExpression
+        {
+            public readonly IVariadicConnective Operator;
+            public readonly List<Goal[]> Branches = new();
+
+            public ChoiceExpression(IVariadicConnective op, Goal[] firstBranch)
+            {
+                Operator = op;
+                Branches.Add(firstBranch);
+            }
+
+            public static implicit operator Goal(ChoiceExpression c)
+            {
+                return c.Operator[c.Branches.Select(branch => And[branch]).ToArray()];
+            }
+
+            public ChoiceExpression Or(params Goal[] nextBranch)
+            {
+                Branches.Add(nextBranch);
+                return this;
+            }
+        }
+        #endregion
+
         #region Primitives
         /// <summary>
         /// True if argument is true, but blocks backtracking.

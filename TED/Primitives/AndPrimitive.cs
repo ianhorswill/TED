@@ -10,7 +10,7 @@ namespace TED.Primitives
     /// Implements conjunctions as a primitive predicate.  That is, And[g1, g2, ...] is true when all the gi are true.
     /// Procedurally, this means find solutions to g1, then g2, etc., backtracking in the normal manner.
     /// </summary>
-    public sealed class AndPrimitive : Predicate
+    public sealed class AndPrimitive : Predicate, IVariadicConnective
     {
         /// <summary>
         /// The And primitive itself
