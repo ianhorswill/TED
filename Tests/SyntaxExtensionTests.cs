@@ -13,7 +13,6 @@ namespace Tests
             var p = new Program(nameof(ChooseTest));
             p.BeginPredicates();
             var i = (Var<int>)"i";
-            var j = (Var<int>)"j";
             var A = Predicate("A", i);
             var B = Predicate("B", i);
             var C = Predicate("C", i);
@@ -30,7 +29,6 @@ namespace Tests
             var p = new Program(nameof(ChooseTest));
             p.BeginPredicates();
             var i = (Var<int>)"i";
-            var j = (Var<int>)"j";
             var A = Predicate("A", i);
             var B = Predicate("B", i);
             var C = Predicate("C", i);
