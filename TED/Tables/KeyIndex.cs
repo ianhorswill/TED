@@ -34,6 +34,11 @@ namespace TED.Tables
         public (TKey key, uint row)[] Buckets;
 
         /// <summary>
+        /// Number of deletions in the table since it was reindexed.
+        /// </summary>
+        public int Deletions;
+
+        /// <summary>
         /// INTERNAL: Do not use; exposed only for the benefit of compiled code
         /// Mask to and with a hash to get a bucket number
         /// </summary>
@@ -97,7 +102,11 @@ namespace TED.Tables
         {
             for (var b = HashInternal(value, Mask); Buckets[b].row != Table.NoRow; b = b + 1 & Mask)
                 if (Comparer.Equals(Buckets[b].key, value))
-                    return Buckets[b].row;
+                {
+                    var rowWithKey = Buckets[b].row;
+                    return rowWithKey == Table.DeletedRow ? Table.NoRow : rowWithKey;
+                }
+
             return Table.NoRow;
         }
 
@@ -127,14 +136,21 @@ namespace TED.Tables
         /// <exception cref="DuplicateKeyException">If there is always a row in the table containing that key value</exception>
         internal override void Add(uint row)
         {
+            if (Deletions > Buckets.Length / 4)
+            {
+                Clear();
+                Reindex();
+                return; // Reindex calls Add, so we don't want to fall through to Add after finishing reindexing
+            }
+
             uint b;
             var key = projection(table.Data[row]);
-            for (b = HashInternal(key, Mask); Buckets[b].row != Table.NoRow; b = b + 1 & Mask)
+            for (b = HashInternal(key, Mask); Buckets[b].row < Table.DeletedRow; b = b + 1 & Mask)
             {
 #if PROFILER
                 probes++;
 #endif
-                if (Comparer.Equals(key, Buckets[b].key))
+                if (Comparer.Equals(key, Buckets[b].key) && Buckets[b].row != Table.DeletedRow)
                     // It's already there
                     table.ThrowDeferred(new DuplicateKeyException(Predicate, key!));
             }
@@ -144,6 +160,18 @@ namespace TED.Tables
 #if PROFILER
             insertions++;
 #endif
+        }
+
+        internal override void Remove(uint row)
+        {
+            uint b;
+            var value = projection(table.Data[row]);
+            // Find the bucket that has this value
+            for (b = HashInternal(value, Mask); !Comparer.Equals(value, Buckets[b].key); b = (b + 1) & Mask)
+            { }
+
+            Buckets[b].row = Table.DeletedRow;
+            Deletions++;
         }
 
         /// <summary>

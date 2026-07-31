@@ -59,6 +59,11 @@ namespace TED.Tables
         public uint Length { get; protected set; }
 
         /// <summary>
+        /// Number of rows the table can hold without needing to be expanded
+        /// </summary>
+        public abstract uint Capacity { get;  }
+
+        /// <summary>
         /// For use with tables that support compaction. Target fraction of space that should be used after compaction.
         /// If more than this fraction of space is in use, the table will expand its space.  Default is 0.5 (50%).
         /// </summary>
@@ -78,6 +83,48 @@ namespace TED.Tables
         /// These are kept sorted in order of decreasing desirability of use.  So first KeyIndices, then GeneralIndices.
         /// </summary>
         internal readonly List<TableIndex> Indices = new List<TableIndex>();
+
+
+        /// <summary>
+        /// If defined, then when the table runs out of space, it will delete all rows satisfying this predicate
+        /// </summary>
+        public RowTest? ReclaimRowTest { get; private set; }
+
+        /// <summary>
+        /// Declares that the table may (but need not) reclaim rows for which the specified
+        /// predicate returns true
+        /// </summary>
+        public void SetReclamationRowTest(RowTest t)
+        {
+            if (ReclaimRowTest != null)
+                throw new InvalidOperationException("Attempt to set row reclamation test when one is already set");
+            ReclaimRowTest = t;
+        }
+
+        /// <summary>
+        /// If non-null, this table is a table that supports row deletion and IsDeleted[i] is true
+        /// iff row i has been deleted but is still stored in the table.
+        /// </summary>
+        public bool[]? RowDeleted { get; protected set; }
+
+        public bool Deletable
+        {
+            get => RowDeleted != null;
+            set
+            {
+                if (value && RowDeleted == null)
+                {
+                    RowDeleted = new bool[Capacity];
+                    SetReclamationRowTest(row => RowDeleted[row]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Number of rows currently in the table that are marked deleted.
+        /// This is reset after compaction.
+        /// </summary>
+        protected int totalDeletions;
 
         /// <summary>
         /// Parallel array to Data whose i'th element has the source code to the rule that generated row i.
@@ -155,6 +202,28 @@ namespace TED.Tables
             Indices.Count == 0 && !Unique ?
                 nameof(Table<string>.RebuildRowNonUnique)
                 : nameof(Table<string>.RebuildRowUnique);
+
+        /// <summary>
+        /// Remove the specified row from the table
+        /// </summary>
+        /// <exception cref="InvalidOperationException">If table doesn't support deletion</exception>
+        public void DeleteRow(uint row)
+        {
+            if (RowDeleted == null)
+                throw new InvalidOperationException("Table does not support row deletion");
+
+            RowDeleted[row] = true;
+            totalDeletions++;
+            if (totalDeletions >= Capacity / 4)
+            {
+                // The table is getting cluttered with deleted rows that the enumerations need to skip over.
+                // So compact the table and rebuild the indices.
+                ForceReclamation();
+
+            } else
+                foreach (var i in Indices)
+                    i.Remove(row);
+        }
         #endregion
 
         #region Index management
@@ -195,19 +264,13 @@ namespace TED.Tables
         /// <summary>
         /// Predicate over a table row.  Used for user-defined row reclamation policies.
         /// </summary>
-        public delegate bool RowTest<T>(in T row);
-
-        /// <summary>
-        /// Set the test used to decide if a row should be reclaimed
-        /// </summary>
-        /// <param name="t">A RowTest that returns true if a row should be reclaimed</param>
-        public abstract void SetReclamationRowTest(Delegate t);
+        public delegate bool RowTest(uint row);
 
         /// <summary>
         /// Force deletion of reclaimable rows.
         /// This will not grow the underlying array.
         /// </summary>
-        internal abstract void UnsafeReclaim();
+        public abstract void ForceReclamation();
         #endregion
     }
 
@@ -227,7 +290,7 @@ namespace TED.Tables
                 Provenance = new string?[Data.Length];
         }
 
-        #region Instance fields
+        #region Instance fields and properties
         /// <summary>
         /// If true, enforce that rows of the table are unique, by making a hashtable of them
         /// </summary>
@@ -249,6 +312,9 @@ namespace TED.Tables
         /// IMPORTANT: Data.Length must be a power of 2.
         /// </summary>
         public T[] Data;
+
+        /// <inheritdoc />
+        public override uint Capacity => (uint)Data.Length;
 
         /// <summary>
         /// HashSet of Rows in the table, if Unique is true.  Otherwise, null.
@@ -277,20 +343,6 @@ namespace TED.Tables
                 if (value && Provenance == null)
                     Provenance = new string[Data.Length];
             }
-        }
-
-        /// <summary>
-        /// If defined, then when the table runs out of space, it will delete all rows satisfying this predicate
-        /// </summary>
-        public RowTest<T>? ReclaimRowTest;
-
-        /// <summary>
-        /// Declares that the table may (but need not) reclaim rows for which the specified
-        /// predicate returns true
-        /// </summary>
-        public override void SetReclamationRowTest(Delegate t)
-        {
-            ReclaimRowTest = (RowTest<T>)t;
         }
         #endregion
 
@@ -377,10 +429,21 @@ namespace TED.Tables
                 var requiredSize = Length + extraSpace;
                 // Easy case: copy everything over as a block
                 ExpandDataArrays(RoundUpPowerOf2(requiredSize));
+                // If ReclaimRowTest == null, then IsDeleted == null
+                // So we don't have to clear IsDeleted
             }
-            else 
+            else
+            {
                 // Hard case: copy only the unreclaimed rows
                 ReclaimRows(extraSpace);
+
+                // Anything remaining is undeleted
+                if (RowDeleted != null)
+                {
+                    Array.Clear(RowDeleted, 0, RowDeleted.Length);
+                    totalDeletions = 0;
+                }
+            }
 
             rowSet?.ExpandAndRehash();
             foreach (var i in Indices) i.ExpandAndReindex();
@@ -407,6 +470,10 @@ namespace TED.Tables
             Expand(ref Data, newSize);
             if (Provenance != null)
                 Expand(ref Provenance, newSize);
+            if (RowDeleted != null)
+                // We don't need to use Expand, which would copy over the old data, because we removed
+                // deleted rows anyway.
+                RowDeleted = new bool[newSize];
         }
 
         private void Expand<TElement>(ref TElement[] array, uint newSize)
@@ -464,7 +531,7 @@ namespace TED.Tables
             while (blockStart < Length)
             {
                 // Find the start of the next block of preserved rows
-                for (; blockStart < Length && ReclaimRowTest!(Data[blockStart]); blockStart++)
+                for (; blockStart < Length && ReclaimRowTest!(blockStart); blockStart++)
                 {
                 }
 
@@ -472,7 +539,7 @@ namespace TED.Tables
                     break;
                 // Find the end of the block
                 var i = blockStart + 1;
-                for (; i < Length && !ReclaimRowTest!(Data[i]); i++)
+                for (; i < Length && !ReclaimRowTest!(i); i++)
                 {
                 }
 
@@ -509,10 +576,15 @@ namespace TED.Tables
         /// Force immediate removal of rows satisfying the ReclaimRowTest predicate, and compact the table to remove gaps.
         /// This is unsafe because it doesn't reindex the table.
         /// </summary>
-        internal override void UnsafeReclaim()
+        public override void ForceReclamation()
         {
             MakeCompactionMap();
             CopyUsingCompactionMap(Data, Provenance);
+            if (RowDeleted != null)
+                Array.Clear(RowDeleted, 0, RowDeleted.Length);
+            rowSet?.Rehash();
+            foreach (var i in Indices)
+                i.Reindex();
         }
         #endregion
         
@@ -714,6 +786,11 @@ namespace TED.Tables
                 if (buckets.Length != targetLength)
                     buckets = new uint[targetLength];
                 mask = (uint)(buckets.Length - 1);
+                Rehash();
+            }
+
+            internal void Rehash()
+            {
                 Array.Fill(buckets, Empty);
                 for (uint i = 0; i < table.Length; i++)
                     MaybeAddRow(i);
@@ -729,25 +806,32 @@ namespace TED.Tables
         #region Table enumeration
         internal class TableEnumerator : IEnumerator<T>
         {
-            private readonly T[] array;
-            private readonly int limit;
+            private Table<T> table;
             private int position;
 
-            public TableEnumerator(T[] array, int limit)
+            public TableEnumerator(Table<T> t)
             {
-                this.array = array;
-                this.limit = limit;
+                table = t;
                 position = -1;
             }
 
-            public bool MoveNext() => ++position < limit;
+            public bool MoveNext()
+            {
+                if (table.RowDeleted != null)
+                {
+                    while (++position < table.Length && table.RowDeleted[position]) ;
+                }
+                else position++;
+
+                return position < table.Length;
+            }
 
             public void Reset()
             {
                 position = -1;
             }
 
-            public T Current => array[position];
+            public T Current => table.Data[position];
 
             object IEnumerator.Current => Current!;
 
@@ -756,9 +840,9 @@ namespace TED.Tables
         }
 
         /// <inheritdoc />
-        public IEnumerator<T> GetEnumerator() => new TableEnumerator(Data, (int)Length);
+        public IEnumerator<T> GetEnumerator() => new TableEnumerator(this);
 
-        IEnumerator IEnumerable.GetEnumerator() => new TableEnumerator(Data, (int)Length);
+        IEnumerator IEnumerable.GetEnumerator() => new TableEnumerator(this);
         #endregion
     }
 }

@@ -366,7 +366,8 @@ namespace Tests
         [TestMethod]
         public void ReclamationTest()
         {
-            var t = new Table<(int, bool)>() { ReclaimRowTest = (in (int, bool) row) => !row.Item2 };
+            var t = new Table<(int, bool)>();
+            t.SetReclamationRowTest(row => !t.Data[row].Item2);
             // Add rows for numbers from 0 to 99, but mark odd numbers for reclamation
             for (var i = 0; i < 100; i++)
                 t.Add((i, i%2 == 0));
@@ -382,7 +383,7 @@ namespace Tests
                 counter += 2;
             }
             // Now force compact the rest
-            t.UnsafeReclaim();
+            t.ForceReclamation();
             Assert.AreEqual(50u, t.Length);
             counter = 0;
             foreach (var pair in t)
@@ -391,7 +392,7 @@ namespace Tests
                 counter += 2;
             }
             // Now just to be paranoid, make sure that reclaiming a table with no reclaimable rows doesn't do anything bad.
-            t.UnsafeReclaim();
+            t.ForceReclamation();
             Assert.AreEqual(50u, t.Length);
             counter = 0;
             foreach (var pair in t)
@@ -399,6 +400,45 @@ namespace Tests
                 Assert.AreEqual((counter, true), pair);
                 counter += 2;
             }
+        }
+
+        [TestMethod]
+        public void DeletionTest()
+        {
+            var t = new Table<int>();
+            t.Deletable = true;
+            // Add rows for numbers from 0 to 99, but mark odd numbers for reclamation
+            for (var i = 0; i < 10; i++)
+                t.Add(i);
+
+            t.DeleteRow(4);
+            var expected = new[] {0, 1, 2, 3, 5, 6, 7, 8, 9};
+            var actual = t.ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+            t.DeleteRow(0); // Test first element boundary condition
+            t.DeleteRow(5); // Test repeated deleted elements
+            t.DeleteRow(9); // Test last element boundary condition
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 6, 7, 8 }, t.ToArray());
+        }
+
+        [TestMethod]
+        public void DeletionIndexTest()
+        {
+            var t = new Table<int>();
+            var k = new KeyIndex<int, int>(null!, t, [0], (in x) => x);
+            t.AddIndex(k);
+            t.Deletable = true;
+            // Add rows for numbers from 0 to 99, but mark odd numbers for reclamation
+            for (var i = 0; i < 10; i++)
+                t.Add(i);
+
+            t.DeleteRow(4);
+
+            for (var i = 0; i < 10; i++)
+                Assert.AreEqual((i==4)?Table.NoRow:(uint)i, k.RowWithKey(i));
+            t.Add(4);
+            // It adds the new 4 at the end of the table rather than recycling the deleted row.
+            Assert.AreEqual(10u, k.RowWithKey(4));
         }
     }
 }

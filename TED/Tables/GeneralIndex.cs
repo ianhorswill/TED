@@ -365,7 +365,7 @@ namespace TED.Tables
             uint b;
             var value = projection(table.Data[row]);
             // Find the bucket that has this value
-            for (b = HashInternal(value, Mask); !Comparer.Equals(value, Buckets[b].columnValue); b = b + 1 & Mask)
+            for (b = HashInternal(value, Mask); !Comparer.Equals(value, Buckets[b].columnValue); b = (b + 1) & Mask)
             { }
 
             Buckets[b].count--;

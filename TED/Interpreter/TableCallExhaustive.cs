@@ -59,7 +59,7 @@ namespace TED.Interpreter
         {
             var predicateTable = TablePredicate._table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+                if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -82,7 +82,7 @@ namespace TED.Interpreter
         {
             var predicateTable = TablePredicate._table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+                if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -105,7 +105,7 @@ namespace TED.Interpreter
         {
             var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+                if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -128,7 +128,7 @@ namespace TED.Interpreter
         {
             var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+                if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -151,7 +151,7 @@ namespace TED.Interpreter
         {
             var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+                if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -174,7 +174,7 @@ namespace TED.Interpreter
         {
             var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+                if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -197,7 +197,7 @@ namespace TED.Interpreter
         {
             var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+                if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
@@ -220,7 +220,7 @@ namespace TED.Interpreter
         {
             var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
-                if (Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+                if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
 
             return false;
