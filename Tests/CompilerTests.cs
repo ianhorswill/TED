@@ -35,6 +35,29 @@ namespace Tests
         }
 
         [TestMethod]
+        public void ExhaustiveWithDeletions()
+        {
+            Console.WriteLine("");
+            var a = (Var<int>)"a";
+            var b = (Var<int>)"b";
+            var program = new Simulation(nameof(ExhaustiveWithDeletions));
+            program.BeginPredicates();
+            var P = Predicate<int>("P", new [] { 1, 2, 3, 4, 5, 6 }, "i");
+            var Q = Predicate("Q", a.Key, b);
+            Q.Initially.If(P[a], P[b], a == b);
+            Q.Delete(a).If(a == 4);
+            var R = Predicate("R", a).If(Q[a, b]);
+            program.EndPredicates();
+            var comp = new Compiler(program, "CompilerTests", CompilerOutputFolder());
+            comp.GenerateSource();
+            Compiler.Link(program);
+            program.Update();
+            program.Update();
+            var compiledResult = R.ToArray();
+            CollectionAssert.AreEqual(new int[] { 1, 2, 3, 5, 6 }, compiledResult);
+        }
+
+        [TestMethod]
         public void RowSetRead()
         {
             var a = (Var<int>)"a";

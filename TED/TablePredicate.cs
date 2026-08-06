@@ -267,12 +267,17 @@ namespace TED {
         public abstract TablePredicate? InitialValueTable { get; }
 
         private Dictionary<(object, IVariable), TablePredicate>? updateTables;
+        private Dictionary<object, TablePredicate>? deletionTables;
 
         /// <summary>
         /// Tables that drive updates of columns of this table
         /// </summary>
         public IEnumerable<TablePredicate> ColumnUpdateTables => (updateTables == null) ? Array.Empty<TablePredicate>() : updateTables.Select(p => p.Value);
 
+        /// <summary>
+        /// Tables that drive deletion of rows of this table
+        /// </summary>
+        public IEnumerable<TablePredicate> RowDeletionTables => (deletionTables == null) ? Array.Empty<TablePredicate>() : deletionTables.Select(p => p.Value);
         #endregion
 
         #region Goals
@@ -525,9 +530,22 @@ namespace TED {
         /// <summary>
         /// Run any column updates for this table
         /// </summary>
-        public void UpdateColumns()
+        public void ProcessColumnUpdates()
         {
             OnUpdateColumns?.Invoke();
+        }
+
+        /// <summary>
+        /// List of procedures to call when row deletions are processed.
+        /// </summary>
+        internal event Action? OnDeleteRows;
+
+        /// <summary>
+        /// Run any deletions for this table
+        /// </summary>
+        public void ProcessRowDeletions()
+        {
+            OnDeleteRows?.Invoke();
         }
         #endregion
 
@@ -565,7 +583,7 @@ namespace TED {
         /// The tables that are used to update base tables, through .Accumulates(), .Add, or .Set()
         /// </summary>
         public IEnumerable<TablePredicate> ImperativeDependencies
-            => Inputs.Concat(ColumnUpdateTables);
+            => Inputs.Concat(ColumnUpdateTables).Concat(RowDeletionTables);
         
         /// <summary>
         /// Tables that use this table as input
@@ -849,6 +867,35 @@ namespace TED {
             => Set((keys.Item1, keys.Item2), column)[keys.Item1, keys.Item2, value];
         #endregion
 
+        #region Deletion
+        /// <summary>
+        /// Return a table predicate to which rules can be added to delete rows with the specified key value
+        /// </summary>
+        public TablePredicate<TKey> Delete<TKey>(Var<TKey> key)
+        {
+            if (deletionTables == null)
+            {
+                deletionTables = new Dictionary<object, TablePredicate>();
+                TableUntyped.Deletable = true;
+            }
+            if (deletionTables.TryGetValue(key, out var t))
+                return (TablePredicate<TKey>)t;
+            var deletionTable = new TablePredicate<TKey>($"{Name}_delete_{key.Name}", key)
+            {
+                Property = { [UpdaterFor] = this,
+                    [VisualizerName] = $"delete {key.Name}"
+                }
+            };
+            var tableIndex = IndexFor(key, true);
+            if (tableIndex == null)
+                throw new InvalidOperationException($"Table {Name} has no key index for column {key.Name}");
+            var updater = new RowDeleter<TKey>((IKeyIndex<TKey>)tableIndex, deletionTable);
+            OnDeleteRows += updater.DoUpdates;
+            deletionTables[key] = deletionTable;
+            return deletionTable;
+        }
+        #endregion
+
         #region Meta-data
         /// <summary>
         /// Property list for meta-data.
@@ -910,7 +957,8 @@ namespace TED {
 
             switch (UpdateMode) {
                 case UpdateMode.BaseTable:
-                    UpdateColumns();
+                    ProcessColumnUpdates();
+                    ProcessRowDeletions();
                     AppendInputs();
                     break;
                 case UpdateMode.Rules:
@@ -1106,7 +1154,7 @@ namespace TED {
         /// <summary>
         /// Number of rows/items in the table/extension of the predicate
         /// </summary>
-        public override uint Length => Table.Length;
+        public override uint Length => Table.Length - Table.TotalDeletions;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -1369,7 +1417,7 @@ namespace TED {
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
         /// </summary>
-        public override uint Length => Table.Length;
+        public override uint Length => Table.Length - Table.TotalDeletions;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -1864,7 +1912,7 @@ namespace TED {
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
         /// </summary>
-        public override uint Length => Table.Length;
+        public override uint Length => Table.Length - Table.TotalDeletions;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -2349,7 +2397,7 @@ namespace TED {
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
         /// </summary>
-        public override uint Length => Table.Length;
+        public override uint Length => Table.Length - Table.TotalDeletions;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -2866,7 +2914,7 @@ namespace TED {
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
         /// </summary>
-        public override uint Length => Table.Length;
+        public override uint Length => Table.Length - Table.TotalDeletions;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -3416,7 +3464,7 @@ namespace TED {
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
         /// </summary>
-        public override uint Length => Table.Length;
+        public override uint Length => Table.Length - Table.TotalDeletions;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -3998,7 +4046,7 @@ namespace TED {
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
         /// </summary>
-        public override uint Length => Table.Length;
+        public override uint Length => Table.Length - Table.TotalDeletions;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate
@@ -4620,7 +4668,7 @@ namespace TED {
         /// <summary>
         /// The number of rows in the table (i.e. the number of tuples in the extension of the predicate)
         /// </summary>
-        public override uint Length => Table.Length;
+        public override uint Length => Table.Length - Table.TotalDeletions;
 
         /// <summary>
         /// Manually add a row (ground instance) to the extension of the predicate

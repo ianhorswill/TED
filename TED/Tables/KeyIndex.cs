@@ -5,12 +5,18 @@ using System.Runtime.CompilerServices;
 
 namespace TED.Tables
 {
+    internal interface IKeyIndex<TKey>
+    {
+        uint RowWithKey(in TKey value);
+        Table TableUntyped { get; }
+    }
+
     /// <summary>
     /// An index to a table that indexes by a column that is a key (has unique values for each row in the table)
     /// </summary>
     /// <typeparam name="TRow">Type of the rows of the table; this will be a tuple type unless it is a single-column table</typeparam>
     /// <typeparam name="TKey">Type of the column we're indexing on</typeparam>
-    public sealed class KeyIndex<TRow, TKey> : TableIndex<TRow, TKey>
+    public sealed class KeyIndex<TRow, TKey> : TableIndex<TRow, TKey>, IKeyIndex<TKey>
     {
         //
         // Indices are implemented as direct-addressed hash tables in hopes of maximizing cache locality.
@@ -47,7 +53,12 @@ namespace TED.Tables
         /// <summary>
         /// Underlying table we're indexing
         /// </summary>
-        private readonly Table<TRow> table;
+        internal readonly Table<TRow> table;
+
+        /// <summary>
+        /// Underlying table being indexed.
+        /// </summary>
+        public Table TableUntyped => table;
 
         /// <summary>
         /// Equality predicate for TKey

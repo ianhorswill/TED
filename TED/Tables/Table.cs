@@ -124,7 +124,7 @@ namespace TED.Tables
         /// Number of rows currently in the table that are marked deleted.
         /// This is reset after compaction.
         /// </summary>
-        protected int totalDeletions;
+        internal uint TotalDeletions;
 
         /// <summary>
         /// Parallel array to Data whose i'th element has the source code to the rule that generated row i.
@@ -209,12 +209,15 @@ namespace TED.Tables
         /// <exception cref="InvalidOperationException">If table doesn't support deletion</exception>
         public void DeleteRow(uint row)
         {
-            if (RowDeleted == null)
+            if (RowDeleted == null || Unique)
                 throw new InvalidOperationException("Table does not support row deletion");
 
+            if (row == Table.NoRow)
+                return;
+
             RowDeleted[row] = true;
-            totalDeletions++;
-            if (totalDeletions >= Capacity / 4)
+            TotalDeletions++;
+            if (TotalDeletions >= Capacity / 4)
             {
                 // The table is getting cluttered with deleted rows that the enumerations need to skip over.
                 // So compact the table and rebuild the indices.
@@ -441,7 +444,7 @@ namespace TED.Tables
                 if (RowDeleted != null)
                 {
                     Array.Clear(RowDeleted, 0, RowDeleted.Length);
-                    totalDeletions = 0;
+                    TotalDeletions = 0;
                 }
             }
 

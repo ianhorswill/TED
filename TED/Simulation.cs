@@ -51,7 +51,9 @@ namespace TED
                     if (t.Inputs.Any())
                         throw new InvalidProgramException($"Predicate {t.Name} has both rules and inputs.");
                     if (t.ColumnUpdateTables.Any())
-                        throw new InvalidProgramException($"Table {t.Name} has both rules and Set() rules.");
+                        throw new InvalidProgramException($"Table {t.Name} has both If rules and Set() rules.");
+                    if (t.RowDeletionTables.Any())
+                        throw new InvalidProgramException($"Table {t.Name} has both If rules and Delete() rules.");
                     if (t.InitialValueTable != null)
                         foreach (var d in t.InitialValueTable.RuleDependencies)
                             if (d.IsDynamic)
@@ -164,7 +166,10 @@ namespace TED
         {
             foreach (var p in DynamicTables)
                 if (p.IsExtensional)
-                    p.UpdateColumns();
+                {
+                    p.ProcessColumnUpdates();
+                    p.ProcessRowDeletions();
+                }
         }
 
         /// <summary>

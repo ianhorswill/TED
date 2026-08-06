@@ -167,6 +167,30 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Delete()
+        {
+            var name = (Var<string>)"name";
+            var age = (Var<int>)"age";
+            var older = (Var<int>)"older";
+            var s = new Simulation(nameof(Set));
+            s.BeginPredicates();
+            var T = Language.Predicate("T", name.Key, age);
+            T.Set(name, age, older).If(T[name, age], older == age + 1);
+            T.Delete(name).If(T, age > 2);  // Delete if row at end of tick if it starts the tick with age > 2
+            s.EndPredicates();
+            T.AddRow("Jane", 1);
+            T.AddRow("Bruce", 2);
+            s.Update();
+            CollectionAssert.AreEqual(new[] { ("Jane", 2), ("Bruce", 3) }, T.ToArray());
+            s.Update();
+            var deletions = T.Delete(name).ToArray();
+            var afterFirstDeletion = T.ToArray();
+            CollectionAssert.AreEqual(new[] { ("Jane", 3) }, afterFirstDeletion);
+            s.Update();
+            Assert.AreEqual(0, T.ToArray().Length);
+        }
+
+        [TestMethod]
         public void OverwriteModeTest()
         {
             var i = (Var<int>)"i";

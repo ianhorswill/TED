@@ -23,6 +23,8 @@ namespace TED.Interpreter
         {
         }
 
+        public TablePredicate TablePredicate => (TablePredicate)Table;
+
         /// <inheritdoc />
         public override Continuation Compile(Compiler.Compiler compiler, Continuation fail, string identifierSuffix)
         {
@@ -31,6 +33,8 @@ namespace TED.Interpreter
             var rowData = $"data{identifierSuffix}";
             compiler.Label(restart);
             compiler.Indented($"if (++{rowNumber} == {Table.Name}.Length) {fail.Invoke};");
+            if (TablePredicate.TableUntyped.Deletable)
+                compiler.Indented($"if ({Table.Name}.RowDeleted![{rowNumber}]) goto {restart.Label};");
             compiler.Indented($"ref var {rowData} = ref {Table.Name}.Data[{rowNumber}];");
             compiler.CompilePatternMatch(rowData, ArgumentPattern, restart);
             return restart;
@@ -82,8 +86,15 @@ namespace TED.Interpreter
         {
             var predicateTable = TablePredicate._table;
             while (RowIndex < predicateTable.Length)
-                if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
+            {
+                if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) &&
+                    Pattern.Match(in predicateTable.PositionReference(RowIndex)))
+                {
+                    RowIndex++;
                     return true;
+                }
+                RowIndex++;
+            }
 
             return false;
         }
