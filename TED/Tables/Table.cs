@@ -511,6 +511,8 @@ namespace TED.Tables
                     provenanceDestination = new string?[newSize];
             }
             CopyUsingCompactionMap(dataDestination, provenanceDestination);
+            if (RowDeleted != null)
+                Array.Clear(RowDeleted, 0, RowDeleted.Length);
         }
 
         /// <summary>
