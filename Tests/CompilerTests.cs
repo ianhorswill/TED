@@ -466,6 +466,10 @@ namespace Tests
         [TestMethod]
         public void PickRandomlyTest()
         {
+            // Seed TED's global RNG before Compiler.Link so the compiled generator is deterministic and this test is
+            // independent of the order it runs in relative to other randomness tests.
+            TED.Utilities.Random.SetGlobalSeed(12345);
+
             var n = (Var<int>)"n";
             var program = new Program(ThisMethodName());
             program.BeginPredicates();
@@ -479,7 +483,8 @@ namespace Tests
                 P.ForceRecompute();
                 counters[P.ToArray()[0]]++;
             }
-            // Every element of counter should be around 20.
+            // Each of the 5 outcomes is Binomial(1000, 1/5), so every count should be around 200; these wide bounds
+            // (roughly +/-8 sigma on the low side) catch a stuck or badly-skewed generator without flaking.
             foreach (var counter in counters)
                 Assert.IsTrue(counter is > 100 and < 400);
         }
@@ -487,6 +492,11 @@ namespace Tests
         [TestMethod]
         public void RandomElementTest()
         {
+            // Seed TED's global RNG so the compiled generator is deterministic and the test can't flake on an
+            // unlucky draw sequence.  This must happen before Compiler.Link, which is when the compiled program's
+            // RNG field is initialized (via Random.MakeRng(), which draws its seed from the global RNG).
+            TED.Utilities.Random.SetGlobalSeed(12345);
+
             var n = (Var<int>)"n";
             var program = new Program(ThisMethodName());
             program.BeginPredicates();
@@ -495,15 +505,26 @@ namespace Tests
             program.EndPredicates();
             new Compiler(program, "CompilerTests", CompilerOutputFolder()).GenerateSource();
             Compiler.Link(program);
+
+            const int trials = 1000;
             var counters = new int[5];
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < trials; i++)
             {
                 P.ForceRecompute();
                 counters[P.ToArray()[0]]++;
             }
-            // Every element of counter should be around 20.
+
+            // Each of the 5 outcomes is Binomial(trials, 1/5): mean = trials/5, sigma = sqrt(trials*(1/5)*(4/5)).
+            // Accept anything within +/-6 sigma of the mean: with the fixed seed above the run is deterministic, and
+            // even without it a correct uniform generator would fall outside this window only about once in 10^8 runs,
+            // while a stuck or badly-skewed generator still fails.
+            const double mean = trials / 5.0;
+            var sigma = System.Math.Sqrt(trials * (1.0 / 5.0) * (4.0 / 5.0));
+            var low = mean - 6 * sigma;
+            var high = mean + 6 * sigma;
             foreach (var counter in counters)
-                Assert.IsTrue(counter is > 10 and < 40);
+                Assert.IsTrue(counter > low && counter < high,
+                    $"Outcome appeared {counter} times over {trials} trials; expected within [{low:F0}, {high:F0}].");
         }
 
         [TestMethod]
