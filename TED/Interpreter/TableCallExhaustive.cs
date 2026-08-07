@@ -1,4 +1,5 @@
 ﻿using TED.Compiler;
+using TED.Tables;
 
 namespace TED.Interpreter
 {
@@ -49,19 +50,18 @@ namespace TED.Interpreter
 
     internal class TableCallExhaustive<T1> : TableCallExhaustive
     {
-        public readonly TablePredicate<T1> TablePredicate;
+        private readonly Table<T1> predicateTable;
         public readonly Pattern<T1> Pattern;
         public override IPattern ArgumentPattern => Pattern;
 
         public TableCallExhaustive(TablePredicate<T1> predicate, Pattern<T1> pattern) : base(predicate)
         {
-            TablePredicate = predicate;
+            predicateTable = predicate._table;
             Pattern = pattern;
         }
 
         public override bool NextSolution()
         {
-            var predicateTable = TablePredicate._table;
             while (RowIndex < predicateTable.Length)
                 if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
@@ -72,19 +72,18 @@ namespace TED.Interpreter
 
     internal class TableCallExhaustive<T1, T2> : TableCallExhaustive
     {
-        public readonly TablePredicate<T1, T2> TablePredicate;
+        private readonly Table<(T1, T2)> predicateTable;
         public readonly Pattern<T1, T2> Pattern;
         public override IPattern ArgumentPattern => Pattern;
 
         public TableCallExhaustive(TablePredicate<T1, T2> predicate, Pattern<T1, T2> pattern) : base(predicate)
         {
-            TablePredicate = predicate;
+            predicateTable = predicate._table;
             Pattern = pattern;
         }
 
         public override bool NextSolution()
         {
-            var predicateTable = TablePredicate._table;
             while (RowIndex < predicateTable.Length)
             {
                 if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) &&
@@ -102,19 +101,18 @@ namespace TED.Interpreter
 
     internal class TableCallExhaustive<T1, T2, T3> : TableCallExhaustive
     {
-        public readonly TablePredicate<T1, T2, T3> TablePredicate;
+        private readonly Table<(T1, T2, T3)> predicateTable;
         public readonly Pattern<T1, T2, T3> Pattern;
         public override IPattern ArgumentPattern => Pattern;
 
         public TableCallExhaustive(TablePredicate<T1, T2, T3> predicate, Pattern<T1, T2, T3> pattern) : base(predicate)
         {
-            TablePredicate = predicate;
+            predicateTable = predicate._table;
             Pattern = pattern;
         }
 
         public override bool NextSolution()
         {
-            var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
                 if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
@@ -125,19 +123,18 @@ namespace TED.Interpreter
 
     internal class TableCallExhaustive<T1, T2, T3, T4> : TableCallExhaustive
     {
-        public readonly TablePredicate<T1, T2, T3, T4> TablePredicate;
+        private readonly Table<(T1, T2, T3, T4)> predicateTable;
         public readonly Pattern<T1, T2, T3, T4> Pattern;
         public override IPattern ArgumentPattern => Pattern;
 
         public TableCallExhaustive(TablePredicate<T1, T2, T3, T4> predicate, Pattern<T1, T2, T3, T4> pattern) : base(predicate)
         {
-            TablePredicate = predicate;
+            predicateTable = predicate._table;
             Pattern = pattern;
         }
 
         public override bool NextSolution()
         {
-            var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
                 if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
@@ -148,19 +145,18 @@ namespace TED.Interpreter
 
     internal class TableCallExhaustive<T1, T2, T3, T4, T5> : TableCallExhaustive
     {
-        public readonly TablePredicate<T1, T2, T3, T4, T5> TablePredicate;
+        private readonly Table<(T1, T2, T3, T4, T5)> predicateTable;
         public readonly Pattern<T1, T2, T3, T4, T5> Pattern;
         public override IPattern ArgumentPattern => Pattern;
 
         public TableCallExhaustive(TablePredicate<T1, T2, T3, T4, T5> predicate, Pattern<T1, T2, T3, T4, T5> pattern) : base(predicate)
         {
-            TablePredicate = predicate;
+            predicateTable = predicate._table;
             Pattern = pattern;
         }
 
         public override bool NextSolution()
         {
-            var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
                 if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
@@ -171,19 +167,18 @@ namespace TED.Interpreter
 
     internal class TableCallExhaustive<T1, T2, T3, T4, T5, T6> : TableCallExhaustive
     {
-        public readonly TablePredicate<T1, T2, T3, T4, T5, T6> TablePredicate;
+        private readonly Table<(T1, T2, T3, T4, T5, T6)> predicateTable;
         public readonly Pattern<T1, T2, T3, T4, T5, T6> Pattern;
         public override IPattern ArgumentPattern => Pattern;
 
         public TableCallExhaustive(TablePredicate<T1, T2, T3, T4, T5, T6> predicate, Pattern<T1, T2, T3, T4, T5, T6> pattern) : base(predicate)
         {
-            TablePredicate = predicate;
+            predicateTable = predicate._table;
             Pattern = pattern;
         }
 
         public override bool NextSolution()
         {
-            var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
                 if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
@@ -194,19 +189,18 @@ namespace TED.Interpreter
 
     internal class TableCallExhaustive<T1, T2, T3, T4, T5, T6, T7> : TableCallExhaustive
     {
-        public readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7> TablePredicate;
+        private readonly Table<(T1, T2, T3, T4, T5, T6, T7)> predicateTable;
         public readonly Pattern<T1, T2, T3, T4, T5, T6, T7> Pattern;
         public override IPattern ArgumentPattern => Pattern;
 
         public TableCallExhaustive(TablePredicate<T1, T2, T3, T4, T5, T6, T7> predicate, Pattern<T1, T2, T3, T4, T5, T6, T7> pattern) : base(predicate)
         {
-            TablePredicate = predicate;
+            predicateTable = predicate._table;
             Pattern = pattern;
         }
 
         public override bool NextSolution()
         {
-            var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
                 if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
@@ -217,19 +211,18 @@ namespace TED.Interpreter
 
     internal class TableCallExhaustive<T1, T2, T3, T4, T5, T6, T7, T8> : TableCallExhaustive
     {
-        public readonly TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> TablePredicate;
+        private readonly Table<(T1, T2, T3, T4, T5, T6, T7, T8)> predicateTable;
         public readonly Pattern<T1, T2, T3, T4, T5, T6, T7, T8> Pattern;
         public override IPattern ArgumentPattern => Pattern;
 
         public TableCallExhaustive(TablePredicate<T1, T2, T3, T4, T5, T6, T7, T8> predicate, Pattern<T1, T2, T3, T4, T5, T6, T7, T8> pattern) : base(predicate)
         {
-            TablePredicate = predicate;
+            predicateTable = predicate._table;
             Pattern = pattern;
         }
 
         public override bool NextSolution()
         {
-            var predicateTable = TablePredicate.Table;
             while (RowIndex < predicateTable.Length)
                 if ((predicateTable.RowDeleted == null || !predicateTable.RowDeleted[RowIndex]) && Pattern.Match(in predicateTable.PositionReference(RowIndex++)))
                     return true;
